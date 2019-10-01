@@ -4,7 +4,8 @@
   "description": "Fetch.AI Ledger Javascript API",
   "main": "dist/index.js",
   "scripts": {
-    "build": "babel src/ -d dist/"
+    "build": "babel src/ -d dist/",
+    "test": "echo 'No tests currently :-)'; exit 0"
   },
   "author": "",
   "license": "ISC",
