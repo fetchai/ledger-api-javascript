@@ -1,0 +1,101 @@
+{
+  "name": "fetchai-ledger-api",
+  "version": "0.0.1-alpha.9",
+  "description": "Fetch.AI Ledger Javascript API",
+  "main": "./dist/fetchai/ledger/index.js",
+  "source": "src/ledger/index.js",
+  "browser": "index.js",
+  "scripts": {
+    "e2e": "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
+    "build": "tsc && babel --extensions '.js' src/ -d dist/ && rm -rf bundle/ index.js && webpack",
+    "dist": "tsc && babel --extensions '.js' src/ -d dist/",
+    "test": "jest src/test",
+    "lint": "eslint .",
+    "prepublish": "npm build",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand src/test",
+    "coverage": "jest src/test --coverage --coverageDirectory=coverage",
+    "generate-docs": "node_modules/jsdoc/jsdoc.js src/fetchai/ledger/api/token.js src/fetchai/ledger/api/init.js src/fetchai/ledger/api/contracts.js -r src/fetchai/ledger/crypto -d docs --verbose -t node_modules/minami/"
+  },
+  "jest": {
+    "setupFiles": [
+      "./src/tests/utils/helpers.ts"
+    ],
+    "coverageReporters": [
+      "json-summary"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 1,
+        "functions": 1,
+        "lines": 1,
+        "statements": 1
+      }
+    }
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@msgpack/msgpack": "^1.9.3",
+    "@types/aes-js": "^3.1.0",
+    "@types/atob": "^2.1.2",
+    "@types/bs58": "^4.0.1",
+    "@types/btoa": "^1.2.3",
+    "@types/jest": "^24.0.25",
+    "@types/secp256k1": "^3.5.0",
+    "@types/semver": "^6.2.0",
+    "@typescript-eslint/eslint-plugin": "^2.16.0",
+    "@typescript-eslint/parser": "^2.16.0",
+    "aes-js": "^3.1.2",
+    "atob": "^2.1.2",
+    "awesome-typescript-loader": "^5.2.1",
+    "axios": "^0.19.0",
+    "babel-eslint": "^10.0.3",
+    "bignumber.js": "^7.2.1",
+    "bn.js": "^5.1.1",
+    "bs58": "^4.0.1",
+    "btoa": "^1.2.1",
+    "buffer-reverse": "^1.0.1",
+    "chromedriver": "^78.0.1",
+    "crypto": "^1.0.1",
+    "eslint": "^6.8.0",
+    "eslint-plugin-jest": "^23.6.0",
+    "fastest-validator": "^0.6.12",
+    "fs": "0.0.1-security",
+    "jest-coverage-validator": "^0.6.9",
+    "mock-fs": "^4.10.4",
+    "path": "^0.12.7",
+    "secp256k1": "^3.7.1",
+    "selenium-webdriver": "^4.0.0-alpha.5",
+    "semver": "^6.3.0",
+    "sinon": "^8.0.2",
+    "source-map-support": "^0.5.16",
+    "ts-jest": "^24.3.0",
+    "tslint": "^5.20.1",
+    "wait-on": "^3.3.0",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.7",
+    "@babel/core": "^7.7.7",
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/plugin-proposal-decorators": "^7.2.2",
+    "@babel/plugin-proposal-numeric-separator": "^7.7.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.7.7",
+    "@babel/plugin-syntax-decorators": "^7.2.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.2.0",
+    "@babel/preset-env": "^7.7.7",
+    "@babel/preset-es2015": "^7.0.0-beta.53",
+    "@babel/preset-typescript": "^7.7.7",
+    "@types/node": "^13.1.4",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-loader": "^8.0.6",
+    "jest": "^24.9.0",
+    "jest-coverage-ratchet": "^0.2.3",
+    "jsdoc": "^3.6.3",
+    "minami": "^1.2.3",
+    "typescript": "^3.7.4",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0"
+  }
+}
