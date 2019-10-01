@@ -1,0 +1,13 @@
+# IDE Folders
+.vscode/
+.idea/
+
+# Intermediate Data
+coverage/
+dist/
+node_modules/
+bundle/
+docs/
+
+# Top Level Excludes
+/index.js

@@ -1,0 +1,9 @@
+dist/
+/bundle
+bundle.js
+src/tests/e2e/browser
+index.js
+vanilla.js
+fetchai-ledger-api.js
+introduction.js
+/src/@types/

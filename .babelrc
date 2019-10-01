@@ -1,0 +1,32 @@
+{
+ "ignore": [
+    "**/*.__test__.*"
+ ],
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "10"
+        }
+      }
+    ],
+    ["@babel/preset-typescript"]
+  ],
+  "plugins": [
+    "@babel/plugin-transform-flow-strip-types",
+    ["@babel/plugin-proposal-object-rest-spread", { "useBuiltIns": true }],
+    [
+      "@babel/plugin-syntax-decorators",
+      {
+        "legacy": true
+      }
+    ],
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        "legacy": true
+      }
+    ]
+  ]
+}
