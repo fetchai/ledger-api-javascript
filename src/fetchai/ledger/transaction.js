@@ -40,6 +40,10 @@ export class Transaction {
 		return this._transfers
 	}
 
+	set_transfer(address, amount = 0) {
+		return this._transfers[address] = amount
+	}
+
 	// Get and Set valid_from param
 	valid_from(block_number = null) {
 		if (block_number) {
@@ -121,7 +125,7 @@ export class Transaction {
 
 	add_transfer(address, amount) {
 		assert(amount > 0)
-		this._transfers[address] = this._transfers.get(address, 0) + amount
+		this._transfers[address] = this._transfers[address] + amount
 	}
 
 	target_contract(digest, address, mask) {
