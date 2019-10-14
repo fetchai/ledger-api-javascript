@@ -11,25 +11,25 @@ import { Transaction } from '../transaction'
  * @class
  */
 export class ApiEndpoint {
-
 	constructor(host, port) {
-		logger.info(`Creating new api endpoint object with host:${host} and port:${port}`)
+		logger.info(
+			`Creating new api endpoint object with host:${host} and port:${port}`
+		)
 		this._host = String(host)
 		this._port = Number(port)
 		this.default_block_validity_period = 100
 	}
 
 	/**
-   * request to ledger
-   *
-   * @public
-   * @method
-   * @param  {endpoint} endpoint of the url.
-   * @param  {data} data for request body.
-   * @param  {prefix} prefix of the url.
-   */
+     * request to ledger
+     *
+     * @public
+     * @method
+     * @param  {endpoint} endpoint of the url.
+     * @param  {data} data for request body.
+     * @param  {prefix} prefix of the url.
+     */
 	async _post_json(endpoint, data, prefix) {
-
 		// format and make the request
 		let url = `http://${this._host}:${this._port}/api/contract/${prefix}/${endpoint}`
 
@@ -39,12 +39,14 @@ export class ApiEndpoint {
 		}
 
 		// make the request
-		let [resp, err] = await of(axios({
-			method: 'post',
-			url: url,
-			data: data,
-			headers: request_headers
-		}))
+		let [resp, err] = await of(
+			axios({
+				method: 'post',
+				url: url,
+				data: data,
+				headers: request_headers
+			})
+		)
 
 		if (err) {
 			throw new ApiError('Malformed response from server')
@@ -89,12 +91,14 @@ export class ApiEndpoint {
 		}
 
 		// make the request
-		let [resp, err] = await of(axios({
-			method: 'get',
-			url: url,
-			params: data,
-			headers: request_headers
-		}))
+		let [resp, err] = await of(
+			axios({
+				method: 'get',
+				url: url,
+				params: data,
+				headers: request_headers
+			})
+		)
 
 		if (err) {
 			throw new ApiError('Malformed response from server')
@@ -108,24 +112,26 @@ export class ApiEndpoint {
 
 	async _post_tx_json(tx_data, endpoint) {
 		let request_headers = {
-			'content-type': 'application/vnd+fetch.transaction+json',
+			'content-type': 'application/vnd+fetch.transaction+json'
 		}
 
 		let tx_payload = {
-			ver : '1.2',
-			data : new Buffer(tx_data, 'base64').toString('hex')
+			ver: '1.2',
+			data: new Buffer(tx_data, 'base64').toString('hex')
 		}
 
 		// format the URL
 		let url = `http://${this._host}:${this._port}/api/contract/${this.prefix}/${endpoint}`
 
 		// make the request
-		let [resp, err] = await of(axios({
-			method: 'post',
-			url: url,
-			data: tx_payload,
-			headers: request_headers
-		}))
+		let [resp, err] = await of(
+			axios({
+				method: 'post',
+				url: url,
+				data: tx_payload,
+				headers: request_headers
+			})
+		)
 
 		if (err) {
 			throw new ApiError('Unable to fulfil transaction request')
