@@ -7,12 +7,12 @@ import assert from 'assert'
  * @class
  */
 export class BitVector {
-	constructor(size = 0) {
+
+	constructor(size=null) {
 		if (size instanceof BitVector) {
 			this._size = size._size
 			this._byte_size = size._byte_size
 			this._buffer = new Buffer(this._byte_size)
-			size._buffer.copy(this.size)
 		} else {
 			this._size = Number(size)
 			this._byte_size = Math.floor((this._size + 7) / 8)
