@@ -2,6 +2,8 @@ import { ApiError } from '../errors'
 import { logger } from '../utils'
 import { ApiEndpoint } from './common'
 import { BitVector } from '../bitvector'
+import { Entity } from '../crypto/entity'
+import { encode_transaction } from '../serialization/transaction'
 
 /**
  * This class for all tokens operations
@@ -19,12 +21,12 @@ export class TokenApi extends ApiEndpoint {
 	}
 
 	/**
-   * Get the balance of address
-   *
-   * @public
-   * @method
-   * @param  {address} address for get the balance.
-   */
+     * Get the balance of address
+     *
+     * @public
+     * @method
+     * @param  {address} address for get the balance.
+     */
 	async balance(address) {
 		logger.info(`request for check balance of address: ${address}`)
 
@@ -42,35 +44,36 @@ export class TokenApi extends ApiEndpoint {
 	}
 
 	/**
-   * Creates wealth for specified account
-   *
-   * @public
-   * @method
-   * @param  {address} The entity object to create wealth for
-   * @param  {amount} The amount of wealth to be generated
-   */
-	async wealth(address, amount) {
+     * Creates wealth for specified account
+     *
+     * @public
+     * @method
+     * @param  {address} The entity object to create wealth for
+     * @param  {amount} The amount of wealth to be generated
+     */
+	async wealth(entity, amount) {
 		logger.info(
-			`request for creating wealth of address ${address} for amount ${amount}`
+			`request for creating wealth of address ${entity.public_key_hex()} for amount ${amount}`
 		)
 
 		// wildcard for the moment
 		let shard_mask = new BitVector()
-		let tx = super.create_skeleton_tx(1)
+		let tx = await super.create_skeleton_tx(1)
 		tx.target_chain_code(this.API_PREFIX, shard_mask)
 		tx.action = 'wealth'
-		tx.add_signer(address)
+		tx.add_signer(entity.public_key_hex())
 
 		// format the transaction payload
 		tx.data = super._encode_json({
-			address: address,
+			address: entity.public_key_hex(),
 			amount: amount
 		})
 
-		// Todo:  encode and sign the transaction
-		// let encoded_tx = encode_transaction(tx, [entity])
+		// WIP:  encode and sign the transaction
+		let signers = new Entity()
+		let encoded_tx = await encode_transaction(tx, [signers])
 
-		// Todo: submit the transaction
-		// return this._post_tx_json(encoded_tx, endpoint)
+		// WIP: submit the transaction
+		return this._post_tx_json(encoded_tx, 'wealth')
 	}
 }
