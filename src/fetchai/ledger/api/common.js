@@ -15,6 +15,7 @@ export class ApiEndpoint {
 		logger.info(
 			`Creating new api endpoint object with host:${host} and port:${port}`
 		)
+		this.prefix = 'fetch/token'
 		this._host = String(host)
 		this._port = Number(port)
 		this.default_block_validity_period = 100
@@ -117,7 +118,7 @@ export class ApiEndpoint {
 
 		let tx_payload = {
 			ver: '1.2',
-			data: new Buffer(tx_data, 'base64').toString('hex')
+			data: tx_data.toString('base64')
 		}
 
 		// format the URL
@@ -134,10 +135,12 @@ export class ApiEndpoint {
 		)
 
 		if (err) {
+			logger.error(err)
 			throw new ApiError('Unable to fulfil transaction request')
 		}
 
 		if (200 <= resp.status < 300) {
+			logger.info(resp)
 			return resp
 		}
 		return null
