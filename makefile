@@ -18,3 +18,9 @@ test:
 
 test_with_coverage:
 	@npm run coverage
+
+balance: lint compile
+	@node dist/examples/balance.js
+
+wealth: lint compile
+	@node dist/examples/wealth.js

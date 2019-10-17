@@ -2,7 +2,6 @@
 coverage/
 dist/
 node_modules/
-.eslintrc
 app.js
 input1.json
 package-lock.json

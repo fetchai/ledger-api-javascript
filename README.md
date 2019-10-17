@@ -63,3 +63,18 @@ src
 - examples: Working examples of ledger javascript apis
 - fetchai: All javascript api for ledger
 - tests: Test cases
+
+### Test Example:
+
+- Balance:
+
+  ` make balance `
+
+- wealth:
+
+   ` make wealth `
+
+
+### To run test cases:
+
+    ` npm run test `
