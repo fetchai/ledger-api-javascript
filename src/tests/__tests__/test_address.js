@@ -14,8 +14,8 @@ function _calc_address(address_raw) {
     const digest = _calc_digest(address_raw);
     const bytes = _calc_digest(digest);
     const checksum = bytes.slice(0, 4);
-    const buf = Buffer.concat([digest, checksum]);
-    const display = bs58.encode(buf);
+    const full = Buffer.concat([digest, checksum]);
+    const display = bs58.encode(full);
     return [digest, display];
 }
 
