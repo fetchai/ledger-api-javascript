@@ -24,8 +24,8 @@ describe(':Address', () => {
     test('test construction from string', () => {
         // generate a random 32 byte buffer
         const digest = _calc_digest(Buffer.from("rand"));
-        const bs58Encoded = bs58.encode(digest);
-        const [expected_address_bytes, expected_display] = _calc_address(bs58Encoded);
+        const bs58_encoded = bs58.encode(digest);
+        const [expected_address_bytes, expected_display] = _calc_address(bs58_encoded);
         const address = new Address(expected_display);
         expect(address.toBytes()).toMatchObject(expected_address_bytes);
         expect(address.toString()).toBe(expected_display);
@@ -33,16 +33,16 @@ describe(':Address', () => {
 
     test('test construction from bytes', () => {
         const digest = _calc_digest(Buffer.from("rand"));
-        const bs58Encoded = bs58.encode(digest);
-        const [expected_address_bytes,] = _calc_address(bs58Encoded);
+        const bs58_encoded = bs58.encode(digest);
+        const [expected_address_bytes,] = _calc_address(bs58_encoded);
         const address = new Address(expected_address_bytes);
         expect(address.toBytes()).toMatchObject(expected_address_bytes);
     });
 
     test('test construction from address', () => {
         const digest = _calc_digest(Buffer.from("rand"));
-        const bs58Encoded = bs58.encode(digest);
-        const [expected_address_bytes,] = _calc_address(bs58Encoded);
+        const bs58_encoded = bs58.encode(digest);
+        const [expected_address_bytes,] = _calc_address(bs58_encoded);
         const address1 = new Address(expected_address_bytes);
         const address2 = new Address(address1);
         expect(address2.toBytes()).toMatchObject(expected_address_bytes);
@@ -58,9 +58,9 @@ describe(':Address', () => {
 
     test('test invalid length string', () => {
         const invalid_string = Buffer.from("rand");
-        const bs58Encoded = bs58.encode(invalid_string);
+        const bs58_encoded = bs58.encode(invalid_string);
         expect(() => {
-            new Address(bs58Encoded);
+            new Address(bs58_encoded);
         }).toThrow(ValidationError);
     });
 
@@ -72,8 +72,8 @@ describe(':Address', () => {
 
     test('test hex display', () => {
         const digest = _calc_digest(Buffer.from("rand"));
-        const bs58Encoded = bs58.encode(digest);
-        const [expected_address_bytes,] = _calc_address(bs58Encoded);
+        const bs58_encoded = bs58.encode(digest);
+        const [expected_address_bytes,] = _calc_address(bs58_encoded);
         const address = new Address(expected_address_bytes);
         const address_bytes = address.toBytes();
         const hex_address = address_bytes.toString('hex');
@@ -83,8 +83,8 @@ describe(':Address', () => {
 
     test('test invalid display', () => {
         const digest = _calc_digest(Buffer.from("rand"));
-        const bs58Encoded = bs58.encode(digest);
-        const [expected_address_bytes, expected_display] = _calc_address(bs58Encoded);
+        const bs58_encoded = bs58.encode(digest);
+        const [, expected_display] = _calc_address(bs58_encoded);
         const address = new Address(expected_display);
         const address_bytes = address.toBytes();
         const invalid_checksum = Buffer.from("1134");
