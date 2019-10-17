@@ -11,12 +11,12 @@ function _calc_digest(address_raw) {
 }
 
 function _calc_address(address_raw) {
-    const bytes = _calc_digest(address_raw);
-    const bytes2 = _calc_digest(bytes);
-    const bytes3 = bytes2.slice(0, 4);
-    const buf = Buffer.concat([bytes, bytes3]);
+    const digest = _calc_digest(address_raw);
+    const bytes = _calc_digest(digest);
+    const checksum = bytes.slice(0, 4);
+    const buf = Buffer.concat([digest, checksum]);
     const display = bs58.encode(buf);
-    return [bytes, display];
+    return [digest, display];
 }
 
 describe(':Address', () => {
