@@ -58,23 +58,24 @@ export class TokenApi extends ApiEndpoint {
 		// wildcard for the moment
 		let shard_mask = new BitVector()
 		let tx = await super.create_skeleton_tx(1)
-		tx.from_address(entity.pubKey)
+		// Todo: Replace entity.pubKey with hex of address
+		tx.from_address(entity.pubKey) //hex of address
 		tx.target_chain_code(this.API_PREFIX, shard_mask)
 		tx.action = 'wealth'
-		tx.add_signer(entity.public_key_hex())
+		tx.add_signer(entity.public_key_hex()) // hex of public key
 
 		// format the transaction payload
 		tx.data = super._encode_json({
-			address: entity.public_key_hex(),
+			address: entity.public_key(), //base64 encoded public key
 			amount: amount
 		})
 		logger.info(`Transactions object for sign and encode: ${JSON.stringify(tx, null, '\t')}`)
 
 		// WIP:  encode and sign the transaction
-		const encoded_tx = await encode_transaction(tx, [entity])
-		logger.info(`Encoded Transactions ${encoded_tx}`)
+		const encoded_tx = await encode_transaction(tx, entity)
+		logger.info(`Encoded Transactions hex is ${encoded_tx.toString('hex')}`)
 
 		// WIP: submit the transaction
-		return this._post_tx_json(encoded_tx, 'wealth')
+		return await this._post_tx_json(encoded_tx, 'wealth')
 	}
 }
