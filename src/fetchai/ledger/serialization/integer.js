@@ -1,4 +1,4 @@
-import { ValidationError } from '../errors'
+import { RunTimeError } from '../errors'
 
 /**
  * Determine the number of bytes required to encode the input value.
@@ -6,16 +6,29 @@ import { ValidationError } from '../errors'
  *
  * @param  {value} calculate log2 num bytes
  */
+// const _calculate_log2_num_bytes = async value => {
+// 	for (let log2_num_bytes of Array.from(Array(4).keys())) {
+// 		let limit = 1 << ((1 << log2_num_bytes) * 8)
+// 		if (value < limit) {
+// 			return log2_num_bytes
+// 		}
+// 		throw new ValidationError(
+// 			'Unable to calculate the number of bytes required for this value'
+// 		)
+// 	}
+// }
+
 const _calculate_log2_num_bytes = async value => {
-	for (let log2_num_bytes of Array.from(Array(4).keys())) {
-		let limit = 1 << ((1 << log2_num_bytes) * 8)
-		if (value < limit) {
-			return log2_num_bytes
+	// Todo: Improve logic
+	const data = [256, 65536, 4294967296, 18446744073709551616]
+	for (let log2_num_bytes of data) {
+		if (value < log2_num_bytes) {
+			return data.findIndex(val => val == log2_num_bytes)
 		}
-		throw new ValidationError(
-			'Unable to calculate the number of bytes required for this value'
-		)
 	}
+	throw new RunTimeError(
+		'Unable to calculate the number of bytes required for this value'
+	)
 }
 
 /**

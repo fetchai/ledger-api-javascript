@@ -2,7 +2,6 @@ import { ApiError } from '../errors'
 import { logger } from '../utils'
 import { ApiEndpoint } from './common'
 import { BitVector } from '../bitvector'
-import { Entity } from '../crypto/entity'
 import { encode_transaction } from '../serialization/transaction'
 
 /**
@@ -59,6 +58,7 @@ export class TokenApi extends ApiEndpoint {
 		// wildcard for the moment
 		let shard_mask = new BitVector()
 		let tx = await super.create_skeleton_tx(1)
+		tx.from_address(entity.pubKey)
 		tx.target_chain_code(this.API_PREFIX, shard_mask)
 		tx.action = 'wealth'
 		tx.add_signer(entity.public_key_hex())
@@ -68,10 +68,11 @@ export class TokenApi extends ApiEndpoint {
 			address: entity.public_key_hex(),
 			amount: amount
 		})
+		logger.info(`Transactions object for sign and encode: ${JSON.stringify(tx, null, '\t')}`)
 
 		// WIP:  encode and sign the transaction
-		let signers = new Entity()
-		let encoded_tx = await encode_transaction(tx, [signers])
+		const encoded_tx = await encode_transaction(tx, [entity])
+		logger.info(`Encoded Transactions ${encoded_tx}`)
 
 		// WIP: submit the transaction
 		return this._post_tx_json(encoded_tx, 'wealth')
