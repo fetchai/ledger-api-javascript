@@ -83,7 +83,7 @@ export class Entity extends Identity {
     }
 
     static from_hex(private_key_hex) {
-        const private_key_bytes = Buffer.from(private_key_base64, 'hex');
+        const private_key_bytes = Buffer.from(private_key_hex, 'hex');
         return new Entity(private_key_bytes);
     }
 
