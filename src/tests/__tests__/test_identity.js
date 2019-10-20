@@ -34,7 +34,6 @@ describe(':Identity', () => {
         const ref = new Entity();
         const test1 = Identity.from_hex(ref.public_key_hex());
         expect(ref.public_key()).toEqual(test1.public_key());
-        expect(ref.public_key()).toEqual(test1.public_key());
     });
 })
 
