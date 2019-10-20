@@ -77,18 +77,6 @@ describe(':Entity', () => {
         expect(base64.toString('hex')).toEqual(private_key_hex);
     });
 
-    test('test verify signature', () => {
-        const digest = _calc_digest(Buffer.from("rand"));
-        const entity = new Entity();
-        // sign the payload
-        const sign_obj = entity.sign(digest);
-        // verify the payload
-        const verified = entity.verify(digest, sign_obj.signature);
-        expect(verified).toBe(true);
-        const bad_verification = entity.verify(digest, Buffer.concat([digest, digest]));
-        expect(bad_verification).toBe(false);
-    });
-
     test('test signature to hex', () => {
         const digest = _calc_digest(Buffer.from("rand"));
         const entity = new Entity();
