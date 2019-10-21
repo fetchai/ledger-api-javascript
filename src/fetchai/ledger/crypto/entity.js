@@ -30,7 +30,7 @@ export class Entity {
 		}
 	}
 
-	private_key() {
+	private_key_bytes() {
 		return this.privKey
 	}
 
@@ -38,13 +38,21 @@ export class Entity {
 		return this.privKey.toString('hex')
 	}
 
+	private_key() {
+		return this.privKey.toString('base64')
+	}
+
 	// get the public key in a uncompressed format
-	public_key() {
+	public_key_bytes() {
 		return this.pubKey
 	}
 
 	public_key_hex() {
 		return this.pubKey.toString('hex')
+	}
+
+	public_key() {
+		return this.pubKey.toString('base64')
 	}
 
 	// sign the message

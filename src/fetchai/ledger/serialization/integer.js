@@ -41,11 +41,11 @@ const encode = async (stream, value) => {
 	const is_signed = value < 0
 	const abs_value = Math.abs(value)
 
-	if (!is_signed && abs_value <= 0x7) {
-		stream.write(new Buffer([abs_value]).toString())
+	if (!is_signed && abs_value <= 0x7f) {
+		return Buffer.concat([stream, new Buffer([abs_value])])
 	} else {
-		if (is_signed && abs_value <= 0x1f) {
-			stream.write(new Buffer([0xe0 | abs_value]).toString())
+		if (is_signed && abs_value <= 0x1F) {
+			return Buffer.concat([stream, new Buffer([0xE0 | abs_value])])
 		} else {
 			// determine the number of bytes that will be needed to encode this value
 			let log2_num_bytes = await _calculate_log2_num_bytes(abs_value)
@@ -54,17 +54,16 @@ const encode = async (stream, value) => {
 			// define the header
 			let header
 			if (is_signed) {
-				header = 0xd0 | (log2_num_bytes & 0xf)
+				header = 0xd0 | (log2_num_bytes & 0xF)
 			} else {
-				header = 0xc0 | (log2_num_bytes & 0xf)
+				header = 0xc0 | (log2_num_bytes & 0xF)
 			}
 
-			let values = ''
 			// encode all the parts fot the values
-			values += Array.from(Array(num_bytes).keys())
+			let values =  Array.from(Array(num_bytes).keys())
 				.reverse()
-				.map(value => (abs_value >> (value * 8)) & 0xff)
-			stream.write(new Buffer([header] + values).toString())
+				.map(value => (abs_value >> (value * 8)) & 0xFF)
+			return Buffer.concat([stream, Buffer.concat([new Buffer([header]), new Buffer(values)])])
 		}
 	}
 }

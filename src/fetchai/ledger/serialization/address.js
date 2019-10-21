@@ -1,5 +1,6 @@
 const encode = async (stream, address) => {
-	stream.write(new Buffer(address).toString())
+	// address is in hex format
+	return Buffer.concat([stream, new Buffer(address, 'hex')])
 }
 
 export { encode }

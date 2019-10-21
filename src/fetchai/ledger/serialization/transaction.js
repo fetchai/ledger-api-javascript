@@ -4,6 +4,8 @@ import * as integer from './integer'
 import * as bytearray from './bytearray'
 import * as identity from './identity'
 import { ValidationError } from '../errors'
+import { logger } from '../utils'
+import { createHash } from 'crypto'
 
 // *******************************
 // ********** Constants **********
@@ -47,41 +49,44 @@ const encode_payload = async payload => {
 	assert(num_signatures >= 1)
 
 	const num_extra_signatures =
-        num_signatures - (num_signatures > 0x40) ? 0x40 : 0
+        num_signatures > 0x40 ? (num_signatures - 0x40) : 0
 	const signalled_signatures = num_signatures - (num_extra_signatures + 1)
-	const has_valid_from = payload.valid_from != 0
+	const has_valid_from = payload._valid_from != 0
 
 	let header0 = VERSION << 5
 	header0 |= (num_transfers > 0 ? 1 : 0) << 2
 	header0 |= (num_transfers > 0 ? 1 : 0) << 1
 	header0 |= has_valid_from ? 1 : 0
 
-	// determine the node of the contract
+	// determine the mode of the contract
 	const contract_mode = await _map_contract_mode(payload)
+	logger.info(`The mode of contract is ${contract_mode}`)
 
 	let header1 = contract_mode << 6
 	header1 |= signalled_signatures & 0x3f
 
+	logger.info(`magic: ${MAGIC}, header0: ${header0}, header1: ${header1}`)
 	let buffer = new Buffer([MAGIC, header0, header1])
-	await address.encode(buffer, payload._from)
 
+	// payload._from is hex of address
+	buffer = await address.encode(buffer, payload._from)
 	if (num_transfers > 1) {
-		await integer.encode(buffer, num_transfers - 2)
+		buffer = await integer.encode(buffer, num_transfers - 2)
 	}
 
 	if (has_valid_from) {
-		await integer.encode(buffer, payload._valid_from)
+		buffer = await integer.encode(buffer, payload._valid_from)
 	}
 
-	await integer.encode(buffer, payload.valid_until)
-	await integer.encode(buffer, payload.charge_rate)
-	await integer.encode(buffer, payload.charge_limit)
+	buffer = await integer.encode(buffer, payload.valid_until)
+	buffer = await integer.encode(buffer, payload.charge_rate)
+	buffer = await integer.encode(buffer, payload.charge_limit)
 
 	if (NO_CONTRACT != contract_mode) {
 		let shard_mask_length = payload.shard_mask.length
 		if (shard_mask_length <= 1) {
 			// signal this is a wildcard transaction
-			buffer.write(new Buffer(0x80).toString())
+			buffer = Buffer.concat([buffer, new Buffer([0x80])])
 		} else {
 			let shard_mask_bytes = new Buffer(payload.shard_mask)
 			let log2_mask_length = await log2(shard_mask_length)
@@ -96,37 +101,48 @@ const encode_payload = async payload => {
 					contract_header |= 0x10
 				}
 				// write the mask to the stream
-				buffer.write(new Buffer(contract_header).toString())
+				buffer = Buffer.concat([buffer, new Buffer([contract_header])])
 			} else {
 				assert(shard_mask_length <= 512)
 
 				contract_header = 0x40 | ((log2_mask_length - 3) & 0x3f)
 
-				buffer.write(new Buffer(contract_header).toString())
-				buffer.write(shard_mask_bytes)
+				buffer = Buffer.concat([buffer, new Buffer([contract_header])])
+				buffer = Buffer.concat([buffer, shard_mask_bytes])
 			}
 		}
 
-		if (SMART_CONTRACT == contract_mode) {
-			await address.encode(buffer, payload._contract_digest)
-			await address.encode(buffer, payload._contract_address)
+		if (SMART_CONTRACT == contract_mode || SYNERGETIC == contract_mode) {
+			buffer = await address.encode(buffer, payload._contract_digest)
+			buffer = await address.encode(buffer, payload._contract_address)
 		} else if (CHAIN_CODE == contract_mode) {
-			let encoded_chain_code = new Buffer(payload._chain_code)
-			await bytearray.encode(buffer, encoded_chain_code)
-		} else if (SYNERGETIC == contract_mode) {
-			await address.encode(buffer, payload._contract_digest)
+			let encoded_chain_code = new Buffer(payload._chain_code, 'ascii')
+			buffer = await bytearray.encode(buffer, encoded_chain_code)
 		} else {
 			assert(false)
 		}
 	}
 
+	buffer = await bytearray.encode(
+		buffer,
+		new Buffer(payload.action, 'ascii')
+	)
+	buffer = await bytearray.encode(buffer, new Buffer(payload.data, 'ascii'))
+
 	if (num_extra_signatures > 0) {
-		await integer.encode(buffer, num_extra_signatures)
+		buffer = await integer.encode(buffer, num_extra_signatures)
 	}
 
 	// write all the signers public keys
 	for (let signer of Object.keys(payload._signers)) {
-		identity.encode(buffer, signer)
+		// public key hex of signer
+		buffer = await identity.encode(
+			buffer,
+			new Buffer(
+				signer,
+				'hex'
+			)
+		)
 	}
 	return buffer
 }
@@ -136,24 +152,23 @@ const encode_transaction = async (payload, signers) => {
 	// encode the contents of the transaction
 	let buffer = await encode_payload(payload)
 
-	// extract the payload buffer
-	let payload_bytes = buffer
-
 	// append all the signatures of the signers in order
-	for await (let signer of Object.keys(payload.signers)) {
-		if (!signers.includes(signer)) {
+	for await (let signer of Object.keys(payload._signers)) {
+		if (!signer === signers.pubKey.toString('hex')) {
 			throw new ValidationError('Missing signer signing set')
 		}
-
-		// find the index to the appropriate index and lookup the entity
-		let entity = signers[signers.findIndex(sign => sign == signer)]
-
+		// extract the payload buffer
+		let payload_bytes = createHash('sha256')
+			.update(buffer.toString(), 'utf8')
+			.digest()
 		// sign the payload contents and add it to the buffer
-		await bytearray.encode(buffer, entity.sign(payload_bytes))
+		buffer = await bytearray.encode(
+			buffer,
+			signers.sign(payload_bytes).signature
+		)
 	}
-
 	// return the encoded transaction
-	return buffer.toString()
+	return buffer
 }
 
 export { encode_transaction }
