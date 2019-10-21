@@ -18,7 +18,7 @@ import { RunTimeError } from '../errors'
 // 	}
 // }
 
-const _calculate_log2_num_bytes = async value => {
+const _calculate_log2_num_bytes = value => {
 	// Todo: Improve logic
 	const data = [256, 65536, 4294967296, 18446744073709551616]
 	for (let log2_num_bytes of data) {
@@ -32,23 +32,23 @@ const _calculate_log2_num_bytes = async value => {
 }
 
 /**
- * Encode a integer value into a bytes stream
+ * Encode a integer value into a bytes buffer
  *
- * @param  {stream} Bytes data
+ * @param  {buffer} Bytes data
  * @param  {value} The value to be encoded
  */
-const encode = async (stream, value) => {
+const encode = (buffer, value) => {
 	const is_signed = value < 0
 	const abs_value = Math.abs(value)
 
 	if (!is_signed && abs_value <= 0x7f) {
-		return Buffer.concat([stream, new Buffer([abs_value])])
+		return Buffer.concat([buffer, new Buffer([abs_value])])
 	} else {
 		if (is_signed && abs_value <= 0x1F) {
-			return Buffer.concat([stream, new Buffer([0xE0 | abs_value])])
+			return Buffer.concat([buffer, new Buffer([0xE0 | abs_value])])
 		} else {
 			// determine the number of bytes that will be needed to encode this value
-			let log2_num_bytes = await _calculate_log2_num_bytes(abs_value)
+			let log2_num_bytes = _calculate_log2_num_bytes(abs_value)
 			let num_bytes = 1 << log2_num_bytes
 
 			// define the header
@@ -63,7 +63,7 @@ const encode = async (stream, value) => {
 			let values =  Array.from(Array(num_bytes).keys())
 				.reverse()
 				.map(value => (abs_value >> (value * 8)) & 0xFF)
-			return Buffer.concat([stream, Buffer.concat([new Buffer([header]), new Buffer(values)])])
+			return Buffer.concat([buffer, Buffer.concat([new Buffer([header]), new Buffer(values)])])
 		}
 	}
 }

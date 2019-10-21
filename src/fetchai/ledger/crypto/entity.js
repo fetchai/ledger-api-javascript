@@ -55,6 +55,11 @@ export class Entity {
 		return this.pubKey.toString('base64')
 	}
 
+	static from_hex(private_key_hex) {
+        const private_key_bytes = Buffer.from(private_key_hex, 'hex');
+        return new Entity(private_key_bytes);
+    }
+
 	// sign the message
 	sign(extMsgHash) {
 		return secp256k1.sign(extMsgHash, this.privKey)

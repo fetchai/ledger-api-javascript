@@ -10,7 +10,7 @@ import assert from 'assert'
 export class Transaction {
 	constructor() {
 		this._from = ''
-		this._transfers = {} // Ordered dict
+		this._transfers = {}
 		this._valid_from = 0
 		this._valid_until = 0
 		this._charge_rate = 0
@@ -24,7 +24,7 @@ export class Transaction {
 			synergetic_data_submission: false
 		}
 		this._data = ''
-		this._signers = {} // Ordered dict
+		this._signers = {}
 	}
 
 	// Get and Set from_address param

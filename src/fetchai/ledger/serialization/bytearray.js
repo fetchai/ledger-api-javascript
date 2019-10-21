@@ -1,9 +1,9 @@
 import * as integer from './integer'
 
-const encode = async (stream, value) => {
+const encode = (buffer, value) => {
 	// value in bytes (ascii encoded)
-	stream = await integer.encode(stream, value.length)
-	return Buffer.concat([stream, value])
+	buffer = integer.encode(buffer, value.length);
+	return Buffer.concat([buffer, value])
 }
 
 export { encode }
