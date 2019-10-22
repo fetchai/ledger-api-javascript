@@ -18,7 +18,11 @@ node example/balance.js
 ```
 #### To Debug Jest Tests Graphically:
 
-Open In Chrome the following URL:   chrome://inspect
+Open In Chrome the following URL:
+
+```
+chrome://inspect
+```
 
 Click on "Open dedicated DevTools for Node" 
 
