@@ -16,7 +16,7 @@ export class Entity {
 		if (private_key_bytes) {
 			if (secp256k1.privateKeyVerify(private_key_bytes)) {
 				this.privKey = private_key_bytes
-				this.pubKey = secp256k1.publicKeyCreate(this.privKey, false)
+				this.pubKey = new Buffer(secp256k1.publicKeyCreate(this.privKey, false).toString('hex').substring(2), 'hex')
 			} else {
 				throw new ValidationError(
 					'Unable to load private key from input'
@@ -25,7 +25,7 @@ export class Entity {
 		} else {
 			do {
 				this.privKey = randomBytes(32)
-				this.pubKey = secp256k1.publicKeyCreate(this.privKey, false)
+				this.pubKey = new Buffer(secp256k1.publicKeyCreate(this.privKey, false).toString('hex').substring(2), 'hex')
 			} while (!secp256k1.privateKeyVerify(this.privKey))
 		}
 	}
