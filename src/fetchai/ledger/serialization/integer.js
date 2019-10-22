@@ -1,4 +1,6 @@
-import { RunTimeError } from '../errors'
+import {RunTimeError} from '../errors'
+import {NotImplementedError} from "../errors";
+import {ValidationError} from "../errors";
 
 /**
  * Determine the number of bytes required to encode the input value.
@@ -19,16 +21,16 @@ import { RunTimeError } from '../errors'
 // }
 
 const _calculate_log2_num_bytes = value => {
-	// Todo: Improve logic
-	const data = [256, 65536, 4294967296, 18446744073709551616]
-	for (let log2_num_bytes of data) {
-		if (value < log2_num_bytes) {
-			return data.findIndex(val => val == log2_num_bytes)
-		}
-	}
-	throw new RunTimeError(
-		'Unable to calculate the number of bytes required for this value'
-	)
+    // Todo: Improve logic
+    const data = [256, 65536, 4294967296, 18446744073709551616]
+    for (let log2_num_bytes of data) {
+        if (value < log2_num_bytes) {
+            return data.findIndex(val => val == log2_num_bytes)
+        }
+    }
+    throw new RunTimeError(
+        'Unable to calculate the number of bytes required for this value'
+    )
 }
 
 /**
@@ -38,34 +40,74 @@ const _calculate_log2_num_bytes = value => {
  * @param  {value} The value to be encoded
  */
 const encode = (buffer, value) => {
-	const is_signed = value < 0
-	const abs_value = Math.abs(value)
+    const is_signed = value < 0
+    const abs_value = Math.abs(value)
 
-	if (!is_signed && abs_value <= 0x7f) {
-		return Buffer.concat([buffer, new Buffer([abs_value])])
-	} else {
-		if (is_signed && abs_value <= 0x1F) {
-			return Buffer.concat([buffer, new Buffer([0xE0 | abs_value])])
-		} else {
-			// determine the number of bytes that will be needed to encode this value
-			let log2_num_bytes = _calculate_log2_num_bytes(abs_value)
-			let num_bytes = 1 << log2_num_bytes
+    if (!is_signed && abs_value <= 0x7f) {
+        return Buffer.concat([buffer, new Buffer([abs_value])])
+    } else {
+        if (is_signed && abs_value <= 0x1F) {
+            return Buffer.concat([buffer, new Buffer([0xE0 | abs_value])])
+        } else {
+            // determine the number of bytes that will be needed to encode this value
+            let log2_num_bytes = _calculate_log2_num_bytes(abs_value)
+            let num_bytes = 1 << log2_num_bytes
 
-			// define the header
-			let header
-			if (is_signed) {
-				header = 0xd0 | (log2_num_bytes & 0xF)
-			} else {
-				header = 0xc0 | (log2_num_bytes & 0xF)
-			}
+            // define the header
+            let header
+            if (is_signed) {
+                header = 0xd0 | (log2_num_bytes & 0xF)
+            } else {
+                header = 0xc0 | (log2_num_bytes & 0xF)
+            }
 
-			// encode all the parts fot the values
-			let values =  Array.from(Array(num_bytes).keys())
-				.reverse()
-				.map(value => (abs_value >> (value * 8)) & 0xFF)
-			return Buffer.concat([buffer, Buffer.concat([new Buffer([header]), new Buffer(values)])])
-		}
-	}
+            // encode all the parts fot the values
+            let values = Array.from(Array(num_bytes).keys())
+                .reverse()
+                .map(value => (abs_value >> (value * 8)) & 0xFF)
+            return Buffer.concat([buffer, Buffer.concat([new Buffer([header]), new Buffer(values)])])
+        }
+    }
 }
 
-export { encode }
+const decode = (buffer) => {
+
+    if (buffer.length === 0) {
+        throw new ValidationError('Incorrect value being decoded');
+    }
+
+    const header = buffer.slice(0, 1);
+    buffer = buffer.slice(1);
+    const header_integer = header.readUIntBE(0, 1);
+
+    if ((header_integer & 0x80) == 0) {
+        return header_integer & 0x7F;
+    }
+
+    const type = (header_integer & 0x60) >> 5;
+    if (type === 3) {
+        const ret = -(header_integer & 0x1f);
+        return ret;
+    }
+
+    if (type === 2) {
+        const signed_flag = Boolean(header_integer & 0x10);
+        const log2_value_length = header_integer & 0x0F;
+        const value_length = 1 << log2_value_length;
+        let shift, value, byte_value, slice;
+
+        if (value_length > 6) {
+            throw new NotImplementedError(
+                '8 Byte support is not yet implemented in this Javascript SDK'
+            )
+        }
+
+        value = buffer.readUIntBE(0, value_length);
+        if (signed_flag) {
+            value = -value
+        }
+        return value;
+    }
+};
+
+export {encode, decode}

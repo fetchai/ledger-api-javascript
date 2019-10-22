@@ -1,5 +1,5 @@
 export * from './transaction'
-export * from './address'
-export * from './integer'
 export * from './bytearray'
+export * from './address'
 export * from './identity'
+export * from './integer'
