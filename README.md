@@ -26,6 +26,7 @@ chrome://inspect
 
 Click on "Open dedicated DevTools for Node" 
 
+In terminal under project directory
 ```
 npm run test:debug
 ```
