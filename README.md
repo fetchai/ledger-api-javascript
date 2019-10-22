@@ -78,3 +78,14 @@ src
 ### To run test cases:
 
     ` npm run test `
+
+
+### Check transaction status:
+
+` curl 127.0.0.1:8000/api/status/tx/<tx_hash> `
+
+Output:
+
+```
+{"charge_rate": 0, "charge": 0, "exit_code": 0, "fee": 0, "tx": "/X66ZMfPKuQ4HE63gQBmbfAGWxnhUoT1t3IMYYTOZJU=", "status": "Unknown"}
+```
