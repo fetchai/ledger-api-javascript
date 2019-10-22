@@ -42,7 +42,7 @@ const _calculate_log2_num_bytes = value => {
 const encode = (buffer, value) => {
     const is_signed = value < 0
     const abs_value = Math.abs(value)
-
+    
     if (!is_signed && abs_value <= 0x7f) {
         return Buffer.concat([buffer, new Buffer([abs_value])])
     } else {

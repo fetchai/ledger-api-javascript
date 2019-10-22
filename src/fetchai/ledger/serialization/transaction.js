@@ -123,6 +123,7 @@ const encode_payload = payload => {
 		}
 	}
 
+  
 	buffer =  bytearray.encode(
 		buffer,
 		new Buffer(payload.action, 'ascii')

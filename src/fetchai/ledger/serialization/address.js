@@ -16,5 +16,4 @@ const decode = (buff) => {
     return new Address(address_raw);
 }
 
-
 export { encode, decode }
