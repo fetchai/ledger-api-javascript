@@ -7,13 +7,18 @@ export class Identity {
         if (pub_key instanceof Identity) {
             this.pub_key = pub_key.public_key();
         } else if (pub_key instanceof Buffer) {
-            if (!secp256k1.publicKeyVerify(pub_key)) {
+            this.pub_key = pub_key;
+            if (!secp256k1.publicKeyVerify(this.prefixed_public_key())) {
                 throw new ValidationError('invalid public key');
             }
-            this.pub_key = pub_key;
         } else {
             throw new ValidationError('Failed');
         }
+    }
+
+    // get public key with 04 prefix
+    prefixed_public_key(){
+        return Buffer.concat([Buffer.from('04', 'hex'), this.pub_key]);
     }
 
     public_key() {
@@ -29,7 +34,7 @@ export class Identity {
     }
 
     verify(message, signature) {
-        return secp256k1.verify(message, signature, this.pub_key);
+        return secp256k1.verify(message, signature, this.prefixed_public_key());
 
     }
 

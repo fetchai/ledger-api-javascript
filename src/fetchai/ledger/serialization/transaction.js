@@ -59,7 +59,7 @@ const encode_payload = payload => {
 	header0 |= has_valid_from ? 1 : 0
 
 	// determine the mode of the contract
-	const contract_mode = await _map_contract_mode(payload)
+	const contract_mode = _map_contract_mode(payload)
 	let header1 = contract_mode << 6
 	header1 |= signalled_signatures & 0x3f
 
@@ -125,13 +125,13 @@ const encode_payload = payload => {
 		}
 	}
 
-  
+
 	buffer =  bytearray.encode(
 		buffer,
 		new Buffer(payload.action, 'ascii')
 	)
-  
-	buffer = await bytearray.encode(buffer, payload.data)
+
+	buffer = bytearray.encode(buffer, payload.data)
 
 
 	if (num_extra_signatures > 0) {
