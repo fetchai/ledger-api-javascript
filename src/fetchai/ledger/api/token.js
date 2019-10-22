@@ -58,7 +58,8 @@ export class TokenApi extends ApiEndpoint {
 		// wildcard for the moment
 		let shard_mask = new BitVector()
 		let tx = await super.create_skeleton_tx(1)
-		// Todo: Replace entity.pubKey with hex of address
+        // Todo: Replace entity.pubKey with hex of address
+        // Note: use 97a389875d9ff2db65f464cd825bf8be59d3cc1e6b42cdc52e1c0476ae320c4d for testing
 		tx.from_address(entity.public_key_hex()) //hex of address
 		tx.target_chain_code(this.API_PREFIX, shard_mask)
 		tx.action = 'wealth'
@@ -96,7 +97,8 @@ export class TokenApi extends ApiEndpoint {
 
 		// build up the basic transaction information
 		let tx = await super.create_skeleton_tx(fee)
-		// Todo: Replace entity.pubKey with hex of address
+        // Todo: Replace entity.pubKey with hex of address
+        // Note: use 97a389875d9ff2db65f464cd825bf8be59d3cc1e6b42cdc52e1c0476ae320c4d for testing
 		tx.from_address(entity.public_key_hex()) //hex of address
 		tx.add_transfer(to, amount)
 		tx.add_signer(entity.public_key_hex()) // hex of public key
