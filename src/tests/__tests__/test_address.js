@@ -1,23 +1,6 @@
 import {Address} from '../../fetchai/ledger/crypto/address'
-import {createHash} from 'crypto'
 import * as bs58 from 'bs58'
 import {ValidationError} from '../../fetchai/ledger/errors'
-
-function _calc_digest(address_raw) {
-	const hash_func = createHash('sha256')
-	hash_func.update(address_raw)
-	const digest = hash_func.digest()
-	return digest
-}
-
-function _calc_address(address_raw) {
-	const digest = _calc_digest(address_raw)
-	const bytes = _calc_digest(digest)
-	const checksum = bytes.slice(0, 4)
-	const full = Buffer.concat([digest, checksum])
-	const display = bs58.encode(full)
-	return [digest, display]
-}
 
 describe(':Address', () => {
 

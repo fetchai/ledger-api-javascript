@@ -18,7 +18,7 @@ const SMART_CONTRACT = 1
 const CHAIN_CODE = 2
 const SYNERGETIC = 3
 
-const log2 = async value => {
+const log2 = value => {
 	let count = 0
 	while (value > 1) {
 		value >>= 1
@@ -27,7 +27,7 @@ const log2 = async value => {
 	return count
 }
 
-const _map_contract_mode = async payload => {
+const _map_contract_mode = payload => {
 	if (payload.action) {
 		if (payload.chain_code) {
 			return CHAIN_CODE
@@ -41,7 +41,7 @@ const _map_contract_mode = async payload => {
 }
 
 // Encoded transaction payload
-const encode_payload = async payload => {
+const encode_payload = payload => {
 	const num_transfers = Object.keys(payload._transfers).length
 	const num_signatures = Object.keys(payload._signers).length
 
@@ -60,17 +60,15 @@ const encode_payload = async payload => {
 
 	// determine the mode of the contract
 	const contract_mode = await _map_contract_mode(payload)
-
 	let header1 = contract_mode << 6
 	header1 |= signalled_signatures & 0x3f
 
 	let buffer = new Buffer([MAGIC, header0, header1])
 
 	// payload._from is hex of address
-	buffer = await address.encode(buffer, payload._from)
-
+	buffer = address.encode(buffer, payload._from)
 	if (num_transfers > 1) {
-		buffer = await integer.encode(buffer, num_transfers - 2)
+		buffer =  integer.encode(buffer, num_transfers - 2)
 	}
 
 	for (let [key, value] of Object.entries(payload._transfers)) {
@@ -79,12 +77,12 @@ const encode_payload = async payload => {
 	}
 
 	if (has_valid_from) {
-		buffer = await integer.encode(buffer, payload._valid_from)
+		buffer =  integer.encode(buffer, payload._valid_from)
 	}
 
-	buffer = await integer.encode(buffer, payload.valid_until)
-	buffer = await integer.encode(buffer, payload.charge_rate)
-	buffer = await integer.encode(buffer, payload.charge_limit)
+	buffer =  integer.encode(buffer, payload.valid_until)
+	buffer =  integer.encode(buffer, payload.charge_rate)
+	buffer =  integer.encode(buffer, payload.charge_limit)
 
 	if (NO_CONTRACT != contract_mode) {
 		let shard_mask_length = payload.shard_mask.length
@@ -93,7 +91,7 @@ const encode_payload = async payload => {
 			buffer = Buffer.concat([buffer, new Buffer([0x80])])
 		} else {
 			let shard_mask_bytes = new Buffer(payload.shard_mask)
-			let log2_mask_length = await log2(shard_mask_length)
+			let log2_mask_length = log2(shard_mask_length)
 
 			let contract_header
 			if (shard_mask_length < 8) {
@@ -117,30 +115,33 @@ const encode_payload = async payload => {
 		}
 
 		if (SMART_CONTRACT == contract_mode || SYNERGETIC == contract_mode) {
-			buffer = await address.encode(buffer, payload._contract_digest)
-			buffer = await address.encode(buffer, payload._contract_address)
+			buffer =  address.encode(buffer, payload._contract_digest)
+			buffer =  address.encode(buffer, payload._contract_address)
 		} else if (CHAIN_CODE == contract_mode) {
 			let encoded_chain_code = new Buffer(payload._chain_code, 'ascii')
-			buffer = await bytearray.encode(buffer, encoded_chain_code)
+			buffer =  bytearray.encode(buffer, encoded_chain_code)
 		} else {
 			assert(false)
 		}
 	}
 
-	buffer = await bytearray.encode(
+  
+	buffer =  bytearray.encode(
 		buffer,
 		new Buffer(payload.action, 'ascii')
 	)
+  
 	buffer = await bytearray.encode(buffer, payload.data)
 
+
 	if (num_extra_signatures > 0) {
-		buffer = await integer.encode(buffer, num_extra_signatures)
+		buffer =  integer.encode(buffer, num_extra_signatures)
 	}
 
 	// write all the signers public keys
 	for (let signer of Object.keys(payload._signers)) {
 		// public key hex of signer
-		buffer = await identity.encode(
+		buffer =  identity.encode(
 			buffer,
 			new Buffer(
 				signer,
@@ -154,12 +155,12 @@ const encode_payload = async payload => {
 }
 
 // Encoded transaction
-const encode_transaction = async (payload, signers) => {
+const encode_transaction =  (payload, signers) => {
 	// encode the contents of the transaction
-	let buffer = await encode_payload(payload)
+	let buffer =  encode_payload(payload)
 
 	// append all the signatures of the signers in order
-	for await (let signer of Object.keys(payload._signers)) {
+	for  (let signer of Object.keys(payload._signers)) {
 		if (!signer === signers.pubKey.toString('hex')) {
 			throw new ValidationError('Missing signer signing set')
 		}
@@ -168,7 +169,7 @@ const encode_transaction = async (payload, signers) => {
 			.update(buffer.toString(), 'utf8')
 			.digest()
 		// sign the payload contents and add it to the buffer
-		buffer = await bytearray.encode(
+		buffer =  bytearray.encode(
 			buffer,
 			signers.sign(payload_bytes).signature
 		)

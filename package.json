@@ -6,7 +6,13 @@
   "scripts": {
     "build": "babel src/ -d dist/",
     "test": "jest src/test",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand src/test",
     "coverage": "jest src/test --collectCoverageFrom=src/**.js --coverage src"
+  },
+  "jest": {
+    "setupFiles": [
+      "./src/tests/utils/helpers.js"
+    ]
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +22,7 @@
     "bignumber.js": "^7.2.1",
     "bs58": "^4.0.1",
     "crypto": "^1.0.1",
+    "eslint-plugin-jest": "^22.19.0",
     "fastest-validator": "^0.6.12",
     "secp256k1": "^3.7.1",
     "wait-on": "^3.3.0",

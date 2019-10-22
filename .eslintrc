@@ -4,8 +4,12 @@
         "commonjs": true,
         "es6": true,
         "jest": true,
-        "node": true
+        "node": true,
+        "jest/globals": true
     },
+    "plugins": [
+        "jest"
+    ],
     "extends": "eslint:recommended",
     "rules": {
         "indent": [
@@ -23,11 +27,26 @@
         "semi": [
             "error",
             "never"
-        ]
+        ],
+        "jest/no-disabled-tests": [
+            "warn"
+        ],
+        "jest/no-focused-tests": [
+            "error"
+        ],
+        "jest/no-identical-title": [
+            "error"
+        ],
+        "jest/prefer-to-have-length": [
+            "warn"
+        ],
+        "jest/valid-expect": [
+            "error"
+        ],
     },
-    "parser": "babel-eslint",
-    "parserOptions": {
-        "sourceType": "module",
-        "allowImportExportEverywhere": true
-    }
+"parser": "babel-eslint",
+"parserOptions": {
+"sourceType": "module",
+"allowImportExportEverywhere": true
+}
 }
