@@ -16,6 +16,17 @@ Go to the dist directory and run the command:
 node example/balance.js
 
 ```
+#### To Debug Jest Tests Graphically:
+
+Open In Chrome the following URL:   chrome://inspect
+
+Click on "Open dedicated DevTools for Node" 
+
+```
+npm run test:debug
+```
+
+Note: optionally set breakpoint by typing "debugger;" within your code
 
 ##### Sample output:
 
