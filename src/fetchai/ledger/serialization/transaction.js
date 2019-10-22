@@ -60,18 +60,22 @@ const encode_payload = async payload => {
 
 	// determine the mode of the contract
 	const contract_mode = await _map_contract_mode(payload)
-	logger.info(`The mode of contract is ${contract_mode}`)
 
 	let header1 = contract_mode << 6
 	header1 |= signalled_signatures & 0x3f
 
-	logger.info(`magic: ${MAGIC}, header0: ${header0}, header1: ${header1}`)
 	let buffer = new Buffer([MAGIC, header0, header1])
 
 	// payload._from is hex of address
 	buffer = await address.encode(buffer, payload._from)
+
 	if (num_transfers > 1) {
 		buffer = await integer.encode(buffer, num_transfers - 2)
+	}
+
+	for (let [key, value] of Object.entries(payload._transfers)) {
+		buffer = address.encode(buffer, key)
+		buffer = integer.encode(buffer, value)
 	}
 
 	if (has_valid_from) {
@@ -127,7 +131,7 @@ const encode_payload = async payload => {
 		buffer,
 		new Buffer(payload.action, 'ascii')
 	)
-	buffer = await bytearray.encode(buffer, new Buffer(payload.data, 'ascii'))
+	buffer = await bytearray.encode(buffer, payload.data)
 
 	if (num_extra_signatures > 0) {
 		buffer = await integer.encode(buffer, num_extra_signatures)
@@ -144,6 +148,8 @@ const encode_payload = async payload => {
 			)
 		)
 	}
+
+	logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
 	return buffer
 }
 
@@ -167,6 +173,7 @@ const encode_transaction = async (payload, signers) => {
 			signers.sign(payload_bytes).signature
 		)
 	}
+	logger.info(`\n encoded transaction: ${buffer.toString('hex')} \n`)
 	// return the encoded transaction
 	return buffer
 }
