@@ -120,6 +120,7 @@ export class ApiEndpoint {
 			ver: '1.2',
 			data: tx_data.toString('base64')
 		}
+		logger.info(`\n Transaction payload: ${JSON.stringify(tx_payload, null, '\t')} \n`)
 
 		// format the URL
 		let url = `http://${this._host}:${this._port}/api/contract/${this.prefix}/${endpoint}`
@@ -140,13 +141,13 @@ export class ApiEndpoint {
 		}
 
 		if (200 <= resp.status < 300) {
-			logger.info(resp)
+			logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
 			return resp
 		}
 		return null
 	}
 
 	_encode_json(obj) {
-		return new Buffer(JSON.stringify(obj))
+		return new Buffer(JSON.stringify(obj), 'ascii')
 	}
 }
