@@ -36,7 +36,7 @@ export class BitVector {
 		return ''
 	}
 
-	from_bytes(data, bit_size) {
+	static from_bytes(data, bit_size) {
 		// data in bytes
 		// ensure the bit size matches the expectation
 		let min_size = Math.max((data.length - 1) * 8, 1)
@@ -58,9 +58,9 @@ export class BitVector {
 		return bits
 	}
 
-	from_hex_string(hex_data) {
-		let decoded_bytes = Buffer.from(hex_data, 'hex')
-		return this.from_bytes(decoded_bytes, decoded_bytes.length * 8)
+	static from_hex_string(hex_data) {
+		let decoded_bytes = Buffer.from(hex_data, 'hex');
+		return BitVector.from_bytes(decoded_bytes, decoded_bytes.length * 8);
 	}
 
 	byte_length() {

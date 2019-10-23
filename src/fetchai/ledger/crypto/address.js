@@ -20,7 +20,8 @@ export class Address {
 			}
 
 			this._address = identity
-			this._display = this._calculate_display(this._address)
+			this._display = this._calculate_display(this._address);
+	        console.log("display length js ::: " + this._display.length);
 
 		} else if (typeof identity === 'string') {
 			const bytes = bs58.decode(identity)

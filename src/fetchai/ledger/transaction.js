@@ -1,4 +1,6 @@
 import { BitVector } from './bitvector'
+import {Address} from './crypto/address'
+
 import assert from 'assert'
 
 /**
@@ -30,8 +32,8 @@ export class Transaction {
 	// Get and Set from_address param
 	from_address(address = '') {
 		if (address) {
-			this._from = String(address)
-			return this._from
+			this._from = new Address(address);
+			return this._from;
 		}
 		return this._from
 	}
@@ -40,7 +42,15 @@ export class Transaction {
 		return this._transfers
 	}
 
+    /**
+     * NOT IN PYTHON
+     */
 	set_transfer(address, amount = 0) {
+
+	      if(address instanceof Address) {
+            address = address.toHex();
+        }
+
 		return this._transfers[address] = amount
 	}
 
@@ -125,12 +135,17 @@ export class Transaction {
 
 	add_transfer(address, amount) {
 		assert(amount > 0)
+
+        if(address instanceof Address) {
+            address = address.toHex();
+        }
+
 		this._transfers[address] = this._transfers[address] + amount
 	}
 
 	target_contract(digest, address, mask) {
-		this._contract_digest = digest
-		this._contract_address = address
+		this._contract_digest = new Address(digest);
+		this._contract_address = new Address(address);
 		this._shard_mask = new BitVector(mask)
 		this._chain_code = ''
 	}

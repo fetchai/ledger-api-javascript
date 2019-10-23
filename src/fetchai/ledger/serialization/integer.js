@@ -42,7 +42,7 @@ const _calculate_log2_num_bytes = value => {
 const encode = (buffer, value) => {
     const is_signed = value < 0
     const abs_value = Math.abs(value)
-    
+
     if (!is_signed && abs_value <= 0x7f) {
         return Buffer.concat([buffer, new Buffer([abs_value])])
     } else {
@@ -70,14 +70,21 @@ const encode = (buffer, value) => {
     }
 }
 
-const decode = (buffer) => {
+/**
+ *
+ * container is an object containing the buffer allowing pass by reference of the buffer.
+ *
+ * { buffer: Buffer }
+ *
+ */
+const decode = (container) => {
 
-    if (buffer.length === 0) {
+    if (container.buffer.length === 0) {
         throw new ValidationError('Incorrect value being decoded');
     }
 
-    const header = buffer.slice(0, 1);
-    buffer = buffer.slice(1);
+    const header = container.buffer.slice(0, 1);
+    container.buffer = container.buffer.slice(1);
     const header_integer = header.readUIntBE(0, 1);
 
     if ((header_integer & 0x80) == 0) {
@@ -102,7 +109,7 @@ const decode = (buffer) => {
             )
         }
 
-        value = buffer.readUIntBE(0, value_length);
+        value = container.buffer.readUIntBE(0, value_length);
         if (signed_flag) {
             value = -value
         }

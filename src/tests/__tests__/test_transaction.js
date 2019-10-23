@@ -1,7 +1,6 @@
 import { Transaction } from '../../fetchai/ledger/transaction'
 import { BitVector } from '../../fetchai/ledger/bitvector'
-
-const randomAddr = 'randomAddr'
+import {Address} from '../../fetchai/ledger/crypto/address'
 
 describe(':Test Transaction', () => {
 	test('Testing transaction constructor', () => {
@@ -23,8 +22,10 @@ describe(':Test Transaction', () => {
 	})
 
 	test('Test from_address', () => {
-		let txObj = new Transaction()
-		expect(txObj.from_address(randomAddr)).toBe(randomAddr)
+		let txObj = new Transaction();
+		const randomAddr = _dummy_address();
+		const address = new Address(randomAddr);
+		expect(txObj.from_address(randomAddr)).toMatchObject(address);
 	})
 
 	test('Test transfers', () => {
@@ -34,10 +35,10 @@ describe(':Test Transaction', () => {
 
 	test('Test add_transfer with amount', () => {
 		let txObj = new Transaction()
-		let address = randomAddr
+		let address = _dummy_address();
 		txObj.set_transfer(address, 40)
-		txObj.add_transfer(randomAddr, 10)
-		expect(txObj._transfers[randomAddr]).toBe(40 + 10)
+		txObj.add_transfer(address, 10)
+		expect(txObj._transfers[address.toHex()]).toBe(40 + 10)
 	})
 
 	test('Test valid_from', () => {
@@ -99,18 +100,22 @@ describe(':Test Transaction', () => {
 	// signers() tested below
 
 	test('Test add_transfer', () => {
+	    debugger;
 		let txObj = new Transaction()
-		let address = randomAddr
+		let address = _dummy_address();
 		txObj.set_transfer(address)
-		txObj.add_transfer(randomAddr, 10)
-		expect(txObj._transfers[randomAddr]).toBe(10)
+		txObj.add_transfer(address, 10)
+        const  hex = address.toHex();
+		expect(txObj._transfers[hex]).toBe(10)
 	})
 
 	test('Test target_contract', () => {
 		let txObj = new Transaction()
-		txObj.target_contract('digest', 'address', new BitVector(10))
-		expect(txObj._contract_digest).toBe('digest')
-		expect(txObj._contract_address).toBe('address')
+        const digest = _dummy_address();
+		const address = _dummy_address();
+		txObj.target_contract(digest, address, new BitVector(10))
+        expect(txObj._contract_digest).toBeInstanceOf(Address);
+		expect(txObj._contract_address).toBeInstanceOf(Address);
 		expect(txObj._shard_mask._size).toBe(new BitVector(10)._size)
 		expect(txObj._shard_mask._byte_size).toBe(new BitVector(10)._byte_size)
 		expect(txObj._chain_code).toBe('')

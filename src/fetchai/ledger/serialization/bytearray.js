@@ -6,11 +6,11 @@ const encode = (buffer, value) => {
     return Buffer.concat([buffer, value])
 }
 
-const decode = (buffer) => {
+const decode = (container) => {
     // value in bytes (ascii encoded);
-    const len = integer.decode(buffer);
+    const len = integer.decode(container);
     // we then remove the header
-    const value = buffer.slice(1);
+    const value = container.buffer.slice(1);
     // then return the length of bytes specified in the header
     return value.slice(0, len);
 }
