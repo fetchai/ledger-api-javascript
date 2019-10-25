@@ -9,7 +9,7 @@ describe(':Identity', () => {
 		const buffer = Buffer.from('')
 		const ref = Buffer.concat([
 			buffer,
-			new Buffer([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]),
+			Buffer.from([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]),
 			entity.public_key_bytes()
 		])
 		const bytes = entity.public_key_bytes()
@@ -30,7 +30,7 @@ describe(':Identity', () => {
 		const buffer = Buffer.from('')
 		const ref = Buffer.concat([
 			buffer,
-			new Buffer([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]),
+			Buffer.from([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]),
 			entity.public_key_bytes()
 		])
 		const decoded = identity.decode(ref)
