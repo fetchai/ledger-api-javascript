@@ -103,17 +103,16 @@ export class TokenApi extends ApiEndpoint {
 			`request for transferring ${amount} wealth from ${entity.public_key_hex()} to ${to} with fee ${fee}`
 		)
 
+		let address =  new Address(entity.privKey)
 		// build up the basic transaction information
 		let tx = await super.create_skeleton_tx(fee)
-		// Todo: Replace entity.pubKey with hex of address
-		// Note: use 97a389875d9ff2db65f464cd825bf8be59d3cc1e6b42cdc52e1c0476ae320c4d for testing
-		tx.from_address(entity.public_key_hex()) //hex of address
+		tx.from_address(address._address) //hex of address
 		tx.add_transfer(to, amount)
 		tx.add_signer(entity.public_key_hex()) // hex of public key
 
 		// format the transaction payload
 		tx.data = super._encode_json({
-			address: entity.public_key(), //base64 encoded public key
+			address: entity.pubKey.toString('base64'), //base64 encoded public key
 			amount: amount
 		})
 		logger.info(
