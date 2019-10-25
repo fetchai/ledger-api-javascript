@@ -50,6 +50,7 @@ export class ApiEndpoint {
 		)
 
 		if (err) {
+			logger.error(`${err}`)
 			throw new ApiError('Malformed response from server')
 		}
 		return resp.data
@@ -102,6 +103,7 @@ export class ApiEndpoint {
 		)
 
 		if (err) {
+			logger.error(`${err}`)
 			throw new ApiError('Malformed response from server')
 		}
 
