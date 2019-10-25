@@ -12,11 +12,11 @@ export class BitVector {
 		if (size instanceof BitVector) {
 			this._size = size._size
 			this._byte_size = size._byte_size
-			this._buffer = Buffer.from(this._byte_size)
+			this._buffer = Buffer.alloc(this._byte_size)
 		} else {
 			this._size = Number(size)
 			this._byte_size = Math.floor((this._size + 7) / 8)
-			this._buffer = Buffer.from(this._byte_size)
+			this._buffer = Buffer.alloc(this._byte_size)
 		}
 	}
 
