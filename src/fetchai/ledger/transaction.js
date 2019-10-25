@@ -1,4 +1,5 @@
 import { BitVector } from './bitvector'
+import { Address } from './crypto/address'
 import assert from 'assert'
 
 /**
@@ -30,7 +31,7 @@ export class Transaction {
 	// Get and Set from_address param
 	from_address(address = '') {
 		if (address) {
-			this._from = String(address)
+			this._from = new Address(address)
 			return this._from
 		}
 		return this._from
@@ -38,10 +39,6 @@ export class Transaction {
 
 	transfers() {
 		return this._transfers
-	}
-
-	set_transfer(address, amount = 0) {
-		return this._transfers[address] = amount
 	}
 
 	// Get and Set valid_from param

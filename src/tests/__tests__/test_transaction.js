@@ -1,8 +1,6 @@
 import { Transaction } from '../../fetchai/ledger/transaction'
 import { BitVector } from '../../fetchai/ledger/bitvector'
 
-const randomAddr = 'randomAddr'
-
 describe(':Test Transaction', () => {
 	test('Testing transaction constructor', () => {
 		let txObj = new Transaction()
@@ -24,20 +22,12 @@ describe(':Test Transaction', () => {
 
 	test('Test from_address', () => {
 		let txObj = new Transaction()
-		expect(txObj.from_address(randomAddr)).toBe(randomAddr)
+		expect(txObj.from_address('')).toBe('')
 	})
 
 	test('Test transfers', () => {
 		let txObj = new Transaction()
 		expect(Object.keys(txObj.transfers())).toHaveLength(0)
-	})
-
-	test('Test add_transfer with amount', () => {
-		let txObj = new Transaction()
-		let address = randomAddr
-		txObj.set_transfer(address, 40)
-		txObj.add_transfer(randomAddr, 10)
-		expect(txObj._transfers[randomAddr]).toBe(40 + 10)
 	})
 
 	test('Test valid_from', () => {
@@ -97,14 +87,6 @@ describe(':Test Transaction', () => {
 	})
 
 	// signers() tested below
-
-	test('Test add_transfer', () => {
-		let txObj = new Transaction()
-		let address = randomAddr
-		txObj.set_transfer(address)
-		txObj.add_transfer(randomAddr, 10)
-		expect(txObj._transfers[randomAddr]).toBe(10)
-	})
 
 	test('Test target_contract', () => {
 		let txObj = new Transaction()
