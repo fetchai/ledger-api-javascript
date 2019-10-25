@@ -15,7 +15,7 @@ jest.mock('fs', () => {
 	const MOCK_FILE_INFO =
         '{"privateKey": "XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M="}'
 	return {
-		readFileSync: (fpath, opts) => {
+		readFileSync: () => {
 			return MOCK_FILE_INFO
 		}
 	}
