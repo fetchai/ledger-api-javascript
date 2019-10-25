@@ -1,16 +1,17 @@
+/* eslint-disable no-undef */
 import * as bs58 from 'bs58'
-import {createHash} from 'crypto'
-import {Address} from '../../fetchai/ledger/crypto/address'
+import { createHash } from 'crypto'
+import { Address } from '../../fetchai/ledger/crypto/address'
 
 //TODO remove functions names preceeding underscore.
-global._calc_digest = (address_raw) => {
+global._calc_digest = address_raw => {
 	const hash_func = createHash('sha256')
 	hash_func.update(address_raw)
 	const digest = hash_func.digest()
 	return digest
 }
 
-global._calc_address = (address_raw) => {
+global._calc_address = address_raw => {
 	const digest = _calc_digest(address_raw)
 	const bytes = _calc_digest(digest)
 	const checksum = bytes.slice(0, 4)
