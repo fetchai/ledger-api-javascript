@@ -150,6 +150,6 @@ export class ApiEndpoint {
 	}
 
 	_encode_json(obj) {
-		return new Buffer(JSON.stringify(obj), 'ascii')
+		return Buffer.from(JSON.stringify(obj), 'ascii')
 	}
 }
