@@ -37,7 +37,7 @@ export class TokenApi extends ApiEndpoint {
 		logger.info(`Balance of ${address} is ${data.balance}`)
 
 		if (!('balance' in data)) {
-            logger.error('No response data from server.')
+			logger.error('No response data from server.')
 			throw new ApiError('Malformed response from server')
 		}
 
@@ -58,19 +58,18 @@ export class TokenApi extends ApiEndpoint {
 			`request for creating wealth of address ${entity.public_key_hex()} for amount ${amount}`
 		)
 
+		let address =  new Address(entity.privKey)
 		// wildcard for the moment
 		let shard_mask = new BitVector()
 		let tx = await super.create_skeleton_tx(1)
-		// Todo: Replace entity.pubKey with hex of address
-		// Note: use 97a389875d9ff2db65f464cd825bf8be59d3cc1e6b42cdc52e1c0476ae320c4d for testing
-		tx.from_address(entity.public_key_hex()) //hex of address
+		tx.from_address(address._address) //hex of address
 		tx.target_chain_code(this.API_PREFIX, shard_mask)
 		tx.action = 'wealth'
 		tx.add_signer(entity.public_key_hex()) // hex of public key
 
 		// format the transaction payload
 		tx.data = super._encode_json({
-			address: entity.public_key(), //base64 encoded public key
+			address: entity.pubKey.toString('base64'), //base64 encoded public key
 			amount: amount
 		})
 		logger.info(
