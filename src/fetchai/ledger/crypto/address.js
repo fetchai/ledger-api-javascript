@@ -1,19 +1,16 @@
 import * as bs58 from 'bs58'
-import {ValidationError} from '../errors'
-import {createHash} from 'crypto' // Node.js
+import { ValidationError } from '../errors'
+import { createHash } from 'crypto' // Node.js
 
 const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4
 const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
 
 export class Address {
-
 	constructor(identity) {
-
 		if (identity instanceof Address) {
 			this._address = identity._address
 			this._display = identity._display
-
 		} else if (identity instanceof Buffer) {
 			if (Buffer.byteLength(identity) !== BYTE_LENGTH) {
 				throw new ValidationError('Incorrect length of binary address')
@@ -21,12 +18,13 @@ export class Address {
 
 			this._address = identity
 			this._display = this._calculate_display(this._address)
-
 		} else if (typeof identity === 'string') {
 			const bytes = bs58.decode(identity)
 
 			if (Buffer.byteLength(bytes) !== DISPLAY_BYTE_LENGTH) {
-				throw new ValidationError('Unable to parse address, incorrect size')
+				throw new ValidationError(
+					'Unable to parse address, incorrect size'
+				)
 			}
 
 			// split the identity into address and checksum
@@ -55,7 +53,7 @@ export class Address {
 	}
 
 	equals(other) {
-		return (Buffer.compare(this.toBytes(), other.toBytes()))
+		return Buffer.compare(this.toBytes(), other.toBytes())
 	}
 
 	toHex() {
