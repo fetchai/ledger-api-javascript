@@ -3,6 +3,7 @@ import { logger } from '../utils'
 import { ApiEndpoint } from './common'
 import { BitVector } from '../bitvector'
 import { encode_transaction } from '../serialization/transaction'
+import { Address } from '../crypto/address'
 
 /**
  * This class for all tokens operations
@@ -27,10 +28,11 @@ export class TokenApi extends ApiEndpoint {
      * @param  {address} The base64 encoded string containing the address of the node
      */
 	async balance(address) {
-		logger.info(`request for check balance of address: ${address}`)
 
 		// format and make the request
-		let request = { address: String(address) }
+		address =  new Address(address.privKey)
+		let request = { address: address._display }
+		logger.info(`request for check balance of address: ${address._display}`)
 		let data = await super._post_json('balance', request, this.prefix)
 		logger.info(`Balance of ${address} is ${data.balance}`)
 
