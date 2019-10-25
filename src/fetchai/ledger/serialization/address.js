@@ -4,10 +4,10 @@ const BYTE_LENGTH = 32
 
 const encode = (buffer, address) => {
 	if (address instanceof Address) {
-		return Buffer.concat([buffer, new Buffer(address.toHex(), 'hex')])
+		return Buffer.concat([buffer, Buffer.from(address.toHex(), 'hex')])
 	} else {
 		// address is in hex format
-		return Buffer.concat([buffer, new Buffer(address, 'hex')])
+		return Buffer.concat([buffer, Buffer.from(address, 'hex')])
 	}
 }
 

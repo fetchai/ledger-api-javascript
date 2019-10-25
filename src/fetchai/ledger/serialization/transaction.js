@@ -63,7 +63,7 @@ const encode_payload = payload => {
 	let header1 = contract_mode << 6
 	header1 |= signalled_signatures & 0x3f
 
-	let buffer = new Buffer([MAGIC, header0, header1])
+	let buffer = Buffer.from([MAGIC, header0, header1])
 
 	// payload._from is hex of address
 	buffer = address.encode(buffer, payload._from)
@@ -88,9 +88,9 @@ const encode_payload = payload => {
 		let shard_mask_length = payload.shard_mask.length
 		if (shard_mask_length <= 1) {
 			// signal this is a wildcard transaction
-			buffer = Buffer.concat([buffer, new Buffer([0x80])])
+			buffer = Buffer.concat([buffer, Buffer.from([0x80])])
 		} else {
-			let shard_mask_bytes = new Buffer(payload.shard_mask)
+			let shard_mask_bytes = Buffer.from(payload.shard_mask)
 			let log2_mask_length = log2(shard_mask_length)
 
 			let contract_header
@@ -103,13 +103,13 @@ const encode_payload = payload => {
 					contract_header |= 0x10
 				}
 				// write the mask to the stream
-				buffer = Buffer.concat([buffer, new Buffer([contract_header])])
+				buffer = Buffer.concat([buffer, Buffer.from([contract_header])])
 			} else {
 				assert(shard_mask_length <= 512)
 
 				contract_header = 0x40 | ((log2_mask_length - 3) & 0x3f)
 
-				buffer = Buffer.concat([buffer, new Buffer([contract_header])])
+				buffer = Buffer.concat([buffer, Buffer.from([contract_header])])
 				buffer = Buffer.concat([buffer, shard_mask_bytes])
 			}
 		}
@@ -118,14 +118,14 @@ const encode_payload = payload => {
 			buffer = address.encode(buffer, payload._contract_digest)
 			buffer = address.encode(buffer, payload._contract_address)
 		} else if (CHAIN_CODE == contract_mode) {
-			let encoded_chain_code = new Buffer(payload._chain_code, 'ascii')
+			let encoded_chain_code = Buffer.from(payload._chain_code, 'ascii')
 			buffer = bytearray.encode(buffer, encoded_chain_code)
 		} else {
 			assert(false)
 		}
 	}
 
-	buffer = bytearray.encode(buffer, new Buffer(payload.action, 'ascii'))
+	buffer = bytearray.encode(buffer, Buffer.from(payload.action, 'ascii'))
 
 	buffer = bytearray.encode(buffer, payload.data)
 
@@ -136,7 +136,7 @@ const encode_payload = payload => {
 	// write all the signers public keys
 	for (let signer of Object.keys(payload._signers)) {
 		// public key hex of signer
-		buffer = identity.encode(buffer, new Buffer(signer, 'hex'))
+		buffer = identity.encode(buffer, Buffer.from(signer, 'hex'))
 	}
 
 	logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
