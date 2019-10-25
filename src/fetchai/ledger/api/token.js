@@ -37,6 +37,7 @@ export class TokenApi extends ApiEndpoint {
 		logger.info(`Balance of ${address} is ${data.balance}`)
 
 		if (!('balance' in data)) {
+            logger.error('No response data from server.')
 			throw new ApiError('Malformed response from server')
 		}
 
@@ -81,7 +82,7 @@ export class TokenApi extends ApiEndpoint {
 		)
 
 		// encode and sign the transaction
-		const encoded_tx = await encode_transaction(tx, entity)
+		const encoded_tx = encode_transaction(tx, entity)
 
 		// submit the transaction
 		return await this._post_tx_json(encoded_tx, 'wealth')
@@ -125,7 +126,7 @@ export class TokenApi extends ApiEndpoint {
 		)
 
 		// encode and sign the transaction
-		const encoded_tx = await encode_transaction(tx, entity)
+		const encoded_tx = encode_transaction(tx, entity)
 
 		// submit the transaction
 		return await this._post_tx_json(encoded_tx, 'transfer')
