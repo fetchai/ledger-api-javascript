@@ -1,10 +1,12 @@
 import { TokenApi } from '../fetchai/ledger/api'
+import { Entity } from '../fetchai/ledger/crypto/entity'
 
 async function main() {
 	const host = '127.0.0.1'
 	const port = 8000
 	const api = new TokenApi(host, port)
-	await api.balance('2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5')
+	const identity1 = new Entity()
+	await api.balance(identity1)
 }
 
 main()
