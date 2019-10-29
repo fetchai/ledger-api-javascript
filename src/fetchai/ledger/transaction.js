@@ -1,5 +1,6 @@
 import { BitVector } from './bitvector'
 import {Address} from './crypto/address'
+import {Identity} from './crypto/identity'
 
 import assert from 'assert'
 
@@ -29,12 +30,12 @@ export class Transaction {
 		this._signers = {}
 	}
 
-	// Get and Set from_address param
-	from_address(address = '') {
-		if (address) {
-			this._from = new Address(address);
-			return this._from;
-		}
+    // Get and Set from_address param
+    from_address(address = '') {
+        if (address) {
+            this._from = new Address(address);
+            return this._from;
+        }
 		return this._from
 	}
 
@@ -136,11 +137,18 @@ export class Transaction {
 	add_transfer(address, amount) {
 		assert(amount > 0)
 
+        // if it is an identity we turn it into an address
+        if(address instanceof Identity){
+            address = new Address(address)
+        }
+
         if(address instanceof Address) {
             address = address.toHex();
         }
 
-		this._transfers[address] = this._transfers[address] + amount
+        let current = (this._transfers[address]) ? this._transfers[address] : 0;
+
+		this._transfers[address] = current + amount;
 	}
 
 	target_contract(digest, address, mask) {

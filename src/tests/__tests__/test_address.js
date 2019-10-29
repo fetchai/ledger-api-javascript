@@ -1,4 +1,5 @@
 import {Address} from '../../fetchai/ledger/crypto/address'
+import {Identity} from '../../fetchai/ledger/crypto/identity'
 import * as bs58 from 'bs58'
 import {ValidationError} from '../../fetchai/ledger/errors'
 
@@ -30,6 +31,8 @@ describe(':Address', () => {
 		const address2 = new Address(address1)
 		expect(address2.toBytes()).toMatchObject(expected_address_bytes)
 	})
+
+    //TODO add identity test
 
 	test('test invalid length bytes', () => {
 		const digest = _calc_digest(Buffer.from('rand'))

@@ -100,7 +100,6 @@ describe(':Test Transaction', () => {
 	// signers() tested below
 
 	test('Test add_transfer', () => {
-	    debugger;
 		let txObj = new Transaction()
 		let address = _dummy_address();
 		txObj.set_transfer(address)

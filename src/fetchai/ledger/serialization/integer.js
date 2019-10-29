@@ -53,6 +53,12 @@ const encode = (buffer, value) => {
             let log2_num_bytes = _calculate_log2_num_bytes(abs_value)
             let num_bytes = 1 << log2_num_bytes
 
+                 if (num_bytes > 6) {
+            throw new NotImplementedError(
+                '8 Byte support is not yet implemented in this Javascript SDK'
+            )
+        }
+
             // define the header
             let header
             if (is_signed) {
@@ -110,6 +116,7 @@ const decode = (container) => {
         }
 
         value = container.buffer.readUIntBE(0, value_length);
+        container.buffer = container.buffer.slice(value_length);
         if (signed_flag) {
             value = -value
         }

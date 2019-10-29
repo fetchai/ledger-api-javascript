@@ -11,8 +11,9 @@ const encode = (buffer, address) => {
 	}
 }
 
-const decode = (buff) => {
-    const address_raw = buff.slice(0, BYTE_LENGTH);
+const decode = (container) => {
+    const address_raw = container.buffer.slice(0, BYTE_LENGTH);
+    container.buffer = container.buffer.slice(BYTE_LENGTH);
     return new Address(address_raw);
 }
 
