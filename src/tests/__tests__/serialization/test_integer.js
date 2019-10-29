@@ -72,32 +72,42 @@ describe(':Integer', () => {
     // start decode tests
     test('test small unsigned decode',   () => {
 		const buffer = Buffer.from('04', 'hex');
-	    const decoded = integer.decode(buffer);
+		const container = { buffer: buffer}
+	    const decoded = integer.decode(container);
 	    expect(decoded).toBe(4);
+	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
       test('test small signed decode',   () => {
 		const buffer = Buffer.from('E4', 'hex');
-	    const decoded = integer.decode(buffer);
+		const container = { buffer: buffer}
+	    const decoded = integer.decode(container);
 	    expect(decoded).toBe(-4);
+	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
        test('test 1byte unsigned decode',   () => {
 		const buffer = Buffer.from('C080', 'hex');
-	    const decoded = integer.decode(buffer);
+		const container = { buffer: buffer}
+	    const decoded = integer.decode(container);
 	    expect(decoded).toBe(0x80);
+	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
        test('test 2byte unsigned decode',   () => {
 		const buffer = Buffer.from('C1EDEF', 'hex');
-	    const decoded = integer.decode(buffer);
+		const container = { buffer: buffer}
+	    const decoded = integer.decode(container);
 	    expect(decoded).toBe(0xEDEF);
+	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
         test('test 4byte unsigned decode',   () => {
 		const buffer = Buffer.from('C2EDEFABCD', 'hex');
-	    const decoded = integer.decode(buffer);
+		const container = { buffer: buffer}
+	    const decoded = integer.decode(container);
 	    expect(decoded).toBe(0xEDEFABCD);
+	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 /*
 TODO:: implement 8byte support for decode
@@ -110,20 +120,26 @@ TODO:: implement 8byte support for decode
 
   test('test 1byte signed decode',   () => {
 		const buffer = Buffer.from('D080', 'hex');
-	    const decoded = integer.decode(buffer);
+		const container = { buffer: buffer}
+	    const decoded = integer.decode(container);
 	    expect(decoded).toBe(-0x80);
+	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
   test('test 2byte signed decode',   () => {
 		const buffer = Buffer.from('D1EDEF', 'hex');
-	    const decoded = integer.decode(buffer);
+		const container = { buffer: buffer}
+	    const decoded = integer.decode(container);
 	    expect(decoded).toBe(-0xEDEF);
+	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
    test('test 4byte signed decode',   () => {
 		const buffer = Buffer.from('D1EDEF', 'hex');
-	    const decoded = integer.decode(buffer);
+		const container = { buffer: buffer}
+	    const decoded = integer.decode(container);
 	    expect(decoded).toBe(-0xEDEF);
+	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
     /*

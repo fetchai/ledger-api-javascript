@@ -35,7 +35,6 @@ export class Identity {
 
     verify(message, signature) {
         return secp256k1.verify(message, signature, this.prefixed_public_key());
-
     }
 
     static from_base64(private_key_base64) {

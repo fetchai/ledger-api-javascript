@@ -1,4 +1,5 @@
 import assert from 'assert'
+import reverse from 'buffer-reverse'
 
 /**
  * This class for bitVector related operations
@@ -7,18 +8,28 @@ import assert from 'assert'
  * @class
  */
 export class BitVector {
-
+//TODO add rest of the methods from the python
 	constructor(size=null) {
 		if (size instanceof BitVector) {
 			this._size = size._size
 			this._byte_size = size._byte_size
-			this._buffer = new Buffer(this._byte_size)
+			this._buffer = new Buffer(size._buffer)
 		} else {
 			this._size = Number(size)
 			this._byte_size = Math.floor((this._size + 7) / 8)
 			this._buffer = new Buffer(this._byte_size)
 		}
 	}
+
+	  __len__(){
+	        return this._size;
+      }
+
+     __bytes__() {
+         return reverse(this._buffer);
+     }
+
+
 
 	// Get bytes of this instance
 	instance_bytes() {
@@ -36,7 +47,7 @@ export class BitVector {
 		return ''
 	}
 
-	from_bytes(data, bit_size) {
+	static from_bytes(data, bit_size) {
 		// data in bytes
 		// ensure the bit size matches the expectation
 		let min_size = Math.max((data.length - 1) * 8, 1)
@@ -58,9 +69,9 @@ export class BitVector {
 		return bits
 	}
 
-	from_hex_string(hex_data) {
-		let decoded_bytes = Buffer.from(hex_data, 'hex')
-		return this.from_bytes(decoded_bytes, decoded_bytes.length * 8)
+	static from_hex_string(hex_data) {
+		let decoded_bytes = Buffer.from(hex_data, 'hex');
+		return BitVector.from_bytes(decoded_bytes, decoded_bytes.length * 8);
 	}
 
 	byte_length() {

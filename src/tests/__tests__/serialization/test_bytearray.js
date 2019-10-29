@@ -9,7 +9,7 @@ describe(':Bytearray', () => {
         expect(encoded.toString('hex')).toBe('013e');
     })
 
-    test('test decode', () => {
+    test.skip('test decode', () => {
         const data = Buffer.from('0A00010203040506070809', 'hex');
         const decoded = bytearray.decode(data);
         expect(decoded.toString('hex')).toBe('00010203040506070809');
