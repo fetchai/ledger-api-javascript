@@ -142,7 +142,7 @@ export class ApiEndpoint {
 
 		if (200 <= resp.status < 300) {
 			logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
-			return resp
+			return await resp.data;
 		}
 		return null
 	}

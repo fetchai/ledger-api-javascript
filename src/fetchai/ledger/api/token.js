@@ -54,7 +54,6 @@ export class TokenApi extends ApiEndpoint {
 		logger.info(
 			`request for creating wealth of address ${entity.public_key_hex()} for amount ${amount}`
 		)
-debugger;
 		// wildcard for the moment
 		let shard_mask = new BitVector()
 		let tx = await super.create_skeleton_tx(1)

@@ -16,8 +16,11 @@ async function main() {
 			'hex'
 		)
 	)
-	await api.wealth(entity, 1000)
 
+    const e = new Entity();
+
+const j =	await api.wealth(e, 1000)
+   console.log('here', j);
 	balance = await api.balance('29nQnTssh1Fe6zJtYvLfmjHqcKx5VAd5e88QpAREPvgbKUQpYw')
 	logger.info(`Balance after wealth: ${balance}`)
 }
