@@ -68,9 +68,9 @@ export class ApiEndpoint {
 
 		// build up the basic transaction information
 		let tx = new Transaction()
-		tx.valid_until = current_block + validity_period
-		tx.charge_rate = 1
-		tx.charge_limit = fee
+		tx.valid_until(current_block + validity_period)
+		tx.charge_rate(1)
+		tx.charge_limit(fee)
 		return tx
 	}
 

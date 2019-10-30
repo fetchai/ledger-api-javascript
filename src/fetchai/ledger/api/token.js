@@ -54,26 +54,26 @@ export class TokenApi extends ApiEndpoint {
 		logger.info(
 			`request for creating wealth of address ${entity.public_key_hex()} for amount ${amount}`
 		)
-
+debugger;
 		// wildcard for the moment
 		let shard_mask = new BitVector()
 		let tx = await super.create_skeleton_tx(1)
         // Todo: Replace entity.pubKey with hex of address
         // Note: use 97a389875d9ff2db65f464cd825bf8be59d3cc1e6b42cdc52e1c0476ae320c4d for testing
-		tx.from_address(entity.public_key_hex()) //hex of address
+		tx.from_address(entity) //hex of address
 		tx.target_chain_code(this.API_PREFIX, shard_mask)
-		tx.action = 'wealth'
+		tx.action('wealth')
 		tx.add_signer(entity.public_key_hex()) // hex of public key
 
 		// format the transaction payload
-		tx.data = super._encode_json({
+		tx.data(super._encode_json({
 			address: entity.public_key(), //base64 encoded public key
 			amount: amount
-		})
-		logger.info(`Transactions object for sign and encode: ${JSON.stringify(tx, null, '\t')}`)
+		}))
+		// logger.info(`Transactions object for sign and encode: ${JSON.stringify(tx, null, '\t')}`)
 
 		// encode and sign the transaction
-		const encoded_tx = await encode_transaction(tx, entity)
+		const encoded_tx = encode_transaction(tx, [entity])
 
 		// submit the transaction
 		return await this._post_tx_json(encoded_tx, 'wealth')
@@ -103,15 +103,17 @@ export class TokenApi extends ApiEndpoint {
 		tx.add_transfer(to, amount)
 		tx.add_signer(entity.public_key_hex()) // hex of public key
 
-		// format the transaction payload
-		tx.data = super._encode_json({
+       const encoded = super._encode_json({
 			address: entity.public_key(), //base64 encoded public key
 			amount: amount
 		})
-		logger.info(`Transactions object for sign and encode: ${JSON.stringify(tx, null, '\t')}`)
+
+		// format the transaction payload
+		tx.data(encoded);
+		// logger.info(`Transactions object for sign and encode: ${JSON.stringify(tx, null, '\t')}`)
 
 		// encode and sign the transaction
-		const encoded_tx = await encode_transaction(tx, entity)
+		const encoded_tx = await encode_transaction(tx, [entity])
 
 		// submit the transaction
 		return await this._post_tx_json(encoded_tx, 'transfer')
