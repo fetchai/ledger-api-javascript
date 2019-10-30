@@ -7,8 +7,9 @@ const encode = (buffer, value) => {
 }
 
 const decode = (buffer) => {
+     let len;
     // value in bytes (ascii encoded);
-    const len = integer.decode(buffer);
+    [len, buffer] = integer.decode(buffer);
     const value = buffer.slice(0, len);
     buffer = buffer.slice(len);
     // then return the length of bytes specified in the header

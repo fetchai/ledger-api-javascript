@@ -11,6 +11,7 @@ describe(':Bytearray', () => {
 
     test('test decode', () => {
         const data = Buffer.from('0A00010203040506070809', 'hex');
+        debugger;
         const [decoded, buffer] = bytearray.decode(data);
         expect(decoded.toString('hex')).toBe('00010203040506070809');
         expect(Buffer.byteLength(buffer)).toBe(0);
