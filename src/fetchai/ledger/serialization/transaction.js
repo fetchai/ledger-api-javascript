@@ -195,7 +195,8 @@ const encode_transaction = (payload, signers) => {
 
 
 const decode_transaction = (buffer) => {
-
+    // we use the origin later to determine the payload
+    const input_buffer = buffer;
     // ensure the at the magic is correctly configured
     const magic = buffer.slice(0, 1);
     buffer = buffer.slice(1);
@@ -254,9 +255,7 @@ const decode_transaction = (buffer) => {
         [valid_from, buffer] = integer.decode(buffer)
         tx.valid_from(valid_from);
     }
-    let valid_until;
-    let charge_rate;
-    let charge_limit;
+    let valid_until, charge_rate, charge_limit;
     [valid_until, buffer] = integer.decode(buffer);
     tx.valid_until(valid_until);
     [charge_rate, buffer] = integer.decode(buffer);
@@ -300,8 +299,7 @@ const decode_transaction = (buffer) => {
             }
         }
         if (contract_type == SMART_CONTRACT || contract_type == SYNERGETIC) {
-            let contract_digest;
-            let contract_address;
+            let contract_digest, contract_address;
              [contract_digest, buffer] = address.decode(buffer);
              [contract_address, buffer] = address.decode(buffer);
             tx.target_contract(contract_digest, contract_address, shard_mask);
@@ -337,17 +335,16 @@ const decode_transaction = (buffer) => {
     }
 
     const signatures_serial_length = EXPECTED_SERIAL_SIGNATURE_LENGTH * num_signatures;
-    const expected_payload_end = Buffer.byteLength(buffer) - signatures_serial_length;
-    const payload_bytes = buffer.slice(0, expected_payload_end);
+    const expected_payload_end = Buffer.byteLength(input_buffer) - signatures_serial_length;
+    const payload_bytes = input_buffer.slice(0, expected_payload_end);
     const verified = [];
 
 
     public_keys.forEach((ident) => {
-        let identity, signature;
+         let identity, signature;
          [signature, buffer] = bytearray.decode(buffer);
         identity = new Identity(ident);
         let payload_bytes_digest = _calc_digest_utf(payload_bytes.toString('hex'))
-        debugger;
         verified.push(identity.verify(payload_bytes_digest, signature));
         tx.add_signer(identity.public_key_hex());
     });
