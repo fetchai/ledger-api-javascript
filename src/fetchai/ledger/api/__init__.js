@@ -1,38 +1,47 @@
 import {RunTimeError} from 'src/fetchai/ledger/errors/runTimeError'
+import {ApiError} from "../errors";
 
 export class LedgerApi {
 
-    constructor(host, port, network) {
+    constructor() {}
 
-    }
+    sync(txs, timeout=false){
 
-    sync(txs, timeout= false){
-      timeout = (timeout === false) ? 120 : timeout;
+      const limit = (timeout === false) ? 120 : timeout*1000;
 
       if(!Array.isArray(txs) || !txs.length) {
            throw new TypeError('Unknown argument type');
       }
 
-      const remaining = txs.length;
       const start = Date.now();
-
-
-
-
 
 function loop() {
 
-     if(remaining === 0) return;
+     if(txs.length === 0) return;
 
+     txs.forEach((item, index, object) => {
+         assert(typeof item === "function");
+
+         try {
+              let res = tx.call();
+              // we expect failed requests to return null, or throw an ApiError
+              if(res !== null)  object.splice(index, 1);
+         } catch (e) {
+               if (!(e instanceof ApiError)) {
+                   throw e;
+               }
+         }
+    });
+
+     if(txs.length === 0) return;
+     let elapsed_time = Date.now() - start;
 
      if (elapsed_time >= limit){
-         Throw new RunTimeError('Timeout waiting for txs:' + )
+         const l = txs.reduce(t, f => t + " , " + f.name.substring(6))
+         throw new RunTimeError('Timeout waiting for txs:' + l)
     }
-                raise RuntimeError('Timeout waiting for txs: {}'.format(', '.join(list(remaining))))
-
-		setTimeout(loop, 10);
+		setTimeout(loop, 1);
 	}()
-
 
 
     }
