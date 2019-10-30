@@ -15,8 +15,8 @@ const encode = (buffer, value) => {
     }
 }
 
-const decode = (container) => {
-    const header = container.buffer.slice(0, 1);
+const decode = (buffer) => {
+    const header = buffer.slice(0, 1);
     const hex = parseInt(header.toString('hex'));
 
     if (hex !== UNCOMPRESSED_SCEP256K1_PUBLIC_KEY) {
@@ -25,9 +25,9 @@ const decode = (container) => {
     // we add one to this value because our key is longer by one, and
     // one because we start our slice ignoring the first.
     const len = UNCOMPRESSED_SCEP256K1_PUBLIC_KEY_LEN + 1;
-    const ret =  container.buffer.slice(1, len);
-    container.buffer = container.buffer.slice(len);
-    return ret;
+    const ret =  buffer.slice(1, len);
+    buffer = buffer.slice(len);
+    return [ret, buffer];
 }
 
 export {encode, decode}

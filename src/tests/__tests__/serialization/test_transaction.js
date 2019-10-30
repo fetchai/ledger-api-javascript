@@ -45,7 +45,7 @@ const EXPECTED_SIGNATURE_BYTE_LEN = 64;
 const EXPECTED_SIGNATURE_LENGTH_FIELD_LEN = _calculate_integer_stream_size(EXPECTED_SIGNATURE_BYTE_LEN);
 const EXPECTED_SERIAL_SIGNATURE_LENGTH = EXPECTED_SIGNATURE_BYTE_LEN + EXPECTED_SIGNATURE_LENGTH_FIELD_LEN;
 
-describe(':Transaction', () => {
+describe.skip(':Transaction', () => {
 
     test('test simple decode transaction ', () => {
 
@@ -268,15 +268,18 @@ function assertIsExpectedTx(payload, transaction_bytes, expected_hex_payload) {
         .digest()
 
     // loop through and verify all the signatures
-    const buffer = transaction_bytes.slice(expected_payload_end);
-    const container = {buffer: buffer};
+    let buffer = transaction_bytes.slice(expected_payload_end);
 
     let identity;
+    let signature;
+
     for (let signee of Object.keys(payload._signers)) {
-        let signature = bytearray.decode(container);
+        debugger;
+        [signature, buffer] = bytearray.decode(buffer);
         // validate the signature is correct for the payload
         identity = new Identity(Buffer.from(signee, 'hex'));
-        expect(identity.verify(payload_bytes_hash, signature)).toBe(true)
+        let verified = identity.verify(payload_bytes_hash, signature);
+        expect(verified).toBe(true)
     }
 }
 

@@ -83,24 +83,25 @@ const encode = (buffer, value) => {
  * { buffer: Buffer }
  *
  */
-const decode = (container) => {
+const decode = (buffer) => {
 
-    if (container.buffer.length === 0) {
+    if (buffer.length === 0) {
         throw new ValidationError('Incorrect value being decoded');
     }
 
-    const header = container.buffer.slice(0, 1);
-    container.buffer = container.buffer.slice(1);
+    const header = buffer.slice(0, 1);
+    buffer = buffer.slice(1);
     const header_integer = header.readUIntBE(0, 1);
 
     if ((header_integer & 0x80) == 0) {
-        return header_integer & 0x7F;
+        let ret = header_integer & 0x7F;
+        return [ret, buffer];
     }
 
     const type = (header_integer & 0x60) >> 5;
     if (type === 3) {
         const ret = -(header_integer & 0x1f);
-        return ret;
+        return [ret, buffer];
     }
 
     if (type === 2) {
@@ -115,12 +116,12 @@ const decode = (container) => {
             )
         }
 
-        value = container.buffer.readUIntBE(0, value_length);
-        container.buffer = container.buffer.slice(value_length);
+        value = buffer.readUIntBE(0, value_length);
+        buffer = buffer.slice(value_length);
         if (signed_flag) {
             value = -value
         }
-        return value;
+        return [value, buffer];
     }
 };
 

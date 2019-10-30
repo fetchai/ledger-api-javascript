@@ -14,13 +14,12 @@ describe(':Address', () => {
 
     test('test decode', () => {
         const ref_address = _dummy_address();
-        const container = { buffer: ref_address.toBytes()}
-        const address_obj = address.decode(container);
+        const [address_obj, buffer] = address.decode(ref_address.toBytes());
         const expected = ref_address.toBytes();
         const address_bytes = address_obj.toBytes();
         expect(address_obj).toBeInstanceOf(Address);
         expect(address_bytes.toString('hex')).toBe(expected.toString('hex'));
-        expect(Buffer.byteLength(container.buffer)).toBe(0);
+        expect(Buffer.byteLength(buffer)).toBe(0);
     })
 
 })
