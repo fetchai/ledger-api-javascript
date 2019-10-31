@@ -22,11 +22,16 @@ import  {BN} from "bn.js";
 
 const _calculate_log2_num_bytes = value => {
     // Todo: Improve logic
-    const data = [256, 65536, 4294967296, 18446744073709551616]
-    for (let log2_num_bytes of data) {
-        if (value < log2_num_bytes) {
-            return data.findIndex(val => val == log2_num_bytes)
-        }
+    let data  = [];
+    data.push(new BN(256));
+    data.push(new BN(65536));
+    data.push(new BN(4294967296));
+    // data.push(new BN(10000000000000000, 16));
+    data.push(new BN('18446744073709551616'));
+   // const data = [new BN(256), new BN(65536), new BN(4294967296), new BN(18446744073709551616)]
+   // for (let log2_num_bytes of data) {
+    for(let i =0; i < data.length; i++){
+        if(value.cmp(data[i]) === -1) return i;
     }
     throw new RunTimeError(
         'Unable to calculate the number of bytes required for this value'
@@ -50,22 +55,34 @@ const encode = (buffer, value) => {
             return Buffer.concat([buffer, new Buffer([0xE0 | abs_value])])
         } else {
             // determine the number of bytes that will be needed to encode this value
-            let log2_num_bytes = _calculate_log2_num_bytes(abs_value)
-            let num_bytes = 1 << log2_num_bytes
+            let log2_num_bytes = _calculate_log2_num_bytes(new BN(abs_value))
+            let one = new BN(1);
+            debugger;
+            let num_bytes = one.shln(log2_num_bytes);
 
-                 if (num_bytes > 6) {
-            throw new NotImplementedError(
-                '8 Byte support is not yet implemented in this Javascript SDK'
-            )
-        }
+        //          if (num_bytes > 6) {
+        //     throw new NotImplementedError(
+        //         '8 Byte support is not yet implemented in this Javascript SDK'
+        //     )
+        // }
 
             // define the header
-            let header
+            let header, temp, temp2;
             if (is_signed) {
-                header = 0xd0 | (log2_num_bytes & 0xF)
+                temp2 = new BN('0xF');
             } else {
-                header = 0xc0 | (log2_num_bytes & 0xF)
-            }
+                 temp2 = new BN('0xc0');
+                }
+
+            var log2_num_bytes_BN = new BN(log2_num_bytes);
+                temp = log2_num_bytes_BN.and(temp2)
+                header = new BN('0xd0').or(temp);
+
+                //header = 0xd0 | (log2_num_bytes & 0xF)
+          //  } else {
+                //header = 0xc0 | (log2_num_bytes & 0xF)
+         //   }
+                num_bytes = num_bytes.toNumber();
 
             // encode all the parts fot the values
             let values = Array.from(Array(num_bytes).keys())
@@ -116,15 +133,15 @@ const decode = (container) => {
         }
 
        //  value = container.buffer.readUIntBE(0, value_length);
-        value = new BN(container.buffer(0, value_length))
+        let temp = container.buffer.slice(0, value_length)
+        value = new BN(temp);
         container.buffer = container.buffer.slice(value_length);
         if (signed_flag) {
             //value = -value;
-            value.neg();
+            value = value.neg();
            //let q = new BN(value);
-  debugger;
         }
-        return value;
+        return value.toNumber();
     }
 };
 
