@@ -1,7 +1,7 @@
 import {RunTimeError} from '../errors'
 import {NotImplementedError} from "../errors";
 import {ValidationError} from "../errors";
-
+import  {BN} from "bn.js";
 /**
  * Determine the number of bytes required to encode the input value.
  * Artificially limited to max of 8 bytes to be compliant
@@ -115,10 +115,14 @@ const decode = (container) => {
             )
         }
 
-        value = container.buffer.readUIntBE(0, value_length);
+       //  value = container.buffer.readUIntBE(0, value_length);
+        value = new BN(container.buffer(0, value_length))
         container.buffer = container.buffer.slice(value_length);
         if (signed_flag) {
-            value = -value
+            //value = -value;
+            value.neg();
+           //let q = new BN(value);
+  debugger;
         }
         return value;
     }
