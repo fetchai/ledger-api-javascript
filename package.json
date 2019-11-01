@@ -11,9 +11,6 @@
     "coverage": "jest src/test --coverage --coverageDirectory=coverage"
   },
   "jest": {
-    "setupFiles": [
-      "./src/tests/utils/helpers.js"
-    ],
     "coverageReporters": [
       "json-summary"
     ],
