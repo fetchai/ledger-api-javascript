@@ -1,12 +1,12 @@
 import {RunTimeError} from '../errors'
-import {NotImplementedError} from "../errors";
-import {ValidationError} from "../errors";
+import {NotImplementedError} from '../errors'
+import {ValidationError} from '../errors'
 
 /**
  * Determine the number of bytes required to encode the input value.
  * Artificially limited to max of 8 bytes to be compliant
  *
- * @param  {value} calculate log2 num bytes
+ * @param  value The log2 num bytes
  */
 // const _calculate_log2_num_bytes = async value => {
 // 	for (let log2_num_bytes of Array.from(Array(4).keys())) {
@@ -25,7 +25,7 @@ const _calculate_log2_num_bytes = value => {
     const data = [256, 65536, 4294967296, 18446744073709551616]
     for (let log2_num_bytes of data) {
         if (value < log2_num_bytes) {
-            return data.findIndex(val => val == log2_num_bytes)
+            return data.findIndex(val => val === log2_num_bytes)
         }
     }
     throw new RunTimeError(
@@ -53,11 +53,11 @@ const encode = (buffer, value) => {
             let log2_num_bytes = _calculate_log2_num_bytes(abs_value)
             let num_bytes = 1 << log2_num_bytes
 
-                 if (num_bytes > 6) {
-            throw new NotImplementedError(
-                '8 Byte support is not yet implemented in this Javascript SDK'
-            )
-        }
+            if (num_bytes > 6) {
+                throw new NotImplementedError(
+                    '8 Byte support is not yet implemented in this Javascript SDK'
+                )
+            }
 
             // define the header
             let header
@@ -86,28 +86,28 @@ const encode = (buffer, value) => {
 const decode = (container) => {
 
     if (container.buffer.length === 0) {
-        throw new ValidationError('Incorrect value being decoded');
+        throw new ValidationError('Incorrect value being decoded')
     }
 
-    const header = container.buffer.slice(0, 1);
-    container.buffer = container.buffer.slice(1);
-    const header_integer = header.readUIntBE(0, 1);
+    const header = container.buffer.slice(0, 1)
+    container.buffer = container.buffer.slice(1)
+    const header_integer = header.readUIntBE(0, 1)
 
     if ((header_integer & 0x80) == 0) {
-        return header_integer & 0x7F;
+        return header_integer & 0x7F
     }
 
-    const type = (header_integer & 0x60) >> 5;
+    const type = (header_integer & 0x60) >> 5
     if (type === 3) {
-        const ret = -(header_integer & 0x1f);
-        return ret;
+        const ret = -(header_integer & 0x1f)
+        return ret
     }
 
     if (type === 2) {
-        const signed_flag = Boolean(header_integer & 0x10);
-        const log2_value_length = header_integer & 0x0F;
-        const value_length = 1 << log2_value_length;
-        let shift, value, byte_value, slice;
+        const signed_flag = Boolean(header_integer & 0x10)
+        const log2_value_length = header_integer & 0x0F
+        const value_length = 1 << log2_value_length
+        let value
 
         if (value_length > 6) {
             throw new NotImplementedError(
@@ -115,13 +115,13 @@ const decode = (container) => {
             )
         }
 
-        value = container.buffer.readUIntBE(0, value_length);
-        container.buffer = container.buffer.slice(value_length);
+        value = container.buffer.readUIntBE(0, value_length)
+        container.buffer = container.buffer.slice(value_length)
         if (signed_flag) {
             value = -value
         }
-        return value;
+        return value
     }
-};
+}
 
 export {encode, decode}
