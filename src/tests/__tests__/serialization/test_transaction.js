@@ -85,9 +85,7 @@ describe(':Transaction', () => {
 * REQUIRES 8 BYTE SUPPORT! Then remove "skip" and and add original payload, and amount from python
 */
 
-test('test synergetic_data_submission', () => {
-    //original payload
-    //const EXPECTED_PAYLOAD = "a120c0532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d4c1271001c3000000e8d4a5100080da2e9c3191e3768d1c59ea43f6318367ed9b21e6974f46a60d0dd8976740af6de6672a9d98da667e5dc25b2bca8acf9644a7ac0797f01cb5968abf39de011df204646174610f7b2276616c7565223a20313233347d0418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c"
+test('test synergetic data submission', () => {
     const EXPECTED_PAYLOAD = "a120c0532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d4c1271001c1271080da2e9c3191e3768d1c59ea43f6318367ed9b21e6974f46a60d0dd8976740af6de6672a9d98da667e5dc25b2bca8acf9644a7ac0797f01cb5968abf39de011df204646174610f7b2276616c7565223a20313233347d0418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c"
     const payload = new Transaction();
     payload.from_address(IDENTITIES[0]);
@@ -97,9 +95,8 @@ test('test synergetic_data_submission', () => {
     payload.charge_limit(10000);
     payload.action('data');
     payload.synergetic_data_submission(true);
-    // payload.data('{"value": 1234}');
-   //  const q =  JSON.parse('{"value": 1234}');
-    payload.data(JSON.stringify({value: 1234}));
+    payload.data('{"value": 1234}');
+    //payload.data(JSON.stringify({value: 1234}));
     payload.add_signer(IDENTITIES[0].public_key_hex());
     const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
     assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD);

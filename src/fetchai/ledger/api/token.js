@@ -35,7 +35,7 @@ export class TokenApi extends ApiEndpoint {
         address = new Address(address);
 		// format and make the request
 		let request = { address: address.toString() }
-		let data = await super._post_json('balance', request, this.prefix)
+		let data = super._post_json('balance', request, this.prefix)
 		logger.info(`Balance of ${address} is ${data.balance}`)
 
 		if (!('balance' in data)) {
@@ -69,7 +69,6 @@ export class TokenApi extends ApiEndpoint {
 		tx.add_signer(entity.public_key_hex()) // hex of public key
 
 		// format the transaction payload
-        debugger;
 		/*
 		super._encode_json({
 			address: entity.public_key(), //base64 encoded public key
@@ -77,9 +76,8 @@ export class TokenApi extends ApiEndpoint {
 		})
 		 */
 
-let s =  '{"amount": 1000 "timestamp": }'
+let s =  '{"amount": 1000 "timestamp":' + Date.now() +  '}'
 		// let s = '{"address": "' + entity. + '","amount": "' + amount + '"}';
-debugger;
 		tx.data(s);
 		// logger.info(`Transactions object for sign and encode: ${JSON.stringify(tx, null, '\t')}`)
 		// encode and sign the transaction

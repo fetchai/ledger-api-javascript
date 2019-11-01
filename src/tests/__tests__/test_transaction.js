@@ -130,7 +130,7 @@ describe(':Test Transaction', () => {
 		expect(txObj._chain_code).toBe(String(2))
 	})
 
-	test('Test synergetic_data_submission', () => {
+	test('Test synergetic data submission', () => {
 		let txObj = new Transaction()
 		expect(txObj.synergetic_data_submission(true)).toBe(true)
 	})

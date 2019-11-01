@@ -140,7 +140,6 @@ const encode_payload = payload => {
             new Buffer(payload.action(), 'ascii')
         )
         const data = new Buffer(payload.data(), 'utf8')
-        debugger;
         buffer = bytearray.encode(buffer, data)
     }
 
@@ -332,7 +331,7 @@ const decode_transaction = (buffer) => {
         let identity;
         signature = bytearray.decode(container);
         identity = new Identity(ident);
-        let payload_bytes_digest = _calc_digest_utf(payload_bytes.toString('hex'))
+        let payload_bytes_digest = _calc_digest_utf(payload_bytes)
         temporyToDel = identity.verify(payload_bytes_digest, signature);
         verified.push(identity.verify(payload_bytes_digest, signature));
         tx.add_signer(identity.public_key_hex());

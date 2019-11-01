@@ -26,6 +26,7 @@ const j = await api.wealth(e, 1000)
  setInterval(async () => {
      const balance = await api.balance(a)
  logger.info(`Balance after wealth!!!!: ${balance}`)
+
  }, 1000)
 
 
