@@ -14,7 +14,7 @@ async function main() {
     // create the balance
     console.log('WWWWWWSubmitting wealth creation...')
     const t  = await api.tokens.wealth(identity1, 1000);
-
+    debugger;
     api.sync([t]);
 
     const d = await api.tokens.balance(identity1);
