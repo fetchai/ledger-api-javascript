@@ -6,13 +6,25 @@
   "scripts": {
     "build": "babel src/ -d dist/",
     "test": "jest src/test",
+    "lint": "eslint .",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand src/test",
-    "coverage": "jest src/test --collectCoverageFrom=src/**.js --coverage src"
+    "coverage": "jest src/test --coverage --coverageDirectory=coverage"
   },
   "jest": {
     "setupFiles": [
       "./src/tests/utils/helpers.js"
-    ]
+    ],
+    "coverageReporters": [
+      "json-summary"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 1,
+        "functions": 1,
+        "lines": 1,
+        "statements": 1
+      }
+    }
   },
   "author": "",
   "license": "ISC",
@@ -21,9 +33,11 @@
     "axios": "^0.19.0",
     "bignumber.js": "^7.2.1",
     "bs58": "^4.0.1",
+    "buffer-reverse": "^1.0.1",
     "crypto": "^1.0.1",
     "eslint-plugin-jest": "^22.19.0",
     "fastest-validator": "^0.6.12",
+    "jest-coverage-validator": "^0.6.9",
     "secp256k1": "^3.7.1",
     "wait-on": "^3.3.0",
     "winston": "^3.2.1"
@@ -42,6 +56,7 @@
     "babel-eslint": "^10.0.1",
     "eslint": "^6.5.1",
     "jest": "^24.9.0",
+    "jest-coverage-ratchet": "^0.2.3",
     "prettier-eslint": "^8.8.2"
   }
 }

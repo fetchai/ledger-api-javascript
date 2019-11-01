@@ -1,10 +1,11 @@
 import * as address from '../../../fetchai/ledger/serialization/address'
 import {Address} from '../../../fetchai/ledger/crypto/address'
+import {dummy_address} from '../../utils/helpers'
 
 describe(':Address', () => {
 
     test('test encode', () => {
-        const ref_address = _dummy_address()
+        const ref_address = dummy_address()
         const buf = Buffer.from('')
         const encoded = address.encode(buf, ref_address)
         const expected = ref_address.toBytes()
@@ -13,12 +14,14 @@ describe(':Address', () => {
     })
 
     test('test decode', () => {
-        const ref_address = _dummy_address();
-        const address_obj = address.decode(ref_address.toBytes());
-        const expected = ref_address.toBytes();
-        const address_bytes = address_obj.toBytes();
-        expect(address_obj).toBeInstanceOf(Address);
-        expect(address_bytes.toString('hex')).toBe(expected.toString('hex'));
+        const ref_address = dummy_address()
+        const container = {buffer: ref_address.toBytes()}
+        const address_obj = address.decode(container)
+        const expected = ref_address.toBytes()
+        const address_bytes = address_obj.toBytes()
+        expect(address_obj).toBeInstanceOf(Address)
+        expect(address_bytes.toString('hex')).toBe(expected.toString('hex'))
+        expect(Buffer.byteLength(container.buffer)).toBe(0)
     })
 
 })

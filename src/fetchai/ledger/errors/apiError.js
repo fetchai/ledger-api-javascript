@@ -1,8 +1,8 @@
-import { Base } from './base'
+import {Base} from './base'
 
 export class ApiError extends Base {
-	constructor (errors) {
-		super('API error')
-		this.errors = errors
-	}
+    constructor(errors) {
+        super('API error')
+        this.errors = errors
+    }
 }
