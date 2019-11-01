@@ -44,10 +44,10 @@ const encode = (buffer, value) => {
     const abs_value = Math.abs(value)
 
     if (!is_signed && abs_value <= 0x7f) {
-        return Buffer.concat([buffer, new Buffer([abs_value])])
+        return Buffer.concat([buffer, Buffer.from([abs_value])])
     } else {
         if (is_signed && abs_value <= 0x1F) {
-            return Buffer.concat([buffer, new Buffer([0xE0 | abs_value])])
+            return Buffer.concat([buffer, Buffer.from([0xE0 | abs_value])])
         } else {
             // determine the number of bytes that will be needed to encode this value
             let log2_num_bytes = _calculate_log2_num_bytes(abs_value)
@@ -71,7 +71,7 @@ const encode = (buffer, value) => {
             let values = Array.from(Array(num_bytes).keys())
                 .reverse()
                 .map(value => (abs_value >> (value * 8)) & 0xFF)
-            return Buffer.concat([buffer, Buffer.concat([new Buffer([header]), new Buffer(values)])])
+            return Buffer.concat([buffer, Buffer.concat([Buffer.from([header]), Buffer.from(values)])])
         }
     }
 }

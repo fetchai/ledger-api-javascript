@@ -6,8 +6,7 @@ import {Address} from '../../fetchai/ledger/crypto/address'
 export function calc_digest(address_raw) {
     const hash_func = createHash('sha256')
     hash_func.update(address_raw)
-    const digest = hash_func.digest()
-    return digest
+    return hash_func.digest()
 }
 
 export function calc_address(address_raw) {
@@ -21,8 +20,7 @@ export function calc_address(address_raw) {
 
 export function dummy_address() {
     const digest = calc_digest(Buffer.from('rand'))
-    const bs58_encoded = bs58.encode(digest)
-    const [, expected_display] = calc_digest(bs58_encoded)
-    return new Address(expected_display)
+    // const bs58_encoded = bs58.encode(digest)
+    return new Address(Buffer.from(digest))
 }
 

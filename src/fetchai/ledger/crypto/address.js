@@ -46,7 +46,7 @@ export class Address {
             this._address = address_raw
             this._display = identity
         } else {
-            throw new ValidationError('Failed to build identity from input')
+            throw new ValidationError('Failed to build Address from input')
         }
     }
 
