@@ -69,12 +69,19 @@ export class TokenApi extends ApiEndpoint {
 		tx.add_signer(entity.public_key_hex()) // hex of public key
 
 		// format the transaction payload
-		tx.data(super._encode_json({
+        debugger;
+		/*
+		super._encode_json({
 			address: entity.public_key(), //base64 encoded public key
 			amount: amount
-		}))
-		// logger.info(`Transactions object for sign and encode: ${JSON.stringify(tx, null, '\t')}`)
+		})
+		 */
 
+let s =  '{"amount": 1000 "timestamp": }'
+		// let s = '{"address": "' + entity. + '","amount": "' + amount + '"}';
+debugger;
+		tx.data(s);
+		// logger.info(`Transactions object for sign and encode: ${JSON.stringify(tx, null, '\t')}`)
 		// encode and sign the transaction
 		const encoded_tx = encode_transaction(tx, [entity])
 

@@ -5,9 +5,8 @@ import {ApiEndpoint} from "./common";
 export class TransactionApi extends ApiEndpoint{
 
    async status(tx_digest){
-       debugger;
 
-        let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/${tx_digest}`;
+        let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/e3ed4cbd7d688da5d868cd1d448711a739e7d82b1687e6a4ea637317c580aae8`;
 
        let request_headers = {
 			'Content-Type': 'application/json; charset=utf-8'

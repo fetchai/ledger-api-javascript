@@ -14,11 +14,12 @@ async function main() {
     // create the balance
     console.log('WWWWWWSubmitting wealth creation...')
     const t  = await api.tokens.wealth(identity1, 1000);
-debugger;
+
     api.sync([t]);
 
+    const d = await api.tokens.balance(identity1);
     // submit and wait for the transfer to be complete
-    console.log('EEEESubmitting transfer...');
+    console.log('EEEESubmitting transfer...' + d);
   //  api.sync([api.tokens.transfer.bind(api.tokens, identity1, identity2, 250, 20)])
     //console.log('RRRRRBalance 1:', await api.tokens.balance(identity1))
     // console.log('TTTTTTBalance 2:', await api.tokens.balance(identity2))

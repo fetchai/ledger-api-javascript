@@ -1,6 +1,7 @@
 import { TokenApi } from '../fetchai/ledger/api'
 import { Entity } from '../fetchai/ledger/crypto/entity'
 import { logger } from '../fetchai/ledger/utils'
+import {Address} from "../fetchai/ledger/crypto";
 
 async function main() {
 	const host = '127.0.0.1'
@@ -18,11 +19,18 @@ async function main() {
 	)
 
     const e = new Entity();
+	const a = new Address(e);
 
-const j =	await api.wealth(e, 1000)
+const j = await api.wealth(e, 1000)
    console.log('here', j);
-	balance = await api.balance('29nQnTssh1Fe6zJtYvLfmjHqcKx5VAd5e88QpAREPvgbKUQpYw')
-	logger.info(`Balance after wealth: ${balance}`)
+ setInterval(async () => {
+     const balance = await api.balance(a)
+ logger.info(`Balance after wealth: ${balance}`)
+ }, 1000)
+
+
+
+
 }
 
 main()

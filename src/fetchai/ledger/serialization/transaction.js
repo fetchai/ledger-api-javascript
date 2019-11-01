@@ -139,7 +139,8 @@ const encode_payload = payload => {
             buffer,
             new Buffer(payload.action(), 'ascii')
         )
-        const data = new Buffer(payload.data())
+        const data = new Buffer(payload.data(), 'utf8')
+        debugger;
         buffer = bytearray.encode(buffer, data)
     }
 
@@ -165,7 +166,7 @@ const encode_transaction = (payload, signers) => {
     // encode the contents of the transaction
     let buffer = encode_payload(payload);
     // extract the payload buffer
-    let payload_bytes = _calc_digest_utf(buffer.toString('hex'))
+    let payload_bytes = _calc_digest_utf(buffer)
 
     // append all the signatures of the signers in order
     for (let signer of Object.keys(payload._signers)) {
