@@ -45,7 +45,7 @@ const EXPECTED_SIGNATURE_BYTE_LEN = 64;
 const EXPECTED_SIGNATURE_LENGTH_FIELD_LEN = _calculate_integer_stream_size(EXPECTED_SIGNATURE_BYTE_LEN);
 const EXPECTED_SERIAL_SIGNATURE_LENGTH = EXPECTED_SIGNATURE_BYTE_LEN + EXPECTED_SIGNATURE_LENGTH_FIELD_LEN;
 
-describe.skip(':Transaction', () => {
+describe(':Transaction', () => {
 
     test('test simple decode transaction ', () => {
 
