@@ -15,12 +15,32 @@ export class ApiEndpoint {
 		logger.info(
 			`Creating new api endpoint object with host:${host} and port:${port}`
 		)
+
+let protocol;
+         if(host.includes('://')) {
+              [protocol, host] = host.split('://')
+         } else {
+             protocol = 'http';
+         }
+
+        this._protocol = protocol
 		this.prefix = 'fetch/token'
 		this._host = String(host)
 		this._port = Number(port)
 		this.default_block_validity_period = 100
 	}
 
+	     protocol() {
+             return this._protocol;
+         }
+
+     host() {
+         return this._host;
+     }
+
+     port() {
+         return this._port;
+     }
 	/**
      * request to ledger
      *
@@ -38,6 +58,9 @@ export class ApiEndpoint {
 		let request_headers = {
 			'Content-Type': 'application/json; charset=utf-8'
 		}
+
+		console.log('url' + url);
+		console.log(' data ', data);
 
 		// make the request
 		let [resp, err] = await of(
@@ -142,6 +165,7 @@ export class ApiEndpoint {
 
 		if (200 <= resp.status < 300) {
 			logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
+            debugger;
 			return await resp.data;
 		}
 		return null

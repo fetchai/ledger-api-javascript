@@ -3,6 +3,8 @@ import { logger } from '../utils'
 import { ApiEndpoint } from './common'
 import { BitVector } from '../bitvector'
 import { encode_transaction } from '../serialization/transaction'
+import {Address} from "../crypto";
+
 
 /**
  * This class for all tokens operations
@@ -29,8 +31,10 @@ export class TokenApi extends ApiEndpoint {
 	async balance(address) {
 		logger.info(`request for check balance of address: ${address}`)
 
+        // convert the input to an address
+        address = new Address(address);
 		// format and make the request
-		let request = { address: String(address) }
+		let request = { address: address.toString() }
 		let data = await super._post_json('balance', request, this.prefix)
 		logger.info(`Balance of ${address} is ${data.balance}`)
 
@@ -98,7 +102,7 @@ export class TokenApi extends ApiEndpoint {
 		let tx = await super.create_skeleton_tx(fee)
         // Todo: Replace entity.pubKey with hex of address
         // Note: use 97a389875d9ff2db65f464cd825bf8be59d3cc1e6b42cdc52e1c0476ae320c4d for testing
-		tx.from_address(entity.public_key_hex()) //hex of address
+		tx.from_address(entity) //hex of address
 		tx.add_transfer(to, amount)
 		tx.add_signer(entity.public_key_hex()) // hex of public key
 

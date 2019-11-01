@@ -10,7 +10,6 @@ const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
 export class Address {
 
 	constructor(identity) {
-
 		if (identity instanceof Address) {
 			this._address = identity._address
 			this._display = identity._display
@@ -25,7 +24,6 @@ export class Address {
 
 			this._address = identity
 			this._display = this._calculate_display(this._address);
-
 		} else if (typeof identity === 'string') {
 			const bytes = bs58.decode(identity)
 
@@ -68,7 +66,7 @@ export class Address {
 
 	_digest(address_raw) {
 		const hash_func = createHash('sha256')
-		hash_func.update(address_raw)
+		hash_func.update(address_raw, 'utf')
 		return Buffer.from(hash_func.digest())
 	}
 
@@ -80,7 +78,7 @@ export class Address {
 	_calculate_display(address_raw) {
 		const digest = this._digest(address_raw)
 		const bytes = digest.slice(0, CHECKSUM_SIZE)
-		const full = Buffer.concat([digest, bytes])
+		const full = Buffer.concat([address_raw, bytes])
 		return bs58.encode(full)
 	}
 }

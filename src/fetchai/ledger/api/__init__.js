@@ -1,11 +1,17 @@
-import {RunTimeError} from 'src/fetchai/ledger/errors/runTimeError'
-import {ApiError} from "../errors";
+import {RunTimeError} from '../errors/runTimeError';
+import {ApiError} from "../errors/apiError";
+import {TokenApi } from './token'
+import assert from 'assert'
+import {TransactionApi} from "./tx";
 
 export class LedgerApi {
 
-    constructor() {}
+    constructor(host=false, port=false, network=false) {
+         this.tokens = new TokenApi(host, port)
+         this.tx = new TransactionApi(host, port)
+    }
 
-    sync(txs, timeout=false){
+async sync(txs, timeout=false) {
 
       const limit = (timeout === false) ? 120 : timeout*1000;
 
@@ -14,24 +20,27 @@ export class LedgerApi {
       }
 
       const start = Date.now();
-
-function loop() {
+debugger;
+const loop = async () => {
 
      if(txs.length === 0) return;
-
-     txs.forEach((item, index, object) => {
-         assert(typeof item === "function");
-
-         try {
-              let res = tx.call();
-              // we expect failed requests to return null, or throw an ApiError
-              if(res !== null)  object.splice(index, 1);
+let res;
+     for(let i =0; i <  txs.length; i++){
+           try {
+               let n = txs[i];
+               let r = n.txs[0];
+               res = await this._poll(r);
          } catch (e) {
                if (!(e instanceof ApiError)) {
                    throw e;
                }
          }
-    });
+         // we expect failed requests to return null, or throw an ApiError
+           if(res !== null)  {
+               txs.splice(i, 1);
+               i--;
+           }
+     }
 
      if(txs.length === 0) return;
      let elapsed_time = Date.now() - start;
@@ -41,40 +50,13 @@ function loop() {
          throw new RunTimeError('Timeout waiting for txs:' + l)
     }
 		setTimeout(loop, 1);
-	}()
-
-
+	}
+	loop();
     }
 
-
-    /*
-        def sync(self, txs: Transactions, timeout=None):
-        timeout = int(timeout or 120)
-        # given the inputs make sure that we correctly for the input set of values
-        if isinstance(txs, str):
-            remaining = {txs}
-        elif _iterable(txs):
-            remaining = set(txs)
-        else:
-            raise TypeError('Unknown argument type')
-
-        limit = timedelta(seconds=timeout)
-        start = datetime.now()
-
-        while True:
-            # loop through all the remaining digests and poll them creating a set of completed in this round
-            remaining -= set([digest for digest in remaining if self._poll(digest)])
-
-            # once we have completed all the outstanding transactions
-            if len(remaining) == 0:
-                break
-
-            # time out mode
-            delta_time = datetime.now() - start
-            if delta_time >= limit:
-                raise RuntimeError('Timeout waiting for txs: {}'.format(', '.join(list(remaining))))
-
-            time.sleep(1)
-     */
-
+      async _poll(digest) {
+           let status = await this.tx.status(digest);
+           console.log("status poll: " + status);
+          return /Executed|Submitted/.test(status);
+      }
 }
