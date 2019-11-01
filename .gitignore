@@ -4,5 +4,4 @@ dist/
 node_modules/
 app.js
 input1.json
-package-lock.json
 .idea/
