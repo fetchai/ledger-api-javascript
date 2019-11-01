@@ -29,7 +29,7 @@
       "never"
     ],
     "jest/no-disabled-tests": [
-      "warn"
+      "off"
     ],
     "jest/no-focused-tests": [
       "error"
