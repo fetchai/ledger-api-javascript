@@ -3,6 +3,7 @@ import { ApiError } from '../errors'
 import { default as of } from 'await-of'
 import axios from 'axios'
 import { Transaction } from '../transaction'
+import  {BN} from "bn.js";
 
 /**
  * This class for all ledger endpoints operations
@@ -69,8 +70,8 @@ export class ApiEndpoint {
 		// build up the basic transaction information
 		let tx = new Transaction()
 		tx.valid_until = current_block + validity_period
-		tx.charge_rate = 1
-		tx.charge_limit = fee
+		tx.charge_rate = new BN(1);
+		tx.charge_limit = new BN(fee);
 		return tx
 	}
 

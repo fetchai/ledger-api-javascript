@@ -6,39 +6,36 @@ describe(':Integer', () => {
     // encode tests
 	test('test small unsigned encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, 4);
+	    const encoded =  integer.encode(buffer, new BN(4));
 	    expect(encoded.toString('hex')).toBe('04');
 	});
 
     test('test small signed encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, -4);
+	    const encoded =   integer.encode(buffer, new BN(-4));
 	    expect(encoded.toString('hex')).toBe('e4');
 	});
 
      test('test 1byte unsigned encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, 0x80);
+	    const encoded =   integer.encode(buffer, new BN(0x80));
 	    expect(encoded.toString('hex')).toBe('c080');
 	});
 
       test('test 2byte unsigned encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, 0xEDEF);
+	    const encoded =   integer.encode(buffer, new BN(0xEDEF));
 	    expect(encoded.toString('hex')).toBe('c1edef');
 	});
 
        test('test 4byte unsigned encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, 0xEDEFABCD);
+	    const encoded =   integer.encode(buffer, new BN(0xEDEFABCD));
 	    expect(encoded.toString('hex')).toBe('c2edefabcd');
 	});
 
-
-    // TODO:: implement 8byte support for encode
      test('test 8byte unsigned encode',   () => {
 		const buffer = Buffer.from('');
-		//const eight_byte = Buffer.from('EDEFABCD01234567', 'hex');
          const eight_byte = new BN('EDEFABCD01234567', 16)
 	    const encoded =  integer.encode(buffer, eight_byte);
 	    const expected_buffer = Buffer.from('c3edefabcd01234567', 'hex');
@@ -48,19 +45,19 @@ describe(':Integer', () => {
 
       test('test 1byte signed encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, -0x80);
+	    const encoded =   integer.encode(buffer, new BN(-0x80));
 	    expect(encoded.toString('hex')).toBe('d080');
 	});
 
       test('test 2byte signed encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, -0xEDEF);
+	    const encoded =   integer.encode(buffer, new BN(-0xEDEF));
 	    expect(encoded.toString('hex')).toBe('d1edef');
 	});
 
     test('test 4byte signed encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, -0xEDEFABCD);
+	    const encoded =   integer.encode(buffer, new BN(-0xEDEFABCD));
 	    expect(encoded.toString('hex')).toBe('d2edefabcd');
 	});
 
@@ -78,7 +75,9 @@ describe(':Integer', () => {
 		const buffer = Buffer.from('04', 'hex');
 		const container = { buffer: buffer}
 	    const decoded = integer.decode(container);
-	    expect(decoded).toBe(4);
+        const reference = new BN(4);
+	    const comparison =  decoded.cmp(reference);
+	    expect(comparison).toBe(0);
 	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
@@ -86,7 +85,9 @@ describe(':Integer', () => {
 		const buffer = Buffer.from('E4', 'hex');
 		const container = { buffer: buffer}
 	    const decoded = integer.decode(container);
-	    expect(decoded).toBe(-4);
+		const reference = new BN(-4);
+	    const comparison =  decoded.cmp(reference);
+	    expect(comparison).toBe(0);
 	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
@@ -94,7 +95,9 @@ describe(':Integer', () => {
 		const buffer = Buffer.from('C080', 'hex');
 		const container = { buffer: buffer}
 	    const decoded = integer.decode(container);
-	    expect(decoded).toBe(0x80);
+	    const reference = new BN('80', 16);
+	    const comparison = decoded.cmp(reference);
+	    expect(comparison).toBe(0);
 	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
@@ -102,7 +105,9 @@ describe(':Integer', () => {
 		const buffer = Buffer.from('C1EDEF', 'hex');
 		const container = { buffer: buffer}
 	    const decoded = integer.decode(container);
-	    expect(decoded).toBe(0xEDEF);
+	    const reference = new BN('EDEF', 16);
+	    const comparison = decoded.cmp(reference);
+	    expect(comparison).toBe(0);
 	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
@@ -110,7 +115,9 @@ describe(':Integer', () => {
 		const buffer = Buffer.from('C2EDEFABCD', 'hex');
 		const container = { buffer: buffer}
 	    const decoded = integer.decode(container);
-	    expect(decoded).toBe(0xEDEFABCD);
+		const reference = new BN('EDEFABCD', 16);
+	    const comparison =  decoded.cmp(reference);
+	    expect(comparison).toBe(0);
 	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
@@ -128,7 +135,9 @@ describe(':Integer', () => {
 		const buffer = Buffer.from('D080', 'hex');
 		const container = { buffer: buffer}
 	    const decoded = integer.decode(container);
-	    expect(decoded).toBe(-0x80);
+		const reference = new BN('-80', 16);
+	    const comparison =  decoded.cmp(reference);
+	    expect(comparison).toBe(0);
 	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
@@ -136,7 +145,9 @@ describe(':Integer', () => {
 		const buffer = Buffer.from('D1EDEF', 'hex');
 		const container = { buffer: buffer}
 	    const decoded = integer.decode(container);
-	    expect(decoded).toBe(-0xEDEF);
+	    const reference = new BN('-EDEF', 16);
+	    const comparison =  decoded.cmp(reference);
+	    expect(comparison).toBe(0);
 	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
@@ -144,8 +155,9 @@ describe(':Integer', () => {
 		const buffer = Buffer.from('D1EDEF', 'hex');
 		const container = { buffer: buffer}
 	    const decoded = integer.decode(container);
-	    expect(decoded).toBe(-0xEDEF);
-	    expect(Buffer.byteLength(container.buffer)).toBe(0);
+	    const reference = new BN('-EDEF', 16);
+	    const comparison =  decoded.cmp(reference);
+          expect(comparison).toBe(0);
 	});
 
 
@@ -155,8 +167,8 @@ describe(':Integer', () => {
 		const container = { buffer: buffer }
 	    const decoded = integer.decode(container);
 	    const reference = new BN('-EDEFABCD01234567', 16);
-	    const comparison =  decoded.cmp(reference)
-          expect(comparison).toBe(0);
+	    const comparison =  decoded.cmp(reference);
+	    expect(comparison).toBe(0);
 	});
 
 })

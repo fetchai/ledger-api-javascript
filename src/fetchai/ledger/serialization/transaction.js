@@ -10,6 +10,7 @@ import {createHash} from 'crypto'
 import {BitVector} from '../bitvector'
 import {Identity} from '../crypto/identity'
 import {Transaction} from '../transaction'
+import  {BN} from "bn.js";
 
 // *******************************
 // ********** Constants **********
@@ -79,19 +80,19 @@ const encode_payload = payload => {
 
     buffer = address.encode(buffer, payload.from_address());
     if (num_transfers > 1) {
-        buffer = integer.encode(buffer, num_transfers - 2)
+        buffer = integer.encode(buffer, new BN(num_transfers - 2))
     }
 
     for (let [key, value] of Object.entries(payload._transfers)) {
         buffer = address.encode(buffer, key)
-        buffer = integer.encode(buffer, value)
+        buffer = integer.encode(buffer, new BN(value))
     }
 
     if (has_valid_from) {
-        buffer = integer.encode(buffer, payload.valid_from())
+        buffer = integer.encode(buffer, new BN(payload.valid_from()))
     }
 
-    buffer = integer.encode(buffer, payload.valid_until())
+    buffer = integer.encode(buffer, new BN(payload.valid_until()))
     buffer = integer.encode(buffer, payload.charge_rate())
     buffer = integer.encode(buffer, payload.charge_limit())
     if (NO_CONTRACT != contract_mode) {
@@ -144,7 +145,7 @@ const encode_payload = payload => {
     }
 
     if (num_extra_signatures > 0) {
-        buffer = integer.encode(buffer, num_extra_signatures)
+        buffer = integer.encode(buffer, new BN(num_extra_signatures))
     }
 
     // write all the signers public keys
@@ -234,7 +235,8 @@ const decode_transaction = (buffer) => {
     if (transfer_flag) {
         let transfer_count;
         if (multiple_transfers_flag) {
-            transfer_count = integer.decode(container) + 2;
+            transfer_count = integer.decode(container).toNumber();
+            transfer_count = transfer_count + 2;
         } else {
             transfer_count = 1;
         }
@@ -242,16 +244,17 @@ const decode_transaction = (buffer) => {
         let to, amount;
         for (let i = 0; i < transfer_count; i++) {
             to = address.decode(container);
-            amount = integer.decode(container);
+            // realistically amount will need to be a BN
+            amount = integer.decode(container).toNumber();;
             tx.add_transfer(to, amount);
         }
     }
 
     if (valid_from_flag) {
-        tx.valid_from(integer.decode(container));
+        tx.valid_from(integer.decode(container).toNumber());
     }
 
-    tx.valid_until(integer.decode(container))
+    tx.valid_until(integer.decode(container).toNumber())
     tx.charge_rate(integer.decode(container))
 
     //  assert not charge_unit_flag, "Currently the charge unit field is not supported"
@@ -309,7 +312,7 @@ const decode_transaction = (buffer) => {
     }
 
     if (signature_count_minus1 == 0x3F) {
-        const additional_signatures = integer.decode(container);
+        const additional_signatures = integer.decode(container).toNumber();
         num_signatures += additional_signatures;
     }
     const public_keys = [];

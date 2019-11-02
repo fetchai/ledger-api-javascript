@@ -1,7 +1,7 @@
 import { BitVector } from './bitvector'
 import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
-
+import  {BN} from "bn.js";
 import assert from 'assert'
 
 /**
@@ -16,8 +16,8 @@ export class Transaction {
 		this._transfers = {}
 		this._valid_from = 0
 		this._valid_until = 0
-		this._charge_rate = 0
-		this._charge_limit = 0
+		this._charge_rate = new BN(0)
+		this._charge_limit = new BN(0)
 		this._contract_digest = ''
 		this._contract_address = ''
 		this._chain_code = ''
@@ -76,7 +76,8 @@ export class Transaction {
 	// Get and Set charge_rate param
 	charge_rate(charge = null) {
 		if (charge) {
-			this._charge_rate = Number(charge)
+		    assert(BN.isBN(charge))
+			this._charge_rate = charge
 			return this._charge_rate
 		}
 		return this._charge_rate
@@ -85,7 +86,8 @@ export class Transaction {
 	// Get and Set charge_limit param
 	charge_limit(limit = null) {
 		if (limit) {
-			this._charge_limit = Number(limit)
+		    assert(BN.isBN(limit))
+			this._charge_limit = limit
 			return this._charge_limit
 		}
 		return this._charge_limit
