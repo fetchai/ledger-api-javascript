@@ -1,4 +1,5 @@
 import * as integer from '../../../fetchai/ledger/serialization/integer'
+import  {BN} from "bn.js";
 
 describe(':Integer', () => {
 
@@ -33,14 +34,17 @@ describe(':Integer', () => {
 	    expect(encoded.toString('hex')).toBe('c2edefabcd');
 	});
 
-    /*
-     TODO:: implement 8byte support for encode
+
+    // TODO:: implement 8byte support for encode
      test('test 8byte unsigned encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, 0xEDEFABCD01234567);
-	    expect(encoded.toString('hex')).toBe('c3edefabcd01234567');
+		//const eight_byte = Buffer.from('EDEFABCD01234567', 'hex');
+         const eight_byte = new BN('EDEFABCD01234567', 16)
+	    const encoded =  integer.encode(buffer, eight_byte);
+	    const expected_buffer = Buffer.from('c3edefabcd01234567', 'hex');
+	    expect(encoded).toMatchObject(expected_buffer)
 	});
-	*/
+
 
       test('test 1byte signed encode',   () => {
 		const buffer = Buffer.from('');
@@ -60,14 +64,14 @@ describe(':Integer', () => {
 	    expect(encoded.toString('hex')).toBe('d2edefabcd');
 	});
 
-      /*
-      TODO:: implement 8byte support for encode
-       test('test 8byte signed encode',   () => {
+    test('test 8byte signed encode',   () => {
 		const buffer = Buffer.from('');
-	    const encoded =   integer.encode(buffer, -0xEDEFABCD01234567);
-	    expect(encoded.toString('hex')).toBe('D3EDEFABCD01234567');
+		const eight_byte = new BN('-EDEFABCD01234567', 16)
+	    const encoded =   integer.encode(buffer, eight_byte);
+	     const expected_buffer = Buffer.from('D3EDEFABCD01234567', 'hex');
+	    expect(encoded).toMatchObject(expected_buffer);
 	});
-	*/
+
 
     // start decode tests
     test('test small unsigned decode',   () => {
@@ -109,14 +113,16 @@ describe(':Integer', () => {
 	    expect(decoded).toBe(0xEDEFABCD);
 	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
-/*
-TODO:: implement 8byte support for decode
+
+// TODO:: implement 8byte support for decode //
   test('test 8byte unsigned decode',   () => {
 		const buffer = Buffer.from('C3EDEFABCD01234567', 'hex');
-	    const decoded = integer.decode(buffer);
-	    expect(decoded).toBe(0xEDEFABCD01234567);
+		const container = { buffer: buffer}
+	    const decoded = integer.decode(container);
+	    const reference = new BN('EDEFABCD01234567', 16);
+	    expect(reference.toBuffer()).toMatchObject(decoded.toBuffer());
 	});
- */
+
 
   test('test 1byte signed decode',   () => {
 		const buffer = Buffer.from('D080', 'hex');
@@ -142,12 +148,15 @@ TODO:: implement 8byte support for decode
 	    expect(Buffer.byteLength(container.buffer)).toBe(0);
 	});
 
-    /*
-      TODO:: implement 8byte support for decode
+
+    //  TODO:: implement 8byte support for decode
       test('test 8byte signed decode',   () => {
 		const buffer = Buffer.from('D3EDEFABCD01234567', 'hex');
-	    const decoded = integer.decode(buffer);
-	    expect(decoded).toBe(-0xEDEFABCD01234567);
+		const container = { buffer: buffer }
+	    const decoded = integer.decode(container);
+	    const reference = new BN('-EDEFABCD01234567', 16);
+	    const comparison =  decoded.cmp(reference)
+          expect(comparison).toBe(0);
 	});
-     */
+
 })
