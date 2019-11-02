@@ -51,7 +51,6 @@ export class Transaction {
 	      if(address instanceof Address) {
             address = address.toHex();
         }
-
 		return this._transfers[address] = amount
 	}
 
