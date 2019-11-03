@@ -1,19 +1,19 @@
 import {RunTimeError} from '../errors'
 import {ValidationError} from "../errors";
 import  {BN} from "bn.js";
+
 /**
  * Determine the number of bytes required to encode the input value.
  * Artificially limited to max of 8 bytes to be compliant
  *
  * @param  {value} calculate log2 num bytes as BN.js object
  */
-
-
 const _calculate_log2_num_bytes = value => {
     let data  = [];
     data.push(new BN(256));
     data.push(new BN(65536));
     data.push(new BN(4294967296));
+    // over 53 bit number therefore must be passed as hex to BN
     data.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')));
     for(let i =0; i < data.length; i++){
         if(value.cmp(data[i]) === -1) return i;
@@ -83,9 +83,8 @@ const decode = (container) => {
         const signed_flag = Boolean(header_integer & 0x10);
         const log2_value_length = header_integer & 0x0F;
         const value_length = 1 << log2_value_length;
-        let value;
         let slice = container.buffer.slice(0, value_length)
-        value = new BN(slice);
+        let value = new BN(slice);
         container.buffer = container.buffer.slice(value_length);
         if (signed_flag) {
             value = value.neg();
