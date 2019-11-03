@@ -46,7 +46,8 @@ export class Transaction {
     /**
      * NOT IN PYTHON
      */
-	set_transfer(address, amount = 0) {
+	set_transfer(address, amount = new BN(0)) {
+          assert(BN.isBN(amount))
 
 	      if(address instanceof Address) {
             address = address.toHex();
@@ -136,7 +137,8 @@ export class Transaction {
 	}
 
 	add_transfer(address, amount) {
-		assert(amount > 0)
+         assert(BN.isBN(amount))
+         assert(amount.gtn(new BN(0)))
 
         // if it is an identity we turn it into an address
         if(address instanceof Identity){
@@ -147,9 +149,9 @@ export class Transaction {
             address = address.toHex();
         }
 
-        let current = (this._transfers[address]) ? this._transfers[address] : 0;
+        let current = (this._transfers[address]) ? this._transfers[address] : new BN(0);
 
-		this._transfers[address] = current + amount;
+		this._transfers[address] = current.add(amount);
 	}
 
 	target_contract(digest, address, mask) {

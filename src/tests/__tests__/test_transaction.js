@@ -37,9 +37,9 @@ describe(':Test Transaction', () => {
 	test('Test add_transfer with amount', () => {
 		let txObj = new Transaction()
 		let address = _dummy_address();
-		txObj.set_transfer(address, 40)
-		txObj.add_transfer(address, 10)
-		expect(txObj._transfers[address.toHex()]).toBe(40 + 10)
+		txObj.set_transfer(address, new BN(40))
+		txObj.add_transfer(address, new BN(10))
+		expect(txObj._transfers[address.toHex()].toNumber()).toBe(40 + 10)
 	})
 
 	test('Test valid_from', () => {
@@ -103,9 +103,9 @@ describe(':Test Transaction', () => {
 		let txObj = new Transaction()
 		let address = _dummy_address();
 		txObj.set_transfer(address)
-		txObj.add_transfer(address, 10)
+		txObj.add_transfer(address, new BN(10))
         const  hex = address.toHex();
-		expect(txObj._transfers[hex]).toBe(10)
+		expect(txObj._transfers[hex].toNumber()).toBe(10)
 	})
 
 	test('Test target_contract', () => {

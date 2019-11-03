@@ -52,7 +52,7 @@ describe(':Transaction', () => {
         const EXPECTED_PAYLOAD = "a12400532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d44235130ac5aab442e39f9aa27118956695229212dd2f1ab5b714e9f6bd581511c101000000000418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c"
         const payload = new Transaction();
         payload.from_address(IDENTITIES[0])
-        payload.add_transfer(IDENTITIES[1], 256);
+        payload.add_transfer(IDENTITIES[1], new BN(256));
         payload.add_signer(IDENTITIES[0].public_key_hex());
         const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
         assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
@@ -66,9 +66,9 @@ describe(':Transaction', () => {
         const EXPECTED_PAYLOAD = "a12600532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d4014235130ac5aab442e39f9aa27118956695229212dd2f1ab5b714e9f6bd581511c1010020f478c7f74b50c187bf9a8836f382bd62977baeeaf19625608e7e912aa60098c10200da2e9c3191e3768d1c59ea43f6318367ed9b21e6974f46a60d0dd8976740af6dc2000186a00000000418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c"
         const payload = new Transaction();
         payload.from_address(IDENTITIES[0]);
-        payload.add_transfer(IDENTITIES[1], 256);
-        payload.add_transfer(IDENTITIES[2], 512);
-        payload.add_transfer(IDENTITIES[3], 100000);
+        payload.add_transfer(IDENTITIES[1], new BN(256));
+        payload.add_transfer(IDENTITIES[2], new BN(512));
+        payload.add_transfer(IDENTITIES[3], new BN(100000));
         payload.add_signer(IDENTITIES[0].public_key_hex());
         const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
 
@@ -146,10 +146,10 @@ test('test validity ranges', () => {
     const EXPECTED_PAYLOAD = "a12700532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d4024235130ac5aab442e39f9aa27118956695229212dd2f1ab5b714e9f6bd581511c103e820f478c7f74b50c187bf9a8836f382bd62977baeeaf19625608e7e912aa60098c103e8da2e9c3191e3768d1c59ea43f6318367ed9b21e6974f46a60d0dd8976740af6dc103e8e6672a9d98da667e5dc25b2bca8acf9644a7ac0797f01cb5968abf39de011df2c103e864c0c8c103e8c2000f42400418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c"
     const payload = new Transaction()
     payload.from_address(IDENTITIES[0])
-    payload.add_transfer(IDENTITIES[1], 1000)
-    payload.add_transfer(IDENTITIES[2], 1000)
-    payload.add_transfer(IDENTITIES[3], 1000)
-    payload.add_transfer(IDENTITIES[4], 1000)
+    payload.add_transfer(IDENTITIES[1], new BN(1000))
+    payload.add_transfer(IDENTITIES[2], new BN(1000))
+    payload.add_transfer(IDENTITIES[3], new BN(1000))
+    payload.add_transfer(IDENTITIES[4], new BN(1000))
     payload.add_signer(IDENTITIES[0].public_key_hex())
     payload.charge_rate(new BN(1000))
     payload.charge_limit(new BN(1000000))

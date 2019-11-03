@@ -85,7 +85,7 @@ const encode_payload = payload => {
 
     for (let [key, value] of Object.entries(payload._transfers)) {
         buffer = address.encode(buffer, key)
-        buffer = integer.encode(buffer, new BN(value))
+        buffer = integer.encode(buffer, value)
     }
 
     if (has_valid_from) {
@@ -244,8 +244,7 @@ const decode_transaction = (buffer) => {
         let to, amount;
         for (let i = 0; i < transfer_count; i++) {
             to = address.decode(container);
-            // realistically amount will need to be a BN
-            amount = integer.decode(container).toNumber();;
+            amount = integer.decode(container);;
             tx.add_transfer(to, amount);
         }
     }
