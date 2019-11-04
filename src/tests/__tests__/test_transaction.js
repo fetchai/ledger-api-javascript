@@ -4,23 +4,23 @@ import {Address} from '../../fetchai/ledger/crypto/address'
 import {dummy_address} from '../utils/helpers'
 
 describe(':Test Transaction', () => {
-    test('Testing transaction constructor', () => {
-        let txObj = new Transaction()
-        expect(txObj._from).toBe('')
-        expect(txObj._valid_from).toBe(0)
-        expect(txObj._valid_until).toBe(0)
-        expect(txObj._charge_rate).toBe(0)
-        expect(txObj._charge_limit).toBe(0)
-        expect(txObj._contract_digest).toBe('')
-        expect(txObj._contract_address).toBe('')
-        expect(txObj._chain_code).toBe('')
-        expect(txObj._shard_mask._size).toBe(0)
-        expect(txObj._shard_mask._byte_size).toBe(0)
-        expect(txObj._action).toBe('')
-        expect(txObj._metadata.synergetic_data_submission).toBe(false)
-        expect(txObj._data).toBe('')
-        expect(Object.keys(txObj._transfers)).toHaveLength(0)
-    })
+	test('Testing transaction constructor', () => {
+		let txObj = new Transaction()
+		expect(txObj._from).toBe('')
+		expect(txObj._valid_from).toBe(0)
+		expect(txObj._valid_until).toBe(0)
+		expect(txObj._charge_rate).toBe(0)
+		expect(txObj._charge_limit).toBe(0)
+		expect(txObj._contract_digest).toBe('')
+		expect(txObj._contract_address).toBe('')
+		expect(txObj._chain_code).toBe('')
+		expect(txObj._shard_mask._size).toBe(0)
+		expect(txObj._shard_mask._byte_size).toBe(0)
+		expect(txObj._action).toBe('')
+		expect(txObj._metadata.synergetic_data_submission).toBe(false)
+		expect(txObj._data).toBe('')
+		expect(Object.keys(txObj._transfers)).toHaveLength(0)
+	})
 
     test('Test from_address', () => {
         let txObj = new Transaction()
@@ -29,10 +29,10 @@ describe(':Test Transaction', () => {
         expect(txObj.from_address(randomAddr)).toMatchObject(address)
     })
 
-    test('Test transfers', () => {
-        let txObj = new Transaction()
-        expect(Object.keys(txObj.transfers())).toHaveLength(0)
-    })
+	test('Test transfers', () => {
+		let txObj = new Transaction()
+		expect(Object.keys(txObj.transfers())).toHaveLength(0)
+	})
 
     test('Test add_transfer with amount', () => {
         let txObj = new Transaction()

@@ -12,9 +12,9 @@ const encode = (buffer, address) => {
 }
 
 const decode = (container) => {
-    const address_raw = container.buffer.slice(0, BYTE_LENGTH)
-    container.buffer = container.buffer.slice(BYTE_LENGTH)
-    return new Address(address_raw)
+	const address_raw = container.buffer.slice(0, BYTE_LENGTH)
+	container.buffer = container.buffer.slice(BYTE_LENGTH)
+	return new Address(address_raw)
 }
 
 export {encode, decode}
