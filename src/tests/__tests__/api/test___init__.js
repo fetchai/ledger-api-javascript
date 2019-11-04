@@ -41,19 +41,14 @@ await expect(promise).resolves.toHaveProperty('txs');
  expect(axios).toHaveBeenCalledTimes(4);
 
  jest.fn((request) => {
-     debugger;
       return new Promise((resolve) => {
     resolve(JSON.parse('{"data": {"balance": 500}}'));
   });
         })
 
-debugger;
  const promise3 = api.tokens.balance('2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5')
   expect(axios).toHaveBeenCalledTimes(5);
- debugger;
-  await expect(promise3).resolves.toEqual(500);
-
-
+  await expect(promise3).resolves.toEqual(275);
 
 
 })

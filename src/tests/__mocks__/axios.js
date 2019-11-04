@@ -13,6 +13,7 @@ export default jest.fn((request) => {
 
 
 function balance(){
+    debugger;
     return [
         JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/balance","data":{"address":"2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5"},"headers":{"Content-Type":"application/json; charset=utf-8"}}'),
         JSON.parse('{"data": {"balance": 275}}')]
@@ -40,7 +41,7 @@ function status(){
 
 
 /*
-taken from stack overflow, but modified to ignore matching very long strings which seem to sometimes get corrupted.
+taken from stack overflow, but modified somewhat to ignore matching very long strings which seem to sometimes get corrupted.
 measures that objects are the same in terms of properties and their values.
  */
 function equals( x, y ) {
