@@ -4,32 +4,32 @@ import {ApiError} from '../errors'
 
 export class TransactionApi extends ApiEndpoint{
 
-	async status(tx_digest){
+    async status(tx_digest){
 
-		let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/${tx_digest}`
+        let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/${tx_digest}`
 
-		let request_headers = {
-			'Content-Type': 'application/json; charset=utf-8'
-		}
+        let request_headers = {
+            'Content-Type': 'application/json; charset=utf-8'
+        }
 
-		let resp
-		debugger
-		try {
-			resp  = await axios({
-				method: 'get',
-				url: url,
-				request_headers
-			})
-		} catch(error){
-			throw new ApiError('Malformed response from server')
-		}
+        let resp
+        debugger
+        try {
+            resp  = await axios({
+                method: 'get',
+                url: url,
+                request_headers
+            })
+        } catch(error){
+            throw new ApiError('Malformed response from server')
+        }
 
 
-		//_get_json
-		console.log('status' + resp.data.status)
-		console.log('status' + resp.status)
-		return resp.data.status
-	}
+        //_get_json
+        console.log('status' + resp.data.status)
+        console.log('status' + resp.status)
+        return resp.data.status
+    }
 
 }
 //

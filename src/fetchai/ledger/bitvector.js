@@ -68,10 +68,10 @@ export class BitVector {
         return bits
     }
 
-	static from_hex_string(hex_data) {
-		let decoded_bytes = Buffer.from(hex_data, 'hex')
-		return BitVector.from_bytes(decoded_bytes, decoded_bytes.length * 8)
-	}
+    static from_hex_string(hex_data) {
+        let decoded_bytes = Buffer.from(hex_data, 'hex')
+        return BitVector.from_bytes(decoded_bytes, decoded_bytes.length * 8)
+    }
 
     byte_length() {
         return this._byte_size
