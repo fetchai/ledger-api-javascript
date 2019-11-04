@@ -22,10 +22,10 @@ describe(':Test Transaction', () => {
 	})
 
 	test('Test from_address', () => {
-		let txObj = new Transaction();
-		const randomAddr = _dummy_address();
-		const address = new Address(randomAddr);
-		expect(txObj.from_address(randomAddr)).toMatchObject(address);
+		let txObj = new Transaction()
+		const randomAddr = _dummy_address()
+		const address = new Address(randomAddr)
+		expect(txObj.from_address(randomAddr)).toMatchObject(address)
 	})
 
 	test('Test transfers', () => {
@@ -35,7 +35,7 @@ describe(':Test Transaction', () => {
 
 	test('Test add_transfer with amount', () => {
 		let txObj = new Transaction()
-		let address = _dummy_address();
+		let address = _dummy_address()
 		txObj.set_transfer(address, 40)
 		txObj.add_transfer(address, 10)
 		expect(txObj._transfers[address.toHex()]).toBe(40 + 10)
@@ -101,20 +101,20 @@ describe(':Test Transaction', () => {
 
 	test('Test add_transfer', () => {
 		let txObj = new Transaction()
-		let address = _dummy_address();
+		let address = _dummy_address()
 		txObj.set_transfer(address)
 		txObj.add_transfer(address, 10)
-        const  hex = address.toHex();
+		const  hex = address.toHex()
 		expect(txObj._transfers[hex]).toBe(10)
 	})
 
 	test('Test target_contract', () => {
 		let txObj = new Transaction()
-        const digest = _dummy_address();
-		const address = _dummy_address();
+		const digest = _dummy_address()
+		const address = _dummy_address()
 		txObj.target_contract(digest, address, new BitVector(10))
-        expect(txObj._contract_digest).toBeInstanceOf(Address);
-		expect(txObj._contract_address).toBeInstanceOf(Address);
+		expect(txObj._contract_digest).toBeInstanceOf(Address)
+		expect(txObj._contract_address).toBeInstanceOf(Address)
 		expect(txObj._shard_mask._size).toBe(new BitVector(10)._size)
 		expect(txObj._shard_mask._byte_size).toBe(new BitVector(10)._byte_size)
 		expect(txObj._chain_code).toBe('')

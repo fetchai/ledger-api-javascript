@@ -30,12 +30,12 @@ export class Transaction {
 		this._signers = {}
 	}
 
-    // Get and Set from_address param
-    from_address(address = '') {
-        if (address) {
-            this._from = new Address(address);
-            return this._from;
-        }
+	// Get and Set from_address param
+	from_address(address = '') {
+		if (address) {
+			this._from = new Address(address)
+			return this._from
+		}
 		return this._from
 	}
 
@@ -43,14 +43,14 @@ export class Transaction {
 		return this._transfers
 	}
 
-    /**
+	/**
      * NOT IN PYTHON
      */
 	set_transfer(address, amount = 0) {
 
 	      if(address instanceof Address) {
-            address = address.toHex();
-        }
+			address = address.toHex()
+		}
 
 		return this._transfers[address] = amount
 	}
@@ -137,23 +137,23 @@ export class Transaction {
 	add_transfer(address, amount) {
 		assert(amount > 0)
 
-        // if it is an identity we turn it into an address
-        if(address instanceof Identity){
-            address = new Address(address)
-        }
+		// if it is an identity we turn it into an address
+		if(address instanceof Identity){
+			address = new Address(address)
+		}
 
-        if(address instanceof Address) {
-            address = address.toHex();
-        }
+		if(address instanceof Address) {
+			address = address.toHex()
+		}
 
-        let current = (this._transfers[address]) ? this._transfers[address] : 0;
+		let current = (this._transfers[address]) ? this._transfers[address] : 0
 
-		this._transfers[address] = current + amount;
+		this._transfers[address] = current + amount
 	}
 
 	target_contract(digest, address, mask) {
-		this._contract_digest = new Address(digest);
-		this._contract_address = new Address(address);
+		this._contract_digest = new Address(digest)
+		this._contract_address = new Address(address)
 		this._shard_mask = new BitVector(mask)
 		this._chain_code = ''
 	}

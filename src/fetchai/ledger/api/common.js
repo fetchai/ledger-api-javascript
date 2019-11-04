@@ -15,14 +15,14 @@ export class ApiEndpoint {
 			`Creating new api endpoint object with host:${host} and port:${port}`
 		)
 
-let protocol;
-         if(host.includes('://')) {
-              [protocol, host] = host.split('://')
-         } else {
-             protocol = 'http';
-         }
+		let protocol
+		if(host.includes('://')) {
+			[protocol, host] = host.split('://')
+		} else {
+			protocol = 'http'
+		}
 
-        this._protocol = protocol
+		this._protocol = protocol
 		this.prefix = 'fetch/token'
 		this._host = String(host)
 		this._port = Number(port)
@@ -30,16 +30,16 @@ let protocol;
 	}
 
 	     protocol() {
-             return this._protocol;
-         }
+		return this._protocol
+	}
 
-     host() {
-         return this._host;
-     }
+	host() {
+		return this._host
+	}
 
-     port() {
-         return this._port;
-     }
+	port() {
+		return this._port
+	}
 	/**
      * request to ledger
      *
@@ -58,24 +58,24 @@ let protocol;
 			'Content-Type': 'application/json; charset=utf-8'
 		}
 
-		console.log('url' + url);
-		console.log(' data ', data);
+		console.log('url' + url)
+		console.log(' data ', data)
 
 		// make the request
-      let resp;
-        try {
-            resp  = await axios({
-                    method: 'post',
-                    url: url,
-                    data: data,
-                    headers: request_headers
-                })
-        } catch(error){
+		let resp
+		try {
+			resp  = await axios({
+				method: 'post',
+				url: url,
+				data: data,
+				headers: request_headers
+			})
+		} catch(error){
 
-            throw new ApiError('!!!!Malformed response from server')
-        }
+			throw new ApiError('!!!!Malformed response from server')
+		}
 
-		return resp.data;
+		return resp.data
 	}
 
 	async create_skeleton_tx(fee, validity_period = null) {
@@ -115,17 +115,17 @@ let protocol;
 		}
 
 
-		  let resp;
-        try {
-              resp  = await axios({
+		  let resp
+		try {
+			resp  = await axios({
 				method: 'get',
 				url: url,
 				params: data,
 				headers: request_headers
 			})
-        } catch(error){
-            throw new ApiError('Malformed response from server')
-        }
+		} catch(error){
+			throw new ApiError('Malformed response from server')
+		}
 
 		if (200 <= resp.status < 300) {
 			return resp
@@ -148,24 +148,24 @@ let protocol;
 		let url = `http://${this._host}:${this._port}/api/contract/${this.prefix}/${endpoint}`
 
 		// make the request
-        let resp;
-           // try {
-              resp  = await axios({
-				method: 'post',
-				url: url,
-				data: tx_payload,
-				headers: request_headers
-			})
-        // } catch(error){
-        //     throw new ApiError('Malformed response from server')
-        // }
+		let resp
+		// try {
+		resp  = await axios({
+			method: 'post',
+			url: url,
+			data: tx_payload,
+			headers: request_headers
+		})
+		// } catch(error){
+		//     throw new ApiError('Malformed response from server')
+		// }
 
 		// if (200 <= resp.status < 300) {
 		// 	logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
-        //
+		//
 		// 	return await resp.data;
 		// }
-        return await resp.data;
+		return await resp.data
 		// return null
 	}
 
