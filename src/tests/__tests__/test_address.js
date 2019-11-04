@@ -81,7 +81,7 @@ describe(':Address', () => {
 
     })
 
-    	test('test hardcoded addresses', () => {
+    test('test hardcoded addresses', () => {
         const identity1 = new Identity(Buffer.from('11f2b9a49c76fdaee79b9f470594b51c09299ef4294ea9cf545be4d9d303cc0d28013a21e085a0a1f68bae3f203c375fae182bc69f994290224b563b43388183', 'hex'))
         const expected_display = 'nLYsNsbFGDgcGJa3e7xn2V82fnpaGZVSuJUHCkeY9Cm6SfEyG'
         const address1 = new Address(expected_display)

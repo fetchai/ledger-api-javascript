@@ -3,34 +3,34 @@ import * as integer from '../../../fetchai/ledger/serialization/integer'
 describe(':Integer', () => {
 
     // encode tests
-    test('test small unsigned encode',   () => {
+    test('test small unsigned encode', () => {
         const buffer = Buffer.from('')
-	    const encoded =   integer.encode(buffer, 4)
-	    expect(encoded.toString('hex')).toBe('04')
+        const encoded = integer.encode(buffer, 4)
+        expect(encoded.toString('hex')).toBe('04')
     })
 
-    test('test small signed encode',   () => {
+    test('test small signed encode', () => {
         const buffer = Buffer.from('')
-	    const encoded =   integer.encode(buffer, -4)
-	    expect(encoded.toString('hex')).toBe('e4')
+        const encoded = integer.encode(buffer, -4)
+        expect(encoded.toString('hex')).toBe('e4')
     })
 
-    test('test 1byte unsigned encode',   () => {
+    test('test 1byte unsigned encode', () => {
         const buffer = Buffer.from('')
-	    const encoded =   integer.encode(buffer, 0x80)
-	    expect(encoded.toString('hex')).toBe('c080')
+        const encoded = integer.encode(buffer, 0x80)
+        expect(encoded.toString('hex')).toBe('c080')
     })
 
-    test('test 2byte unsigned encode',   () => {
+    test('test 2byte unsigned encode', () => {
         const buffer = Buffer.from('')
-	    const encoded =   integer.encode(buffer, 0xEDEF)
-	    expect(encoded.toString('hex')).toBe('c1edef')
+        const encoded = integer.encode(buffer, 0xEDEF)
+        expect(encoded.toString('hex')).toBe('c1edef')
     })
 
-    test('test 4byte unsigned encode',   () => {
+    test('test 4byte unsigned encode', () => {
         const buffer = Buffer.from('')
-	    const encoded =   integer.encode(buffer, 0xEDEFABCD)
-	    expect(encoded.toString('hex')).toBe('c2edefabcd')
+        const encoded = integer.encode(buffer, 0xEDEFABCD)
+        expect(encoded.toString('hex')).toBe('c2edefabcd')
     })
 
     /*
@@ -42,22 +42,22 @@ describe(':Integer', () => {
 	});
 	*/
 
-    test('test 1byte signed encode',   () => {
+    test('test 1byte signed encode', () => {
         const buffer = Buffer.from('')
-	    const encoded =   integer.encode(buffer, -0x80)
-	    expect(encoded.toString('hex')).toBe('d080')
+        const encoded = integer.encode(buffer, -0x80)
+        expect(encoded.toString('hex')).toBe('d080')
     })
 
-    test('test 2byte signed encode',   () => {
+    test('test 2byte signed encode', () => {
         const buffer = Buffer.from('')
-	    const encoded =   integer.encode(buffer, -0xEDEF)
-	    expect(encoded.toString('hex')).toBe('d1edef')
+        const encoded = integer.encode(buffer, -0xEDEF)
+        expect(encoded.toString('hex')).toBe('d1edef')
     })
 
-    test('test 4byte signed encode',   () => {
+    test('test 4byte signed encode', () => {
         const buffer = Buffer.from('')
-	    const encoded =   integer.encode(buffer, -0xEDEFABCD)
-	    expect(encoded.toString('hex')).toBe('d2edefabcd')
+        const encoded = integer.encode(buffer, -0xEDEFABCD)
+        expect(encoded.toString('hex')).toBe('d2edefabcd')
     })
 
     /*
@@ -70,44 +70,44 @@ describe(':Integer', () => {
 	*/
 
     // start decode tests
-    test('test small unsigned decode',   () => {
+    test('test small unsigned decode', () => {
         const buffer = Buffer.from('04', 'hex')
-        const container = { buffer: buffer}
-	    const decoded = integer.decode(container)
-	    expect(decoded).toBe(4)
-	    expect(Buffer.byteLength(container.buffer)).toBe(0)
+        const container = {buffer: buffer}
+        const decoded = integer.decode(container)
+        expect(decoded).toBe(4)
+        expect(Buffer.byteLength(container.buffer)).toBe(0)
     })
 
-    test('test small signed decode',   () => {
+    test('test small signed decode', () => {
         const buffer = Buffer.from('E4', 'hex')
-        const container = { buffer: buffer}
-	    const decoded = integer.decode(container)
-	    expect(decoded).toBe(-4)
-	    expect(Buffer.byteLength(container.buffer)).toBe(0)
+        const container = {buffer: buffer}
+        const decoded = integer.decode(container)
+        expect(decoded).toBe(-4)
+        expect(Buffer.byteLength(container.buffer)).toBe(0)
     })
 
-    test('test 1byte unsigned decode',   () => {
+    test('test 1byte unsigned decode', () => {
         const buffer = Buffer.from('C080', 'hex')
-        const container = { buffer: buffer}
-	    const decoded = integer.decode(container)
-	    expect(decoded).toBe(0x80)
-	    expect(Buffer.byteLength(container.buffer)).toBe(0)
+        const container = {buffer: buffer}
+        const decoded = integer.decode(container)
+        expect(decoded).toBe(0x80)
+        expect(Buffer.byteLength(container.buffer)).toBe(0)
     })
 
-    test('test 2byte unsigned decode',   () => {
+    test('test 2byte unsigned decode', () => {
         const buffer = Buffer.from('C1EDEF', 'hex')
-        const container = { buffer: buffer}
-	    const decoded = integer.decode(container)
-	    expect(decoded).toBe(0xEDEF)
-	    expect(Buffer.byteLength(container.buffer)).toBe(0)
+        const container = {buffer: buffer}
+        const decoded = integer.decode(container)
+        expect(decoded).toBe(0xEDEF)
+        expect(Buffer.byteLength(container.buffer)).toBe(0)
     })
 
-    test('test 4byte unsigned decode',   () => {
+    test('test 4byte unsigned decode', () => {
         const buffer = Buffer.from('C2EDEFABCD', 'hex')
-        const container = { buffer: buffer}
-	    const decoded = integer.decode(container)
-	    expect(decoded).toBe(0xEDEFABCD)
-	    expect(Buffer.byteLength(container.buffer)).toBe(0)
+        const container = {buffer: buffer}
+        const decoded = integer.decode(container)
+        expect(decoded).toBe(0xEDEFABCD)
+        expect(Buffer.byteLength(container.buffer)).toBe(0)
     })
     /*
 TODO:: implement 8byte support for decode
@@ -118,28 +118,28 @@ TODO:: implement 8byte support for decode
 	});
  */
 
-    test('test 1byte signed decode',   () => {
+    test('test 1byte signed decode', () => {
         const buffer = Buffer.from('D080', 'hex')
-        const container = { buffer: buffer}
-	    const decoded = integer.decode(container)
-	    expect(decoded).toBe(-0x80)
-	    expect(Buffer.byteLength(container.buffer)).toBe(0)
+        const container = {buffer: buffer}
+        const decoded = integer.decode(container)
+        expect(decoded).toBe(-0x80)
+        expect(Buffer.byteLength(container.buffer)).toBe(0)
     })
 
-    test('test 2byte signed decode',   () => {
+    test('test 2byte signed decode', () => {
         const buffer = Buffer.from('D1EDEF', 'hex')
-        const container = { buffer: buffer}
-	    const decoded = integer.decode(container)
-	    expect(decoded).toBe(-0xEDEF)
-	    expect(Buffer.byteLength(container.buffer)).toBe(0)
+        const container = {buffer: buffer}
+        const decoded = integer.decode(container)
+        expect(decoded).toBe(-0xEDEF)
+        expect(Buffer.byteLength(container.buffer)).toBe(0)
     })
 
-    test('test 4byte signed decode',   () => {
+    test('test 4byte signed decode', () => {
         const buffer = Buffer.from('D1EDEF', 'hex')
-        const container = { buffer: buffer}
-	    const decoded = integer.decode(container)
-	    expect(decoded).toBe(-0xEDEF)
-	    expect(Buffer.byteLength(container.buffer)).toBe(0)
+        const container = {buffer: buffer}
+        const decoded = integer.decode(container)
+        expect(decoded).toBe(-0xEDEF)
+        expect(Buffer.byteLength(container.buffer)).toBe(0)
     })
 
     /*

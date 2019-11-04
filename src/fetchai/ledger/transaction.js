@@ -1,4 +1,4 @@
-import { BitVector } from './bitvector'
+import {BitVector} from './bitvector'
 import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
 
@@ -138,11 +138,11 @@ export class Transaction {
         assert(amount > 0)
 
         // if it is an identity we turn it into an address
-        if(address instanceof Identity){
+        if (address instanceof Identity) {
             address = new Address(address)
         }
 
-        if(address instanceof Address) {
+        if (address instanceof Address) {
             address = address.toHex()
         }
 

@@ -1,6 +1,7 @@
 import {LedgerApi, TokenApi} from '../../../fetchai/ledger/api'
 import {Entity} from '../../../fetchai/ledger/crypto'
 import axios from 'axios'
+
 const HOST = '127.0.0.1'
 const PORT = 8000
 
@@ -43,12 +44,6 @@ describe(':LedgerApi', () => {
         expect(axios).toHaveBeenCalledTimes(5)
         await expect(promise3).resolves.toEqual(500)
     })
-
-
-
-
-
-
 
 
 })

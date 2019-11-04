@@ -2,9 +2,9 @@ import axios from 'axios'
 import {ApiEndpoint} from './common'
 import {ApiError} from '../errors'
 
-export class TransactionApi extends ApiEndpoint{
+export class TransactionApi extends ApiEndpoint {
 
-    async status(tx_digest){
+    async status(tx_digest) {
 
         let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/${tx_digest}`
         let request_headers = {
@@ -13,12 +13,12 @@ export class TransactionApi extends ApiEndpoint{
 
         let resp
         try {
-            resp  = await axios({
+            resp = await axios({
                 method: 'get',
                 url: url,
                 request_headers
             })
-        } catch(error){
+        } catch (error) {
             throw new ApiError('Malformed response from server')
         }
         return resp.data.status

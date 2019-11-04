@@ -1,7 +1,7 @@
-import { logger } from '../utils'
-import { ApiError } from '../errors'
+import {logger} from '../utils'
+import {ApiError} from '../errors'
 import axios from 'axios'
-import { Transaction } from '../transaction'
+import {Transaction} from '../transaction'
 
 /**
  * This class for all ledger endpoints operations
@@ -16,7 +16,7 @@ export class ApiEndpoint {
         )
 
         let protocol
-        if(host.includes('://')) {
+        if (host.includes('://')) {
             [protocol, host] = host.split('://')
         } else {
             protocol = 'http'
@@ -29,7 +29,7 @@ export class ApiEndpoint {
         this.default_block_validity_period = 100
     }
 
-	 protocol() {
+    protocol() {
         return this._protocol
     }
 
@@ -40,6 +40,7 @@ export class ApiEndpoint {
     port() {
         return this._port
     }
+
     /**
      * request to ledger
      *
@@ -64,13 +65,13 @@ export class ApiEndpoint {
         // make the request
         let resp
         try {
-            resp  = await axios({
+            resp = await axios({
                 method: 'post',
                 url: url,
                 data: data,
                 headers: request_headers
             })
-        } catch(error){
+        } catch (error) {
             throw new ApiError('Malformed response from server')
         }
 
@@ -97,7 +98,7 @@ export class ApiEndpoint {
     }
 
     async _current_block_number() {
-        let response = await this._get_json('status/chain', { size: 1 })
+        let response = await this._get_json('status/chain', {size: 1})
         let block_number = -1
         if (response) {
             block_number = response.data['chain'][0].blockNumber
@@ -113,15 +114,15 @@ export class ApiEndpoint {
             'Content-Type': 'application/json; charset=utf-8'
         }
 
-		  let resp
+        let resp
         try {
-            resp  = await axios({
+            resp = await axios({
                 method: 'get',
                 url: url,
                 params: data,
                 headers: request_headers
             })
-        } catch(error){
+        } catch (error) {
             throw new ApiError('Malformed response from server')
         }
 
@@ -146,22 +147,22 @@ export class ApiEndpoint {
 
         // make the request
         let resp
-		 try {
-            resp  = await axios({
+        try {
+            resp = await axios({
                 method: 'post',
                 url: url,
                 data: tx_payload,
                 headers: request_headers
             })
-		 } catch(error){
-	    throw new ApiError('Malformed response from server')
-		 }
+        } catch (error) {
+            throw new ApiError('Malformed response from server')
+        }
 
         if (200 <= resp.status < 300) {
-		 	logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
+            logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
 
             return await resp.data
-		 }
+        }
         return null
     }
 

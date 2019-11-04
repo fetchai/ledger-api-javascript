@@ -13,8 +13,8 @@ export class Address {
         if (identity instanceof Address) {
             this._address = identity._address
             this._display = identity._display
-        } else if (identity instanceof Identity){
-		    //TODO add unit tests for this block to address
+        } else if (identity instanceof Identity) {
+            //TODO add unit tests for this block to address
             this._address = this._digest(identity.public_key_bytes())
             this._display = this._calculate_display(this._address)
         } else if (identity instanceof Buffer) {

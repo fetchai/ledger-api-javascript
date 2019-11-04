@@ -25,7 +25,7 @@ const decode = (container) => {
     // we add one to this value because our key is longer by one, and
     // one because we start our slice ignoring the first.
     const len = UNCOMPRESSED_SCEP256K1_PUBLIC_KEY_LEN + 1
-    const ret =  container.buffer.slice(1, len)
+    const ret = container.buffer.slice(1, len)
     container.buffer = container.buffer.slice(len)
     return ret
 }

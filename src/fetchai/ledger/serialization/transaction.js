@@ -277,7 +277,7 @@ const decode_transaction = (buffer) => {
                 }
 
                 // extract the shard mask from the header
-                const toHex = (d) =>  ('0' + (Number(d).toString(16))).slice(-2).toUpperCase()
+                const toHex = (d) => ('0' + (Number(d).toString(16))).slice(-2).toUpperCase()
                 let decoded_bytes = Buffer.from(toHex(contract_header_int & mask), 'hex')
                 shard_mask = BitVector.from_bytes(decoded_bytes, bit_size)
 

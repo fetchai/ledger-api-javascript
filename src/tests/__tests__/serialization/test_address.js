@@ -15,7 +15,7 @@ describe(':Address', () => {
 
     test('test decode', () => {
         const ref_address = dummy_address()
-        const container = { buffer: ref_address.toBytes()}
+        const container = {buffer: ref_address.toBytes()}
         const address_obj = address.decode(container)
         const expected = ref_address.toBytes()
         const address_bytes = address_obj.toBytes()
