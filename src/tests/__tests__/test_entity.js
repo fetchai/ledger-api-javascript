@@ -68,13 +68,6 @@ describe(':Entity', () => {
         const jsonObj = ref._to_json_object()
         expect(jsonObj.privateKey).toEqual(base64_Key)
     })
-    test('test to json object', () => {
-        const ref = new Entity()
-        const ref_key = ref.private_key()
-        const base64_Key = ref_key.toString('base64')
-        const jsonObj = ref._to_json_object()
-        expect(jsonObj.privateKey).toEqual(base64_Key)
-    })
 
     test('test from json object', () => {
         const obj = JSON.parse(`{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`)
