@@ -5,10 +5,12 @@ import * as bytearray from './bytearray'
 import * as identity from './identity'
 import {ValidationError} from '../errors'
 import {RunTimeError} from '../errors'
+import {logger} from '../utils'
 import {createHash} from 'crypto'
 import {BitVector} from '../bitvector'
 import {Identity} from '../crypto/identity'
 import {Transaction} from '../transaction'
+import {BN} from 'bn.js'
 
 // *******************************
 // ********** Constants **********
@@ -77,7 +79,7 @@ const encode_payload = payload => {
 
     buffer = address.encode(buffer, payload.from_address())
     if (num_transfers > 1) {
-        buffer = integer.encode(buffer, num_transfers - 2)
+        buffer = integer.encode(buffer, new BN(num_transfers - 2))
     }
 
     for (let [key, value] of Object.entries(payload._transfers)) {
@@ -86,10 +88,10 @@ const encode_payload = payload => {
     }
 
     if (has_valid_from) {
-        buffer = integer.encode(buffer, payload.valid_from())
+        buffer = integer.encode(buffer, new BN(payload.valid_from()))
     }
 
-    buffer = integer.encode(buffer, payload.valid_until())
+    buffer = integer.encode(buffer, new BN(payload.valid_until()))
     buffer = integer.encode(buffer, payload.charge_rate())
     buffer = integer.encode(buffer, payload.charge_limit())
     if (NO_CONTRACT !== contract_mode) {
@@ -142,7 +144,7 @@ const encode_payload = payload => {
     }
 
     if (num_extra_signatures > 0) {
-        buffer = integer.encode(buffer, num_extra_signatures)
+        buffer = integer.encode(buffer, new BN(num_extra_signatures))
     }
 
     // write all the signers public keys
@@ -155,7 +157,7 @@ const encode_payload = payload => {
             )
         )
     }
-    // logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
+    logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
     return buffer
 }
 
@@ -185,7 +187,7 @@ const encode_transaction = (payload, signers) => {
         }
 
     }
-    // logger.info(`\n encoded transaction: ${buffer.toString('hex')} \n`)
+    logger.info(`\n encoded transaction: ${buffer.toString('hex')} \n`)
     // return the encoded transaction
     return buffer
 }
@@ -231,7 +233,8 @@ const decode_transaction = (buffer) => {
     if (transfer_flag) {
         let transfer_count
         if (multiple_transfers_flag) {
-            transfer_count = integer.decode(container) + 2
+            transfer_count = integer.decode(container).toNumber()
+            transfer_count = transfer_count + 2
         } else {
             transfer_count = 1
         }
@@ -245,10 +248,10 @@ const decode_transaction = (buffer) => {
     }
 
     if (valid_from_flag) {
-        tx.valid_from(integer.decode(container))
+        tx.valid_from(integer.decode(container).toNumber())
     }
 
-    tx.valid_until(integer.decode(container))
+    tx.valid_until(integer.decode(container).toNumber())
     tx.charge_rate(integer.decode(container))
 
     //  assert not charge_unit_flag, "Currently the charge unit field is not supported"
@@ -321,7 +324,6 @@ const decode_transaction = (buffer) => {
     const expected_payload_end = Buffer.byteLength(buffer) - signatures_serial_length
     const payload_bytes = buffer.slice(0, expected_payload_end)
     const verified = []
-    // let temporyToDel
     let signature
 
     public_keys.forEach((ident) => {
@@ -329,7 +331,6 @@ const decode_transaction = (buffer) => {
         signature = bytearray.decode(container)
         identity = new Identity(ident)
         let payload_bytes_digest = _calc_digest_utf(payload_bytes.toString('hex'))
-        // temporyToDel = identity.verify(payload_bytes_digest, signature)
         verified.push(identity.verify(payload_bytes_digest, signature))
         tx.add_signer(identity.public_key_hex())
     })
