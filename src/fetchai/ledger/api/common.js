@@ -1,8 +1,8 @@
-import {logger} from '../utils'
-import {ApiError} from '../errors'
-import {default as of} from 'await-of'
+import { logger } from '../utils'
+import { ApiError } from '../errors'
+import { default as of } from 'await-of'
 import axios from 'axios'
-import {Transaction} from '../transaction'
+import { Transaction } from '../transaction'
 
 /**
  * This class for all ledger endpoints operations
@@ -50,6 +50,7 @@ export class ApiEndpoint {
         )
 
         if (err) {
+            logger.error(`${err}`)
             throw new ApiError('Malformed response from server')
         }
         return resp.data
@@ -75,7 +76,7 @@ export class ApiEndpoint {
     }
 
     async _current_block_number() {
-        let response = await this._get_json('status/chain', {size: 1})
+        let response = await this._get_json('status/chain', { size: 1 })
         let block_number = -1
         if (response) {
             block_number = response.data['chain'][0].blockNumber
@@ -102,6 +103,7 @@ export class ApiEndpoint {
         )
 
         if (err) {
+            logger.error(`${err}`)
             throw new ApiError('Malformed response from server')
         }
 
