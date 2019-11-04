@@ -2,7 +2,7 @@ import {Base} from './base'
 
 export class RunTimeError extends Base {
     constructor(errors) {
-        super('Run time error')
+        super(errors)
         this.errors = errors
     }
 }
