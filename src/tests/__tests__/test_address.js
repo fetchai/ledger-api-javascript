@@ -32,7 +32,7 @@ describe(':Address', () => {
 		expect(address2.toBytes()).toMatchObject(expected_address_bytes)
 	})
 
-    //TODO add identity test
+	//TODO add identity test
 
 	test('test invalid length bytes', () => {
 		const digest = _calc_digest(Buffer.from('rand'))

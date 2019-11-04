@@ -34,22 +34,22 @@ module.exports = {
 
 	// A list of reporter names that Jest uses when writing coverage reports
 	coverageReporters: [
-      "json",
-        "json-summary",
-	  "text",
-	  "lcov",
-	  "clover"
+		'json',
+		'json-summary',
+	  'text',
+	  'lcov',
+	  'clover'
 	 ],
 
 	// An object that configures minimum threshold enforcement for coverage results
 	 coverageThreshold: {
-         "global": {
-             "branches": 1,
-             "functions": 1,
-             "lines": 1,
-             "statements": 1,
-         },
-     },
+		'global': {
+			'branches': 1,
+			'functions': 1,
+			'lines': 1,
+			'statements': 1,
+		},
+	},
 	// A path to a custom dependency extractor
 	// dependencyExtractor: null,
 
@@ -102,10 +102,10 @@ module.exports = {
 	// projects: null,
 
 	// Use this configuration option to add custom reporters to Jest
-	  "reporters": ["default", [
-      "jest-ratchet",
-      { "tolerance": 2, "roundDown": true, "timeout": 5000 }
-    ]],
+	  'reporters': ['default', [
+		'jest-ratchet',
+		{ 'tolerance': 2, 'roundDown': true, 'timeout': 5000 }
+	]],
 
 	// Automatically reset mock state between every test
 	// resetMocks: false,

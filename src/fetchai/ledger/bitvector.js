@@ -22,12 +22,12 @@ export class BitVector {
 	}
 
 	  __len__(){
-	        return this._size;
-      }
+	        return this._size
+	}
 
-     __bytes__() {
-         return reverse(this._buffer);
-     }
+	__bytes__() {
+		return reverse(this._buffer)
+	}
 
 
 
@@ -70,8 +70,8 @@ export class BitVector {
 	}
 
 	static from_hex_string(hex_data) {
-		let decoded_bytes = Buffer.from(hex_data, 'hex');
-		return BitVector.from_bytes(decoded_bytes, decoded_bytes.length * 8);
+		let decoded_bytes = Buffer.from(hex_data, 'hex')
+		return BitVector.from_bytes(decoded_bytes, decoded_bytes.length * 8)
 	}
 
 	byte_length() {

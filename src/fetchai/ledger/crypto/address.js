@@ -1,7 +1,7 @@
 import * as bs58 from 'bs58'
 import {ValidationError} from '../errors'
 import {createHash} from 'crypto'
-import {Identity} from "./identity"
+import {Identity} from './identity'
 
 const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4
@@ -16,15 +16,15 @@ export class Address {
 			this._display = identity._display
 		} else if (identity instanceof Identity){
 		    //TODO add unit tests for this block to address
-            this._address = this._digest(identity.public_key_bytes());
-            this._display = this._calculate_display(this._address);
-        } else if (identity instanceof Buffer) {
+			this._address = this._digest(identity.public_key_bytes())
+			this._display = this._calculate_display(this._address)
+		} else if (identity instanceof Buffer) {
 			if (Buffer.byteLength(identity) !== BYTE_LENGTH) {
 				throw new ValidationError('Incorrect length of binary address')
 			}
 
 			this._address = identity
-			this._display = this._calculate_display(this._address);
+			this._display = this._calculate_display(this._address)
 
 		} else if (typeof identity === 'string') {
 			const bytes = bs58.decode(identity)
