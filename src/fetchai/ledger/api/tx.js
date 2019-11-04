@@ -1,6 +1,6 @@
 import axios from 'axios'
-import {default as of} from "await-of";
 import {ApiEndpoint} from "./common";
+import {ApiError} from "../errors";
 
 export class TransactionApi extends ApiEndpoint{
 
@@ -12,14 +12,18 @@ export class TransactionApi extends ApiEndpoint{
 			'Content-Type': 'application/json; charset=utf-8'
 		}
 
-		// make the request
-		let [resp, err] = await of(
-			axios({
+		let resp;
+       debugger;
+        try {
+              resp  = await axios({
 				method: 'get',
 				url: url,
                 request_headers
 			})
-		)
+        } catch(error){
+            throw new ApiError('Malformed response from server')
+        }
+
 
        //_get_json
        console.log('status' + resp.data.status);

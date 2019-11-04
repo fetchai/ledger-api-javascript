@@ -1,6 +1,5 @@
 import { logger } from '../utils'
 import { ApiError } from '../errors'
-import { default as of } from 'await-of'
 import axios from 'axios'
 import { Transaction } from '../transaction'
 
@@ -63,19 +62,20 @@ let protocol;
 		console.log(' data ', data);
 
 		// make the request
-		let [resp, err] = await of(
-			axios({
-				method: 'post',
-				url: url,
-				data: data,
-				headers: request_headers
-			})
-		)
+      let resp;
+        try {
+            resp  = await axios({
+                    method: 'post',
+                    url: url,
+                    data: data,
+                    headers: request_headers
+                })
+        } catch(error){
 
-		if (err) {
-			throw new ApiError('Malformed response from server')
-		}
-		return resp.data
+            throw new ApiError('!!!!Malformed response from server')
+        }
+
+		return resp.data;
 	}
 
 	async create_skeleton_tx(fee, validity_period = null) {
@@ -114,19 +114,18 @@ let protocol;
 			'Content-Type': 'application/json; charset=utf-8'
 		}
 
-		// make the request
-		let [resp, err] = await of(
-			axios({
+
+		  let resp;
+        try {
+              resp  = await axios({
 				method: 'get',
 				url: url,
 				params: data,
 				headers: request_headers
 			})
-		)
-
-		if (err) {
-			throw new ApiError('Malformed response from server')
-		}
+        } catch(error){
+            throw new ApiError('Malformed response from server')
+        }
 
 		if (200 <= resp.status < 300) {
 			return resp
@@ -143,32 +142,31 @@ let protocol;
 			ver: '1.2',
 			data: tx_data.toString('base64')
 		}
-		logger.info(`\n Transaction payload: ${JSON.stringify(tx_payload, null, '\t')} \n`)
+		//logger.info(`\n Transaction payload: ${JSON.stringify(tx_payload, null, '\t')} \n`)
 
 		// format the URL
 		let url = `http://${this._host}:${this._port}/api/contract/${this.prefix}/${endpoint}`
 
 		// make the request
-		let [resp, err] = await of(
-			axios({
+        let resp;
+           // try {
+              resp  = await axios({
 				method: 'post',
 				url: url,
 				data: tx_payload,
 				headers: request_headers
 			})
-		)
+        // } catch(error){
+        //     throw new ApiError('Malformed response from server')
+        // }
 
-		if (err) {
-			logger.error(err)
-			throw new ApiError('Unable to fulfil transaction request')
-		}
-
-		if (200 <= resp.status < 300) {
-			logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
-            debugger;
-			return await resp.data;
-		}
-		return null
+		// if (200 <= resp.status < 300) {
+		// 	logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
+        //
+		// 	return await resp.data;
+		// }
+        return await resp.data;
+		// return null
 	}
 
 	_encode_json(obj) {

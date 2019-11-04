@@ -5,6 +5,7 @@ const HOST = '127.0.0.1';
 const PORT = 8000;
 
 async function main() {
+    debugger;
       // create the APIs
    const api = new LedgerApi(HOST, PORT)
      // generate a random identity
@@ -14,7 +15,7 @@ async function main() {
     // create the balance
     console.log('WWWWWWSubmitting wealth creation...')
     const t  = await api.tokens.wealth(identity1, 1000);
-
+debugger;
     const done = await api.sync([t]);
 
     const d = await api.tokens.balance(identity1);

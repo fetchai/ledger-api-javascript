@@ -28,7 +28,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "await-of": "^1.2.0",
     "axios": "^0.19.0",
     "bignumber.js": "^7.2.1",
     "bs58": "^4.0.1",
@@ -37,6 +36,7 @@
     "eslint-plugin-jest": "^22.19.0",
     "fastest-validator": "^0.6.12",
     "jest-coverage-validator": "^0.6.9",
+    "jest-mock-axios": "^3.1.2",
     "secp256k1": "^3.7.1",
     "wait-on": "^3.3.0",
     "winston": "^3.2.1"

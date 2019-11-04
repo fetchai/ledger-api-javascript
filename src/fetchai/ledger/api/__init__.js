@@ -20,7 +20,7 @@ export class LedgerApi {
         }
        const myFirstPromise = new Promise((resolve, reject) => {
             const start = Date.now();
-            const loop = async () => {
+            let loop = async () => {
                 if (txs.length === 0) return resolve(true);
                 let res;
                 for (let i = 0; i < txs.length; i++) {
@@ -42,6 +42,7 @@ export class LedgerApi {
                 let elapsed_time = Date.now() - start;
 
                 if (elapsed_time >= limit) {
+                    // delete when tested.
                     const l = txs.reduce(t, f => t + " , " + f.name.substring(6))
                     throw new RunTimeError('Timeout waiting for txs:' + l)
                 }
@@ -54,8 +55,6 @@ export class LedgerApi {
 
     async _poll(digest) {
         let status = await this.tx.status(digest);
-        console.log("status poll: " + status);
-        console.log("status poll res therefore : " + /Executed|Submitted/.test(status));
         return /Executed|Submitted/.test(status);
     }
 }
