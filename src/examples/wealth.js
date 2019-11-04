@@ -17,8 +17,7 @@ async function main() {
         )
     )
 
-    const entity2 = new Entity()
-    const j = await api.wealth(entity2, 1000)
+    const j = await api.wealth(entity, 1000)
     console.log('wealth', j)
 }
 
