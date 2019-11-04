@@ -1,12 +1,12 @@
 import {RunTimeError} from '../errors/runTimeError'
 import {ApiError} from '../errors/apiError'
 import {TokenApi} from './token'
-import assert from 'assert'
 import {TransactionApi} from './tx'
 
 export class LedgerApi {
 
-    constructor(host = false, port = false, network = false) {
+    //TODO add third param , network = false
+    constructor(host = false, port = false) {
         this.tokens = new TokenApi(host, port)
         this.tx = new TransactionApi(host, port)
     }
@@ -44,6 +44,7 @@ export class LedgerApi {
 
                 if (elapsed_time >= limit) {
                     // delete when tested.
+                    let t
                     const text = txs.reduce(t, f => t + ' , ' + f.name.substring(6))
                     throw new RunTimeError('Timeout exceeded waiting for txs:' + text)
                 }

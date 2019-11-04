@@ -178,7 +178,6 @@ const encode_transaction = (payload, signers) => {
             if (signer === hex_key) {
                 flag = true
                 const sign_obj = signers[i].sign(payload_bytes)
-                let hs = Buffer.from(sign_obj.signature)
                 buffer = bytearray.encode(buffer, sign_obj.signature)
             }
         }
@@ -214,7 +213,7 @@ const decode_transaction = (buffer) => {
     const header_first = header_first_buffer.readUIntBE(0, 1)
     const header_second = header_second_buffer.readUIntBE(0, 1)
     const version = (header_first & 0xE0) >> 5
-    const charge_unit_flag = Boolean((header_first & 0x08) >> 3)
+    //const charge_unit_flag = Boolean((header_first & 0x08) >> 3)
     // assert(!charge_unit_flag);
     const transfer_flag = Boolean((header_first & 0x04) >> 2)
     const multiple_transfers_flag = Boolean((header_first & 0x02) >> 1)
@@ -324,7 +323,6 @@ const decode_transaction = (buffer) => {
     const expected_payload_end = Buffer.byteLength(buffer) - signatures_serial_length
     const payload_bytes = buffer.slice(0, expected_payload_end)
     const verified = []
-    let temporyToDel
     let signature
 
     public_keys.forEach((ident) => {
@@ -332,7 +330,6 @@ const decode_transaction = (buffer) => {
         signature = bytearray.decode(container)
         identity = new Identity(ident)
         let payload_bytes_digest = _calc_digest_utf(payload_bytes)
-        temporyToDel = identity.verify(payload_bytes_digest, signature)
         verified.push(identity.verify(payload_bytes_digest, signature))
         tx.add_signer(identity.public_key_hex())
     })

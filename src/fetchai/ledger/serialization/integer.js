@@ -107,7 +107,7 @@ const decode = (container) => {
         const signed_flag = Boolean(header_integer & 0x10)
         const log2_value_length = header_integer & 0x0F
         const value_length = 1 << log2_value_length
-        let shift, value, byte_value, slice
+        let value
 
         if (value_length > 6) {
             throw new NotImplementedError(
