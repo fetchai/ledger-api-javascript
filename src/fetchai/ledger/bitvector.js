@@ -13,11 +13,11 @@ export class BitVector {
         if (size instanceof BitVector) {
             this._size = size._size
             this._byte_size = size._byte_size
-            this._buffer = new Buffer(size._buffer)
+            this._buffer = Buffer.from(size._buffer)
         } else {
             this._size = Number(size)
             this._byte_size = Math.floor((this._size + 7) / 8)
-            this._buffer = new Buffer(this._byte_size)
+            this._buffer = Buffer.alloc(this._byte_size)
         }
     }
 
@@ -34,7 +34,7 @@ export class BitVector {
     instance_bytes() {
         if (this._buffer) {
             // TODO: Improve logic
-            return new Buffer(
+            return Buffer.from(
                 this._buffer
                     .toString('hex')
                     .match(/.{2}/g)
@@ -57,7 +57,7 @@ export class BitVector {
         bits._size = bit_size
         bits._byte_size = Math.floor((bit_size + 7) / 8)
         // TODO: Improve logic
-        bits._buffer = new Buffer(
+        bits._buffer = Buffer.from(
             data
                 .toString('hex')
                 .match(/.{2}/g)
