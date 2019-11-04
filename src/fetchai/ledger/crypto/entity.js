@@ -78,7 +78,6 @@ export class Entity extends Identity {
     }
 
     static _from_json_object(obj) {
-        const json = JSON.stringify(obj)
         return Entity.from_base64(obj.privateKey)
     }
 

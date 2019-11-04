@@ -120,7 +120,6 @@ test('test chain code', () => {
     assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
     const [success, tx] = decode_transaction(transaction_bytes)
     expect(success).toBe(true)
-    debugger
     assertTxAreEqual(payload, tx)
 })
 
