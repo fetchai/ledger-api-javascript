@@ -1,8 +1,8 @@
-import { ApiError } from '../errors'
-import { logger } from '../utils'
-import { ApiEndpoint } from './common'
-import { BitVector } from '../bitvector'
-import { encode_transaction } from '../serialization/transaction'
+import {ApiError} from '../errors'
+import {logger} from '../utils'
+import {ApiEndpoint} from './common'
+import {BitVector} from '../bitvector'
+import {encode_transaction} from '../serialization/transaction'
 
 /**
  * This class for all tokens operations
@@ -30,7 +30,7 @@ export class TokenApi extends ApiEndpoint {
         logger.info(`request for check balance of address: ${address}`)
 
         // format and make the request
-        let request = { address: String(address) }
+        let request = {address: String(address)}
         let data = await super._post_json('balance', request, this.prefix)
         logger.info(`Balance of ${address} is ${data.balance}`)
 

@@ -17,7 +17,7 @@ export class Identity {
     }
 
     // get public key with 04 prefix
-    prefixed_public_key(){
+    prefixed_public_key() {
         return Buffer.concat([Buffer.from('04', 'hex'), this.pub_key])
     }
 

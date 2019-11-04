@@ -9,7 +9,7 @@ import reverse from 'buffer-reverse'
  */
 export class BitVector {
 //TODO add rest of the methods from the python
-    constructor(size=null) {
+    constructor(size = null) {
         if (size instanceof BitVector) {
             this._size = size._size
             this._byte_size = size._byte_size
@@ -21,14 +21,13 @@ export class BitVector {
         }
     }
 
-	  __len__(){
-	        return this._size
+    __len__() {
+        return this._size
     }
 
     __bytes__() {
         return reverse(this._buffer)
     }
-
 
 
     // Get bytes of this instance

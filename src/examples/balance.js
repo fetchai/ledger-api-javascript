@@ -1,4 +1,4 @@
-import { TokenApi } from '../fetchai/ledger/api'
+import {TokenApi} from '../fetchai/ledger/api'
 
 async function main() {
     const host = '127.0.0.1'

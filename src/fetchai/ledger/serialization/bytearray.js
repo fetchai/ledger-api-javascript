@@ -1,9 +1,9 @@
 import * as integer from './integer'
-import  {BN} from 'bn.js'
+import {BN} from 'bn.js'
 
 const encode = (buffer, value) => {
     // value in bytes (ascii encoded)
-    buffer = integer.encode(buffer,new BN(value.length))
+    buffer = integer.encode(buffer, new BN(value.length))
     return Buffer.concat([buffer, value])
 }
 

@@ -1,7 +1,7 @@
-import { BitVector } from './bitvector'
+import {BitVector} from './bitvector'
 import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
-import  {BN} from 'bn.js'
+import {BN} from 'bn.js'
 import assert from 'assert'
 
 /**
@@ -49,7 +49,7 @@ export class Transaction {
     set_transfer(address, amount = new BN(0)) {
         assert(BN.isBN(amount))
 
-	      if(address instanceof Address) {
+        if (address instanceof Address) {
             address = address.toHex()
         }
         return this._transfers[address] = amount
@@ -76,7 +76,7 @@ export class Transaction {
     // Get and Set charge_rate param
     charge_rate(charge = null) {
         if (charge) {
-		    assert(BN.isBN(charge))
+            assert(BN.isBN(charge))
             this._charge_rate = charge
             return this._charge_rate
         }
@@ -86,7 +86,7 @@ export class Transaction {
     // Get and Set charge_limit param
     charge_limit(limit = null) {
         if (limit) {
-		    assert(BN.isBN(limit))
+            assert(BN.isBN(limit))
             this._charge_limit = limit
             return this._charge_limit
         }
@@ -141,11 +141,11 @@ export class Transaction {
         assert(amount.gtn(new BN(0)))
 
         // if it is an identity we turn it into an address
-        if(address instanceof Identity){
+        if (address instanceof Identity) {
             address = new Address(address)
         }
 
-        if(address instanceof Address) {
+        if (address instanceof Address) {
             address = address.toHex()
         }
 

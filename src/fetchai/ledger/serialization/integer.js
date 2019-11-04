@@ -1,6 +1,6 @@
 import {RunTimeError} from '../errors'
 import {ValidationError} from '../errors'
-import  {BN} from 'bn.js'
+import {BN} from 'bn.js'
 
 /**
  * Determine the number of bytes required to encode the input value.
@@ -9,14 +9,14 @@ import  {BN} from 'bn.js'
  * @param  {value} calculate log2 num bytes as BN.js object
  */
 const _calculate_log2_num_bytes = value => {
-    let data  = []
+    let data = []
     data.push(new BN(256))
     data.push(new BN(65536))
     data.push(new BN(4294967296))
     // over 53 bit number therefore must be passed as hex to BN
     data.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')))
-    for(let i =0; i < data.length; i++){
-        if(value.cmp(data[i]) === -1) return i
+    for (let i = 0; i < data.length; i++) {
+        if (value.cmp(data[i]) === -1) return i
     }
     throw new RunTimeError(
         'Unable to calculate the number of bytes required for this value'
@@ -31,7 +31,7 @@ const _calculate_log2_num_bytes = value => {
  */
 const encode = (buffer, value) => {
 
-    if(!BN.isBN(value)) {
+    if (!BN.isBN(value)) {
         throw new ValidationError('value to encode must be BN.js object')
     }
 
@@ -46,14 +46,14 @@ const encode = (buffer, value) => {
         } else {
             const log2_num_bytes = _calculate_log2_num_bytes(abs_value)
             const num_bytes = new BN(1).shln(log2_num_bytes)
-            const val = (is_signed)? new BN(0xd0) : new BN(0xc0)
+            const val = (is_signed) ? new BN(0xd0) : new BN(0xc0)
             const header = val.or(new BN(log2_num_bytes).and(new BN(0xF))).toNumber()
 
             //   encode all the parts fot the values
             let values = Array.from(Array(num_bytes.toNumber()).keys())
                 .reverse()
-                .map(value => abs_value.shrn(value*8).and(new BN(0xFF)).toBuffer())
-            return Buffer.concat([buffer, Buffer.concat([new Buffer([header]),Buffer.concat(values)])])
+                .map(value => abs_value.shrn(value * 8).and(new BN(0xFF)).toBuffer())
+            return Buffer.concat([buffer, Buffer.concat([new Buffer([header]), Buffer.concat(values)])])
         }
     }
 }

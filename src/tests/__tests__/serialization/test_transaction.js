@@ -6,7 +6,7 @@ import {encode_transaction, decode_transaction} from '../../../fetchai/ledger/se
 import * as bytearray from '../../../fetchai/ledger/serialization/bytearray'
 import {createHash} from 'crypto'
 import {ValidationError} from '../../../fetchai/ledger/errors'
-import  {BN} from 'bn.js'
+import {BN} from 'bn.js'
 
 const _PRIVATE_KEYS = [
     '1411d53f88e736eac7872430dbe5b55ac28c17a3e648c388e0bd1b161ab04427',
@@ -286,8 +286,8 @@ function assertTxAreEqual(reference, other) {
     expect(reference.transfers()).toMatchObject(other.transfers())
     expect(reference.valid_from()).toBe(other.valid_from())
     expect(reference.valid_from()).toBe(other.valid_from())
-	    expect(reference.charge_rate().cmp(other.charge_rate())).toBe(0)
-	    expect(reference.charge_limit().cmp(other.charge_limit())).toBe(0)
+    expect(reference.charge_rate().cmp(other.charge_rate())).toBe(0)
+    expect(reference.charge_limit().cmp(other.charge_limit())).toBe(0)
     if (typeof reference.contract_digest() === 'string') {
         expect(reference.contract_digest()).toBe(other.contract_digest())
     } else {

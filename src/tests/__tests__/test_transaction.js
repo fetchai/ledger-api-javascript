@@ -1,7 +1,7 @@
-import { Transaction } from '../../fetchai/ledger/transaction'
-import { BitVector } from '../../fetchai/ledger/bitvector'
+import {Transaction} from '../../fetchai/ledger/transaction'
+import {BitVector} from '../../fetchai/ledger/bitvector'
 import {Address} from '../../fetchai/ledger/crypto/address'
-import  {BN} from 'bn.js'
+import {BN} from 'bn.js'
 import {dummy_address} from '../utils/helpers'
 
 describe(':Test Transaction', () => {
@@ -11,7 +11,7 @@ describe(':Test Transaction', () => {
         expect(txObj._valid_from).toBe(0)
         expect(txObj._valid_until).toBe(0)
         expect(txObj._charge_rate.cmp(new BN(0))).toBe(0)
-	    expect(txObj._charge_limit.cmp(new BN(0))).toBe(0)
+        expect(txObj._charge_limit.cmp(new BN(0))).toBe(0)
         expect(txObj._contract_digest).toBe('')
         expect(txObj._contract_address).toBe('')
         expect(txObj._chain_code).toBe('')
@@ -62,7 +62,7 @@ describe(':Test Transaction', () => {
 
     test('Test charge_limit', () => {
         let txObj = new Transaction()
-	    expect(txObj.charge_limit(new BN(14)).cmp(new BN(14))).toBe(0)
+        expect(txObj.charge_limit(new BN(14)).cmp(new BN(14))).toBe(0)
         expect(txObj._charge_limit).toMatchObject(new BN(14))
     })
 
@@ -105,7 +105,7 @@ describe(':Test Transaction', () => {
         let address = dummy_address()
         txObj.set_transfer(address)
         txObj.add_transfer(address, new BN(10))
-        const  hex = address.toHex()
+        const hex = address.toHex()
         expect(txObj._transfers[hex].toNumber()).toBe(10)
     })
 
