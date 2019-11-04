@@ -1,32 +1,22 @@
 import {RunTimeError} from '../errors'
-import {NotImplementedError} from '../errors'
 import {ValidationError} from '../errors'
+import  {BN} from 'bn.js'
 
 /**
  * Determine the number of bytes required to encode the input value.
  * Artificially limited to max of 8 bytes to be compliant
  *
- * @param  value The log2 num bytes
+ * @param  {value} calculate log2 num bytes as BN.js object
  */
-// const _calculate_log2_num_bytes = async value => {
-// 	for (let log2_num_bytes of Array.from(Array(4).keys())) {
-// 		let limit = 1 << ((1 << log2_num_bytes) * 8)
-// 		if (value < limit) {
-// 			return log2_num_bytes
-// 		}
-// 		throw new ValidationError(
-// 			'Unable to calculate the number of bytes required for this value'
-// 		)
-// 	}
-// }
-
 const _calculate_log2_num_bytes = value => {
-    // Todo: Improve logic
-    const data = [256, 65536, 4294967296, 18446744073709551616]
-    for (let log2_num_bytes of data) {
-        if (value < log2_num_bytes) {
-            return data.findIndex(val => val === log2_num_bytes)
-        }
+    let data  = []
+    data.push(new BN(256))
+    data.push(new BN(65536))
+    data.push(new BN(4294967296))
+    // over 53 bit number therefore must be passed as hex to BN
+    data.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')))
+    for(let i =0; i < data.length; i++){
+        if(value.cmp(data[i]) === -1) return i
     }
     throw new RunTimeError(
         'Unable to calculate the number of bytes required for this value'
@@ -37,52 +27,38 @@ const _calculate_log2_num_bytes = value => {
  * Encode a integer value into a bytes buffer
  *
  * @param  {buffer} Bytes data
- * @param  {value} The value to be encoded
+ * @param  {value} The value to be encoded as a BN.js object
  */
 const encode = (buffer, value) => {
-    const is_signed = value < 0
-    const abs_value = Math.abs(value)
 
-    if (!is_signed && abs_value <= 0x7f) {
-        return Buffer.concat([buffer, Buffer.from([abs_value])])
+    if(!BN.isBN(value)) {
+        throw new ValidationError('value to encode must be BN.js object')
+    }
+
+    const is_signed = value.isNeg()
+    const abs_value = value.abs()
+
+    if (!is_signed && abs_value.lten(127)) {
+        return Buffer.concat([buffer, new Buffer([abs_value.toNumber()])])
     } else {
-        if (is_signed && abs_value <= 0x1F) {
-            return Buffer.concat([buffer, Buffer.from([0xE0 | abs_value])])
+        if (is_signed && abs_value.lten(31)) {
+            return Buffer.concat([buffer, new Buffer([0xE0 | abs_value.toNumber()])])
         } else {
-            // determine the number of bytes that will be needed to encode this value
-            let log2_num_bytes = _calculate_log2_num_bytes(abs_value)
-            let num_bytes = 1 << log2_num_bytes
+            const log2_num_bytes = _calculate_log2_num_bytes(abs_value)
+            const num_bytes = new BN(1).shln(log2_num_bytes)
+            const val = (is_signed)? new BN(0xd0) : new BN(0xc0)
+            const header = val.or(new BN(log2_num_bytes).and(new BN(0xF))).toNumber()
 
-            if (num_bytes > 6) {
-                throw new NotImplementedError(
-                    '8 Byte support is not yet implemented in this Javascript SDK'
-                )
-            }
-
-            // define the header
-            let header
-            if (is_signed) {
-                header = 0xd0 | (log2_num_bytes & 0xF)
-            } else {
-                header = 0xc0 | (log2_num_bytes & 0xF)
-            }
-
-            // encode all the parts fot the values
-            let values = Array.from(Array(num_bytes).keys())
+            //   encode all the parts fot the values
+            let values = Array.from(Array(num_bytes.toNumber()).keys())
                 .reverse()
-                .map(value => (abs_value >> (value * 8)) & 0xFF)
-            return Buffer.concat([buffer, Buffer.concat([Buffer.from([header]), Buffer.from(values)])])
+                .map(value => abs_value.shrn(value*8).and(new BN(0xFF)).toBuffer())
+            return Buffer.concat([buffer, Buffer.concat([new Buffer([header]),Buffer.concat(values)])])
         }
     }
 }
 
-/**
- *
- * container is an object containing the buffer allowing pass by reference of the buffer.
- *
- * { buffer: Buffer }
- *
- */
+
 const decode = (container) => {
 
     if (container.buffer.length === 0) {
@@ -94,31 +70,24 @@ const decode = (container) => {
     const header_integer = header.readUIntBE(0, 1)
 
     if ((header_integer & 0x80) == 0) {
-        return header_integer & 0x7F
+        return new BN(header_integer & 0x7F)
     }
 
     const type = (header_integer & 0x60) >> 5
     if (type === 3) {
-        const ret = -(header_integer & 0x1f)
-        return ret
+        const decoded = -(header_integer & 0x1f)
+        return new BN(decoded)
     }
 
     if (type === 2) {
         const signed_flag = Boolean(header_integer & 0x10)
         const log2_value_length = header_integer & 0x0F
         const value_length = 1 << log2_value_length
-        let value
-
-        if (value_length > 6) {
-            throw new NotImplementedError(
-                '8 Byte support is not yet implemented in this Javascript SDK'
-            )
-        }
-
-        value = container.buffer.readUIntBE(0, value_length)
+        let slice = container.buffer.slice(0, value_length)
+        let value = new BN(slice)
         container.buffer = container.buffer.slice(value_length)
         if (signed_flag) {
-            value = -value
+            value = value.neg()
         }
         return value
     }

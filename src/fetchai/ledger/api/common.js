@@ -1,8 +1,9 @@
-import {logger} from '../utils'
-import {ApiError} from '../errors'
-import {default as of} from 'await-of'
+import { logger } from '../utils'
+import { ApiError } from '../errors'
+import { default as of } from 'await-of'
 import axios from 'axios'
-import {Transaction} from '../transaction'
+import { Transaction } from '../transaction'
+import  {BN} from 'bn.js'
 
 /**
  * This class for all ledger endpoints operations
@@ -69,13 +70,13 @@ export class ApiEndpoint {
         // build up the basic transaction information
         let tx = new Transaction()
         tx.valid_until = current_block + validity_period
-        tx.charge_rate = 1
-        tx.charge_limit = fee
+        tx.charge_rate = new BN(1)
+        tx.charge_limit = new BN(fee)
         return tx
     }
 
     async _current_block_number() {
-        let response = await this._get_json('status/chain', {size: 1})
+        let response = await this._get_json('status/chain', { size: 1 })
         let block_number = -1
         if (response) {
             block_number = response.data['chain'][0].blockNumber
@@ -148,6 +149,6 @@ export class ApiEndpoint {
     }
 
     _encode_json(obj) {
-        return Buffer.from(JSON.stringify(obj), 'ascii')
+        return new Buffer(JSON.stringify(obj), 'ascii')
     }
 }

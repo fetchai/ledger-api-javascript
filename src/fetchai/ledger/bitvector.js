@@ -9,20 +9,20 @@ import reverse from 'buffer-reverse'
  */
 export class BitVector {
 //TODO add rest of the methods from the python
-    constructor(size = null) {
+    constructor(size=null) {
         if (size instanceof BitVector) {
             this._size = size._size
             this._byte_size = size._byte_size
-            this._buffer = Buffer.from(size._buffer)
+            this._buffer = new Buffer(size._buffer)
         } else {
             this._size = Number(size)
             this._byte_size = Math.floor((this._size + 7) / 8)
-            this._buffer = Buffer.alloc(this._byte_size)
+            this._buffer = new Buffer(this._byte_size)
         }
     }
 
-    __len__() {
-        return this._size
+	  __len__(){
+	        return this._size
     }
 
     __bytes__() {
@@ -30,11 +30,12 @@ export class BitVector {
     }
 
 
+
     // Get bytes of this instance
     instance_bytes() {
         if (this._buffer) {
             // TODO: Improve logic
-            return Buffer.from(
+            return new Buffer(
                 this._buffer
                     .toString('hex')
                     .match(/.{2}/g)
@@ -57,7 +58,7 @@ export class BitVector {
         bits._size = bit_size
         bits._byte_size = Math.floor((bit_size + 7) / 8)
         // TODO: Improve logic
-        bits._buffer = Buffer.from(
+        bits._buffer = new Buffer(
             data
                 .toString('hex')
                 .match(/.{2}/g)

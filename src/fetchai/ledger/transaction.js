@@ -1,7 +1,7 @@
-import {BitVector} from './bitvector'
+import { BitVector } from './bitvector'
 import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
-
+import  {BN} from 'bn.js'
 import assert from 'assert'
 
 /**
@@ -16,8 +16,8 @@ export class Transaction {
         this._transfers = {}
         this._valid_from = 0
         this._valid_until = 0
-        this._charge_rate = 0
-        this._charge_limit = 0
+        this._charge_rate = new BN(0)
+        this._charge_limit = new BN(0)
         this._contract_digest = ''
         this._contract_address = ''
         this._chain_code = ''
@@ -46,12 +46,12 @@ export class Transaction {
     /**
      * NOT IN PYTHON
      */
-    set_transfer(address, amount = 0) {
+    set_transfer(address, amount = new BN(0)) {
+        assert(BN.isBN(amount))
 
-        if (address instanceof Address) {
+	      if(address instanceof Address) {
             address = address.toHex()
         }
-
         return this._transfers[address] = amount
     }
 
@@ -76,7 +76,8 @@ export class Transaction {
     // Get and Set charge_rate param
     charge_rate(charge = null) {
         if (charge) {
-            this._charge_rate = Number(charge)
+		    assert(BN.isBN(charge))
+            this._charge_rate = charge
             return this._charge_rate
         }
         return this._charge_rate
@@ -85,7 +86,8 @@ export class Transaction {
     // Get and Set charge_limit param
     charge_limit(limit = null) {
         if (limit) {
-            this._charge_limit = Number(limit)
+		    assert(BN.isBN(limit))
+            this._charge_limit = limit
             return this._charge_limit
         }
         return this._charge_limit
@@ -135,20 +137,21 @@ export class Transaction {
     }
 
     add_transfer(address, amount) {
-        assert(amount > 0)
+        assert(BN.isBN(amount))
+        assert(amount.gtn(new BN(0)))
 
         // if it is an identity we turn it into an address
-        if (address instanceof Identity) {
+        if(address instanceof Identity){
             address = new Address(address)
         }
 
-        if (address instanceof Address) {
+        if(address instanceof Address) {
             address = address.toHex()
         }
 
-        let current = (this._transfers[address]) ? this._transfers[address] : 0
+        let current = (this._transfers[address]) ? this._transfers[address] : new BN(0)
 
-        this._transfers[address] = current + amount
+        this._transfers[address] = current.add(amount)
     }
 
     target_contract(digest, address, mask) {
