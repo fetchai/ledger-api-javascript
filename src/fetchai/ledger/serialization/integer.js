@@ -1,5 +1,4 @@
-import {RunTimeError} from '../errors'
-import {ValidationError} from '../errors'
+import {RunTimeError, ValidationError} from '../errors'
 import {BN} from 'bn.js'
 
 /**
@@ -59,37 +58,38 @@ const encode = (buffer, value) => {
 }
 
 
-const decode = (container) => {
+const decode = (buffer) => {
 
-    if (container.buffer.length === 0) {
+    if (buffer.length === 0) {
         throw new ValidationError('Incorrect value being decoded')
     }
 
-    const header = container.buffer.slice(0, 1)
-    container.buffer = container.buffer.slice(1)
+    const header = buffer.slice(0, 1)
+    buffer = buffer.slice(1)
     const header_integer = header.readUIntBE(0, 1)
 
     if ((header_integer & 0x80) == 0) {
-        return new BN(header_integer & 0x7F)
+        return [new BN(header_integer & 0x7F), buffer]
     }
 
     const type = (header_integer & 0x60) >> 5
     if (type === 3) {
         const decoded = -(header_integer & 0x1f)
-        return new BN(decoded)
+        return [new BN(decoded), buffer]
     }
 
     if (type === 2) {
         const signed_flag = Boolean(header_integer & 0x10)
         const log2_value_length = header_integer & 0x0F
         const value_length = 1 << log2_value_length
-        let slice = container.buffer.slice(0, value_length)
+        let slice = buffer.slice(0, value_length)
         let value = new BN(slice)
-        container.buffer = container.buffer.slice(value_length)
+        buffer = buffer.slice(value_length)
+
         if (signed_flag) {
             value = value.neg()
         }
-        return value
+        return [value, buffer]
     }
 }
 

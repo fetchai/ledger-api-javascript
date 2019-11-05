@@ -16,6 +16,7 @@
       "error",
       4
     ],
+    "no-prototype-builtins": "off",
     "linebreak-style": [
       "error",
       "unix"

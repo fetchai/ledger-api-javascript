@@ -1,6 +1,5 @@
 import {logger} from '../utils'
 import {ApiError} from '../errors'
-import {default as of} from 'await-of'
 import axios from 'axios'
 import {Transaction} from '../transaction'
 import {BN} from 'bn.js'
@@ -16,10 +15,31 @@ export class ApiEndpoint {
         logger.info(
             `Creating new api endpoint object with host:${host} and port:${port}`
         )
+
+        let protocol
+        if (host.includes('://')) {
+            [protocol, host] = host.split('://')
+        } else {
+            protocol = 'http'
+        }
+
+        this._protocol = protocol
         this.prefix = 'fetch/token'
         this._host = String(host)
         this._port = Number(port)
         this.default_block_validity_period = 100
+    }
+
+    protocol() {
+        return this._protocol
+    }
+
+    host() {
+        return this._host
+    }
+
+    port() {
+        return this._port
     }
 
     /**
@@ -41,16 +61,15 @@ export class ApiEndpoint {
         }
 
         // make the request
-        let [resp, err] = await of(
-            axios({
+        let resp
+        try {
+            resp = await axios({
                 method: 'post',
                 url: url,
                 data: data,
                 headers: request_headers
             })
-        )
-
-        if (err) {
+        } catch (error) {
             throw new ApiError('Malformed response from server')
         }
         return resp.data
@@ -69,9 +88,9 @@ export class ApiEndpoint {
 
         // build up the basic transaction information
         let tx = new Transaction()
-        tx.valid_until = current_block + validity_period
-        tx.charge_rate = new BN(1)
-        tx.charge_limit = new BN(fee)
+        tx.valid_until(current_block + validity_period)
+        tx.charge_rate(new BN(1))
+        tx.charge_limit(new BN(fee))
         return tx
     }
 
@@ -92,17 +111,15 @@ export class ApiEndpoint {
             'Content-Type': 'application/json; charset=utf-8'
         }
 
-        // make the request
-        let [resp, err] = await of(
-            axios({
+        let resp
+        try {
+            resp = await axios({
                 method: 'get',
                 url: url,
                 params: data,
                 headers: request_headers
             })
-        )
-
-        if (err) {
+        } catch (error) {
             throw new ApiError('Malformed response from server')
         }
 
@@ -121,29 +138,27 @@ export class ApiEndpoint {
             ver: '1.2',
             data: tx_data.toString('base64')
         }
-        logger.info(`\n Transaction payload: ${JSON.stringify(tx_payload, null, '\t')} \n`)
 
         // format the URL
         let url = `http://${this._host}:${this._port}/api/contract/${this.prefix}/${endpoint}`
 
         // make the request
-        let [resp, err] = await of(
-            axios({
+        let resp
+        try {
+            resp = await axios({
                 method: 'post',
                 url: url,
                 data: tx_payload,
                 headers: request_headers
             })
-        )
-
-        if (err) {
-            logger.error(err)
-            throw new ApiError('Unable to fulfil transaction request')
+        } catch (error) {
+            throw new ApiError('Malformed response from server')
         }
 
         if (200 <= resp.status < 300) {
             logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
-            return resp
+
+            return await resp.data
         }
         return null
     }

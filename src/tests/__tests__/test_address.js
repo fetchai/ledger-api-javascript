@@ -1,4 +1,5 @@
 import {Address} from '../../fetchai/ledger/crypto/address'
+import {Identity} from '../../fetchai/ledger/crypto/identity'
 import * as bs58 from 'bs58'
 import {ValidationError} from '../../fetchai/ledger/errors'
 import {calc_address, calc_digest} from '../utils/helpers'
@@ -31,8 +32,6 @@ describe(':Address', () => {
         const address2 = new Address(address1)
         expect(address2.toBytes()).toMatchObject(expected_address_bytes)
     })
-
-    //TODO add identity test
 
     test('test invalid length bytes', () => {
         const digest = calc_digest(Buffer.from('rand'))
@@ -81,4 +80,19 @@ describe(':Address', () => {
         }).toThrow(ValidationError)
 
     })
+
+    test('test hardcoded addresses', () => {
+        const identity1 = new Identity(Buffer.from('11f2b9a49c76fdaee79b9f470594b51c09299ef4294ea9cf545be4d9d303cc0d28013a21e085a0a1f68bae3f203c375fae182bc69f994290224b563b43388183', 'hex'))
+        const expected_display = 'nLYsNsbFGDgcGJa3e7xn2V82fnpaGZVSuJUHCkeY9Cm6SfEyG'
+        const address1 = new Address(expected_display)
+        const address2 = new Address(identity1)
+        const address1_bytes = address1.toBytes()
+        const address2_bytes = address2.toBytes()
+        const expected_raw_address = '66f17ebc835641521877ef171e0275e0ce923b02b3cbf1965e59fe950277a582'
+        expect(address1_bytes.toString('hex')).toBe(expected_raw_address)
+        expect(address2_bytes.toString('hex')).toBe(expected_raw_address)
+        expect(address1.toString()).toBe(expected_display)
+        expect(address2.toString()).toBe(expected_display)
+    })
+
 })

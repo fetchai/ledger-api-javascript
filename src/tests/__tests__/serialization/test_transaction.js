@@ -2,7 +2,7 @@ import {Transaction} from '../../../fetchai/ledger/transaction'
 import {BitVector} from '../../../fetchai/ledger/bitvector'
 import {Entity} from '../../../fetchai/ledger/crypto/entity'
 import {Identity} from '../../../fetchai/ledger/crypto/identity'
-import {encode_transaction, decode_transaction} from '../../../fetchai/ledger/serialization/transaction.js'
+import {decode_transaction, encode_transaction} from '../../../fetchai/ledger/serialization/transaction.js'
 import * as bytearray from '../../../fetchai/ledger/serialization/bytearray'
 import {createHash} from 'crypto'
 import {ValidationError} from '../../../fetchai/ledger/errors'
@@ -79,11 +79,6 @@ describe(':Transaction', () => {
 
     })
 })
-
-
-/*
-* REQUIRES 8 BYTE SUPPORT! Then remove "skip" and get running.
-*/
 
 test('test synergetic_data_submission', () => {
     const EXPECTED_PAYLOAD = 'a120c0532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d4c1271001c3000000e8d4a5100080da2e9c3191e3768d1c59ea43f6318367ed9b21e6974f46a60d0dd8976740af6de6672a9d98da667e5dc25b2bca8acf9644a7ac0797f01cb5968abf39de011df204646174610f7b2276616c7565223a20313233347d0418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c'
@@ -263,16 +258,17 @@ function assertIsExpectedTx(payload, transaction_bytes, expected_hex_payload) {
     expect(expected_hex_payload).toBe(payload_bytes.toString('hex'))
 
     const payload_bytes_hash = createHash('sha256')
-        .update(payload_bytes.toString('hex'), 'utf8')
+        .update(payload_bytes, 'utf8')
         .digest()
 
     // loop through and verify all the signatures
-    const buffer = transaction_bytes.slice(expected_payload_end)
-    const container = {buffer: buffer}
+    let buffer = transaction_bytes.slice(expected_payload_end)
 
     let identity
+    let signature
+
     for (let signee of Object.keys(payload._signers)) {
-        let signature = bytearray.decode(container)
+        [signature, buffer] = bytearray.decode(buffer)
         // validate the signature is correct for the payload
         identity = new Identity(Buffer.from(signee, 'hex'))
         expect(identity.verify(payload_bytes_hash, signature)).toBe(true)

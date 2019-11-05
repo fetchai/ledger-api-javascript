@@ -17,7 +17,7 @@ export class Entity extends Identity {
         // construct or generate the private key if one is not specified
         if (private_key_bytes) {
             if (secp256k1.privateKeyVerify(private_key_bytes)) {
-                const pubKey = Buffer.from(secp256k1.publicKeyCreate(private_key_bytes, false).toString('hex').substring(2), 'hex')
+                const pubKey = new Buffer(secp256k1.publicKeyCreate(private_key_bytes, false).toString('hex').substring(2), 'hex')
                 super(pubKey)
                 this.pubKey = pubKey
                 this.privKey = private_key_bytes
@@ -32,7 +32,7 @@ export class Entity extends Identity {
             let pubKey
             do {
                 privKey = randomBytes(32)
-                pubKey = Buffer.from(secp256k1.publicKeyCreate(privKey, false).toString('hex').substring(2), 'hex')
+                pubKey = new Buffer(secp256k1.publicKeyCreate(privKey, false).toString('hex').substring(2), 'hex')
             } while (!secp256k1.privateKeyVerify(privKey))
             super(pubKey)
             this.pubKey = pubKey
