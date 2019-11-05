@@ -3,13 +3,13 @@ import * as address from './address'
 import * as integer from './integer'
 import * as bytearray from './bytearray'
 import * as identity from './identity'
-import {ValidationError} from '../errors'
-import {RunTimeError} from '../errors'
+import {RunTimeError, ValidationError} from '../errors'
 import {logger} from '../utils'
 import {createHash} from 'crypto'
 import {BitVector} from '../bitvector'
 import {Identity} from '../crypto/identity'
 import {Transaction} from '../transaction'
+import {BN} from 'bn.js'
 
 // *******************************
 // ********** Constants **********
@@ -35,8 +35,7 @@ const log2 = value => {
 const _calc_digest_utf = (address_raw) => {
     const hash_func = createHash('sha256')
     hash_func.update(address_raw, 'utf')
-    const digest = hash_func.digest()
-    return digest
+    return hash_func.digest()
 }
 
 const _map_contract_mode = payload => {
@@ -65,7 +64,7 @@ const encode_payload = payload => {
     const num_extra_signatures =
         num_signatures > 0x40 ? (num_signatures - 0x40) : 0
     const signalled_signatures = num_signatures - (num_extra_signatures + 1)
-    const has_valid_from = payload._valid_from != 0
+    const has_valid_from = payload._valid_from !== 0
 
     let header0 = VERSION << 5 /// ??
     header0 |= (num_transfers > 0 ? 1 : 0) << 2
@@ -75,11 +74,11 @@ const encode_payload = payload => {
     const contract_mode = _map_contract_mode(payload)
     let header1 = contract_mode << 6
     header1 |= signalled_signatures & 0x3f
-    let buffer = new Buffer([MAGIC, header0, header1])
+    let buffer = Buffer.from([MAGIC, header0, header1])
 
     buffer = address.encode(buffer, payload.from_address())
     if (num_transfers > 1) {
-        buffer = integer.encode(buffer, num_transfers - 2)
+        buffer = integer.encode(buffer, new BN(num_transfers - 2))
     }
 
     for (let [key, value] of Object.entries(payload._transfers)) {
@@ -88,18 +87,18 @@ const encode_payload = payload => {
     }
 
     if (has_valid_from) {
-        buffer = integer.encode(buffer, payload.valid_from())
+        buffer = integer.encode(buffer, new BN(payload.valid_from()))
     }
 
-    buffer = integer.encode(buffer, payload.valid_until())
+    buffer = integer.encode(buffer, new BN(payload.valid_until()))
     buffer = integer.encode(buffer, payload.charge_rate())
     buffer = integer.encode(buffer, payload.charge_limit())
-    if (NO_CONTRACT != contract_mode) {
+    if (NO_CONTRACT !== contract_mode) {
         let shard_mask = payload.shard_mask()
         let shard_mask_length = shard_mask.__len__()
         if (shard_mask_length <= 1) {
             // signal this is a wildcard transaction
-            buffer = Buffer.concat([buffer, new Buffer([0x80])])
+            buffer = Buffer.concat([buffer, Buffer.from([0x80])])
         } else {
 
             let shard_mask_bytes = shard_mask.__bytes__()
@@ -108,28 +107,28 @@ const encode_payload = payload => {
 
             if (shard_mask_length < 8) {
 
-                assert(Buffer.byteLength(shard_mask_bytes) == 1)
+                assert(Buffer.byteLength(shard_mask_bytes) === 1)
                 contract_header = shard_mask_bytes.readUIntBE(0, 1) & 0xf
 
-                if (log2_mask_length == 2) {
+                if (log2_mask_length === 2) {
                     contract_header |= 0x10
                 }
 
                 // write the mask to the stream
-                buffer = Buffer.concat([buffer, new Buffer([contract_header])])
+                buffer = Buffer.concat([buffer, Buffer.from([contract_header])])
             } else {
                 assert(shard_mask_length <= 512)
                 contract_header = 0x40 | ((log2_mask_length - 3) & 0x3f)
-                buffer = Buffer.concat([buffer, new Buffer([contract_header])])
+                buffer = Buffer.concat([buffer, Buffer.from([contract_header])])
                 buffer = Buffer.concat([buffer, shard_mask_bytes])
             }
         }
 
-        if (SMART_CONTRACT == contract_mode || SYNERGETIC == contract_mode) {
+        if (SMART_CONTRACT === contract_mode || SYNERGETIC === contract_mode) {
             buffer = address.encode(buffer, payload.contract_digest())
             buffer = address.encode(buffer, payload.contract_address())
-        } else if (CHAIN_CODE == contract_mode) {
-            let encoded_chain_code = new Buffer(payload.chain_code(), 'ascii')
+        } else if (CHAIN_CODE === contract_mode) {
+            let encoded_chain_code = Buffer.from(payload.chain_code(), 'ascii')
             buffer = bytearray.encode(buffer, encoded_chain_code)
         } else {
             assert(false)
@@ -137,27 +136,27 @@ const encode_payload = payload => {
 
         buffer = bytearray.encode(
             buffer,
-            new Buffer(payload.action(), 'ascii')
+            Buffer.from(payload.action(), 'ascii')
         )
-        const data = new Buffer(payload.data(), 'utf8')
+        const data = Buffer.from(payload.data())
         buffer = bytearray.encode(buffer, data)
     }
 
     if (num_extra_signatures > 0) {
-        buffer = integer.encode(buffer, num_extra_signatures)
+        buffer = integer.encode(buffer, new BN(num_extra_signatures))
     }
 
     // write all the signers public keys
     for (let signer of Object.keys(payload._signers)) {
         buffer = identity.encode(
             buffer,
-            new Buffer(
+            Buffer.from(
                 signer,
                 'hex'
             )
         )
     }
-    logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
+    // logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
     return buffer
 }
 
@@ -213,7 +212,7 @@ const decode_transaction = (buffer) => {
     const header_first = header_first_buffer.readUIntBE(0, 1)
     const header_second = header_second_buffer.readUIntBE(0, 1)
     const version = (header_first & 0xE0) >> 5
-    //const charge_unit_flag = Boolean((header_first & 0x08) >> 3)
+    // const charge_unit_flag = Boolean((header_first & 0x08) >> 3)
     // assert(!charge_unit_flag);
     const transfer_flag = Boolean((header_first & 0x04) >> 2)
     const multiple_transfers_flag = Boolean((header_first & 0x02) >> 1)
@@ -222,7 +221,7 @@ const decode_transaction = (buffer) => {
     const signature_count_minus1 = (header_second & 0x3F)
     let num_signatures = signature_count_minus1 + 1
 
-    if (version != VERSION) {
+    if (version !== VERSION) {
         throw new ValidationError('Unable to parse transaction from stream, incompatible version')
     }
 
@@ -233,7 +232,8 @@ const decode_transaction = (buffer) => {
     if (transfer_flag) {
         let transfer_count
         if (multiple_transfers_flag) {
-            transfer_count = integer.decode(container) + 2
+            transfer_count = integer.decode(container).toNumber()
+            transfer_count = transfer_count + 2
         } else {
             transfer_count = 1
         }
@@ -247,15 +247,15 @@ const decode_transaction = (buffer) => {
     }
 
     if (valid_from_flag) {
-        tx.valid_from(integer.decode(container))
+        tx.valid_from(integer.decode(container).toNumber())
     }
 
-    tx.valid_until(integer.decode(container))
+    tx.valid_until(integer.decode(container).toNumber())
     tx.charge_rate(integer.decode(container))
 
     //  assert not charge_unit_flag, "Currently the charge unit field is not supported"
     tx.charge_limit(integer.decode(container))
-    if (contract_type != NO_CONTRACT) {
+    if (contract_type !== NO_CONTRACT) {
 
         const contract_header = container.buffer.slice(0, 1)
         container.buffer = container.buffer.slice(1)
@@ -284,17 +284,17 @@ const decode_transaction = (buffer) => {
             } else {
                 const bit_length = 1 << ((contract_header_int & 0x3F) + 3)
                 const byte_length = Math.floor(bit_length / 8)
-                assert((bit_length % 8) == 0)  //this should be enforced as part of the spec
+                assert((bit_length % 8) === 0)  //this should be enforced as part of the spec
                 shard_mask = BitVector.from_bytes(container.buffer.slice(0, byte_length), bit_length)
                 container.buffer = container.buffer.slice(byte_length)
             }
         }
-        if (contract_type == SMART_CONTRACT || contract_type == SYNERGETIC) {
+        if (contract_type === SMART_CONTRACT || contract_type === SYNERGETIC) {
             const contract_digest = address.decode(container)
             const contract_address = address.decode(container)
             tx.target_contract(contract_digest, contract_address, shard_mask)
 
-        } else if (contract_type == CHAIN_CODE) {
+        } else if (contract_type === CHAIN_CODE) {
 
             const encoded_chain_code_name = bytearray.decode(container)
             tx.target_chain_code(encoded_chain_code_name.toString(), shard_mask)
@@ -307,7 +307,7 @@ const decode_transaction = (buffer) => {
 
     }
 
-    if (signature_count_minus1 == 0x3F) {
+    if (signature_count_minus1 === 0x3F) {
         const additional_signatures = integer.decode(container)
         num_signatures += additional_signatures
     }

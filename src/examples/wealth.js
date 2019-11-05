@@ -1,6 +1,6 @@
-import { TokenApi } from '../fetchai/ledger/api'
-import { Entity } from '../fetchai/ledger/crypto/entity'
-import { logger } from '../fetchai/ledger/utils'
+import {TokenApi} from '../fetchai/ledger/api'
+import {Entity} from '../fetchai/ledger/crypto/entity'
+import {logger} from '../fetchai/ledger/utils'
 
 async function main() {
     const host = '127.0.0.1'

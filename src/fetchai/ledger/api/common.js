@@ -2,6 +2,7 @@ import {logger} from '../utils'
 import {ApiError} from '../errors'
 import axios from 'axios'
 import {Transaction} from '../transaction'
+import {BN} from 'bn.js'
 
 /**
  * This class for all ledger endpoints operations
@@ -59,9 +60,6 @@ export class ApiEndpoint {
             'Content-Type': 'application/json; charset=utf-8'
         }
 
-        console.log('url' + url)
-        console.log(' data ', data)
-
         // make the request
         let resp
         try {
@@ -74,7 +72,6 @@ export class ApiEndpoint {
         } catch (error) {
             throw new ApiError('Malformed response from server')
         }
-
         return resp.data
     }
 
@@ -92,8 +89,8 @@ export class ApiEndpoint {
         // build up the basic transaction information
         let tx = new Transaction()
         tx.valid_until(current_block + validity_period)
-        tx.charge_rate(1)
-        tx.charge_limit(fee)
+        tx.charge_rate(new BN(1))
+        tx.charge_limit(new BN(fee))
         return tx
     }
 
