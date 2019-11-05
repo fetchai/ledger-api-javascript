@@ -156,7 +156,7 @@ const encode_payload = payload => {
             )
         )
     }
-    // logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
+    logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
     return buffer
 }
 
@@ -193,11 +193,11 @@ const encode_transaction = (payload, signers) => {
 
 
 const decode_transaction = (buffer) => {
-
-    const container = {buffer: buffer}
+    // we use the origin later to determine the payload
+    const input_buffer = buffer
     // ensure the at the magic is correctly configured
-    const magic = container.buffer.slice(0, 1)
-    container.buffer = container.buffer.slice(1)
+    const magic = buffer.slice(0, 1)
+    buffer = buffer.slice(1)
     const magic_integer = magic.readUIntBE(0, 1)
 
     if (magic_integer !== MAGIC) {
@@ -205,9 +205,9 @@ const decode_transaction = (buffer) => {
     }
 
     //extract the header bytes
-    const header_first_buffer = container.buffer.slice(0, 1)
-    const header_second_buffer = container.buffer.slice(1, 2)
-    container.buffer = container.buffer.slice(2)
+    const header_first_buffer = buffer.slice(0, 1)
+    const header_second_buffer = buffer.slice(1, 2)
+    buffer = buffer.slice(2)
 
     const header_first = header_first_buffer.readUIntBE(0, 1)
     const header_second = header_second_buffer.readUIntBE(0, 1)
@@ -227,38 +227,45 @@ const decode_transaction = (buffer) => {
 
     const tx = new Transaction()
     // decode the address from the buffer
-    tx.from_address(address.decode(container))
+    let address_decoded;
+    [address_decoded, buffer] = address.decode(buffer)
+    tx.from_address(address_decoded)
 
     if (transfer_flag) {
         let transfer_count
         if (multiple_transfers_flag) {
-            transfer_count = integer.decode(container).toNumber()
-            transfer_count = transfer_count + 2
+            [transfer_count, buffer] = integer.decode(buffer)
+            transfer_count = transfer_count.toNumber() + 2
         } else {
             transfer_count = 1
         }
 
         let to, amount
         for (let i = 0; i < transfer_count; i++) {
-            to = address.decode(container)
-            amount = integer.decode(container)
+            [to, buffer] = address.decode(buffer);
+            [amount, buffer] = integer.decode(buffer)
             tx.add_transfer(to, amount)
         }
     }
 
     if (valid_from_flag) {
-        tx.valid_from(integer.decode(container).toNumber())
+        let valid_from;
+        [valid_from, buffer] = integer.decode(buffer)
+        tx.valid_from(valid_from.toNumber())
     }
-
-    tx.valid_until(integer.decode(container).toNumber())
-    tx.charge_rate(integer.decode(container))
+    let valid_until, charge_rate, charge_limit;
+    [valid_until, buffer] = integer.decode(buffer)
+    tx.valid_until(valid_until.toNumber());
+    [charge_rate, buffer] = integer.decode(buffer)
+    tx.charge_rate(charge_rate);
 
     //  assert not charge_unit_flag, "Currently the charge unit field is not supported"
-    tx.charge_limit(integer.decode(container))
-    if (contract_type !== NO_CONTRACT) {
+    [charge_limit, buffer] = integer.decode(buffer)
+    tx.charge_limit(charge_limit)
+    if (contract_type != NO_CONTRACT) {
 
-        const contract_header = container.buffer.slice(0, 1)
-        container.buffer = container.buffer.slice(1)
+        const contract_header = buffer.slice(0, 1)
+        buffer = buffer.slice(1)
         const contract_header_int = contract_header.readUIntBE(0, 1)
         const wildcard = Boolean(contract_header_int & 0x80)
         let shard_mask = new BitVector()
@@ -284,58 +291,64 @@ const decode_transaction = (buffer) => {
             } else {
                 const bit_length = 1 << ((contract_header_int & 0x3F) + 3)
                 const byte_length = Math.floor(bit_length / 8)
-                assert((bit_length % 8) === 0)  //this should be enforced as part of the spec
-                shard_mask = BitVector.from_bytes(container.buffer.slice(0, byte_length), bit_length)
-                container.buffer = container.buffer.slice(byte_length)
+                assert((bit_length % 8) == 0)  //this should be enforced as part of the spec
+                shard_mask = BitVector.from_bytes(buffer.slice(0, byte_length), bit_length)
+                buffer = buffer.slice(byte_length)
             }
         }
-        if (contract_type === SMART_CONTRACT || contract_type === SYNERGETIC) {
-            const contract_digest = address.decode(container)
-            const contract_address = address.decode(container)
+        if (contract_type == SMART_CONTRACT || contract_type == SYNERGETIC) {
+            let contract_digest, contract_address;
+            [contract_digest, buffer] = address.decode(buffer);
+            [contract_address, buffer] = address.decode(buffer)
             tx.target_contract(contract_digest, contract_address, shard_mask)
 
-        } else if (contract_type === CHAIN_CODE) {
-
-            const encoded_chain_code_name = bytearray.decode(container)
+        } else if (contract_type == CHAIN_CODE) {
+            let encoded_chain_code_name;
+            [encoded_chain_code_name, buffer] = bytearray.decode(buffer)
             tx.target_chain_code(encoded_chain_code_name.toString(), shard_mask)
         } else {
             // this is mostly a guard against a desync between this function and `_map_contract_mode`
             throw new RunTimeError('Unhandled contract type')
         }
-        tx.action(bytearray.decode(container).toString())
-        tx.data(bytearray.decode(container).toString())
+        let action
+        let data;
+        [action, buffer] = bytearray.decode(buffer);
+        [data, buffer] = bytearray.decode(buffer)
+        tx.action(action.toString())
+        tx.data(data.toString())
 
     }
 
-    if (signature_count_minus1 === 0x3F) {
-        const additional_signatures = integer.decode(container)
-        num_signatures += additional_signatures
+    if (signature_count_minus1 == 0x3F) {
+        let additional_signatures;
+        [additional_signatures, buffer] = bytearray.decode(buffer)
+        num_signatures = num_signatures + additional_signatures
     }
     const public_keys = []
 
     let pk
     for (let i = 0; i < num_signatures; i++) {
-        pk = identity.decode(container)
+        [pk, buffer] = identity.decode(buffer)
         public_keys.push(pk)
     }
 
     const signatures_serial_length = EXPECTED_SERIAL_SIGNATURE_LENGTH * num_signatures
-    const expected_payload_end = Buffer.byteLength(buffer) - signatures_serial_length
-    const payload_bytes = buffer.slice(0, expected_payload_end)
+    const expected_payload_end = Buffer.byteLength(input_buffer) - signatures_serial_length
+    const payload_bytes = input_buffer.slice(0, expected_payload_end)
     const verified = []
-    let signature
+
 
     public_keys.forEach((ident) => {
-        let identity
-        signature = bytearray.decode(container)
+        let identity, signature;
+        [signature, buffer] = bytearray.decode(buffer)
         identity = new Identity(ident)
         let payload_bytes_digest = _calc_digest_utf(payload_bytes)
         verified.push(identity.verify(payload_bytes_digest, signature))
         tx.add_signer(identity.public_key_hex())
     })
 
-    const every_flag = verified.every((flag) => flag === true)
-    return [every_flag, tx]
+    const success = verified.every((verified) => verified === true)
+    return [success, tx]
 }
 
 export {encode_transaction, decode_transaction}

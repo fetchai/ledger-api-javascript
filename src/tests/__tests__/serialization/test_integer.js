@@ -72,102 +72,89 @@ describe(':Integer', () => {
 
     // start decode tests
     test('test small unsigned decode', () => {
-        const buffer = Buffer.from('04', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const buff = Buffer.from('04', 'hex')
+        const [decoded, buffer] = integer.decode(buff)
         const reference = new BN(4)
         const comparison = decoded.cmp(reference)
         expect(comparison).toBe(0)
-        expect(Buffer.byteLength(container.buffer)).toBe(0)
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
     test('test small signed decode', () => {
-        const buffer = Buffer.from('E4', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const buff = Buffer.from('E4', 'hex')
+        const [decoded, buffer] = integer.decode(buff)
         const reference = new BN(-4)
         const comparison = decoded.cmp(reference)
         expect(comparison).toBe(0)
-        expect(Buffer.byteLength(container.buffer)).toBe(0)
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
     test('test 1byte unsigned decode', () => {
-        const buffer = Buffer.from('C080', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const buff = Buffer.from('C080', 'hex')
+        const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('80', 16)
         const comparison = decoded.cmp(reference)
         expect(comparison).toBe(0)
-        expect(Buffer.byteLength(container.buffer)).toBe(0)
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
     test('test 2byte unsigned decode', () => {
-        const buffer = Buffer.from('C1EDEF', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const buff = Buffer.from('C1EDEF', 'hex')
+        const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('EDEF', 16)
         const comparison = decoded.cmp(reference)
         expect(comparison).toBe(0)
-        expect(Buffer.byteLength(container.buffer)).toBe(0)
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
     test('test 4byte unsigned decode', () => {
-        const buffer = Buffer.from('C2EDEFABCD', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const buff = Buffer.from('C2EDEFABCD', 'hex')
+        const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('EDEFABCD', 16)
         const comparison = decoded.cmp(reference)
         expect(comparison).toBe(0)
-        expect(Buffer.byteLength(container.buffer)).toBe(0)
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
     test('test 8byte unsigned decode', () => {
-        const buffer = Buffer.from('C3EDEFABCD01234567', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const buff = Buffer.from('C3EDEFABCD01234567', 'hex')
+        const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('EDEFABCD01234567', 16)
         expect(reference.toBuffer()).toMatchObject(decoded.toBuffer())
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-
     test('test 1byte signed decode', () => {
-        const buffer = Buffer.from('D080', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const [decoded, buffer] = integer.decode(Buffer.from('D080', 'hex'))
         const reference = new BN('-80', 16)
         const comparison = decoded.cmp(reference)
         expect(comparison).toBe(0)
-        expect(Buffer.byteLength(container.buffer)).toBe(0)
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
     test('test 2byte signed decode', () => {
-        const buffer = Buffer.from('D1EDEF', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const [decoded, buffer] = integer.decode(Buffer.from('D1EDEF', 'hex'))
         const reference = new BN('-EDEF', 16)
         const comparison = decoded.cmp(reference)
         expect(comparison).toBe(0)
-        expect(Buffer.byteLength(container.buffer)).toBe(0)
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
     test('test 4byte signed decode', () => {
-        const buffer = Buffer.from('D1EDEF', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const [decoded, buffer] = integer.decode(Buffer.from('D1EDEF', 'hex'))
         const reference = new BN('-EDEF', 16)
         const comparison = decoded.cmp(reference)
         expect(comparison).toBe(0)
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-
-    //  TODO:: implement 8byte support for decode
     test('test 8byte signed decode', () => {
-        const buffer = Buffer.from('D3EDEFABCD01234567', 'hex')
-        const container = {buffer: buffer}
-        const decoded = integer.decode(container)
+        const buff = Buffer.from('D3EDEFABCD01234567', 'hex')
+        const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('-EDEFABCD01234567', 16)
         const comparison = decoded.cmp(reference)
         expect(comparison).toBe(0)
+        expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
 })
