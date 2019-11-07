@@ -2,14 +2,37 @@ import {RunTimeError} from '../errors/runTimeError'
 import {ApiError} from '../errors/apiError'
 import {TokenApi} from './token'
 import {TransactionApi} from './tx'
+import {ServerApi} from "./server";
+import {ContractsApi} from "./contracts";
 
 export class LedgerApi {
 
     //TODO add third param , network = false
     constructor(host = false, port = false) {
         this.tokens = new TokenApi(host, port)
+        this.contracts = new ContractsApi(host, port)
         this.tx = new TransactionApi(host, port)
+        this.server = new ServerApi(host, port)
+        // this is to allow async constructor as per python.
+        // return new Promise(async (resolve) => {
+        // Check that ledger version is compatible with API version
+
+        //  ****  async server(){ can be returned here.
+        //resolve(this)
+        //})
     }
+
+
+    // static async from_netork_name(){
+    //          let server_version = await this.server.version();
+    //          //think this is not needed since semver deals with it.
+    //          server_version = (server_version.length && server_version[0] == 'v') ? server_version.slice(1) : server_version;
+    //
+    //          if (!semver.satisfies(server_version, __compatible__.join('&'))) {
+    //              throw new IncompatibleLedgerVersionError(`Ledger version running on server is not compatible with this API  \n
+    //                                              Server version: ${server_version} \nExpected version: ${__compatible__.join(',')}`)
+    //          }
+    // }
 
     /*
 	* this does not block event loop, but waits sync for return of executed

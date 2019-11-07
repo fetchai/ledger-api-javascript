@@ -3,6 +3,7 @@ import {Entity} from '../fetchai/ledger/crypto/entity'
 import {logger} from '../fetchai/ledger/utils'
 
 async function main() {
+    debugger;
     const host = '127.0.0.1'
     const port = 8000
     const api = new TokenApi(host, port)

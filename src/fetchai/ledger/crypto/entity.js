@@ -95,4 +95,8 @@ export class Entity extends Identity {
         const obj = JSON.parse(fs.readFileSync(fp, 'utf8'))
         return Entity._from_json_object(obj)
     }
+
+    /**
+     * add missed dumps methods
+     */
 }
