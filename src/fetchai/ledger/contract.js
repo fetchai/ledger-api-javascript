@@ -11,8 +11,12 @@ import {LedgerApi} from "./api";
 
 const _compute_digest = (source) => {
         const hash_func = createHash('sha256')
-        hash_func.update(source, 'utf')
-        return new Address(hash_func.digest())
+        hash_func.update(source, 'ascii')
+    console.log('before digest hex')
+    const d = hash_func.digest()
+    console.log(d.toString('hex'))
+    console.log('after digest hex')
+        return new Address(d)
     }
 
     export class Contract {
@@ -20,8 +24,11 @@ const _compute_digest = (source) => {
         constructor(source) {
             assert(typeof source === "string")
 
-            this._source = source
+            // convert to ascii
+            const r = Buffer.from(source, 'utf8');
+            this._source =  r.toString('ascii')
             this._digest = _compute_digest(source)
+            debugger;
             this._owner = null
 
             /*
@@ -38,7 +45,10 @@ const _compute_digest = (source) => {
 
          encoded_source() {
             //  btoa takes buffer also, and probably ideally.
-                 return btoa(this.source.toString('ascii'));
+             console.log('beforeb64');
+             console.log(btoa(this._source));
+              console.log('afterb64');
+                 return btoa(this._source);
          }
 
        // combined getter/setter mimicing the python.
@@ -101,16 +111,18 @@ return Contract._api(api).create(owner, fee, this, shard_mask)
 query(api, name, ...data){
             //notetoself: can this be null?? maybe undefined would be better.
           if(this._owner === null){
-              debugger;
+
              throw new RunTimeError('Contract has no owner, unable to perform any queries. Did you deploy it?')
         }
 
-        if(!this.queries.contains(name)){
-            throw new RunTimeError(name + ' is not an valid query name. Valid options are: ' + this.queries.join(','))
-        }
+        // if(!this.queries.contains(name)){
+        //     throw new RunTimeError(name + ' is not an valid query name. Valid options are: ' + this.queries.join(','))
+        // }
 
         // make the required query on the API
-        const [success, response] = this._api(api).query(this._digest, this._owner, name, ...data)
+
+    debugger;
+        const [success, response] = Contract._api(api).query(this._digest, this._owner, name, ...data)
 
       if(!success){
             if(typeof response !== null && "msg" in response) {
