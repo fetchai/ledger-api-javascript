@@ -29,8 +29,7 @@ export class TokenApi extends ApiEndpoint {
      * @param  {address} The base64 encoded string containing the address of the node
      */
     async balance(address) {
-        logger.info(`request for check balance of address: ${address}`)
-
+        //  logger.info(`request for check balance of address: ${address}`)
         // convert the input to an address
         address = new Address(address)
         // format and make the request
@@ -68,7 +67,7 @@ export class TokenApi extends ApiEndpoint {
         tx.action('wealth')
         tx.add_signer(entity.public_key_hex()) // hex of public key
 
-        let s = '{"amount": 1000, "timestamp":' + Date.now() + '}'
+        let s = '{"amount": ' + amount + ', "timestamp":' + Date.now() + '}'
         // let s = '{"address": "' + entity. + '","amount": "' + amount + '"}';
         tx.data(s)
         const encoded_tx = encode_transaction(tx, [entity])

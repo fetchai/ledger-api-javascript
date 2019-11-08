@@ -80,6 +80,11 @@ export class LedgerApi {
 
     async _poll(digest) {
         let status = await this.tx.status(digest)
+
+        if (/Executed|Submitted/.test(status)) {
+            console.log("EXECUTED")
+        }
+
         return /Executed|Submitted/.test(status)
     }
 }

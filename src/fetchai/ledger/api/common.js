@@ -5,32 +5,18 @@ import {Transaction} from '../transaction'
 import {BN} from 'bn.js'
 
 
-function format_contract_url(host, port, prefix = null, endpoint = null, protocol = null) {
-    debugger;
-    // """
-    // Constructs a URL based on specified contract prefix and endpoint
-    //
-    // :param host: The target host
-    // :param port: The target port
-    // :param prefix: The dot separated prefix for the contract
-    // :param endpoint: The dot separated name for the contract endpoint
-    // :param protocol: Transfer protocol, either 'http' or 'https'
-    // :return: The formatted URL
-    // """
-    // Default to http protocol
-    protocol = protocol || 'http'
-
+function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
     let canonical_name, url
 
     if (endpoint === null) {
         url = `${protocol}://${host}:${port}/api/contract/submit`
     } else {
-        if (prefix !== null) {
+        if (prefix == null) {
             canonical_name = endpoint
         } else {
             canonical_name = `${prefix}.${endpoint}`
         }
-        url = `${protocol}://${host}:${port}/api/contract/${canonical_name.replace('.', '/')}`
+        url = `${protocol}://${host}:${port}/api/contract/${canonical_name.replace(/\./g, '/')}`
     }
     return url
 }
@@ -46,7 +32,7 @@ export class ApiEndpoint {
         logger.info(
             `Creating new api endpoint object with host:${host} and port:${port}`
         )
-        debugger;
+
         let protocol
         if (host.includes('://')) {
             [protocol, host] = host.split('://')
@@ -174,8 +160,8 @@ export class ApiEndpoint {
         // format the URL
         //let url = `http://${this._host}:${this._port}/api/contract/${this.prefix}/${endpoint}`
         //  url = format_contract_url(self.host, self.port, self.API_PREFIX, endpoint, protocol=self.protocol)
-        debugger;
-        const url = format_contract_url(this._host, this._port, this.API_PREFIX, endpoint, this._protocol)
+
+        const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
 
         // make the request
         let resp
