@@ -1,6 +1,14 @@
 import {RunTimeError, ValidationError} from '../errors'
 import {BN} from 'bn.js'
 
+
+const LOGS = []
+LOGS.push(new BN(256))
+LOGS.push(new BN(65536))
+LOGS.push(new BN(4294967296))
+// over 53 bit number therefore must be passed as hex to BN
+LOGS.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')))
+
 /**
  * Determine the number of bytes required to encode the input value.
  * Artificially limited to max of 8 bytes to be compliant
@@ -8,14 +16,9 @@ import {BN} from 'bn.js'
  * @param  {value} calculate log2 num bytes as BN.js object
  */
 const _calculate_log2_num_bytes = value => {
-    let data = []
-    data.push(new BN(256))
-    data.push(new BN(65536))
-    data.push(new BN(4294967296))
-    // over 53 bit number therefore must be passed as hex to BN
-    data.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')))
-    for (let i = 0; i < data.length; i++) {
-        if (value.cmp(data[i]) === -1) return i
+
+    for (let i = 0; i < LOGS.length; i++) {
+        if (value.cmp(LOGS[i]) === -1) return i
     }
     throw new RunTimeError(
         'Unable to calculate the number of bytes required for this value'

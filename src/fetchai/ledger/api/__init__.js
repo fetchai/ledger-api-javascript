@@ -1,9 +1,12 @@
-import {RunTimeError} from '../errors/runTimeError'
+import * as semver from "semver";
+import {__compatible__} from "../__init__";
 import {ApiError} from '../errors/apiError'
-import {TokenApi} from './token'
-import {TransactionApi} from './tx'
-import {ServerApi} from "./server";
 import {ContractsApi} from "./contracts";
+import {IncompatibleLedgerVersionError} from "../errors";
+import {RunTimeError} from '../errors/runTimeError'
+import {ServerApi} from "./server";
+import {TokenApi} from './token'
+import {TransactionApi} from "./tx";
 
 export class LedgerApi {
 
@@ -12,32 +15,15 @@ export class LedgerApi {
         this.tokens = new TokenApi(host, port)
         this.contracts = new ContractsApi(host, port)
         this.tx = new TransactionApi(host, port)
-        this.server = new ServerApi(host, port)
-        // this is to allow async constructor as per python.
-        // return new Promise(async (resolve) => {
-        // Check that ledger version is compatible with API version
-
-        //  ****  async server(){ can be returned here.
-        //resolve(this)
-        //})
     }
 
-
-    // static async from_netork_name(){
-    //          let server_version = await this.server.version();
-    //          //think this is not needed since semver deals with it.
-    //          server_version = (server_version.length && server_version[0] == 'v') ? server_version.slice(1) : server_version;
-    //
-    //          if (!semver.satisfies(server_version, __compatible__.join('&'))) {
-    //              throw new IncompatibleLedgerVersionError(`Ledger version running on server is not compatible with this API  \n
-    //                                              Server version: ${server_version} \nExpected version: ${__compatible__.join(',')}`)
-    //          }
-    // }
 
     /*
 	* this does not block event loop, but waits sync for return of executed
 	* digest using a timeout, wrapped in a promise that resolves when we get executed status in response, or
     * rejects if timeouts.
+    *
+    * timeout paramater has units seconds
 	 */
     async sync(txs, timeout = false) {
         const limit = (timeout === false) ? 120000 : timeout * 1000
@@ -66,12 +52,9 @@ export class LedgerApi {
                 let elapsed_time = Date.now() - start
 
                 if (elapsed_time >= limit) {
-                    // delete when tested.
-                    let t
-                    const text = txs.reduce(t, f => t + ' , ' + f.name.substring(6))
-                    throw new RunTimeError('Timeout exceeded waiting for txs:' + text)
+                    throw new RunTimeError('Timeout exceeded waiting for txs')
                 }
-                setTimeout(loop, 1)
+                setTimeout(loop, 100)
             }
             loop()
         })
@@ -86,5 +69,15 @@ export class LedgerApi {
         }
 
         return /Executed|Submitted/.test(status)
+    }
+
+    static async from_network_name(host, port) {
+        const server = new ServerApi(host, port)
+        const server_version = await server.version();
+        if (!semver.satisfies(semver.coerce(server_version), __compatible__.join(' '))) {
+            throw new IncompatibleLedgerVersionError(`Ledger version running on server is not compatible with this API  \n
+                                                 Server version: ${server_version} \nExpected version: ${__compatible__.join(',')}`)
+        }
+        return true;
     }
 }

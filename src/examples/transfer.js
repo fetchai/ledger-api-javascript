@@ -11,8 +11,8 @@ async function main() {
     const identity1 = new Entity()
     const b = await api.tokens.balance(identity1)
     // create the balance
-    console.log('initial balance', b)
-    console.log('transfering a thousand')
+    // console.log('initial balance', b)
+    // console.log('transfering a thousand')
     const t = await api.tokens.wealth(identity1, 1000)
     await api.sync([t])
     const balance_after = await api.tokens.balance(identity1)

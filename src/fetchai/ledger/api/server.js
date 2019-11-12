@@ -1,5 +1,6 @@
 import {ApiEndpoint} from "./common";
 import axios from 'axios'
+import {ApiError} from "../errors";
 
 
 export class ServerApi extends ApiEndpoint {
@@ -18,17 +19,17 @@ export class ServerApi extends ApiEndpoint {
         } catch (error) {
             throw new ApiError('Malformed response from server')
         }
-        return response
+        return response.data;
     }
 
-    num_lanes() {
+    async num_lanes() {
         // Queries the ledger for the number of lanes currently active
-        const status = this.status();
+        const status = await this.status();
         return status.lanes;
     }
 
-    version() {
-        const status = this.status();
+    async version() {
+        const status = await this.status();
         return status.version;
     }
 }

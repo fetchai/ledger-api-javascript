@@ -67,7 +67,9 @@ export class TokenApi extends ApiEndpoint {
         tx.action('wealth')
         tx.add_signer(entity.public_key_hex()) // hex of public key
 
-        let s = '{"amount": ' + amount + ', "timestamp":' + Date.now() + '}'
+        // let s = '{"amount": ' + amount + ', "timestamp":' + Date.now() + '}'
+        let s = '{"amount": ' + amount + '}'
+
         // let s = '{"address": "' + entity. + '","amount": "' + amount + '"}';
         tx.data(s)
         const encoded_tx = encode_transaction(tx, [entity])

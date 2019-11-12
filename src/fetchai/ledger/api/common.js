@@ -1,15 +1,15 @@
-import {logger} from '../utils'
-import {ApiError} from '../errors'
 import axios from 'axios'
-import {Transaction} from '../transaction'
+import {ApiError} from '../errors'
 import {BN} from 'bn.js'
-
+import {logger} from '../utils'
+import {Transaction} from '../transaction'
 
 function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
     let canonical_name, url
 
     if (endpoint === null) {
         url = `${protocol}://${host}:${port}/api/contract/submit`
+        debugger;
     } else {
         if (prefix == null) {
             canonical_name = endpoint
@@ -68,10 +68,10 @@ export class ApiEndpoint {
      * @param  {data} data for request body.
      * @param  {prefix} prefix of the url.
      */
-    async _post_json(endpoint, data, prefix) {
+    async _post_json(endpoint, data = {}, prefix = this.prefix) {
         // format and make the request
-        let url = `http://${this._host}:${this._port}/api/contract/${prefix}/${endpoint}`
-
+        //  let url = `http://${this._host}:${this._port}/api/contract/${prefix}/${endpoint}`
+        const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
         // define the request headers
         let request_headers = {
             'Content-Type': 'application/json; charset=utf-8'
@@ -158,9 +158,6 @@ export class ApiEndpoint {
         }
 
         // format the URL
-        //let url = `http://${this._host}:${this._port}/api/contract/${this.prefix}/${endpoint}`
-        //  url = format_contract_url(self.host, self.port, self.API_PREFIX, endpoint, protocol=self.protocol)
-
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
 
         // make the request
@@ -178,7 +175,6 @@ export class ApiEndpoint {
 
         if (200 <= resp.status < 300) {
             logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
-
             return await resp.data
         }
         return null
