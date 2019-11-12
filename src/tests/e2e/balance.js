@@ -1,3 +1,7 @@
 /* eslint-disable no-undef */
-var api = new result.TokenApi('127.0.0.1', 8000)
-api.balance('2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5')
+
+// create the APIs
+var api = new result.LedgerApi('127.0.0.1', 8000)
+// generate a random identity
+const identity1 = new result.Entity()
+api.tokens.balance(identity1)
