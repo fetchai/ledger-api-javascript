@@ -28,4 +28,14 @@ describe('Browser Testing', () => {
         )
         driver.executeScript(script)
     })
+
+    test('test Wealth example script', () => {
+        let balance = fs.readFileSync(path.join(process.env.PWD + '/src/tests/e2e/wealth.js'), 'utf8')
+        fs.appendFileSync(path.join(process.env.PWD + '/src/tests/e2e/test.js'), balance)
+        const script = fs.readFileSync(
+            path.join(process.env.PWD + '/src/tests/e2e/test.js'),
+            'utf8'
+        )
+        driver.executeScript(script)
+    })
 })
