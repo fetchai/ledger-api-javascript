@@ -40,11 +40,6 @@ export class Entity extends Identity {
         }
     }
 
-    // get the public key in a uncompressed format
-    public_key() {
-        return this.pubKey
-    }
-
     private_key() {
         return this.privKey
     }

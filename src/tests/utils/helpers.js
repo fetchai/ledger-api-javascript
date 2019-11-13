@@ -2,9 +2,9 @@ import * as bs58 from 'bs58'
 import {createHash} from 'crypto'
 import {Address} from '../../fetchai/ledger/crypto/address'
 
-export const LOCAL_HOST = '127.0.0.1';
-export const DEFAULT_PORT = 8000;
-export const RAND_FP = "/path/to/file";
+export const LOCAL_HOST = '127.0.0.1'
+export const DEFAULT_PORT = 8000
+export const RAND_FP = '/path/to/file'
 
 
 //TODO remove functions names preceeding underscore.

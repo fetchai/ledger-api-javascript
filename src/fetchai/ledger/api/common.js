@@ -9,7 +9,6 @@ function format_contract_url(host, port, prefix = null, endpoint = null, protoco
 
     if (endpoint === null) {
         url = `${protocol}://${host}:${port}/api/contract/submit`
-        debugger;
     } else {
         if (prefix == null) {
             canonical_name = endpoint
@@ -42,8 +41,8 @@ export class ApiEndpoint {
 
         this._protocol = protocol
         this.prefix = 'fetch/token'
-        this._host = String(host)
-        this._port = Number(port)
+        this._host = host
+        this._port = port
         this.default_block_validity_period = 100
     }
 
@@ -87,10 +86,26 @@ export class ApiEndpoint {
                 headers: request_headers
             })
         } catch (error) {
-            debugger;
             throw new ApiError('Malformed response from server')
         }
-        return resp.data
+
+        // check the status code
+        if (200 <= resp.status < 300) {
+            return [true, resp.data]
+        }
+
+        // in python add later perhaps
+
+        // # Allow for additional data to be transferred
+        // response = None
+        // try:
+        //     response = json.loads(raw_response.text)
+        // except:
+        //     pass
+        //
+        // return False, response
+
+        return [false, resp.data]
     }
 
     async create_skeleton_tx(fee, validity_period = null) {

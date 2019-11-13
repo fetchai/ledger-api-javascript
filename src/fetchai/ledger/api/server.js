@@ -1,13 +1,12 @@
-import {ApiEndpoint} from "./common";
+import {ApiEndpoint} from './common'
 import axios from 'axios'
-import {ApiError} from "../errors";
+import {ApiError} from '../errors'
 
 
 export class ServerApi extends ApiEndpoint {
 
     async status() {
         // Gets the status of a constellation server
-        // return: dict of info returned by the /api/status endpoint
         let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status`
 
         let response
@@ -19,17 +18,17 @@ export class ServerApi extends ApiEndpoint {
         } catch (error) {
             throw new ApiError('Malformed response from server')
         }
-        return response.data;
+        return response.data
     }
 
     async num_lanes() {
         // Queries the ledger for the number of lanes currently active
-        const status = await this.status();
-        return status.lanes;
+        const status = await this.status()
+        return status.lanes
     }
 
     async version() {
-        const status = await this.status();
-        return status.version;
+        const status = await this.status()
+        return status.version
     }
 }

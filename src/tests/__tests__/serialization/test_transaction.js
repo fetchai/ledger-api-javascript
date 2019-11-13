@@ -16,7 +16,7 @@ const _PRIVATE_KEYS = [
     '80f0e1c69e5f1216f32647c20d744c358e0894ebc855998159017a5acda208ba',
 ]
 
-const [ENTITIES, IDENTITIES] = function () {
+const [ENTITIES, IDENTITIES] = (() => {
     const ENTITIES = []
     const IDENTITIES = []
     let pk
@@ -27,7 +27,7 @@ const [ENTITIES, IDENTITIES] = function () {
     }
 
     return [ENTITIES, IDENTITIES]
-}()
+})()
 
 const _calculate_integer_stream_size = (len) => {
     if (len < 0x80) {

@@ -9,14 +9,18 @@ async function main() {
     const api = new LedgerApi(HOST, PORT)
     // generate a random identity
     const identity1 = new Entity()
-    const b = await api.tokens.balance(identity1)
-    // create the balance
-    // console.log('initial balance', b)
-    // console.log('transfering a thousand')
+    const identity2 = new Entity()
+
     const t = await api.tokens.wealth(identity1, 1000)
     await api.sync([t])
-    const balance_after = await api.tokens.balance(identity1)
-    console.log('balance after', balance_after)
+
+    const tx2 = await api.tokens.transfer(identity1, identity2, 250, 20)
+    await api.sync([tx2])
+
+    const balance1 = await api.tokens.balance(identity1)
+    console.log('Balance 1:' + balance1)
+    const balance2 = await api.tokens.balance(identity2)
+    console.log('Balance 2:' + balance2)
 }
 
 main()

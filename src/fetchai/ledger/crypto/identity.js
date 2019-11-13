@@ -1,5 +1,6 @@
 import * as secp256k1 from 'secp256k1'
 import {ValidationError} from '../errors'
+import {default as btoa} from 'btoa'
 
 export class Identity {
 
@@ -19,6 +20,10 @@ export class Identity {
     // get public key with 04 prefix
     prefixed_public_key() {
         return Buffer.concat([Buffer.from('04', 'hex'), this.pub_key])
+    }
+
+    public_key_base64() {
+        return btoa(this.pub_key)
     }
 
     public_key() {
