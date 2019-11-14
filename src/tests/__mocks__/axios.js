@@ -2,17 +2,19 @@ import {DEFAULT_PORT, LOCAL_HOST} from '../utils/helpers'
 
 export default jest.fn((request) => {
 
-    const requests = [balance, wealth, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract]
+    const requests = [balance, wealth, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address]
     let req, res
     for (let i = 0; i < requests.length; i++) {
         [req, res] = requests[i].call()
         if (equals(request, req)) {
+            if (i === 11) debugger;
             if (requests[i].name === 'balance') balance_called++
             // kinda hacky but if balance called 3 times we return bigger value
             return Promise.resolve(res)
         }
     }
-    return Promise.resolve(res)
+    debugger;
+    return Promise.resolve({data: "resolve"})
     //return Promise.reject()
 })
 // e use this variable to
@@ -23,6 +25,29 @@ function balance() {
         JSON.parse(`{"method":"post","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/contract/fetch/token/balance","data":{"address":"2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
         (balance_called >= 2) ? JSON.parse('{"data": {"balance": 500}}') : JSON.parse('{"data": {"balance": 275}}')]
 }
+
+function get_bad_ledger_address() {
+    return [
+        JSON.parse(`{"method":"get","url":"https://bootstrap.fetch.ai/endpoints","params":{"network":"def"}}`),
+        JSON.parse('{"status": 404, "data": {"balance": 500}}')
+    ]
+}
+
+function get_bad_ledger_address_2() {
+    return [
+        JSON.parse(`{"method":"get","url":"https://bootstrap.fetch.ai/endpoints","params":{"network":"def2"}}`),
+        JSON.parse('{"status": 200, "data": {"balance": 500}}')
+    ]
+}
+
+function get_good_ledger_address() {
+    return [
+        JSON.parse(`{"method":"get","url":"https://bootstrap.fetch.ai/endpoints","params":{"network":"alpha"}}`),
+        JSON.parse('{"status": 200, "data": [{"address": "https://foo.bar:500"}]}')
+    ]
+}
+
+
 
 function server_status() {
     return [
