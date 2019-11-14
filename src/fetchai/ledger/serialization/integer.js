@@ -41,10 +41,10 @@ const encode = (buffer, value) => {
     const abs_value = value.abs()
 
     if (!is_signed && abs_value.lten(127)) {
-        return Buffer.concat([buffer, new Buffer([abs_value.toNumber()])])
+        return Buffer.concat([buffer, Buffer.from([abs_value.toNumber()])])
     } else {
         if (is_signed && abs_value.lten(31)) {
-            return Buffer.concat([buffer, new Buffer([0xE0 | abs_value.toNumber()])])
+            return Buffer.concat([buffer, Buffer.from([0xE0 | abs_value.toNumber()])])
         } else {
             const log2_num_bytes = _calculate_log2_num_bytes(abs_value)
             const num_bytes = new BN(1).shln(log2_num_bytes)
@@ -55,7 +55,7 @@ const encode = (buffer, value) => {
             let values = Array.from(Array(num_bytes.toNumber()).keys())
                 .reverse()
                 .map(value => abs_value.shrn(value * 8).and(new BN(0xFF)).toBuffer())
-            return Buffer.concat([buffer, Buffer.concat([new Buffer([header]), Buffer.concat(values)])])
+            return Buffer.concat([buffer, Buffer.concat([Buffer.from([header]), Buffer.concat(values)])])
         }
     }
 }
@@ -71,7 +71,7 @@ const decode = (buffer) => {
     buffer = buffer.slice(1)
     const header_integer = header.readUIntBE(0, 1)
 
-    if ((header_integer & 0x80) == 0) {
+    if ((header_integer & 0x80) === 0) {
         return [new BN(header_integer & 0x7F), buffer]
     }
 

@@ -11,7 +11,7 @@ async function main() {
     logger.info(`Balance before wealth: ${balance}`)
 
     const entity = new Entity(
-        new Buffer(
+        Buffer.from(
             '2ff324b9d3367b160069ec67260959b4955ab519426603b5e59d5990128163f3',
             'hex'
         )
