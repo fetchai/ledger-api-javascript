@@ -2,20 +2,17 @@ import {DEFAULT_PORT, LOCAL_HOST} from '../utils/helpers'
 
 export default jest.fn((request) => {
 
-    const requests = [balance, wealth, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address]
+    const requests = [balance, wealth, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false]
     let req, res
     for (let i = 0; i < requests.length; i++) {
         [req, res] = requests[i].call()
         if (equals(request, req)) {
-            if (i === 11) debugger;
             if (requests[i].name === 'balance') balance_called++
             // kinda hacky but if balance called 3 times we return bigger value
             return Promise.resolve(res)
         }
     }
-    debugger;
-    return Promise.resolve({data: "resolve"})
-    //return Promise.reject()
+    return Promise.reject()
 })
 // e use this variable to
 let balance_called = 0
@@ -28,26 +25,55 @@ function balance() {
 
 function get_bad_ledger_address() {
     return [
-        JSON.parse(`{"method":"get","url":"https://bootstrap.fetch.ai/endpoints","params":{"network":"def"}}`),
+        JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/endpoints","params":{"network":"def"}}'),
         JSON.parse('{"status": 404, "data": {"balance": 500}}')
     ]
 }
 
 function get_bad_ledger_address_2() {
     return [
-        JSON.parse(`{"method":"get","url":"https://bootstrap.fetch.ai/endpoints","params":{"network":"def2"}}`),
+        JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/endpoints","params":{"network":"def2"}}'),
         JSON.parse('{"status": 200, "data": {"balance": 500}}')
     ]
 }
 
 function get_good_ledger_address() {
     return [
-        JSON.parse(`{"method":"get","url":"https://bootstrap.fetch.ai/endpoints","params":{"network":"alpha"}}`),
+        JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/endpoints","params":{"network":"alpha"}}'),
         JSON.parse('{"status": 200, "data": [{"address": "https://foo.bar:500"}]}')
     ]
 }
 
+function list_servers() {
+    return [
+        JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/networks/","params":{"active":1}}'),
+        JSON.parse(`{
+  "status": 200,
+  "data": [
+    {
+      "name": "alpha",
+      "versions": "*"
+    }
+  ]
+}`)
+    ]
+}
 
+
+function list_servers_false() {
+    return [
+        JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/networks/","params":{}}'),
+        JSON.parse(`{
+  "status": 200,
+  "data": [
+    {
+      "name": "alpha",
+      "versions": "*"
+    }
+  ]
+}`)
+    ]
+}
 
 function server_status() {
     return [

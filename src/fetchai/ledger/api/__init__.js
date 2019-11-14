@@ -7,7 +7,7 @@ import {RunTimeError} from '../errors/runTimeError'
 import {ServerApi} from './server'
 import {TokenApi} from './token'
 import {TransactionApi} from './tx'
-import {Bootstrap} from "./bootstrap";
+import {Bootstrap} from './bootstrap'
 
 const DEFAULT_TIMEOUT = 120000
 
@@ -16,7 +16,7 @@ export class LedgerApi {
     constructor(host = false, port = false, network = false) {
         if (network) {
             if (host !== false || port !== false) {
-                throw new ValidationError('Specify either a server name, or a host & port');
+                throw new ValidationError('Specify either a server name, or a host & port')
             }
             [host, port] = Bootstrap.server_from_name(network)
         } else if (host === false || port === false) {
