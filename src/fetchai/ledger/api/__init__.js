@@ -2,18 +2,26 @@ import * as semver from 'semver'
 import {__compatible__} from '../__init__'
 import {ApiError} from '../errors/apiError'
 import {ContractsApi} from './contracts'
-import {IncompatibleLedgerVersionError} from '../errors'
+import {IncompatibleLedgerVersionError, ValidationError} from '../errors'
 import {RunTimeError} from '../errors/runTimeError'
 import {ServerApi} from './server'
 import {TokenApi} from './token'
 import {TransactionApi} from './tx'
+import {Bootstrap} from './bootstrap'
 
 const DEFAULT_TIMEOUT = 120000
 
 export class LedgerApi {
 
-    //TODO add third param , network = false
-    constructor(host = false, port = false) {
+    constructor(host = false, port = false, network = false) {
+        if (network) {
+            if (host !== false || port !== false) {
+                throw new ValidationError('Specify either a server name, or a host & port')
+            }
+            [host, port] = Bootstrap.server_from_name(network)
+        } else if (host === false || port === false) {
+            throw new ValidationError('Must specify either a server name, or a host & port')
+        }
         this.tokens = new TokenApi(host, port)
         this.contracts = new ContractsApi(host, port)
         this.tx = new TransactionApi(host, port)
