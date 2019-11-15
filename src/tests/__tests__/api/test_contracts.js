@@ -49,14 +49,13 @@ describe(':ContractsApi', () => {
         expect(query).toBe(1000000)
     })
 
-    //TODO  still unfinished
-    test.skip('test action', async () => {
+    test('test action', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const tok_transfer_amount = 200
         const fet_tx_fee = 160
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
         const action = await contract.action(api, 'transfer', fet_tx_fee, [ENTITIES[0]], [ADDRESSES[0], ADDRESSES[1], tok_transfer_amount])
-        expect(action).toBe(1000000)
+        expect(action).toHaveProperty('txs')
     })
 
     test('test _encode_json_payload', () => {
@@ -103,9 +102,6 @@ describe(':ContractsApi', () => {
         expect(actual_hex).toBe(expected.toString('hex'))
     })
 
-    test.skip('test is_primitive', async () => {/* TODO */
-    })
-
     test('test IsJsonObject', async () => {
         const api = new ContractsApi(LOCAL_HOST, DEFAULT_PORT)
 
@@ -118,6 +114,4 @@ describe(':ContractsApi', () => {
         expect(res2).toBe(false)
 
     })
-
-
 })

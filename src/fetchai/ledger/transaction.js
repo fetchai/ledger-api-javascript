@@ -3,6 +3,7 @@ import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
 import {BN} from 'bn.js'
 import assert from 'assert'
+import {randomBytes} from 'crypto'
 
 /**
  * This class for Transactions related operations
@@ -14,12 +15,13 @@ export class Transaction {
     constructor() {
         this._from = ''
         this._transfers = {}
-        this._valid_from = 0
-        this._valid_until = 0
+        this._valid_from = new BN(0)
+        this._valid_until = new BN(0)
         this._charge_rate = new BN(0)
         this._charge_limit = new BN(0)
         this._contract_digest = ''
         this._contract_address = ''
+        this._counter = new BN(randomBytes(8))
         this._chain_code = ''
         this._shard_mask = new BitVector() // BitVector class instance
         this._action = ''
@@ -58,7 +60,8 @@ export class Transaction {
     // Get and Set valid_from param
     valid_from(block_number = null) {
         if (block_number) {
-            this._valid_from = Number(block_number)
+            assert(BN.isBN(block_number))
+            this._valid_from = block_number
             return this._valid_from
         }
         return this._valid_from
@@ -67,7 +70,8 @@ export class Transaction {
     // Get and Set valid_until param
     valid_until(block_number = null) {
         if (block_number) {
-            this._valid_until = Number(block_number)
+            assert(BN.isBN(block_number))
+            this._valid_until = block_number
             return this._valid_until
         }
         return this._valid_until
@@ -101,6 +105,13 @@ export class Transaction {
     // Get contract_address param
     contract_address() {
         return this._contract_address
+    }
+
+    counter(counter = null) {
+        if (counter === null) return this._counter
+        assert(BN.isBN(counter))
+        this._counter = counter
+
     }
 
     // Get chain_code param
