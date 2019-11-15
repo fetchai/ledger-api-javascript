@@ -1,7 +1,6 @@
 import {DEFAULT_PORT, LOCAL_HOST} from '../utils/helpers'
 
 export default jest.fn((request) => {
-
     const requests = [balance, wealth, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action]
     let req, res
     for (let i = 0; i < requests.length; i++) {
@@ -14,7 +13,7 @@ export default jest.fn((request) => {
     }
     return Promise.reject()
 })
-// e use this variable to
+
 let balance_called = 0
 
 function balance() {
@@ -46,7 +45,7 @@ function get_good_ledger_address() {
 
 function contract_action() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/submit","data":{"ver":"1.2","data":"oUBAAKWva7cAnbFBKrLdfiAPcIP7x/PrkCWNtedeucg4NotTaQHAoIBx6gd6zAfUoBpUonLlSQi/LksfyjKIy3RLTGfm5dcAwcfeXWNAUnsbS8C5rh8Pgs1A39nnqqtphV1dElhllecUCHRyYW5zZmVySZPHIE2lr2u3AJ2xQSqy3X4gD3CD+8fz65AljbXnXrnIODaLU8cgTRwWjo4eHRKKX0nFjQxqAEBYN2yiEYPZ5R0hwv4gGujVzMh5NUmTSOVmEQSIBglvVMGxSIJqBrDd2pjGOpDew4UKXjEE9hEuT7g8mMeqv9Jl+49rhlDqjI7NwLUnWvxBBSzVazJdDEP7wV1qQIE8n7/kAc89OxblcNFWpWGUMKBhS9fln0qw1erNBVG2UmPDiPOBPQVT1egl6PDUvEDzMsYSZ1/HFHgExaThHDI="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/submit","data":{"ver":"1.2","data":"oUBAAKWva7cAnbFBKrLdfiAPcIP7x/PrkCWNtedeucg4NotTaQHAoIBx6gd6zAfUoBpUonLlSQi/LksfyjKIy3RLTGfm5dcAwcfeXWNAUnsbS8C5rh8Pgs1A39nnqqtphV1dElhllecUCHRyYW5zZmVySZPHIE2lr2u3AJ2xQSqy3X4gD3CD+8fz65AljbXnXrnIODaLU8cgTRwWjo4eHRKKX0nFjQxqAEBYN2yiEYPZ5R0hwv4gGujVzMh5NUmTSOVmEQSIBglvVMGxSIJqBrDd2pjGOpDew4UKXjEE9hEuT7g8mMeqv9Jl+49rhlDqjI7NwLUnWvxBBSzVazJdDEP7wV1qQIE8n7/kAc89OxblcNFWpWGUMKBhS9fln0qw1erNBVG2UmPDiPOBPQVT1egl6PDUvEDzMsYSZ1/HFHgExaThHDI="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
         JSON.parse('{"status": 200, "data": {"txs":["68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516"],"counts":{"received":1,"submitted":1}}}')
     ]
 }
@@ -54,15 +53,7 @@ function contract_action() {
 function list_servers() {
     return [
         JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/networks/","params":{"active":1}}'),
-        JSON.parse(`{
-  "status": 200,
-  "data": [
-    {
-      "name": "alpha",
-      "versions": "*"
-    }
-  ]
-}`)
+        JSON.parse(`{"status": 200,"data": [{"name": "alpha", "versions": "*"}]}`)
     ]
 }
 
@@ -70,16 +61,7 @@ function list_servers() {
 function list_servers_false() {
     return [
         JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/networks/","params":{}}'),
-        JSON.parse(`{
-  "status": 200,
-  "data": [
-    {
-      "name": "alpha",
-      "versions": "*"
-    }
-  ]
-}`)
-    ]
+        JSON.parse(`{"status": 200, "data": [{"name": "alpha", "versions": "*"}]}`)]
 }
 
 
@@ -133,7 +115,6 @@ function status_chain() {
         JSON.parse(`{"method":"get","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/status/chain","params":{"size":1},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
         JSON.parse('{"data":{"chain":[{"blockNumber":5}]}}')]
 }
-
 
 
 /*
