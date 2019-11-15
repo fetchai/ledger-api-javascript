@@ -53,7 +53,7 @@ function contract_action() {
 function list_servers() {
     return [
         JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/networks/","params":{"active":1}}'),
-        JSON.parse(`{"status": 200,"data": [{"name": "alpha", "versions": "*"}]}`)
+        JSON.parse('{"status": 200,"data": [{"name": "alpha", "versions": "*"}]}')
     ]
 }
 
@@ -61,7 +61,7 @@ function list_servers() {
 function list_servers_false() {
     return [
         JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/networks/","params":{}}'),
-        JSON.parse(`{"status": 200, "data": [{"name": "alpha", "versions": "*"}]}`)]
+        JSON.parse('{"status": 200, "data": [{"name": "alpha", "versions": "*"}]}')]
 }
 
 
