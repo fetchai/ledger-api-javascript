@@ -1,10 +1,20 @@
 import axios from 'axios'
-import {ApiEndpoint} from './common'
-import {ApiError} from '../errors'
+import {ApiError, NetworkUnavailableError} from '../errors'
 import {Address} from "../crypto/address";
+import {BN} from "bn.js";
+import {ApiEndpoint} from "./common";
 
 const SUCCESSFUL_TERMINAL_STATES = ('Executed', 'Submitted')
 const NON_TERMINAL_STATES = ('Unknown', 'Pending')
+
+/*
+takes an array and turns it into an object, setting the to field and the amount field.
+ */
+const arrayToObject = (array) =>
+    array.reduce((obj, item) => {
+        obj[item.to] = new BN(item.amount)
+        return obj
+    }, {})
 
 export class TxStatus {
 
@@ -13,11 +23,10 @@ export class TxStatus {
         this.digest_hex = this.digest_bytes.toString('hex')
         this.status = status
         this.exit_code = exit_code
-        this.charge = charge
-        this.charge_rate = charge_rate
-        this.fee = fee
+        this.charge = new BN(charge)
+        this.charge_rate = new BN(charge_rate)
+        this.fee = new BN(fee)
     }
-
 
     successful() {
         return SUCCESSFUL_TERMINAL_STATES.includes(this.status)
@@ -39,22 +48,23 @@ export class TxStatus {
 
 export class TxContents {
 
-    construct(digest,
-              action,
-              chain_code,
-              from_address,
-              contract_digest,
-              contract_address,
-              valid_from,
-              valid_until,
-              charge,
-              charge_limit,
-              transfers,
-              signatories,
-              data) {
+    constructor(digest,
+                action,
+                chain_code,
+                from_address,
+                contract_digest,
+                contract_address,
+                valid_from,
+                valid_until,
+                charge,
+                charge_limit,
+                transfers,
+                signatories,
+                data) {
 
-        this._digest_bytes = digest
-        this._digest_hex = this._digest_bytes.toString('hex')
+        this.digest_bytes = digest
+        this.digest_hex = this.digest_bytes.toString('hex')
+
         this.action = action
         this.chain_code = chain_code
         this.from_address = new Address(from_address)
@@ -64,10 +74,7 @@ export class TxContents {
         this.valid_until = valid_until
         this.charge = charge
         this.charge_limit = charge_limit
-        this.transfers = {Address(t['to']
-    ):
-        t['amount']
-        for t in transfers}
+        this.transfers = arrayToObject(transfers)
         this.signatories = signatories
         this.data = data
     }
@@ -75,161 +82,44 @@ export class TxContents {
     /**
      *  Returns the amount of FET transferred to an address by this transaction, if any
      */
-    function
-
     transfers_to(address) {
-        address = new Address(address)
-        return this.transfers.get(address, 0)
+        if (address instanceof Address) {
+            address = address.toHex()
+        }
+        if (this.transfers[address]) return this.transfers[address]
+        return new BN(0);
     }
 
     /**
-     *Creates a TxContents from a json string or dict object
+     *Creates a TxContents from a json string or an object
      */
-    function
 
-    from_json(data):
+    static from_json(data) {
+        if (typeof data === "string") {
+            data = JSON.parse(data)
+        }
+        if (data.digest.toUpperCase().substring(0, 2) === '0X') data.digest = data.digest.substring(2);
 
-    if
 
-    isinstance(data, str):
-        data
+        //  Extract contents from json, converting as necessary
+        const t = new TxContents(
+            Buffer.from(data.digest, 'hex'),
+            data.action,
+            data.chainCode,
+            data.from,
+            data.contractDigest,
+            data.contractAddress,
+            data.validFrom,
+            data.validUntil,
+            data.charge,
+            data.chargeLimit,
+            data.transfers,
+            data.signatories,
+            data.data
+        )
 
-=
-    json
-.
-
-    loads(data)
-
-    # Extract
-    contents
-    from
-    json
-,
-    converting
-    as
-    necessary
-    return
-
-    TxContents(
-        bytes
-
-.
-
-    fromhex(data
-
-.
-
-    get(
-
-    'digest'
-).
-
-    lstrip(
-
-    '0x'
-)),
-    data
-.
-
-    get(
-
-    'action'
-),
-    data
-.
-
-    get(
-
-    'chainCode'
-),
-    data
-.
-
-    get(
-
-    'from'
-),
-    data
-.
-
-    get(
-
-    'contractDigest'
-),
-    data
-.
-
-    get(
-
-    'contractAddress'
-),
-
-    int(data
-
-.
-
-    get(
-
-    'validFrom'
-,
-    0
-)),
-
-    int(data
-
-.
-
-    get(
-
-    'validUntil'
-,
-    0
-)),
-
-    int(data
-
-.
-
-    get(
-
-    'charge'
-)),
-
-    int(data
-
-.
-
-    get(
-
-    'chargeLimit'
-)),
-    [t
-    for
-    t
-    in
-    data
-.
-
-    get(
-
-    'transfers'
-)],
-    data
-.
-
-    get(
-
-    'signatories'
-),
-    data
-.
-
-    get(
-
-    'data'
-)
-)
-
+        return t;
+    }
 }
 
 export class TransactionApi extends ApiEndpoint {
@@ -251,6 +141,42 @@ export class TransactionApi extends ApiEndpoint {
         } catch (error) {
             throw new ApiError('Malformed response from server')
         }
-        return resp.data.status
+
+        if (200 !== resp.status) {
+            debugger;
+            throw new NetworkUnavailableError('Failed to get status from txs hash')
+        }
+
+        return new TxStatus(
+            Buffer.from(resp.data.tx, 'hex'),
+            resp.data.status,
+            resp.data.tx,
+            resp.data.exit_code,
+            resp.data.charge,
+            resp.data.charge_rate,
+            resp.data.fee)
     }
+
+    async contents(tx_digest) {
+        let url = `${this.protocol()}://${this.host()}:${this.port()}/api/tx/${tx_digest}`
+
+        let resp;
+        try {
+            resp = await axios({
+                method: 'get',
+                url: url
+            })
+        } catch (error) {
+            throw new ApiError('Malformed response from server')
+        }
+
+        if (200 !== resp.status) {
+            debugger;
+            throw new NetworkUnavailableError('Failed to get contents from txs hash')
+        }
+
+        return resp.data
+    }
+
+
 }

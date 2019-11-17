@@ -15,7 +15,8 @@ const [ENTITIES, ADDRESSES] = (() => {
     ADDRESSES.push(new Address(ENTITIES[0]))
     ADDRESSES.push(new Address(ENTITIES[1]))
     return [ENTITIES, ADDRESSES]
-})()
+})()   //         const entity = new Entity(Buffer.from('2ff324b9d3367b160069ec67260959b4955ab519426603b5e59d5990128163f3', 'hex'))
+
 
 const NONCE = (() => {
     Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')

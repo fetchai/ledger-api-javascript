@@ -1,33 +1,13 @@
 import {Transaction} from '../../../fetchai/ledger/transaction'
 import {BitVector} from '../../../fetchai/ledger/bitvector'
-import {Entity} from '../../../fetchai/ledger/crypto/entity'
 import {Identity} from '../../../fetchai/ledger/crypto/identity'
 import {decode_transaction, encode_transaction} from '../../../fetchai/ledger/serialization/transaction.js'
 import * as bytearray from '../../../fetchai/ledger/serialization/bytearray'
 import {createHash} from 'crypto'
 import {ValidationError} from '../../../fetchai/ledger/errors'
 import {BN} from 'bn.js'
+import {ENTITIES, IDENTITIES} from "../../utils/helpers";
 
-const _PRIVATE_KEYS = [
-    '1411d53f88e736eac7872430dbe5b55ac28c17a3e648c388e0bd1b161ab04427',
-    '3436c184890d498b25bc2b5cb0afb6bad67379ebd778eae1de40b6e0f0763825',
-    '4a56a19355f934174f6388b3c80598abb151af79c23d5a7af45a13357fb71253',
-    'f9d67ec139eb7a1cb1f627357995847392035c1e633e8530de5ab5d04c6e9c33',
-    '80f0e1c69e5f1216f32647c20d744c358e0894ebc855998159017a5acda208ba',
-]
-
-const [ENTITIES, IDENTITIES] = (() => {
-    const ENTITIES = []
-    const IDENTITIES = []
-    let pk
-    for (let i = 0; i < _PRIVATE_KEYS.length; i++) {
-        ENTITIES.push(Entity.from_hex(_PRIVATE_KEYS[i]))
-        pk = ENTITIES[i].public_key()
-        IDENTITIES.push(new Identity(pk))
-    }
-
-    return [ENTITIES, IDENTITIES]
-})()
 
 const _calculate_integer_stream_size = (len) => {
     if (len < 0x80) {

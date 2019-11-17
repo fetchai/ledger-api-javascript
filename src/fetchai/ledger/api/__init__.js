@@ -80,7 +80,8 @@ export class LedgerApi {
 
     async _poll(digest) {
         let status = await this.tx.status(digest)
-        return /Executed|Submitted/.test(status)
+
+        return /Executed|Submitted/.test(status.status)
     }
 
     static async from_network_name(host, port) {
