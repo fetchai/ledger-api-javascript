@@ -3,7 +3,6 @@ import {ApiError} from '../errors'
 import {BN} from 'bn.js'
 import {logger} from '../utils'
 import {Transaction} from '../transaction'
-import 'source-map-support/register'
 
 function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
     let canonical_name, url
@@ -175,7 +174,6 @@ export class ApiEndpoint {
 
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
-        console.log('URL IS :' + url)
         // make the request
         let resp
         try {

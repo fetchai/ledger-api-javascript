@@ -337,8 +337,7 @@ const decode_transaction = (buffer) => {
 
     }
 
-    const counter = buffer.slice(0, 8)
-    tx.counter(new BN(counter))
+    tx.counter(new BN(buffer.slice(0, 8)))
     buffer = buffer.slice(8)
 
     if (signature_count_minus1 == 0x3F) {

@@ -10,7 +10,7 @@ const NON_TERMINAL_STATES = ('Unknown', 'Pending')
 /*
 takes an array and turns it into an object, setting the to field and the amount field.
  */
-const arrayToObject = (array) =>
+const tx_array_to_object = (array) =>
     array.reduce((obj, item) => {
         obj[item.to] = new BN(item.amount)
         return obj
@@ -73,7 +73,7 @@ export class TxContents {
         this.valid_until = valid_until
         this.charge = charge
         this.charge_limit = charge_limit
-        this.transfers = arrayToObject(transfers)
+        this.transfers = tx_array_to_object(transfers)
         this.signatories = signatories
         this.data = data
     }
@@ -152,9 +152,9 @@ export class TransactionApi extends ApiEndpoint {
             resp.data.fee)
     }
 
+
     async contents(tx_digest) {
         let url = `${this.protocol()}://${this.host()}:${this.port()}/api/tx/${tx_digest}`
-
         let resp
         try {
             resp = await axios({
@@ -168,9 +168,6 @@ export class TransactionApi extends ApiEndpoint {
         if (200 !== resp.status) {
             throw new NetworkUnavailableError('Failed to get contents from txs hash')
         }
-
         return resp.data
     }
-
-
 }
