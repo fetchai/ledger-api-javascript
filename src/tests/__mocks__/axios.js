@@ -12,9 +12,6 @@ export default jest.fn((request) => {
             return Promise.resolve(res)
         }
     }
-    debugger;
-    return Promise.resolve(res)
-    //return Promise.reject()
 })
 // e use this variable to
 let balance_called = 0
