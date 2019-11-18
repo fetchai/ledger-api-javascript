@@ -85,7 +85,7 @@ describe(':Entity', () => {
         expect(signature_hex).toEqual(sigObj.signature.toString('hex'))
     })
 
-    test('test loads', () => {
+    test.skip('test loads', () => {
         const s = `{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`
         const obj = JSON.parse(s)
         const base64 = Buffer.from(obj.privateKey, 'base64')
@@ -98,7 +98,6 @@ describe(':Entity', () => {
         const s = `{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`
         const obj = JSON.parse(s)
         const base64 = Buffer.from(obj.privateKey, 'base64')
-        debugger;
         const entity = Entity.load('test.json')
         const private_key_hex = entity.private_key_hex()
         expect(base64.toString('hex')).toEqual(private_key_hex)

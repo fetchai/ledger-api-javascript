@@ -1,8 +1,8 @@
 import axios from 'axios'
 import {ApiError, NetworkUnavailableError} from '../errors'
-import {Address} from "../crypto/address";
-import {BN} from "bn.js";
-import {ApiEndpoint} from "./common";
+import {Address} from '../crypto/address'
+import {BN} from 'bn.js'
+import {ApiEndpoint} from './common'
 
 const SUCCESSFUL_TERMINAL_STATES = ('Executed', 'Submitted')
 const NON_TERMINAL_STATES = ('Unknown', 'Pending')
@@ -49,27 +49,26 @@ export class TxStatus {
 export class TxContents {
 
     constructor(digest,
-                action,
-                chain_code,
-                from_address,
-                contract_digest,
-                contract_address,
-                valid_from,
-                valid_until,
-                charge,
-                charge_limit,
-                transfers,
-                signatories,
-                data) {
+        action,
+        chain_code,
+        from_address,
+        contract_digest,
+        contract_address,
+        valid_from,
+        valid_until,
+        charge,
+        charge_limit,
+        transfers,
+        signatories,
+        data) {
 
         this.digest_bytes = digest
         this.digest_hex = this.digest_bytes.toString('hex')
-
         this.action = action
         this.chain_code = chain_code
         this.from_address = new Address(from_address)
-        this.contract_digest = (contract_digest) ? contract_digest : null;
-        this.contract_address = (contract_address) ? new Address(contract_address) : null;
+        this.contract_digest = (contract_digest) ? contract_digest : null
+        this.contract_address = (contract_address) ? new Address(contract_address) : null
         this.valid_from = valid_from
         this.valid_until = valid_until
         this.charge = charge
@@ -87,7 +86,7 @@ export class TxContents {
             address = address.toHex()
         }
         if (this.transfers[address]) return this.transfers[address]
-        return new BN(0);
+        return new BN(0)
     }
 
     /**
@@ -95,14 +94,13 @@ export class TxContents {
      */
 
     static from_json(data) {
-        if (typeof data === "string") {
+        if (typeof data === 'string') {
             data = JSON.parse(data)
         }
-        if (data.digest.toUpperCase().substring(0, 2) === '0X') data.digest = data.digest.substring(2);
-
+        if (data.digest.toUpperCase().substring(0, 2) === '0X') data.digest = data.digest.substring(2)
 
         //  Extract contents from json, converting as necessary
-        const t = new TxContents(
+        return new TxContents(
             Buffer.from(data.digest, 'hex'),
             data.action,
             data.chainCode,
@@ -117,8 +115,6 @@ export class TxContents {
             data.signatories,
             data.data
         )
-
-        return t;
     }
 }
 
@@ -143,7 +139,6 @@ export class TransactionApi extends ApiEndpoint {
         }
 
         if (200 !== resp.status) {
-            debugger;
             throw new NetworkUnavailableError('Failed to get status from txs hash')
         }
 
@@ -160,7 +155,7 @@ export class TransactionApi extends ApiEndpoint {
     async contents(tx_digest) {
         let url = `${this.protocol()}://${this.host()}:${this.port()}/api/tx/${tx_digest}`
 
-        let resp;
+        let resp
         try {
             resp = await axios({
                 method: 'get',
@@ -171,7 +166,6 @@ export class TransactionApi extends ApiEndpoint {
         }
 
         if (200 !== resp.status) {
-            debugger;
             throw new NetworkUnavailableError('Failed to get contents from txs hash')
         }
 

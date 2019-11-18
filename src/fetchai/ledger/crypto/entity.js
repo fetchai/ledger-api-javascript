@@ -87,7 +87,6 @@ export class Entity extends Identity {
     }
 
     static load(fp) {
-        debugger;
         const obj = JSON.parse(fs.readFileSync(fp, 'utf8'))
         return Entity._from_json_object(obj)
     }

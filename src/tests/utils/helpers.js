@@ -1,7 +1,7 @@
 import * as bs58 from 'bs58'
 import {createHash} from 'crypto'
 import {Address} from '../../fetchai/ledger/crypto/address'
-import {Entity, Identity} from "../../fetchai/ledger/crypto";
+import {Entity, Identity} from '../../fetchai/ledger/crypto'
 
 export const LOCAL_HOST = '127.0.0.1'
 export const DEFAULT_PORT = 8000

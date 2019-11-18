@@ -66,7 +66,7 @@ const encode_payload = payload => {
     const num_extra_signatures =
         num_signatures > 0x40 ? (num_signatures - 0x40) : 0
     const signalled_signatures = num_signatures - (num_extra_signatures + 1)
-    const has_valid_from = payload._valid_from.gtn(0)
+    const has_valid_from = (payload._valid_from.cmp(new BN(0)) !== 0)
 
     let header0 = VERSION << 5 /// ??
     header0 |= (num_transfers > 0 ? 1 : 0) << 2

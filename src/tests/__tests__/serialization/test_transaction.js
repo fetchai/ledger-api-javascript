@@ -6,7 +6,7 @@ import * as bytearray from '../../../fetchai/ledger/serialization/bytearray'
 import {createHash} from 'crypto'
 import {ValidationError} from '../../../fetchai/ledger/errors'
 import {BN} from 'bn.js'
-import {ENTITIES, IDENTITIES} from "../../utils/helpers";
+import {ENTITIES, IDENTITIES} from '../../utils/helpers'
 
 
 const _calculate_integer_stream_size = (len) => {

@@ -1,29 +1,15 @@
-import {ADDRESSES, DEFAULT_PORT, ENTITIES, LOCAL_HOST} from "../../utils/helpers";
-import {TransactionApi, TxContents} from "../../../fetchai/ledger/api/tx";
-import {Address} from "../../../fetchai/ledger/crypto/address";
-import {BN} from "bn.js";
-import {TokenApi} from "../../../fetchai/ledger/api";
-
-
-function l(msg) {
-    console.log(msg);
-}
-
-function d(msg = null) {
-    debugger;
-}
+import {ADDRESSES, DEFAULT_PORT, ENTITIES, LOCAL_HOST} from '../../utils/helpers'
+import {TransactionApi, TxContents} from '../../../fetchai/ledger/api/tx'
+import {Address} from '../../../fetchai/ledger/crypto/address'
+import {BN} from 'bn.js'
+import {TokenApi} from '../../../fetchai/ledger/api'
 
 describe(':TXContentsTest', () => {
-
-
     test('test contents', async () => {
         const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
         const wealth = await api.wealth(ENTITIES[0], 1000)
-        console.log('wealth after : ', wealth)
         const TApi = new TransactionApi(LOCAL_HOST, DEFAULT_PORT)
-        debugger;
         const data = await TApi.contents(wealth.txs[0])
-        debugger;
         const a = TxContents.from_json(data)
         expect(a.digest_hex).toBe('123456')
         expect(a.digest_bytes.toString('hex')).toBe(Buffer.from('123456', 'hex').toString('hex'))
@@ -38,12 +24,9 @@ describe(':TXContentsTest', () => {
         expect(a.charge_limit).toBe(5)
         expect(a.transfers).toMatchObject({})
         expect(a.data).toBe('def')
-
-
     })
 
     test('test constructor', () => {
-
         const data = {
             'digest': '0x123456',
             'action': 'transfer',
