@@ -145,17 +145,18 @@ const encode_payload = payload => {
     }
 
     // we add the rand 8 byte number by encoding it, but without the header byte
-    let encoded_eight_byte = integer.encode(Buffer.from(''), payload.counter()).slice(1)
+    // let encoded_eight_byte = integer.encode(Buffer.from(''), payload.counter()).slice(1)
+    //
+    // payload.counter()toString(2, length)
+    // // BN.js removes leading zeros (eg 001 becomes 1) from smaller random numbers, so we add them
+    // // since ledger expects this field to be of fixed length.
+    // if (Buffer.byteLength(encoded_eight_byte) < 8) {
+    //     let to_pad = 8 - Buffer.byteLength(encoded_eight_byte)
+    //     let pad = Buffer(to_pad).fill(0)
+    //     encoded_eight_byte = Buffer.concat([pad, encoded_eight_byte])
+    // }
 
-    // BN.js removes leading zeros (eg 001 becomes 1) from smaller random numbers, so we add them
-    // since ledger expects this field to be of fixed length.
-    if (Buffer.byteLength(encoded_eight_byte) < 8) {
-        let to_pad = 8 - Buffer.byteLength(encoded_eight_byte)
-        let pad = Buffer(to_pad).fill(0)
-        encoded_eight_byte = Buffer.concat([pad, encoded_eight_byte])
-    }
-
-    buffer = Buffer.concat([buffer, encoded_eight_byte])
+    buffer = Buffer.concat([buffer, payload.counter().toBuffer('le', 8)])
 
     if (num_extra_signatures > 0) {
         buffer = integer.encode(buffer, new BN(num_extra_signatures))
