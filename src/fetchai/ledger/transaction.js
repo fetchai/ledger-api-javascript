@@ -22,7 +22,6 @@ export class Transaction {
         this._contract_digest = ''
         this._contract_address = ''
         this._counter = new BN(randomBytes(8))
-        debugger;
         this._chain_code = ''
         this._shard_mask = new BitVector() // BitVector class instance
         this._action = ''
