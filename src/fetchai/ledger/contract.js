@@ -147,7 +147,6 @@ export class Contract {
             // Generate resource addresses used by persistent globals
             // const resource_addresses = [ShardMask.state_to_address(address, self) for address in
             //                       self._parser.used_globals_to_addresses(name, list(args))]
-
             // Generate shard mask from resource addresses
             //   const shard_mask = ShardMask.resources_to_shard_mask(resource_addresses, api.server.num_lanes())
             shard_mask = new BitVector()

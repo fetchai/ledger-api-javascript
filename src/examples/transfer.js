@@ -10,7 +10,6 @@ async function main() {
     // generate a random identity
     const identity1 = new Entity()
     const identity2 = new Entity()
-
     const t = await api.tokens.wealth(identity1, 1000)
     await api.sync([t])
 

@@ -2,7 +2,7 @@ import {DEFAULT_PORT, LOCAL_HOST} from '../utils/helpers'
 
 export default jest.fn((request) => {
 
-    const requests = [balance, wealth, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false]
+    const requests = [balance, wealth, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
     let req, res
     for (let i = 0; i < requests.length; i++) {
         [req, res] = requests[i].call()
@@ -12,7 +12,6 @@ export default jest.fn((request) => {
             return Promise.resolve(res)
         }
     }
-    return Promise.reject()
 })
 // e use this variable to
 let balance_called = 0
@@ -21,6 +20,13 @@ function balance() {
     return [
         JSON.parse(`{"method":"post","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/contract/fetch/token/balance","data":{"address":"2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
         (balance_called >= 2) ? JSON.parse('{"data": {"balance": 500}}') : JSON.parse('{"data": {"balance": 275}}')]
+}
+
+function tx_content() {
+    return [
+        JSON.parse('{"method":"get","url":"http://127.0.0.1:8000/api/tx/be448a628ed7d406eaf497b7bf56722f1df661c67856b9cedf6d75180859964c"}'),
+        JSON.parse('{"status": 200, "data": {"digest":"0x123456","action":"transfer","chainCode":"action.transfer","from":"U5dUjGzmAnajivcn4i9K4HpKvoTvBrDkna1zePXcwjdwbz1yB","validFrom":0,"validUntil":100,"charge":2,"chargeLimit":5,"transfers":[],"signatories":["abc"],"data":"def"}}')
+    ]
 }
 
 function get_bad_ledger_address() {
@@ -44,18 +50,17 @@ function get_good_ledger_address() {
     ]
 }
 
+function contract_action() {
+    return [
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/submit","data":{"ver":"1.2","data":"oUBAAKWva7cAnbFBKrLdfiAPcIP7x/PrkCWNtedeucg4NotTaQHAoIBx6gd6zAfUoBpUonLlSQi/LksfyjKIy3RLTGfm5dcAwcfeXWNAUnsbS8C5rh8Pgs1A39nnqqtphV1dElhllecUCHRyYW5zZmVySZPHIE2lr2u3AJ2xQSqy3X4gD3CD+8fz65AljbXnXrnIODaLU8cgTRwWjo4eHRKKX0nFjQxqAEBYN2yiEYPZ5R0hwv4gGujVzMh5NUmTSOVmEQSIBglvVMGxSIJqBrDd2pjGOpDew4UKXjEE9hEuT7g8mMeqv9Jl+49rhlDqjI7NwLUnWvxBBSzVazJdDEP7wV1qQIE8n7/kAc89OxblcNFWpWGUMKBhS9fln0qw1erNBVG2UmPDiPOBPQVT1egl6PDUvEDzMsYSZ1/HFHgExaThHDI="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
+        JSON.parse('{"status": 200, "data": {"txs":["68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516"],"counts":{"received":1,"submitted":1}}}')
+    ]
+}
+
 function list_servers() {
     return [
         JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/networks/","params":{"active":1}}'),
-        JSON.parse(`{
-  "status": 200,
-  "data": [
-    {
-      "name": "alpha",
-      "versions": "*"
-    }
-  ]
-}`)
+        JSON.parse('{"status": 200,"data": [{"name": "alpha", "versions": "*"}]}')
     ]
 }
 
@@ -63,17 +68,10 @@ function list_servers() {
 function list_servers_false() {
     return [
         JSON.parse('{"method":"get","url":"https://bootstrap.fetch.ai/networks/","params":{}}'),
-        JSON.parse(`{
-  "status": 200,
-  "data": [
-    {
-      "name": "alpha",
-      "versions": "*"
-    }
-  ]
-}`)
+        JSON.parse('{"status": 200, "data": [{"name": "alpha","versions": "*"}]}')
     ]
 }
+
 
 function server_status() {
     return [
@@ -97,7 +95,7 @@ function contract_wealth() {
 function contract_status() {
     return [
         JSON.parse(`{"method":"get","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/status/tx/be448a628ed7d406eaf497b7bf56722f1df661c67856b9cedf6d75180859964c","request_headers":{"Content-Type":"application/json; charset=utf-8"}}`),
-        JSON.parse('{"data":{"status": "Executed"}}')]
+        JSON.parse('{"status": 200, "data":{"status": "Executed", "exit_code": 2, "tx": "0x00", "charge": 77, "charge_rate": 33, "fee": 5}}')]
 }
 
 function contract_create() {
@@ -113,19 +111,18 @@ function query_contract() {
 }
 
 
+function status() {
+    return [
+        JSON.parse(`{"method":"get","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/status/tx/bbc6e88d647ab41923216cdaaba8cdd01f42e953c6583e59179d9b32f52f5777","request_headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+        JSON.parse('{"status": 200, "data":{"status": "Executed", "exit_code": 2, "tx": "0x00", "charge": 77, "charge_rate": 33, "fee": 5}}')
+    ]
+}
+
 function status_chain() {
     return [
         JSON.parse(`{"method":"get","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/status/chain","params":{"size":1},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
         JSON.parse('{"data":{"chain":[{"blockNumber":5}]}}')]
 }
-
-function status() {
-    return [
-        JSON.parse(`{"method":"get","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/status/tx/bbc6e88d647ab41923216cdaaba8cdd01f42e953c6583e59179d9b32f52f5777","request_headers":{"Content-Type":"application/json; charset=utf-8"}}`),
-        JSON.parse('{"data":{"status": "Executed"}}')
-    ]
-}
-
 
 /*
 * Taken from https://stackoverflow.com/questions/1068834/object-comparison-in-javascript/5522917 (Jean Vincent`s answer).

@@ -94,7 +94,7 @@ describe(':Entity', () => {
         expect(base64.toString('hex')).toEqual(private_key_hex)
     })
 
-    test('test load', () => {
+    test.skip('test load', () => {
         const s = `{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`
         const obj = JSON.parse(s)
         const base64 = Buffer.from(obj.privateKey, 'base64')

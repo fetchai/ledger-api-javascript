@@ -15,7 +15,9 @@ import {BN} from 'bn.js'
 // ********** Constants **********
 // *******************************
 const MAGIC = 0xa1
-const VERSION = 1
+// a reserved byte.
+const RESERVED = 0x00
+const VERSION = 2
 const NO_CONTRACT = 0
 const SMART_CONTRACT = 1
 const CHAIN_CODE = 2
@@ -64,7 +66,7 @@ const encode_payload = payload => {
     const num_extra_signatures =
         num_signatures > 0x40 ? (num_signatures - 0x40) : 0
     const signalled_signatures = num_signatures - (num_extra_signatures + 1)
-    const has_valid_from = payload._valid_from !== 0
+    const has_valid_from = (payload._valid_from.cmp(new BN(0)) !== 0)
 
     let header0 = VERSION << 5 /// ??
     header0 |= (num_transfers > 0 ? 1 : 0) << 2
@@ -74,7 +76,7 @@ const encode_payload = payload => {
     const contract_mode = _map_contract_mode(payload)
     let header1 = contract_mode << 6
     header1 |= signalled_signatures & 0x3f
-    let buffer = Buffer.from([MAGIC, header0, header1])
+    let buffer = Buffer.from([MAGIC, header0, header1, RESERVED])
 
     buffer = address.encode(buffer, payload.from_address())
     if (num_transfers > 1) {
@@ -90,7 +92,7 @@ const encode_payload = payload => {
         buffer = integer.encode(buffer, new BN(payload.valid_from()))
     }
 
-    buffer = integer.encode(buffer, new BN(payload.valid_until()))
+    buffer = integer.encode(buffer, payload.valid_until())
     buffer = integer.encode(buffer, payload.charge_rate())
     buffer = integer.encode(buffer, payload.charge_limit())
     if (NO_CONTRACT !== contract_mode) {
@@ -141,6 +143,9 @@ const encode_payload = payload => {
         const data = Buffer.from(payload.data())
         buffer = bytearray.encode(buffer, data)
     }
+
+    buffer = Buffer.concat([buffer, payload.counter().toBuffer('be', 8)])
+
 
     if (num_extra_signatures > 0) {
         buffer = integer.encode(buffer, new BN(num_extra_signatures))
@@ -225,6 +230,9 @@ const decode_transaction = (buffer) => {
         throw new ValidationError('Unable to parse transaction from stream, incompatible version')
     }
 
+    // discard the reserved byte
+    buffer = buffer.slice(1)
+
     const tx = new Transaction()
     // decode the address from the buffer
     let address_decoded;
@@ -251,11 +259,11 @@ const decode_transaction = (buffer) => {
     if (valid_from_flag) {
         let valid_from;
         [valid_from, buffer] = integer.decode(buffer)
-        tx.valid_from(valid_from.toNumber())
+        tx.valid_from(valid_from)
     }
     let valid_until, charge_rate, charge_limit;
     [valid_until, buffer] = integer.decode(buffer)
-    tx.valid_until(valid_until.toNumber());
+    tx.valid_until(valid_until);
     [charge_rate, buffer] = integer.decode(buffer)
     tx.charge_rate(charge_rate);
 
@@ -318,6 +326,9 @@ const decode_transaction = (buffer) => {
         tx.data(data.toString())
 
     }
+
+    tx.counter(new BN(buffer.slice(0, 8)))
+    buffer = buffer.slice(8)
 
     if (signature_count_minus1 == 0x3F) {
         let additional_signatures;

@@ -8,8 +8,8 @@ describe(':Test Transaction', () => {
     test('Testing transaction constructor', () => {
         let txObj = new Transaction()
         expect(txObj._from).toBe('')
-        expect(txObj._valid_from).toBe(0)
-        expect(txObj._valid_until).toBe(0)
+        expect(txObj._valid_from.cmp(new BN(0))).toBe(0)
+        expect(txObj._valid_until.cmp(new BN(0))).toBe(0)
         expect(txObj._charge_rate.cmp(new BN(0))).toBe(0)
         expect(txObj._charge_limit.cmp(new BN(0))).toBe(0)
         expect(txObj._contract_digest).toBe('')
@@ -45,14 +45,14 @@ describe(':Test Transaction', () => {
 
     test('Test valid_from', () => {
         let txObj = new Transaction()
-        expect(txObj.valid_from(12)).toBe(12)
-        expect(txObj._valid_from).toBe(12)
+        expect(txObj.valid_from(new BN(12)).cmp(new BN(12))).toBe(0)
+        expect(txObj._valid_from).toMatchObject(new BN(12))
     })
 
     test('Test valid_until', () => {
         let txObj = new Transaction()
-        expect(txObj.valid_until(14)).toBe(14)
-        expect(txObj._valid_until).toBe(14)
+        expect(txObj.valid_until(new BN(14)).cmp(new BN(14))).toBe(0)
+        expect(txObj._valid_until).toMatchObject(new BN(14))
     })
 
     test('Test charge_rate', () => {
@@ -99,7 +99,6 @@ describe(':Test Transaction', () => {
     })
 
     // signers() tested below
-
     test('Test add_transfer', () => {
         let txObj = new Transaction()
         let address = dummy_address()

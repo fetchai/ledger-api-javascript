@@ -121,7 +121,7 @@ export class ApiEndpoint {
 
         // build up the basic transaction information
         let tx = new Transaction()
-        tx.valid_until(current_block + validity_period)
+        tx.valid_until(new BN(current_block + validity_period))
         tx.charge_rate(new BN(1))
         tx.charge_limit(new BN(fee))
         return tx
@@ -174,7 +174,6 @@ export class ApiEndpoint {
 
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
-
         // make the request
         let resp
         try {
