@@ -28,12 +28,12 @@ const EXPECTED_SERIAL_SIGNATURE_LENGTH = EXPECTED_SIGNATURE_BYTE_LEN + EXPECTED_
 describe(':Transaction', () => {
 
     test('test simple decode transaction ', () => {
-        const EXPECTED_PAYLOAD = 'a1440000532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d44235130ac5aab442e39f9aa27118956695229212dd2f1ab5b714e9f6bd581511c1010000000000000000000000000418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c'
+        const EXPECTED_PAYLOAD = 'a1440000532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d44235130ac5aab442e39f9aa27118956695229212dd2f1ab5b714e9f6bd581511c1010000000001020304050607080418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c';
         const payload = new Transaction()
         payload.from_address(IDENTITIES[0])
         payload.add_transfer(IDENTITIES[1], new BN(256))
         payload.add_signer(IDENTITIES[0].public_key_hex())
-        payload.counter(new BN(new Buffer(8).fill(0)))
+        payload.counter(new BN('0102030405060708', 'hex'))
         const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
         assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
         const [success, tx] = decode_transaction(transaction_bytes)

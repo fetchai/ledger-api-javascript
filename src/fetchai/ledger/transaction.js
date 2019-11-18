@@ -21,7 +21,8 @@ export class Transaction {
         this._charge_limit = new BN(0)
         this._contract_digest = ''
         this._contract_address = ''
-        this._counter = new BN(randomBytes(8), 2)
+        this._counter = new BN(randomBytes(8))
+        debugger;
         this._chain_code = ''
         this._shard_mask = new BitVector() // BitVector class instance
         this._action = ''
@@ -31,7 +32,6 @@ export class Transaction {
         this._data = ''
         this._signers = {}
     }
-
     // Get and Set from_address param
     from_address(address = '') {
         if (address) {
