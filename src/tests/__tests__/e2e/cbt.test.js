@@ -11,6 +11,11 @@ describe('Browser Testing', () => {
     })
 
     beforeEach(() => {
+        debugger;
+       const x =  path.join(process.env.PWD + '/bundle/bundle.js')
+        console.log('path.join(process.env.PWD + \'/bundle/bundle.js\')');
+       console.log(x);
+        console.log('path.join(process.env.PWD + \'/bundle/bundle.js\')');
         let bundle = fs.readFileSync(path.join(process.env.PWD + '/bundle/bundle.js'), 'utf8')
         fs.writeFileSync(path.join(process.env.PWD + '/src/tests/e2e/test.js'), `var result = ${bundle}`)
     })
@@ -27,7 +32,8 @@ describe('Browser Testing', () => {
             'utf8'
         )
         debugger;
-       const r = driver.executeScript(script);
+       const r = await driver.executeScript(script);
+       console.log("WE DID GET TO HERE WITH RESULT");
         debugger;
     })
 
