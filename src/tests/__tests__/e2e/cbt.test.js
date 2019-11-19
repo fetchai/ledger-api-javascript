@@ -19,14 +19,16 @@ describe('Browser Testing', () => {
         fs.unlinkSync(path.join(process.env.PWD + '/src/tests/e2e/test.js'))
     })
 
-    test('test Balance example script', () => {
+    test('test Balance example script', async () => {
         let balance = fs.readFileSync(path.join(process.env.PWD + '/src/tests/e2e/balance.js'), 'utf8')
         fs.appendFileSync(path.join(process.env.PWD + '/src/tests/e2e/test.js'), balance)
         const script = fs.readFileSync(
             path.join(process.env.PWD + '/src/tests/e2e/test.js'),
             'utf8'
         )
-        driver.executeScript(script)
+        debugger;
+       const r = driver.executeScript(script);
+        debugger;
     })
 
     test('test Wealth example script', () => {
