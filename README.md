@@ -93,7 +93,7 @@ src
 
 ### To run test cases:
 
-      npm run test
+      make test
 
 
 ### Check transaction status:
