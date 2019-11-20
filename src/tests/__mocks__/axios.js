@@ -1,4 +1,4 @@
-import {DEFAULT_PORT, LOCAL_HOST} from '../utils/helpers'
+const {DEFAULT_PORT, LOCAL_HOST} = require('../utils/helpers')
 
 export default jest.fn((request) => {
 
