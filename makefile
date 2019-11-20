@@ -12,9 +12,8 @@ lint:
 # Build Es6 project
 build: clean compile
 
-test:
-	@npm install wait-on
-	@npx jest src/test --maxConcurrency=1
+test: bundle
+	@npm run test
 
 test_with_coverage:
 	@npm run coverage
@@ -24,3 +23,15 @@ balance: lint compile
 
 wealth: lint compile
 	@node dist/examples/wealth.js
+
+# Create bundle.js file
+bundle:
+	@./node_modules/.bin/webpack
+
+# Run e2e testcases
+e2e_test: bundle
+	@npx jest src/tests/__tests__/e2e/cbt.test.js
+
+# Run unit testcases
+unit_test:
+	@npx jest src/test --testPathIgnorePatterns cbt.test.js
