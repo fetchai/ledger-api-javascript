@@ -24,7 +24,7 @@ Open In Chrome the following URL:
 chrome://inspect
 ```
 
-Click on "Open dedicated DevTools for Node" 
+Click on "Open dedicated DevTools for Node"
 
 In terminal under project directory
 ```
@@ -91,10 +91,17 @@ src
    ` make wealth `
 
 
-### To run test cases:
+### To run all test cases:
 
-    ` npm run test `
+    ` make test `
 
+### To run e2e test cases:
+
+    ` make e2e_test `
+
+### To run unit test cases:
+
+    ` make unit_test `
 
 ### Check transaction status:
 
