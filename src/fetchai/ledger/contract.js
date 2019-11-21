@@ -13,7 +13,7 @@ import {RunTimeError} from './errors'
 
 const _compute_digest = (source) => {
     const hash_func = createHash('sha256')
-    hash_func.update(source, 'utf')
+    hash_func.update(source)
     const digest = hash_func.digest()
     return new Address(digest)
 }
@@ -22,8 +22,8 @@ const _compute_digest = (source) => {
 const calc_address = (owner, nonce) => {
     assert(owner instanceof Address)
     const hash_func = createHash('sha256')
-    hash_func.update(owner.toBytes(), 'utf')
-    hash_func.update(nonce, 'utf')
+    hash_func.update(owner.toBytes())
+    hash_func.update(nonce)
     return hash_func.digest()
 }
 
@@ -32,6 +32,7 @@ export class Contract {
     constructor(source, owner, nonce = null) {
         assert(typeof source === 'string')
         this._source = source
+        debugger;
         this._digest = _compute_digest(source)
         this._owner = new Address(owner)
         this._nonce = nonce || randomBytes(8)

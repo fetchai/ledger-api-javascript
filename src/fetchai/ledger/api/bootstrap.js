@@ -115,6 +115,7 @@ export class Bootstrap {
     static async server_from_name(network) {
         //Get list of active servers
         const server_list = await Bootstrap.list_servers(true)
+        debugger;
         // Check requested network exists and supports our ledger version
         Bootstrap.is_server_valid(server_list, network)
         // Get address of network ledger

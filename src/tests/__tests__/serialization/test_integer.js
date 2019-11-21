@@ -120,7 +120,7 @@ describe(':Integer', () => {
         const buff = Buffer.from('C3EDEFABCD01234567', 'hex')
         const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('EDEFABCD01234567', 16)
-        expect(reference.toBuffer()).toMatchObject(decoded.toBuffer())
+        expect(reference.toArrayLike(Buffer, 'be')).toMatchObject(decoded.toArrayLike(Buffer, 'be'))
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 

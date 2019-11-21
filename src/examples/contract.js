@@ -5,7 +5,6 @@ import {TRANSFER_CONTRACT} from '../contracts'
 
 
 async function print_address_balances(api, contract, addresses) {
-
     let balance, query
     for (let i = 0; i < addresses.length; i++) {
         balance = await api.tokens.balance(addresses[i])
