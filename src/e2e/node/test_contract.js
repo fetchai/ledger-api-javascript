@@ -1,7 +1,7 @@
-import {LedgerApi} from "../../../fetchai/ledger/api";
-import {Contract} from "../../../fetchai/ledger";
-import {ADDRESSES, DEFAULT_PORT, ENTITIES, LOCAL_HOST} from "../../utils/helpers";
-import {TRANSFER_CONTRACT} from "../../../contracts";
+import {LedgerApi} from "../../fetchai/ledger/api";
+import {Contract} from "../../fetchai/ledger";
+import {ADDRESSES, DEFAULT_PORT, ENTITIES, LOCAL_HOST} from "../../tests/utils/helpers";
+import {TRANSFER_CONTRACT} from "../../contracts";
 
 
 async function print_address_balances(api, contract, addresses) {

@@ -1,8 +1,8 @@
 import webdriver from 'selenium-webdriver'
 import fs from 'fs'
 import path from 'path'
-import {Assert} from "../../utils/assert";
 import chrome from 'selenium-webdriver/chrome'
+import {Assert} from "../utils/assert";
 
 const ROOT_FP = '/home/douglas/ledger-api-javascript'
 const DEFAULT_TIMEOUT = 120000

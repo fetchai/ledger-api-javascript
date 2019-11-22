@@ -1,6 +1,6 @@
 import {test_transfer} from "../node/test_transfer";
 import {test_server} from "../node/test_server";
-import {Assert} from "../../utils/assert";
+import {Assert} from "../utils/assert";
 
 const TIMEOUT = 60 * 1000
 

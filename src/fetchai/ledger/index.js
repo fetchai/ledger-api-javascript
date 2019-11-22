@@ -8,4 +8,6 @@ export * from './serialization'
 export * from './__init__'
 export * from './contract'
 export * from '../../contracts'
-export * from '../../tests/e2e'
+export * from '../../e2e'
+
+

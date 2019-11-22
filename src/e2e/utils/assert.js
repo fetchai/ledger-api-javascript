@@ -1,4 +1,5 @@
-import {equals} from './helpers.js'
+import {equals} from "../../tests/utils/helpers";
+
 
 export const FAILURE_STATUS_CODE = 1;
 export const SUCCESS_STATUS_CODE = 0;

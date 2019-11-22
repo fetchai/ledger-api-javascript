@@ -1,7 +1,7 @@
 import webdriver from 'selenium-webdriver'
 import fs from 'fs'
 import path from 'path'
-import {Assert} from "../../utils/assert";
+import {Assert} from "../../../e2e/utils/assert";
 import chrome from 'selenium-webdriver/chrome'
 
 const ROOT_FP = '/home/douglas/ledger-api-javascript'
@@ -23,11 +23,9 @@ function get_driver(){
     .build()
 }
 
-
 function get_driver_full(){
     return new webdriver.Builder().forBrowser('chrome').build()
 }
-
 
 async function poll(driver, property, timeout = false) {
      const asyncTimerPromise = new Promise((resolve) => {
@@ -130,7 +128,6 @@ expect(TOK0).toBe(999800)
            console.log("____5______")
 const TOK1 = await poll(driver, 'TOK1');
 expect(TOK1).toBe(200)
-
     })
 
 })

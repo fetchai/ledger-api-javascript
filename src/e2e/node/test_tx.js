@@ -1,6 +1,6 @@
-import {TokenApi, TransactionApi} from "../../../fetchai/ledger/api";
-import {DEFAULT_PORT, ENTITIES, LOCAL_HOST} from "../../utils/helpers";
-import {Assert} from "../../utils/assert";
+import {TokenApi, TransactionApi} from "../../fetchai/ledger/api";
+import {DEFAULT_PORT, ENTITIES, LOCAL_HOST} from "../../tests/utils/helpers";
+import {Assert} from "../utils/assert";
 
 
 export async function test_tx() {
@@ -17,12 +17,10 @@ export async function test_tx() {
     const status = await TApi.status(wealth.txs[0])
     const expected_status = JSON.parse('{"digest_bytes":{"type":"Buffer","data":[73,163,180,235,140,156,22,86,235,246,248,17,25,13,168,240,46,56,7,127,184,161,145,140,108,3,66,104,50,194,171,123]},"digest_hex":"49a3b4eb8c9c1656ebf6f811190da8f02e38077fb8a1918c6c03426832c2ab7b","status":"Pending","exit_code":"49a3b4eb8c9c1656ebf6f811190da8f02e38077fb8a1918c6c03426832c2ab7b","charge":"00","charge_rate":"00","fee":"00"}')
     assertEqualStatus(status, expected_status)
-    debugger;
     return true;
 }
 
 function assertEqualStatus(actual, expected_status) {
-    debugger;
     Assert.assert(/Executed|Pending/.test(actual.status))
     Assert.assert(actual.charge.cmp(new BN(expected_status.charge)) === 0)
     Assert.assert(actual.fee.cmp(new BN(expected_status.fee)) === 0)

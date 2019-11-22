@@ -10,9 +10,9 @@ prom.then(function(b){
 })
 
 
-setTimeout(function(){
-    debugger;
-    // const [uri, port] = result.Bootstrap.server_from_name('betanet')
-    //result.Bootstrap.server_from_name('betanet')
-     console.log("it WWW is node::QQQ ");
-}, 5000)
+// setTimeout(function(){
+//     debugger;
+//     // const [uri, port] = result.Bootstrap.server_from_name('betanet')
+//     //result.Bootstrap.server_from_name('betanet')
+//      console.log("it WWW is node::QQQ ");
+// }, 5000)
