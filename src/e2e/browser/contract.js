@@ -26,7 +26,7 @@ action.then(function(txs){
                 })
             })
         })
-            })
+        })
     })
 })
 

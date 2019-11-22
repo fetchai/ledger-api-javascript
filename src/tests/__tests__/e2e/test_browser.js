@@ -32,7 +32,7 @@ async function poll(driver, property, timeout = false) {
      const limit = (timeout === false) ? DEFAULT_TIMEOUT : timeout * 1000;
      const start = Date.now();
      const loop = setInterval(async () => {
-        const value = await driver.executeScript(`return window.${property}`)
+     const value = await driver.executeScript(`return window.${property}`)
 
         if (typeof value !== "undefined" && value !== null) {
             clearInterval(loop)
@@ -48,7 +48,7 @@ async function poll(driver, property, timeout = false) {
         return asyncTimerPromise
 }
 
-describe.skip('Test Browser', () => {
+describe('Test Browser', () => {
 
     beforeAll(async () => {
          jest.setTimeout(120000);
@@ -66,7 +66,7 @@ describe.skip('Test Browser', () => {
     //     fs.unlinkSync(path.join(process.env.PWD + '/src/tests/e2e/test.js'))
     // })
 
-    test.skip('test Balance', async () => {
+    test('test Balance', async () => {
         const driver = new webdriver.Builder().forBrowser('chrome').build()
         //  .setChromeOptions(new chrome.Options().headless().windowSize(screen))
           //  .build()
@@ -77,7 +77,7 @@ describe.skip('Test Browser', () => {
         expect(res).toBe(0)
     })
 
-  test.skip('test Wealth', async () => {
+  test('test Wealth', async () => {
 const driver = new webdriver.Builder().forBrowser('chrome').build()
 const script = get_script('wealth');
 await driver.get(`file://${path.join(ROOT_FP + '/src/tests/e2e/index.html')}`)
@@ -86,7 +86,7 @@ const wealth = await poll(driver, 'WEALTH');
 expect(wealth).toBe(1000)
     })
 
-    test.skip('test Transfer', async () => {
+    test('test Transfer', async () => {
         const driver = new webdriver.Builder().forBrowser('chrome').build()
 const script = get_script('transfer');
 await driver.get(`file://${path.join(ROOT_FP + '/src/tests/e2e/index.html')}`)
@@ -97,7 +97,7 @@ const res2 = await poll(driver, 'BALANCE2');
 expect(res2).toBe(250)
     })
 
-        test('test Server', async () => {
+        test.skip('test Server', async () => {
             debugger;
              console.log("___Server_1___Server___")
 const driver = new webdriver.Builder().forBrowser('chrome').build()
@@ -107,10 +107,9 @@ await driver.executeScript(script)
 const [uri, port] = await poll(driver, 'SERVER');
 expect(uri.includes('.fetch-ai.com') && port === 443).toBe(true)
 console.log("___Server_1 PASSED___Server___")
-
     })
 
-       test.skip('test Contract', async () => {
+       test('test Contract', async () => {
            console.log("____1______")
           const driver = new webdriver.Builder().forBrowser('chrome').build()
 const script = get_script('contract');
@@ -129,5 +128,4 @@ expect(TOK0).toBe(999800)
 const TOK1 = await poll(driver, 'TOK1');
 expect(TOK1).toBe(200)
     })
-
 })
