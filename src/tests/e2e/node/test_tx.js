@@ -1,11 +1,14 @@
-import {TokenApi, TransactionApi} from "../../fetchai/ledger/api";
-import {DEFAULT_PORT, ENTITIES, LOCAL_HOST} from "../../tests/utils/helpers";
+// import {TokenApi, TransactionApi} from "../../fetchai/ledger/api";
+
+// import {DEFAULT_PORT, ENTITIES, LOCAL_HOST} from "../../tests/utils/helpers";
 import {Assert} from "../utils/assert";
 import {BN} from 'bn.js'
+import {TokenApi} from "../../../fetchai/ledger/api";
+import {TransactionApi} from "../../../fetchai/ledger/api/tx";
+import {DEFAULT_PORT, LOCAL_HOST, ENTITIES} from "../../utils/helpers";
 
 
 export async function test_tx() {
-    debugger;
     const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
     let balance = await api.balance('29nQnTssh1Fe6zJtYvLfmjHqcKx5VAd5e88QpAREPvgbKUQpYw')
     const wealth = await api.wealth(ENTITIES[0], 1000)

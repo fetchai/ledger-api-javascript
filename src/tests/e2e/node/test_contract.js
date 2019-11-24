@@ -1,10 +1,11 @@
 import {LedgerApi} from "../../fetchai/ledger/api";
 import {Contract} from "../../fetchai/ledger/contract";
-import {ADDRESSES, DEFAULT_PORT, LOCAL_HOST} from "../../tests/utils/helpers";
+// import {ADDRESSES, DEFAULT_PORT, LOCAL_HOST} from "../../tests/utils/helpers";
 import {TRANSFER_CONTRACT} from "../../contracts";
 import {Address} from "../../fetchai/ledger/crypto/address";
 import {Entity} from "../../fetchai/ledger/crypto/entity";
 import {Assert} from "../utils/assert";
+import {DEFAULT_PORT, LOCAL_HOST} from "../../utils/helpers";
 
 
 async function print_address_balances(api, contract, addresses) {

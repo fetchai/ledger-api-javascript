@@ -2,9 +2,10 @@
 // import {Assert} from "../utils/assert";
 // import {Entity} from "../../fetchai/ledger/crypto/entity";
 // import {LedgerApi} from "../../fetchai/ledger/api";
-import {DEFAULT_PORT, LOCAL_HOST} from "../../../utils/helpers";
-import {LedgerApi} from "../../../../fetchai/ledger/api";
-import {Entity} from "../../../../fetchai/ledger/crypto/entity";
+import {DEFAULT_PORT, LOCAL_HOST} from "../../utils/helpers";
+import {LedgerApi} from "../../../fetchai/ledger/api";
+import {Entity} from "../../../fetchai/ledger/crypto/entity";
+import {Assert} from "../utils/assert";
 
 
 const FAILURE_STATUS_CODE = 1;

@@ -37,7 +37,6 @@ function save_address_balances(api, contract, addresses) {
           console.log("EXITED HERE ")
            return;
        }
-
     let balance, query
     for (let i = 0; i < addresses.length; i++) {
         balance = api.tokens.balance(addresses[i]);
@@ -46,7 +45,6 @@ function save_address_balances(api, contract, addresses) {
         query.then(tok => window[`TOK${i}`] = tok)
     }
 }
-    //result.Bootstrap.server_from_name('betanet')
      console.log("it WWW is node::QQQ ");
-}, 5000)
+}, 8000)
 

@@ -1,6 +1,6 @@
 console.log("FFFF ");
 setTimeout(function(){
-const prom = result.Bootstrap.server_from_name('alphanet');
+const prom = result.Bootstrap.server_from_name('betanet');
 prom.then(function(r){
     console.log("help!!!  please:: " + r);
     window.SERVER = r;
