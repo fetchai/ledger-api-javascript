@@ -12,7 +12,7 @@ describe(':Address', () => {
         const bs58_encoded = bs58.encode(digest)
         const [expected_address_bytes, expected_display] = calc_address(bs58_encoded)
         const address = new Address(expected_display)
-        expect(address.toBytes()).toMatchObject(expected_address_bytes)
+        expect(address.toBytes()).toEqual(expected_address_bytes)
         expect(address.toString()).toBe(expected_display)
     })
 
@@ -21,7 +21,7 @@ describe(':Address', () => {
         const bs58_encoded = bs58.encode(digest)
         const [expected_address_bytes,] = calc_address(bs58_encoded)
         const address = new Address(expected_address_bytes)
-        expect(address.toBytes()).toMatchObject(expected_address_bytes)
+        expect(address.toBytes()).toEqual(expected_address_bytes)
     })
 
     it('test construction from address', () => {
@@ -30,7 +30,7 @@ describe(':Address', () => {
         const [expected_address_bytes,] = calc_address(bs58_encoded)
         const address1 = new Address(expected_address_bytes)
         const address2 = new Address(address1)
-        expect(address2.toBytes()).toMatchObject(expected_address_bytes)
+        expect(address2.toBytes()).toEqual(expected_address_bytes)
     })
 
     it('test invalid length bytes', () => {
@@ -38,7 +38,7 @@ describe(':Address', () => {
         const invalid_address = Buffer.concat([digest, digest])
         expect(() => {
             new Address(invalid_address)
-        }).toThrow(ValidationError)
+        }).toThrowError(ValidationError)
     })
 
     it('test invalid length string', () => {
@@ -46,13 +46,13 @@ describe(':Address', () => {
         const bs58_encoded = bs58.encode(invalid_string)
         expect(() => {
             new Address(bs58_encoded)
-        }).toThrow(ValidationError)
+        }).toThrowError(ValidationError)
     })
 
     it('test invalid type', () => {
         expect(() => {
             new Address(99)
-        }).toThrow(ValidationError)
+        }).toThrowError(ValidationError)
     })
 
     it('test hex display', () => {
@@ -77,7 +77,7 @@ describe(':Address', () => {
         const bs58invalid = bs58.encode(display)
         expect(() => {
             new Address(Buffer.from(bs58invalid))
-        }).toThrow(ValidationError)
+        }).toThrowError(ValidationError)
 
     })
 
