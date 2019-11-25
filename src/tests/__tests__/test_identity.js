@@ -27,7 +27,7 @@ describe(':Identity', () => {
     it('test invalid construction', () => {
         expect(() => {
             new Identity('')
-        }).toThrow(ValidationError)
+        }).toThrowError(ValidationError)
     })
 
     it('test construction from strings', () => {
