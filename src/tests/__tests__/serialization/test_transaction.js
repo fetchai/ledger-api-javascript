@@ -223,14 +223,14 @@ it('test invalid magic', () => {
     const invalid = Buffer.from([0x00])
     expect(() => {
         decode_transaction(invalid)
-    }).throw(ValidationError)
+    }).toThrowError(ValidationError)
 })
 
 it('test invalid version', () => {
     const invalid = Buffer.from([0xA1, 0xEF, 0xFF])
     expect(() => {
         decode_transaction(invalid)
-    }).throw(ValidationError)
+    }).toThrowError(ValidationError)
 })
 
 function assertIsExpectedTx(payload, transaction_bytes, expected_hex_payload) {
@@ -266,8 +266,8 @@ function assertIsExpectedTx(payload, transaction_bytes, expected_hex_payload) {
 function assertTxAreEqual(reference, other) {
     expect(reference).toBeInstanceOf(Transaction)
     expect(other).toBeInstanceOf(Transaction)
-    expect(reference.from_address()).toMatchObject(other.from_address())
-    expect(reference.transfers()).toMatchObject(other.transfers())
+    expect(reference.from_address()).toEqual(other.from_address())
+    expect(reference.transfers()).toEqual(other.transfers())
     expect(reference.valid_from().cmp(other.valid_from())).toBe(0)
     expect(reference.valid_from().cmp(other.valid_from())).toBe(0)
     expect(reference.charge_rate().cmp(other.charge_rate())).toBe(0)
@@ -275,17 +275,17 @@ function assertTxAreEqual(reference, other) {
     if (typeof reference.contract_digest() === 'string') {
         expect(reference.contract_digest()).toBe(other.contract_digest())
     } else {
-        expect(reference.contract_digest()).toMatchObject(other.contract_digest())
+        expect(reference.contract_digest()).toEqual(other.contract_digest())
     }
 
     if (typeof reference.contract_address() === 'string') {
         expect(reference.contract_address()).toBe(other.contract_address())
     } else {
-        expect(reference.contract_address()).toMatchObject(other.contract_address())
+        expect(reference.contract_address()).toEqual(other.contract_address())
     }
     expect(reference.chain_code()).toBe(other.chain_code())
     expect(reference.action()).toBe(other.action())
-    expect(reference.shard_mask()).toMatchObject(other.shard_mask())
+    expect(reference.shard_mask()).toEqual(other.shard_mask())
     expect(reference.data()).toBe(other.data())
-    expect(reference.signers()).toMatchObject(other.signers())
+    expect(reference.signers()).toEqual(other.signers())
 }

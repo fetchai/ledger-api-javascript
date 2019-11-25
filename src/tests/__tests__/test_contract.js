@@ -20,7 +20,7 @@ const _compute_digest = (source) => {
     return new Address(d)
 }
 
-it.mock('fs', () => {
+jest.mock('fs', () => {
     const MOCK_FILE_INFO = '{"version":1,"owner":"2mhttHhKVRdY1n9BsFNHVJgHjGPvBmnA2FXKCPkJaC6TkXmaY9","source":"CkBpbml0CmZ1bmN0aW9uIGluaXQob3duZXI6IEFkZHJlc3MpCmVuZGZ1bmN0aW9uCgpAYWN0aW9uCmZ1bmN0aW9uIGFjdGlvbjEoKQplbmRmdW5jdGlvbgoKQGFjdGlvbgpmdW5jdGlvbiBhY3Rpb24yKCkKZW5kZnVuY3Rpb24KCkBxdWVyeQpmdW5jdGlvbiBxdWVyeTEoKQplbmRmdW5jdGlvbgoKQHF1ZXJ5CmZ1bmN0aW9uIHF1ZXJ5MigpCmVuZGZ1bmN0aW9uCg==","nonce":"pEGxX+mjz1Y="}'
     const EXPECTED_FP = '/path/to/file'
     return {
@@ -46,8 +46,8 @@ describe(':Test Contract', () => {
         const recreation = Contract.loads(encoded)
 
         expect(recreation).toBeInstanceOf(Contract)
-        expect(orig.owner()).toMatchObject(recreation.owner())
-        expect(orig.digest()).toMatchObject(recreation.digest())
+        expect(orig.owner()).toEqual(recreation.owner())
+        expect(orig.digest()).toEqual(recreation.digest())
         expect(orig.source()).toBe(recreation.source())
     })
 
@@ -58,8 +58,8 @@ describe(':Test Contract', () => {
         const recreation = Contract.loads(encoded)
 
         expect(recreation).toBeInstanceOf(Contract)
-        expect(orig.owner()).toMatchObject(recreation.owner())
-        expect(orig.digest()).toMatchObject(recreation.digest())
+        expect(orig.owner()).toEqual(recreation.owner())
+        expect(orig.digest()).toEqual(recreation.digest())
         expect(orig.source()).toBe(recreation.source())
     })
 
@@ -71,8 +71,8 @@ describe(':Test Contract', () => {
         const encoded = orig.dump(RAND_FP)
         const recreation = Contract.load(encoded)
         expect(recreation).toBeInstanceOf(Contract)
-        expect(orig.owner()).toMatchObject(recreation.owner())
-        expect(orig.digest()).toMatchObject(recreation.digest())
+        expect(orig.owner()).toEqual(recreation.owner())
+        expect(orig.digest()).toEqual(recreation.digest())
     })
 
     it('test owner getter and setter', () => {
@@ -84,7 +84,7 @@ describe(':Test Contract', () => {
         const owner2 = new Entity(rand_bytes_two)
         //reset owner using setter
         const actual_owner2 = orig.owner(owner2)
-        expect(actual_owner2.toBytes()).toMatchObject(new Address(owner2).toBytes())
+        expect(actual_owner2.toBytes()).toEqual(new Address(owner2).toBytes())
     })
 
     it('test getters and setters', () => {
@@ -99,11 +99,11 @@ describe(':Test Contract', () => {
         const ref_name = ref_digest.toBytes().toString('hex') + ref_address.toHex()
 
         expect(orig.nonce()).toBe(btoa(nonce))
-        expect(orig.nonce_bytes()).toMatchObject(nonce)
-        expect(orig.address().toBytes()).toMatchObject(ref_address.toBytes())
+        expect(orig.nonce_bytes()).toEqual(nonce)
+        expect(orig.address().toBytes()).toEqual(ref_address.toBytes())
         expect(orig.name()).toBe(ref_name)
         expect(orig.encoded_source()).toBe(btoa(contract_string))
-        expect(orig.digest()).toMatchObject(ref_digest)
+        expect(orig.digest()).toEqual(ref_digest)
         expect(orig.source()).toBe(contract_string)
     })
 
@@ -138,9 +138,9 @@ describe(':Test Contract', () => {
         //   const recreation = Contract.loads(encoded)
         // checks
         //  expect( recreation ).toBeInstanceOf(Contract)
-        //    expect(orig.owner()).toMatchObject(recreation.owner())
-        // expect(orig.digest()).toMatchObject(recreation.digest())
-        // expect(orig.source()).toMatchObject(recreation.source())
+        //    expect(orig.owner()).toEqual(recreation.owner())
+        // expect(orig.digest()).toEqual(recreation.digest())
+        // expect(orig.source()).toEqual(recreation.source())
     })
 
     //TODO remove skip when we have etchparser support
@@ -148,19 +148,19 @@ describe(':Test Contract', () => {
         const owner = new Entity()
         expect(() => {
             new Contract(MULTIPLE_INITS, owner)
-        }).toThrow(RunTimeError)
+        }).toThrowError(RunTimeError)
 
 
         // Test successful creation without init (to support local etch testing)
         // expect(() => {
         //    let contract = new Contract(MULTIPLE_INITS, owner)
-        // }).toThrow(RunTimeError)
+        // }).toThrowError(RunTimeError)
         // create ledgerAPI instance without calling its es6 constructor
         const api = Object.create(Contract.prototype)
 
         expect(() => {
             api.create(api, owner, 100)
-        }).toThrow(RunTimeError)
+        }).toThrowError(RunTimeError)
 
     })
 

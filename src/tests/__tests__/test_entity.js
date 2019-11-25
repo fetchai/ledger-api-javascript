@@ -51,7 +51,7 @@ describe(':Entity', () => {
         const ref_key = ref.private_key()
         const base64_data = ref_key.toString('base64')
         const other = Entity.from_base64(base64_data)
-        expect(other.private_key()).toMatchObject(ref.private_key())
+        expect(other.private_key()).toEqual(ref.private_key())
     })
 
     it('test invalid_construction', () => {

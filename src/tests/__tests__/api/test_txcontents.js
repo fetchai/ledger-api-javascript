@@ -22,7 +22,7 @@ describe(':TXContentsTest', () => {
         expect(a.valid_until).toBe(100)
         expect(a.charge).toBe(2)
         expect(a.charge_limit).toBe(5)
-        expect(a.transfers).toMatchObject({})
+        expect(a.transfers).toEqual({})
         expect(a.data).toBe('def')
     })
 
@@ -53,7 +53,7 @@ describe(':TXContentsTest', () => {
         expect(tx_contents.valid_until).toBe(100)
         expect(tx_contents.charge).toBe(2)
         expect(tx_contents.charge_limit).toBe(5)
-        expect(tx_contents.transfers).toMatchObject({})
+        expect(tx_contents.transfers).toEqual({})
         expect(tx_contents.data).toBe('def')
     })
 

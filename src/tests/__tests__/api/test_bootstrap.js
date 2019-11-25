@@ -58,16 +58,16 @@ describe(':ContractsApi', () => {
 
     it('list servers', async () => {
         const actual1 = await Bootstrap.list_servers(true)
-        expect(actual1).toMatchObject(JSON.parse('[{"name":"alpha","versions":"*"}]'))
+        expect(actual1).toEqual(JSON.parse('[{"name":"alpha","versions":"*"}]'))
 
         const actual2 = await Bootstrap.list_servers(false)
-        expect(actual2).toMatchObject(JSON.parse('[{"name":"alpha","versions":"*"}]'))
+        expect(actual2).toEqual(JSON.parse('[{"name":"alpha","versions":"*"}]'))
     })
 
 
     it('test server from name', async () => {
         const actual = await Bootstrap.server_from_name('alpha')
-        expect(actual).toMatchObject(['https://foo.bar', 500])
+        expect(actual).toEqual(['https://foo.bar', 500])
     })
 
 

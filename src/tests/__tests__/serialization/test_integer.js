@@ -39,7 +39,7 @@ describe(':Integer', () => {
         const eight_byte = new BN('EDEFABCD01234567', 16)
         const encoded = integer.encode(buffer, eight_byte)
         const expected_buffer = Buffer.from('c3edefabcd01234567', 'hex')
-        expect(encoded).toMatchObject(expected_buffer)
+        expect(encoded).toEqual(expected_buffer)
     })
 
 
@@ -66,7 +66,7 @@ describe(':Integer', () => {
         const eight_byte = new BN('-EDEFABCD01234567', 16)
         const encoded = integer.encode(buffer, eight_byte)
         const expected_buffer = Buffer.from('D3EDEFABCD01234567', 'hex')
-        expect(encoded).toMatchObject(expected_buffer)
+        expect(encoded).toEqual(expected_buffer)
     })
 
 
@@ -120,7 +120,7 @@ describe(':Integer', () => {
         const buff = Buffer.from('C3EDEFABCD01234567', 'hex')
         const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('EDEFABCD01234567', 16)
-        expect(reference.toBuffer()).toMatchObject(decoded.toBuffer())
+        expect(reference.toBuffer()).toEqual(decoded.toBuffer())
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
