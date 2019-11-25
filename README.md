@@ -24,7 +24,7 @@ Open In Chrome the following URL:
 chrome://inspect
 ```
 
-Click on "Open dedicated DevTools for Node" 
+Click on "Open dedicated DevTools for Node"
 
 In terminal under project directory
 ```
@@ -93,7 +93,7 @@ src
 
 ### To run test cases:
 
-    ` npm run test `
+      make test
 
 
 ### Check transaction status:
@@ -104,4 +104,10 @@ Output:
 
 ```
 {"charge_rate": 0, "charge": 0, "exit_code": 0, "fee": 0, "tx": "/X66ZMfPKuQ4HE63gQBmbfAGWxnhUoT1t3IMYYTOZJU=", "status": "Unknown"}
+```
+
+### Install updated google chrome stable version:
+
+```
+sudo apt-get upgrade google-chrome-stable
 ```

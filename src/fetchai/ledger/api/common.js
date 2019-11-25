@@ -171,7 +171,6 @@ export class ApiEndpoint {
             ver: '1.2',
             data: tx_data.toString('base64')
         }
-
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
         // make the request

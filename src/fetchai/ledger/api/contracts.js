@@ -1,6 +1,6 @@
 import assert from 'assert'
 import {encode, ExtensionCodec} from '@msgpack/msgpack'
-import {Address} from '../crypto'
+import {Address} from '../crypto/address'
 import {ApiEndpoint} from './common'
 import {BitVector} from '../bitvector'
 import {Contract} from '../contract'
