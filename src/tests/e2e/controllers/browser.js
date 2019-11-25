@@ -25,7 +25,6 @@ main()
 
 async function test_contract(){
     const driver = new webdriver.Builder().forBrowser('chrome')
-    // .setChromeOptions(new chrome.Options().headless().windowSize(screen))
         .build()
     const script = get_script('contract')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
