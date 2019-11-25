@@ -8,7 +8,7 @@ async function main() {
     // create the APIs
     const api = new LedgerApi(HOST, PORT)
     // generate a random identity
-    see
+
 
     const t = await api.tokens.wealth(identity1, 1000)
     await api.sync([t])

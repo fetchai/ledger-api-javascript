@@ -16,7 +16,6 @@ export class Assert {
     static assert(val) {
 
         if (!val) {
-            debugger
             console.log('ASSERT SINGLE FAIL')
             process.exit(FAILURE_STATUS_CODE)
         } else  console.log('ASSERT SINGLE SUCCEED')
@@ -39,7 +38,6 @@ export class Assert {
     static assert_equal(actual, expected) {
         if (actual !== expected) {
             console.log('process.exit: assert second')
-            debugger
             process.exit(FAILURE_STATUS_CODE)
         } else{
             console.log('passed assert_eqal')

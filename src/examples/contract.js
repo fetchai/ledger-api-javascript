@@ -2,7 +2,6 @@ import {Address, Entity} from '../fetchai/ledger/crypto'
 import {Contract} from '../fetchai/ledger/contract'
 import {LedgerApi} from '../fetchai/ledger/api'
 import {TRANSFER_CONTRACT} from '../contracts'
-import {encode, ExtensionCodec} from '@msgpack/msgpack'
 
 async function print_address_balances(api, contract, addresses) {
 
