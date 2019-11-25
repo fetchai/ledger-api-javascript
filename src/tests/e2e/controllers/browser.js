@@ -17,16 +17,14 @@ async function main() {
     await test_transfer()
     await test_server()
     await test_contract()
-    console.log('All Succeeded')
+    logger.info('Browser E2E All Succeeded')
     Assert.success()
 }
 
 main()
 
 async function test_contract(){
-    const driver = new webdriver.Builder().forBrowser('chrome')
-    // .setChromeOptions(new chrome.Options().headless().windowSize(screen))
-        .build()
+    const driver = get_driver()
     const script = get_script('contract')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
     await driver.executeScript(script)
@@ -53,7 +51,7 @@ async function test_balance(){
 }
 
 async function test_server(){
-    const driver = get_driver_not_headless()
+    const driver = get_driver()
     const script = get_script('server')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
     await driver.executeScript(script)
@@ -91,7 +89,6 @@ function get_script(name){
     fs.writeFileSync(path.join(ROOT_FP + TEST), `var result = ${bundle}`)
     let test_server = fs.readFileSync(path.join(ROOT_FP + `/src/tests/e2e/browser/${name}.js`), 'utf8')
     fs.appendFileSync(path.join(ROOT_FP + TEST), test_server)
-    console.log('it is node ok ok ok ok :: ')
     return fs.readFileSync(path.join(ROOT_FP + TEST), 'utf8')
 }
 function get_driver(){
@@ -100,13 +97,10 @@ function get_driver(){
         )).build()
 }
 
-/**
- * For debugging swap get_driver() for this for easier debugging
- * @returns {!ThenableWebDriver}
- */
-function get_driver_not_headless(){
-    return new webdriver.Builder().forBrowser('chrome').build()
-}
+// // For debugging swap get_driver() for this for easier debugging
+// function get_driver_not_headless(){
+//     return new webdriver.Builder().forBrowser('chrome').build()
+// }
 
 async function poll(driver, property, timeout = false) {
     const asyncTimerPromise = new Promise((resolve) => {

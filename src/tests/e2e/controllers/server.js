@@ -3,7 +3,7 @@ import {test_server} from '../node/test_server'
 import {Assert} from '../utils/assert'
 import {test_tx} from '../node/test_tx'
 import {test_contract} from '../node/test_contract'
-
+import {logger} from '../../../fetchai/ledger/utils'
 const TIMEOUT = 60 * 1000
 
 export async function main() {
@@ -12,7 +12,7 @@ export async function main() {
     await  test_transfer()
     await  test_server()
     await  test_contract()
-    console.log('THE BIG SUCCESS')
+    logger.info('SERVER 2e2 SUCCESS')
     Assert.success()
 }
 

@@ -5,9 +5,7 @@ const identity1 = new result.Entity()
 const identity2 = new result.Entity()
 const address1 = new result.Address(identity1)
 const address2 = new result.Address(identity2)
-
-setTimeout(function(){
-    const tx = api.tokens.wealth(identity1, 10000)
+const tx = api.tokens.wealth(identity1, 10000)
 
     tx.then((tx) => {
         const sync = api.sync([tx])
@@ -44,6 +42,3 @@ setTimeout(function(){
             query.then(tok => window[`TOK${i}`] = tok)
         }
     }
-    console.log('it WWW is node::QQQ ')
-}, 8000)
-

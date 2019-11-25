@@ -35,8 +35,6 @@ export class TokenApi extends ApiEndpoint {
         // format and make the request
         let request = {address: address.toString()}
 
-        console.log('REQUEST IS : ', request)
-
         let [, data] = await super._post_json('balance', request, this.prefix)
         logger.info(`Balance of ${address} is ${data.balance}`)
 
