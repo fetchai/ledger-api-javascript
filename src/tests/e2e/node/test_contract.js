@@ -1,11 +1,10 @@
-import {LedgerApi} from "../../fetchai/ledger/api";
-import {Contract} from "../../fetchai/ledger/contract";
-// import {ADDRESSES, DEFAULT_PORT, LOCAL_HOST} from "../../tests/utils/helpers";
-import {TRANSFER_CONTRACT} from "../../contracts";
-import {Address} from "../../fetchai/ledger/crypto/address";
-import {Entity} from "../../fetchai/ledger/crypto/entity";
-import {Assert} from "../utils/assert";
-import {DEFAULT_PORT, LOCAL_HOST} from "../../utils/helpers";
+import {Assert} from '../utils/assert'
+import {DEFAULT_PORT, LOCAL_HOST} from '../../utils/helpers'
+import {Contract} from '../../../fetchai/ledger/contract'
+import {TRANSFER_CONTRACT} from '../../../contracts'
+import {Entity} from '../../../fetchai/ledger/crypto/entity'
+import {LedgerApi} from '../../../fetchai/ledger/api'
+import {Address} from '../../../fetchai/ledger/crypto'
 
 
 async function print_address_balances(api, contract, addresses) {
@@ -19,10 +18,10 @@ async function print_address_balances(api, contract, addresses) {
 
 async function get_address_balance(api, contract, address) {
     let balance, query
-        balance = await api.tokens.balance(address)
-        query = await contract.query(api, 'balance', {address: address})
-        console.log(`Address : ${address}: ${balance} bFET ${query} TOK'.`)
-        return [balance, query]
+    balance = await api.tokens.balance(address)
+    query = await contract.query(api, 'balance', {address: address})
+    console.log(`Address : ${address}: ${balance} bFET ${query} TOK'.`)
+    return [balance, query]
 }
 
 export async function test_contract() {

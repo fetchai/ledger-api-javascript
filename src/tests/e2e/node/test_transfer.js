@@ -1,19 +1,11 @@
-// import {DEFAULT_PORT, LOCAL_HOST} from "../../tests/utils/helpers";
-// import {Assert} from "../utils/assert";
-// import {Entity} from "../../fetchai/ledger/crypto/entity";
-// import {LedgerApi} from "../../fetchai/ledger/api";
-import {DEFAULT_PORT, LOCAL_HOST} from "../../utils/helpers";
-import {LedgerApi} from "../../../fetchai/ledger/api";
-import {Entity} from "../../../fetchai/ledger/crypto/entity";
-import {Assert} from "../utils/assert";
-
-
-const FAILURE_STATUS_CODE = 1;
-const SUCCESS_STATUS_CODE = 0;
+import {DEFAULT_PORT, LOCAL_HOST} from '../../utils/helpers'
+import {LedgerApi} from '../../../fetchai/ledger/api'
+import {Entity} from '../../../fetchai/ledger/crypto/entity'
+import {Assert} from '../utils/assert'
 
 export async function test_transfer() {
     const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
-   const identity1 = new Entity()
+    const identity1 = new Entity()
     const identity2 = new Entity()
 
     const txs = await api.tokens.wealth(identity1, 1000)
@@ -29,5 +21,4 @@ export async function test_transfer() {
     Assert.assert_equal(balance2, 250)
     console.log('Balance 2:' + balance2)
 }
-
 

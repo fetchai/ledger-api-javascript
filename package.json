@@ -4,6 +4,7 @@
   "description": "Fetch.AI Ledger Javascript API",
   "main": "dist/index.js",
   "scripts": {
+    "e2e" : "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
     "build": "babel src/ -d dist/",
     "test": "jest src/test",
     "lint": "eslint .",
