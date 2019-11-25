@@ -10,20 +10,20 @@ describe(':LedgerApi', () => {
         axios.mockClear()
     })
 
-    test('test server version', async () => {
+    it('test server version', async () => {
         expect(async () => {
             await LedgerApi.from_network_name(LOCAL_HOST, DEFAULT_PORT)
         }).not.toThrow(IncompatibleLedgerVersionError)
     })
 
-    test('test balance', async () => {
+    it('test balance', async () => {
         const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
         const promise = api.balance('2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5')
         expect(axios).toHaveBeenCalledTimes(1)
         await expect(promise).resolves.toEqual(275)
     })
 
-    test('test wealth', async () => {
+    it('test wealth', async () => {
         const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
         const entity = new Entity(Buffer.from('2ff324b9d3367b160069ec67260959b4955ab519426603b5e59d5990128163f3', 'hex'))
         const promise = api.wealth(entity, 500)
@@ -31,7 +31,7 @@ describe(':LedgerApi', () => {
         expect(axios).toHaveBeenCalledTimes(2)
     })
 
-    test('test transfer', async () => {
+    it('test transfer', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const promise = api.tokens.balance('2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5')
         expect(axios).toHaveBeenCalledTimes(1)

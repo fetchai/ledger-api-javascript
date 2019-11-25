@@ -6,7 +6,7 @@ import {calc_address, calc_digest} from '../utils/helpers'
 
 describe(':Address', () => {
 
-    test('test construction from string', () => {
+    it('test construction from string', () => {
         // generate a random 32 byte buffer
         const digest = calc_digest(Buffer.from('rand'))
         const bs58_encoded = bs58.encode(digest)
@@ -16,7 +16,7 @@ describe(':Address', () => {
         expect(address.toString()).toBe(expected_display)
     })
 
-    test('test construction from bytes', () => {
+    it('test construction from bytes', () => {
         const digest = calc_digest(Buffer.from('rand'))
         const bs58_encoded = bs58.encode(digest)
         const [expected_address_bytes,] = calc_address(bs58_encoded)
@@ -24,7 +24,7 @@ describe(':Address', () => {
         expect(address.toBytes()).toMatchObject(expected_address_bytes)
     })
 
-    test('test construction from address', () => {
+    it('test construction from address', () => {
         const digest = calc_digest(Buffer.from('rand'))
         const bs58_encoded = bs58.encode(digest)
         const [expected_address_bytes,] = calc_address(bs58_encoded)
@@ -33,7 +33,7 @@ describe(':Address', () => {
         expect(address2.toBytes()).toMatchObject(expected_address_bytes)
     })
 
-    test('test invalid length bytes', () => {
+    it('test invalid length bytes', () => {
         const digest = calc_digest(Buffer.from('rand'))
         const invalid_address = Buffer.concat([digest, digest])
         expect(() => {
@@ -41,7 +41,7 @@ describe(':Address', () => {
         }).toThrow(ValidationError)
     })
 
-    test('test invalid length string', () => {
+    it('test invalid length string', () => {
         const invalid_string = Buffer.from('rand')
         const bs58_encoded = bs58.encode(invalid_string)
         expect(() => {
@@ -49,13 +49,13 @@ describe(':Address', () => {
         }).toThrow(ValidationError)
     })
 
-    test('test invalid type', () => {
+    it('test invalid type', () => {
         expect(() => {
             new Address(99)
         }).toThrow(ValidationError)
     })
 
-    test('test hex display', () => {
+    it('test hex display', () => {
         const digest = calc_digest(Buffer.from('rand'))
         const bs58_encoded = bs58.encode(digest)
         const [expected_address_bytes,] = calc_address(bs58_encoded)
@@ -66,7 +66,7 @@ describe(':Address', () => {
         expect(actual).toBe(hex_address)
     })
 
-    test('test invalid display', () => {
+    it('test invalid display', () => {
         const digest = calc_digest(Buffer.from('rand'))
         const bs58_encoded = bs58.encode(digest)
         const [, expected_display] = calc_address(bs58_encoded)
@@ -81,7 +81,7 @@ describe(':Address', () => {
 
     })
 
-    test('test hardcoded addresses', () => {
+    it('test hardcoded addresses', () => {
         const identity1 = new Identity(Buffer.from('11f2b9a49c76fdaee79b9f470594b51c09299ef4294ea9cf545be4d9d303cc0d28013a21e085a0a1f68bae3f203c375fae182bc69f994290224b563b43388183', 'hex'))
         const expected_display = 'nLYsNsbFGDgcGJa3e7xn2V82fnpaGZVSuJUHCkeY9Cm6SfEyG'
         const address1 = new Address(expected_display)

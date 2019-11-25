@@ -4,37 +4,37 @@ import {BN} from 'bn.js'
 describe(':Integer', () => {
 
     // encode tests
-    test('test small unsigned encode', () => {
+    it('test small unsigned encode', () => {
         const buffer = Buffer.from('')
         const encoded = integer.encode(buffer, new BN(4))
         expect(encoded.toString('hex')).toBe('04')
     })
 
-    test('test small signed encode', () => {
+    it('test small signed encode', () => {
         const buffer = Buffer.from('')
         const encoded = integer.encode(buffer, new BN(-4))
         expect(encoded.toString('hex')).toBe('e4')
     })
 
-    test('test 1byte unsigned encode', () => {
+    it('test 1byte unsigned encode', () => {
         const buffer = Buffer.from('')
         const encoded = integer.encode(buffer, new BN(0x80))
         expect(encoded.toString('hex')).toBe('c080')
     })
 
-    test('test 2byte unsigned encode', () => {
+    it('test 2byte unsigned encode', () => {
         const buffer = Buffer.from('')
         const encoded = integer.encode(buffer, new BN(0xEDEF))
         expect(encoded.toString('hex')).toBe('c1edef')
     })
 
-    test('test 4byte unsigned encode', () => {
+    it('test 4byte unsigned encode', () => {
         const buffer = Buffer.from('')
         const encoded = integer.encode(buffer, new BN(0xEDEFABCD))
         expect(encoded.toString('hex')).toBe('c2edefabcd')
     })
 
-    test('test 8byte unsigned encode', () => {
+    it('test 8byte unsigned encode', () => {
         const buffer = Buffer.from('')
         const eight_byte = new BN('EDEFABCD01234567', 16)
         const encoded = integer.encode(buffer, eight_byte)
@@ -43,25 +43,25 @@ describe(':Integer', () => {
     })
 
 
-    test('test 1byte signed encode', () => {
+    it('test 1byte signed encode', () => {
         const buffer = Buffer.from('')
         const encoded = integer.encode(buffer, new BN(-0x80))
         expect(encoded.toString('hex')).toBe('d080')
     })
 
-    test('test 2byte signed encode', () => {
+    it('test 2byte signed encode', () => {
         const buffer = Buffer.from('')
         const encoded = integer.encode(buffer, new BN(-0xEDEF))
         expect(encoded.toString('hex')).toBe('d1edef')
     })
 
-    test('test 4byte signed encode', () => {
+    it('test 4byte signed encode', () => {
         const buffer = Buffer.from('')
         const encoded = integer.encode(buffer, new BN(-0xEDEFABCD))
         expect(encoded.toString('hex')).toBe('d2edefabcd')
     })
 
-    test('test 8byte signed encode', () => {
+    it('test 8byte signed encode', () => {
         const buffer = Buffer.from('')
         const eight_byte = new BN('-EDEFABCD01234567', 16)
         const encoded = integer.encode(buffer, eight_byte)
@@ -71,7 +71,7 @@ describe(':Integer', () => {
 
 
     // start decode tests
-    test('test small unsigned decode', () => {
+    it('test small unsigned decode', () => {
         const buff = Buffer.from('04', 'hex')
         const [decoded, buffer] = integer.decode(buff)
         const reference = new BN(4)
@@ -80,7 +80,7 @@ describe(':Integer', () => {
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-    test('test small signed decode', () => {
+    it('test small signed decode', () => {
         const buff = Buffer.from('E4', 'hex')
         const [decoded, buffer] = integer.decode(buff)
         const reference = new BN(-4)
@@ -89,7 +89,7 @@ describe(':Integer', () => {
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-    test('test 1byte unsigned decode', () => {
+    it('test 1byte unsigned decode', () => {
         const buff = Buffer.from('C080', 'hex')
         const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('80', 16)
@@ -98,7 +98,7 @@ describe(':Integer', () => {
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-    test('test 2byte unsigned decode', () => {
+    it('test 2byte unsigned decode', () => {
         const buff = Buffer.from('C1EDEF', 'hex')
         const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('EDEF', 16)
@@ -107,7 +107,7 @@ describe(':Integer', () => {
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-    test('test 4byte unsigned decode', () => {
+    it('test 4byte unsigned decode', () => {
         const buff = Buffer.from('C2EDEFABCD', 'hex')
         const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('EDEFABCD', 16)
@@ -116,7 +116,7 @@ describe(':Integer', () => {
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-    test('test 8byte unsigned decode', () => {
+    it('test 8byte unsigned decode', () => {
         const buff = Buffer.from('C3EDEFABCD01234567', 'hex')
         const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('EDEFABCD01234567', 16)
@@ -124,7 +124,7 @@ describe(':Integer', () => {
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-    test('test 1byte signed decode', () => {
+    it('test 1byte signed decode', () => {
         const [decoded, buffer] = integer.decode(Buffer.from('D080', 'hex'))
         const reference = new BN('-80', 16)
         const comparison = decoded.cmp(reference)
@@ -132,7 +132,7 @@ describe(':Integer', () => {
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-    test('test 2byte signed decode', () => {
+    it('test 2byte signed decode', () => {
         const [decoded, buffer] = integer.decode(Buffer.from('D1EDEF', 'hex'))
         const reference = new BN('-EDEF', 16)
         const comparison = decoded.cmp(reference)
@@ -140,7 +140,7 @@ describe(':Integer', () => {
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-    test('test 4byte signed decode', () => {
+    it('test 4byte signed decode', () => {
         const [decoded, buffer] = integer.decode(Buffer.from('D1EDEF', 'hex'))
         const reference = new BN('-EDEF', 16)
         const comparison = decoded.cmp(reference)
@@ -148,7 +148,7 @@ describe(':Integer', () => {
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 
-    test('test 8byte signed decode', () => {
+    it('test 8byte signed decode', () => {
         const buff = Buffer.from('D3EDEFABCD01234567', 'hex')
         const [decoded, buffer] = integer.decode(buff)
         const reference = new BN('-EDEFABCD01234567', 16)

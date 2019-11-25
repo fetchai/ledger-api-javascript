@@ -5,7 +5,7 @@ const UNCOMPRESSED_SCEP256K1_PUBLIC_KEY = 0x04
 
 describe(':Identity', () => {
 
-    test('test encode', () => {
+    it('test encode', () => {
         const entity = new Entity()
         const buffer = Buffer.from('')
         const ref = Buffer.concat([buffer, Buffer.from([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]), entity.public_key_bytes()])
@@ -21,7 +21,7 @@ describe(':Identity', () => {
         expect(ref.toString('hex')).toBe(encoded_2.toString('hex'))
     })
 
-    test('test decode', () => {
+    it('test decode', () => {
         const entity = new Entity()
         const buf = Buffer.from('')
         const ref = Buffer.concat([buf, Buffer.from([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]), entity.public_key_bytes()])

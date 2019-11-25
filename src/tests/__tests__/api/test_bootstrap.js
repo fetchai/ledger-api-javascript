@@ -10,7 +10,7 @@ describe(':ContractsApi', () => {
         axios.mockClear()
     })
 
-    test('test get ledger address', async () => {
+    it('test get ledger address', async () => {
         // this is the only way i can get the throws of async promsises to be tested properly, and was from SO Q/A but linter rejects, so commented
         // expect(Bootstrap.get_ledger_address('def')).resolves.toThrow(NetworkUnavailableError)
         //  expect(Bootstrap.get_ledger_address('def2')).resolves.toThrow(RunTimeError)
@@ -19,7 +19,7 @@ describe(':ContractsApi', () => {
         expect(address).toBe('https://foo.bar:500')
     })
 
-    test('test is server valid', () => {
+    it('test is server valid', () => {
         // network name requested must be in list
         expect(() => {
             Bootstrap.is_server_valid([{name: 'alpha'}], 'beta')
@@ -56,7 +56,7 @@ describe(':ContractsApi', () => {
     })
 
 
-    test('list servers', async () => {
+    it('list servers', async () => {
         const actual1 = await Bootstrap.list_servers(true)
         expect(actual1).toMatchObject(JSON.parse('[{"name":"alpha","versions":"*"}]'))
 
@@ -65,7 +65,7 @@ describe(':ContractsApi', () => {
     })
 
 
-    test('test server from name', async () => {
+    it('test server from name', async () => {
         const actual = await Bootstrap.server_from_name('alpha')
         expect(actual).toMatchObject(['https://foo.bar', 500])
     })
@@ -74,7 +74,7 @@ describe(':ContractsApi', () => {
     /*
      * Tests that init accepts only a host+port pair, or a network
      */
-    test('test host port or network', async () => {
+    it('test host port or network', async () => {
         expect(() => {
             new LedgerApi('host')
         }).toThrow(ValidationError)
@@ -100,7 +100,7 @@ describe(':ContractsApi', () => {
         }).toThrow(ValidationError)
     })
 
-    test('test split address', () => {
+    it('test split address', () => {
         // Test default ports depending on protocol
         const [protocol1, host1, port1] = Bootstrap.split_address('https://foo.bar')
         expect(protocol1).toBe('https')

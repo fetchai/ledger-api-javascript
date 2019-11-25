@@ -1,19 +1,19 @@
 import {BitVector} from '../../fetchai/ledger/bitvector'
 
 describe(':BitVector', () => {
-    test('Test create BitVector instance with empty size', () => {
+    it('Test create BitVector instance with empty size', () => {
         const bits = new BitVector()
         expect(bits.byte_length()).toBe(0)
         expect(bits.get()).toBe(0)
     })
 
-    test('Test create BitVector instance with size value', () => {
+    it('Test create BitVector instance with size value', () => {
         const bits = new BitVector(8)
         expect(bits.byte_length()).toBe(1)
         expect(bits.get()).toBe(0)
     })
 
-    test('Test set', () => {
+    it('Test set', () => {
         const bits = new BitVector(8)
         bits.set(3, 1)
         bits.set(6, 1)
@@ -23,7 +23,7 @@ describe(':BitVector', () => {
         expect(bits.byte_length()).toBe(1)
     })
 
-    test('Test get', () => {
+    it('Test get', () => {
         const bits = new BitVector(8)
         bits.set(3, 1)
         bits.set(6, 1)

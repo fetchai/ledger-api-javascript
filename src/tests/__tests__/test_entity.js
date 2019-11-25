@@ -11,7 +11,7 @@ function _calc_digest(address_raw) {
     return digest
 }
 
-jest.mock('fs', () => {
+it.mock('fs', () => {
     const MOCK_FILE_INFO = '{"privateKey": "XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M="}'
     return {
         readFileSync: () => {
@@ -22,7 +22,7 @@ jest.mock('fs', () => {
 
 describe(':Entity', () => {
 
-    test('test generation', () => {
+    it('test generation', () => {
         const reference = new Entity()
         const other = new Entity(reference.private_key())
         expect(reference.private_key()).toEqual(other.private_key())
@@ -32,7 +32,7 @@ describe(':Entity', () => {
 
     })
 
-    test('test signing verifying cycle', () => {
+    it('test signing verifying cycle', () => {
         const digest = _calc_digest(Buffer.from('rand'))
         const entity = new Entity()
         // sign the payload
@@ -46,7 +46,7 @@ describe(':Entity', () => {
         expect(bad_verification).toBe(false)
     })
 
-    test('test construction from base64', () => {
+    it('test construction from base64', () => {
         const ref = new Entity()
         const ref_key = ref.private_key()
         const base64_data = ref_key.toString('base64')
@@ -54,14 +54,14 @@ describe(':Entity', () => {
         expect(other.private_key()).toMatchObject(ref.private_key())
     })
 
-    test('test invalid_construction', () => {
+    it('test invalid_construction', () => {
         expect(() => {
             // buffer of wrong length
             new Entity(Buffer.from('123'))
         }).toThrow(ValidationError)
     })
 
-    test('test to json object', () => {
+    it('test to json object', () => {
         const ref = new Entity()
         const ref_key = ref.private_key()
         const base64_Key = ref_key.toString('base64')
@@ -69,7 +69,7 @@ describe(':Entity', () => {
         expect(jsonObj.privateKey).toEqual(base64_Key)
     })
 
-    test('test from json object', () => {
+    it('test from json object', () => {
         const obj = JSON.parse(`{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`)
         const base64 = Buffer.from(obj.privateKey, 'base64')
         const entity = Entity._from_json_object(obj)
@@ -77,7 +77,7 @@ describe(':Entity', () => {
         expect(base64.toString('hex')).toEqual(private_key_hex)
     })
 
-    test('test signature to hex', () => {
+    it('test signature to hex', () => {
         const digest = _calc_digest(Buffer.from('rand'))
         const entity = new Entity()
         const sigObj = entity.sign(digest)
@@ -85,7 +85,7 @@ describe(':Entity', () => {
         expect(signature_hex).toEqual(sigObj.signature.toString('hex'))
     })
 
-    test('test loads', () => {
+    it('test loads', () => {
         const s = `{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`
         const obj = JSON.parse(s)
         const base64 = Buffer.from(obj.privateKey, 'base64')

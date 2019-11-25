@@ -5,7 +5,7 @@ import {BN} from 'bn.js'
 import {TokenApi} from '../../../fetchai/ledger/api'
 
 describe(':TXContentsTest', () => {
-    test('test contents', async () => {
+    it('test contents', async () => {
         const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
         const wealth = await api.wealth(ENTITIES[0], 1000)
         const TApi = new TransactionApi(LOCAL_HOST, DEFAULT_PORT)
@@ -26,7 +26,7 @@ describe(':TXContentsTest', () => {
         expect(a.data).toBe('def')
     })
 
-    test('test constructor', () => {
+    it('test constructor', () => {
         const data = {
             'digest': '0x123456',
             'action': 'transfer',
@@ -57,7 +57,7 @@ describe(':TXContentsTest', () => {
         expect(tx_contents.data).toBe('def')
     })
 
-    test('test transfers', () => {
+    it('test transfers', () => {
         const data = {
             'digest': '0x123456',
             'action': 'transfer',

@@ -20,7 +20,7 @@ const _compute_digest = (source) => {
     return new Address(d)
 }
 
-jest.mock('fs', () => {
+it.mock('fs', () => {
     const MOCK_FILE_INFO = '{"version":1,"owner":"2mhttHhKVRdY1n9BsFNHVJgHjGPvBmnA2FXKCPkJaC6TkXmaY9","source":"CkBpbml0CmZ1bmN0aW9uIGluaXQob3duZXI6IEFkZHJlc3MpCmVuZGZ1bmN0aW9uCgpAYWN0aW9uCmZ1bmN0aW9uIGFjdGlvbjEoKQplbmRmdW5jdGlvbgoKQGFjdGlvbgpmdW5jdGlvbiBhY3Rpb24yKCkKZW5kZnVuY3Rpb24KCkBxdWVyeQpmdW5jdGlvbiBxdWVyeTEoKQplbmRmdW5jdGlvbgoKQHF1ZXJ5CmZ1bmN0aW9uIHF1ZXJ5MigpCmVuZGZ1bmN0aW9uCg==","nonce":"pEGxX+mjz1Y="}'
     const EXPECTED_FP = '/path/to/file'
     return {
@@ -38,7 +38,7 @@ jest.mock('fs', () => {
 
 describe(':Test Contract', () => {
 
-    test('test dumps and loads', () => {
+    it('test dumps and loads', () => {
         const owner = new Entity()
         const nonce = calc_digest('random').slice(0, 8)
         const orig = new Contract(SIMPLE_CONTRACT, owner, nonce)
@@ -51,7 +51,7 @@ describe(':Test Contract', () => {
         expect(orig.source()).toBe(recreation.source())
     })
 
-    test('test dumps and loads without nonce', () => {
+    it('test dumps and loads without nonce', () => {
         const owner = new Entity()
         const orig = new Contract(SIMPLE_CONTRACT, owner)
         const encoded = orig.dumps()
@@ -63,7 +63,7 @@ describe(':Test Contract', () => {
         expect(orig.source()).toBe(recreation.source())
     })
 
-    test('test dump and load', () => {
+    it('test dump and load', () => {
         const rand_bytes = calc_digest('rand')
         const owner = new Entity(rand_bytes)
         const nonce = calc_digest('random').slice(0, 8)
@@ -75,7 +75,7 @@ describe(':Test Contract', () => {
         expect(orig.digest()).toMatchObject(recreation.digest())
     })
 
-    test('test owner getter and setter', () => {
+    it('test owner getter and setter', () => {
         const rand_bytes = calc_digest('rand')
         const owner = new Entity(rand_bytes)
         const nonce = calc_digest('random').slice(0, 8)
@@ -87,7 +87,7 @@ describe(':Test Contract', () => {
         expect(actual_owner2.toBytes()).toMatchObject(new Address(owner2).toBytes())
     })
 
-    test('test getters and setters', () => {
+    it('test getters and setters', () => {
         const rand_bytes = calc_digest('rand')
         const owner = new Address(new Entity(rand_bytes))
         const nonce = calc_digest('random').slice(0, 8)
@@ -108,7 +108,7 @@ describe(':Test Contract', () => {
     })
 
 
-    test.skip('test create', () => {
+    it.skip('test create', () => {
 
         // create contract
         // const contract = new Contract(SIMPLE_CONTRACT)
@@ -144,7 +144,7 @@ describe(':Test Contract', () => {
     })
 
     //TODO remove skip when we have etchparser support
-    test.skip('test init', () => {
+    it.skip('test init', () => {
         const owner = new Entity()
         expect(() => {
             new Contract(MULTIPLE_INITS, owner)

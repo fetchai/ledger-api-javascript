@@ -4,7 +4,7 @@ import {dummy_address} from '../../utils/helpers'
 
 describe(':Address', () => {
 
-    test('test encode', () => {
+    it('test encode', () => {
         const ref_address = dummy_address()
         const buf = Buffer.from('')
         const encoded = address.encode(buf, ref_address)
@@ -13,7 +13,7 @@ describe(':Address', () => {
         expect(expected.toString('hex')).toBe(encoded.toString('hex'))
     })
 
-    test('test decode', () => {
+    it('test decode', () => {
         const ref_address = dummy_address()
         const [address_obj, buffer] = address.decode(ref_address.toBytes())
         const expected = ref_address.toBytes()
