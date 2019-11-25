@@ -144,7 +144,7 @@ const encode_payload = payload => {
         buffer = bytearray.encode(buffer, data)
     }
 
-    buffer = Buffer.concat([buffer, payload.counter().toBuffer('be', 8)])
+    buffer = Buffer.concat([buffer, payload.counter().toArrayLike(8)])
 
 
     if (num_extra_signatures > 0) {

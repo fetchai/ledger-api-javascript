@@ -54,7 +54,7 @@ const encode = (buffer, value) => {
             //   encode all the parts fot the values
             let values = Array.from(Array(num_bytes.toNumber()).keys())
                 .reverse()
-                .map(value => abs_value.shrn(value * 8).and(new BN(0xFF)).toBuffer())
+                .map(value => abs_value.shrn(value * 8).and(new BN(0xFF)).toArrayLike())
             return Buffer.concat([buffer, Buffer.concat([Buffer.from([header]), Buffer.concat(values)])])
         }
     }
