@@ -1,6 +1,6 @@
 import {DEFAULT_PORT, LOCAL_HOST} from '../utils/helpers'
 
-export default jest.fn((request) => {
+export default it.fn((request) => {
 
     const requests = [balance, wealth, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
     let req, res
