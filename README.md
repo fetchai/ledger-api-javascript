@@ -24,7 +24,7 @@ Open In Chrome the following URL:
 chrome://inspect
 ```
 
-Click on "Open dedicated DevTools for Node" 
+Click on "Open dedicated DevTools for Node"
 
 In terminal under project directory
 ```
@@ -93,7 +93,7 @@ src
 
 ### To run test cases:
 
-    ` npm run test `
+    ` npm run karma `
 
 
 ### Check transaction status:
