@@ -4,6 +4,7 @@
   "description": "Fetch.AI Ledger Javascript API",
   "main": "dist/index.js",
   "scripts": {
+    "karma": "karma start",
     "build": "babel src/ -d dist/",
     "test": "jest src/test",
     "lint": "eslint .",
@@ -63,9 +64,17 @@
     "@babel/preset-flow": "^7.0.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
+    "jasmine-core": "^3.1.0",
     "eslint": "^6.5.1",
+    "karma": "^2.0.5",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.2",
+    "karma-webpack": "^3.0.0",
     "jest": "^24.9.0",
     "jest-coverage-ratchet": "^0.2.3",
-    "prettier-eslint": "^8.8.2"
+    "prettier-eslint": "^8.8.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0"
   }
 }
