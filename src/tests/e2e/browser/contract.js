@@ -6,7 +6,6 @@ const identity2 = new result.Entity()
 const address1 = new result.Address(identity1)
 const address2 = new result.Address(identity2)
 
-
 setTimeout(function(){
     const tx = api.tokens.wealth(identity1, 10000)
 

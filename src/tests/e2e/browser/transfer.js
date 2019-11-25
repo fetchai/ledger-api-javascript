@@ -1,4 +1,3 @@
-
 let api = new result.LedgerApi('127.0.0.1', 8000)
 const identity1 = new result.Entity()
 const identity2 = new result.Entity()
@@ -18,9 +17,3 @@ tx.then((tx) => {
             })})
     })
 })
-
-setTimeout(function(){
-    // const [uri, port] = result.Bootstrap.server_from_name('betanet')
-    //result.Bootstrap.server_from_name('betanet')
-    console.log('it WWW is node::QQQ ')
-}, 5000)
