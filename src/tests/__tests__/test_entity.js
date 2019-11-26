@@ -11,7 +11,7 @@ function _calc_digest(address_raw) {
     return digest
 }
 
-it.mock('fs', () => {
+jest.mock('fs', () => {
     const MOCK_FILE_INFO = '{"privateKey": "XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M="}'
     return {
         readFileSync: () => {
@@ -58,7 +58,7 @@ describe(':Entity', () => {
         expect(() => {
             // buffer of wrong length
             new Entity(Buffer.from('123'))
-        }).toThrow(ValidationError)
+        }).toThrowError(ValidationError)
     })
 
     it('test to json object', () => {
