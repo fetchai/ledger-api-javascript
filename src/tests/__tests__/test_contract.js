@@ -108,7 +108,7 @@ describe(':Test Contract', () => {
     })
 
 
-    it.skip('test create', () => {
+    xit('test create', () => {
 
         // create contract
         // const contract = new Contract(SIMPLE_CONTRACT)
@@ -144,7 +144,7 @@ describe(':Test Contract', () => {
     })
 
     //TODO remove skip when we have etchparser support
-    it.skip('test init', () => {
+    xit('test init', () => {
         const owner = new Entity()
         expect(() => {
             new Contract(MULTIPLE_INITS, owner)
