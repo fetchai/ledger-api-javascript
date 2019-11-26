@@ -3,7 +3,8 @@ import * as bytearray from '../../../fetchai/ledger/serialization/bytearray'
 describe(':Bytearray', () => {
 
     it('test encode', () => {
-        const data = Buffer.from('3E8', 'hex')
+        // https://github.com/nodejs/node/issues/24491
+        const data = Buffer.from('3E', 'hex')
         const buf = Buffer.from('')
         const encoded = bytearray.encode(buf, data)
         expect(encoded.toString('hex')).toBe('013e')
