@@ -20,7 +20,7 @@ describe(':Test Transaction', () => {
         expect(txObj._action).toBe('')
         expect(txObj._metadata.synergetic_data_submission).toBe(false)
         expect(txObj._data).toBe('')
-        expect(Object.keys(txObj._transfers).length).toEqual(0)
+        expect(Object.keys(txObj._transfers).length).toBe(0)
     })
 
     it('Test from_address', () => {
@@ -32,7 +32,7 @@ describe(':Test Transaction', () => {
 
     it('Test transfers', () => {
         let txObj = new Transaction()
-        expect(Object.keys(txObj.transfers()).length).toEqual(0)
+        expect(Object.keys(txObj.transfers()).length).toBe(0)
     })
 
     it('Test add_transfer with amount', () => {
