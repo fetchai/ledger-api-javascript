@@ -4,9 +4,11 @@ import * as bs58 from 'bs58'
 import {ValidationError} from '../../fetchai/ledger/errors'
 import {calc_address, calc_digest} from '../utils/helpers'
 
+
 describe(':Address', () => {
 
     test('test construction from string', () => {
+        debugger;
         // generate a random 32 byte buffer
         const digest = calc_digest(Buffer.from('rand'))
         const bs58_encoded = bs58.encode(digest)

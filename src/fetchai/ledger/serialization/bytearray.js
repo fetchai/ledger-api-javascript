@@ -16,5 +16,7 @@ const decode = (buffer) => {
     // then return the length of bytes specified in the header
     return [value, buffer]
 }
+const DECODEBYTE = decode
+const ENCODEBYTE = encode
 
-export {encode, decode}
+export {encode, decode, DECODEBYTE, ENCODEBYTE}

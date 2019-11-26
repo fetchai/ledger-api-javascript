@@ -8,3 +8,6 @@ export * from './serialization'
 export * from './__init__'
 export * from './contract'
 export * from '../../contracts'
+
+export * from '../../../node_modules/buffer'
+

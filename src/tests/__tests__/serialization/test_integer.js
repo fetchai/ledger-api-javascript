@@ -1,10 +1,13 @@
 import * as integer from '../../../fetchai/ledger/serialization/integer'
 import {BN} from 'bn.js'
+import fs from 'fs'
+import path from 'path'
 
 describe(':Integer', () => {
 
     // encode tests
     test('test small unsigned encode', () => {
+        debugger;
         const buffer = Buffer.from('')
         const encoded = integer.encode(buffer, new BN(4))
         expect(encoded.toString('hex')).toBe('04')

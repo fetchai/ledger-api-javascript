@@ -4,11 +4,13 @@
   "description": "Fetch.AI Ledger Javascript API",
   "main": "dist/index.js",
   "scripts": {
-    "e2e" : "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
+    "e2e": "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
     "build": "babel src/ -d dist/",
     "test": "jest src/test",
     "lint": "eslint .",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand src/test",
+    "singleTest:debug": "node --inspect node_modules/.bin/jest --runInBand ",
+    "singleTest": "node_modules/.bin/jest ",
     "coverage": "jest src/test --coverage --coverageDirectory=coverage"
   },
   "jest": {
@@ -63,6 +65,7 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
+    "babel-plugin-dynamic-import-node": "^2.3.0",
     "eslint": "^6.5.1",
     "jest": "^24.9.0",
     "jest-coverage-ratchet": "^0.2.3",

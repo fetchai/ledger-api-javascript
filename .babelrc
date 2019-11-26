@@ -12,6 +12,7 @@
   "plugins": [
     "@babel/plugin-transform-flow-strip-types",
     ["@babel/plugin-proposal-object-rest-spread", { "useBuiltIns": true }],
+    ["dynamic-import-node"],
     [
       "@babel/plugin-syntax-decorators",
       {
