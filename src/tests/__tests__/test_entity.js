@@ -11,14 +11,14 @@ function _calc_digest(address_raw) {
     return digest
 }
 
-jest.mock('fs', () => {
-    const MOCK_FILE_INFO = '{"privateKey": "XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M="}'
-    return {
-        readFileSync: () => {
-            return MOCK_FILE_INFO
-        }
-    }
-})
+// jest.mock('fs', () => {
+//     const MOCK_FILE_INFO = '{"privateKey": "XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M="}'
+//     return {
+//         readFileSync: () => {
+//             return MOCK_FILE_INFO
+//         }
+//     }
+// })
 
 describe(':Entity', () => {
 
@@ -94,7 +94,7 @@ describe(':Entity', () => {
         expect(base64.toString('hex')).toEqual(private_key_hex)
     })
 
-    test.skip('test load', () => {
+    xit('test load', () => {
         const s = `{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`
         const obj = JSON.parse(s)
         const base64 = Buffer.from(obj.privateKey, 'base64')
