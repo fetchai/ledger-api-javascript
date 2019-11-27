@@ -24,7 +24,7 @@ Open In Chrome the following URL:
 chrome://inspect
 ```
 
-Click on "Open dedicated DevTools for Node" 
+Click on "Open dedicated DevTools for Node"
 
 In terminal under project directory
 ```
@@ -104,4 +104,11 @@ Output:
 
 ```
 {"charge_rate": 0, "charge": 0, "exit_code": 0, "fee": 0, "tx": "/X66ZMfPKuQ4HE63gQBmbfAGWxnhUoT1t3IMYYTOZJU=", "status": "Unknown"}
+```
+
+### To Generate the docs:
+
+
+```
+npm run generate-docs
 ```
