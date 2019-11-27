@@ -10,7 +10,7 @@
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand src/test",
     "coverage": "jest src/test --coverage --coverageDirectory=coverage",
     "end-to-end": "npm run build && node src/tests/end-to-end-tests/test_transfer.js",
-    "generate-docs": "node_modules/.bin/jsdoc -r src/fetchai/ledger -d docs --verbose"
+    "generate-docs": "node_modules/.bin/jsdoc src/fetchai/ledger/api/token.js src/fetchai/ledger/api/init.js -d docs --verbose"
   },
   "jest": {
     "setupFiles": [
