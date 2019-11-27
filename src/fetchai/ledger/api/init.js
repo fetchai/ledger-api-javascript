@@ -12,16 +12,16 @@ import { Bootstrap } from './bootstrap'
 const DEFAULT_TIMEOUT = 120000
 
 /**
- * This class for all ledger APIs
+ * This class for all ledger APIs.
  *
  * @public
  * @class
  */
 export class LedgerApi {
     /**
-     * @param  {boolean} host ledger host
-     * @param  {boolean} port ledger port
-     * @param  {boolean} network server name
+     * @param  {Boolean} host ledger host.
+     * @param  {Boolean} port ledger port.
+     * @param  {Boolean} network server name.
      */
     constructor(host = false, port = false, network = false) {
         if (network) {
@@ -41,14 +41,16 @@ export class LedgerApi {
         this.tx = new TransactionApi(host, port)
     }
 
-    /** Sync the ledger
+    /** Sync the ledger.
      * this does not block event loop, but waits sync for return of executed
      * digest using a timeout, wrapped in a promise that resolves when we get executed status in response, or
      * rejects if timeouts.
-     * @param  {string} txs transactions string
-     * @param  {boolean} [timeout=false] units seconds
-     * @returns {Promise} return promise
-     * @throws {TypeError|RunTimeError} TypeError or RunTimeError on any failures
+     * @async
+     * @method
+     * @param  {String} txs transactions string.
+     * @param  {Boolean} [timeout=false] units seconds.
+     * @returns {Promise} return asyncTimerPromise.
+     * @throws {TypeError|RunTimeError} TypeError or RunTimeError on any failures.
      */
     async sync(txs, timeout = false) {
         if (typeof txs === 'string') {

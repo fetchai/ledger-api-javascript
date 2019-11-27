@@ -7,15 +7,17 @@ import { Address } from '../crypto'
 import { BN } from 'bn.js'
 
 /**
- * This class for all tokens APIs
+ * This class for all Tokens APIs.
  *
  * @public
  * @class
  */
 export class TokenApi extends ApiEndpoint {
-    /** Create new TokenApi object with host and port
-     * @param  {string} host ledger host
-     * @param  {number} port ledger port
+    /**
+     * Create new TokenApi object with host and port.
+     * @constructor
+     * @param {String} host ledger host
+     * @param {Number} port ledger port
      */
     constructor(host, port) {
         logger.info(
@@ -26,10 +28,12 @@ export class TokenApi extends ApiEndpoint {
     }
 
     /**
-     * Query the balance for a given address from the remote node
-     * @param  {object} address base64 encoded string containing the address of the node
-     * @returns {number} The balance value retried
-     * @throws {ApiError} ApiError on any failures
+     * Query the balance for a given address from the remote node.
+     * @async
+     * @method
+     * @param {Object} address base64 encoded string containing the address of the node.
+     * @returns {Number} The balance value retried.
+     * @throws {ApiError} ApiError on any failures.
      */
     async balance(address) {
         logger.info(`request for check balance of address: ${address}`)
@@ -49,11 +53,13 @@ export class TokenApi extends ApiEndpoint {
     }
 
     /**
-     * Creates wealth for specified account
-     * @param  {object} entity entity object to create wealth for
-     * @param  {number} amount amount of wealth to be generated
-     * @returns The digest of the submitted transaction
-     * @throws {ApiError} ApiError on any failures
+     * Creates wealth for specified account.
+     * @async
+     * @method
+     * @param {Object} entity Entity object to create wealth for.
+     * @param {Number} amount amount of wealth to be generated
+     * @returns The digest of the submitted transaction.
+     * @throws {ApiError} ApiError on any failures.
      */
     async wealth(entity, amount) {
         logger.info(
@@ -76,13 +82,13 @@ export class TokenApi extends ApiEndpoint {
     }
 
     /**
-     * Transfers wealth from one account to another account
-     * @param  {object} entity bytes of the private key of the source address
-     * @param  {object} to bytes of the targeted address to send funds to
-     * @param  {number} amount amount of funds being transferred
-     * @param  {number} fee fee associated with the transfer
-     * @returns The digest of the submitted transaction
-     * @throws {ApiError} ApiError on any failures
+     * Transfers wealth from one account to another account.
+     * @param {Object} entity Entity bytes of the private key of the source address.
+     * @param {Object} to to bytes of the targeted address to send funds to.
+     * @param {Number} amount amount of funds being transferred.
+     * @param {Number} fee fee associated with the transfer.
+     * @returns The digest of the submitted transaction.
+     * @throws {ApiError} ApiError on any failures.
      */
     async transfer(entity, to, amount, fee) {
         // format the data to be closed by the transaction
