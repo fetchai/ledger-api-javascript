@@ -1,10 +1,14 @@
 import axios from 'axios'
 import {IncompatibleLedgerVersionError, NetworkUnavailableError, RunTimeError} from '../errors'
 import * as semver from 'semver'
-import {__version__} from '../__init__'
+import {__version__} from '../init'
+
 
 export class Bootstrap {
-
+    /**
+     * Gets list of servers from bootstrap network
+     * @param  {active} active=true
+     */
     static async list_servers(active = true) {
         //Gets list of (active) servers from bootstrap network
         const params = (active) ? {'active': 1} : {}
