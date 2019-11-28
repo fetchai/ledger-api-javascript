@@ -25,44 +25,43 @@ export class Identity {
             throw new ValidationError('Failed')
         }
     }
-
     /**
-     * Get public key with 04 prefix
+     * Get public key with 04 prefix.
      */
     prefixed_public_key() {
         return Buffer.concat([Buffer.from('04', 'hex'), this.pub_key])
     }
 
     /**
-     * Get base64 encoded public key
+     * Get base64 encoded public key.
      */
     public_key_base64() {
         return btoa(this.pub_key)
     }
 
     /**
-     * Get the public key in bytes(Buffer)
+     * Get the public key in bytes(Buffer).
      */
     public_key() {
         return this.pub_key
     }
 
     /**
-     * Get the public key hex
+     * Get the public key hex.
      */
     public_key_hex() {
         return this.pub_key.toString('hex')
     }
 
     /**
-     * Get the public key in bytes(Buffer)
+     * Get the public key in bytes(Buffer).
      */
     public_key_bytes() {
         return this.pub_key
     }
 
     /**
-     * Verify the signature
+     * Verify the signature.
      * @param  {String} message Message which wants to verify
      * @param  {String} signature Signature
      * @returns signature is valid or not
