@@ -2,8 +2,16 @@ import * as secp256k1 from 'secp256k1'
 import {ValidationError} from '../errors'
 import {default as btoa} from 'btoa'
 
+/**
+ * An identity is the public half of a private / public key pair.
+ *
+ * @public
+ * @class
+ */
 export class Identity {
-
+    /**
+     * @param  {} pub_key
+     */
     constructor(pub_key) {
         if (pub_key instanceof Identity) {
             this.pub_key = pub_key.public_key()

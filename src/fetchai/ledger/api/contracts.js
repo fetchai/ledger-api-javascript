@@ -7,15 +7,31 @@ import {Contract} from '../contract'
 import {encode_transaction} from '../serialization/transaction'
 import {logger} from '../utils'
 
-
+/**
+ * This class for all Tokens APIs.
+ *
+ * @public
+ * @class
+ */
 export class ContractsApi extends ApiEndpoint {
-
+    /**
+     *
+     * @param {String} HOST Ledger host.
+     * @param {String} PORT Ledger port.
+     */
     constructor(HOST, PORT) {
         super(HOST, PORT)
         // tidy up before submitting
         this.prefix = 'fetch.contract'
     }
 
+    /**
+     *
+     * @param {Object} owner Entity object
+     * @param {Number} fee
+     * @param {String} contract
+     * @param {Object} [shard_mask=null] BitVector object
+     */
     async create(owner, fee, contract, shard_mask = null) {
         assert(contract instanceof Contract)
         const ENDPOINT = 'create'
@@ -41,6 +57,13 @@ export class ContractsApi extends ApiEndpoint {
         return await this._post_tx_json(encoded_tx, ENDPOINT)
     }
 
+    /**
+     *
+     * @param {Object} contract_digest Address object
+     * @param {Object} contract_owner Address object
+     * @param {String} query query string
+     * @param {*} data json payload
+     */
     async query(contract_digest, contract_owner, query, data) {
         assert(this.isJSON(data))
         const prefix = `${contract_digest.toHex()}.${contract_owner.toString()}`
@@ -48,6 +71,17 @@ export class ContractsApi extends ApiEndpoint {
         return await this._post_json(query, encoded, prefix)
     }
 
+    /**
+     *
+     * @param {Object} contract_digest Address class object
+     * @param {Object} contract_address Address class object
+     * @param {String} action action
+     * @param {Number} fee fee associated with the action.
+     * @param {*} from_address
+     * @param {*} signers
+     * @param {*} args
+     * @param {Object} shard_mask BitVector object
+     */
     async action(contract_digest, contract_address, action, fee, from_address, signers, args, shard_mask = null) {
         if (shard_mask === null) {
             shard_mask = new BitVector()

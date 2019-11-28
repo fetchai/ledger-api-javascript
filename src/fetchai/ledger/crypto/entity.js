@@ -11,7 +11,9 @@ import * as  fs from 'fs'
  * @class
  */
 export class Entity extends Identity {
-
+    /**
+     * @param  {} private_key_bytes
+     */
     constructor(private_key_bytes) {
 
         // construct or generate the private key if one is not specified

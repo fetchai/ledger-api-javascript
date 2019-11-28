@@ -7,8 +7,16 @@ const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4
 const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
 
+/**
+ * Address creation from identity, bytes and string.
+ *
+ * @public
+ * @class
+ */
 export class Address {
-
+    /**
+     * @param  {} identity
+     */
     constructor(identity) {
         if (identity instanceof Address) {
             this._address = identity._address
