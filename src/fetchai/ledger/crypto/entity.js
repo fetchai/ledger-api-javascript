@@ -12,7 +12,7 @@ import * as  fs from 'fs'
  */
 export class Entity extends Identity {
     /**
-     * @param  {} private_key_bytes
+     * @param  {Buffer} private_key_bytes construct or generate the private key if one is not specified
      */
     constructor(private_key_bytes) {
 
@@ -41,25 +41,38 @@ export class Entity extends Identity {
             this.privKey = privKey
         }
     }
-
+    /**
+     * Get the private key.
+     */
     private_key() {
         return this.privKey
     }
-
+    /**
+     * Get the private key hex.
+     */
     private_key_hex() {
         return this.privKey.toString('hex')
     }
 
-
+    /**
+     * Get the public key hex.
+     */
     public_key_hex() {
         return this.pubKey.toString('hex')
     }
 
-    // sign the message. returns sign obj
+    /**
+     * sign the message.
+     * @param  {String} extMsgHash Message hash
+     * @returns signature obj
+     */
     sign(extMsgHash) {
         return secp256k1.sign(extMsgHash, this.privKey)
     }
-
+    /**
+     * Get the signature hex
+     * @param  {Object} sigObj signature obj
+     */
     signature_hex(sigObj) {
         return sigObj.signature.toString('hex')
     }
