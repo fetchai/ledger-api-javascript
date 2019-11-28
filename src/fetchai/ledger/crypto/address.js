@@ -56,18 +56,31 @@ export class Address {
         }
     }
 
+    /**
+     * Get address in string
+     */
     toString() {
         return this._display
     }
 
+    /**
+     * Get address in bytes
+     */
     toBytes() {
         return this._address
     }
 
+    /**
+     * Check equality of two address
+     * @param  {bytes} other Address in bytes
+     */
     equals(other) {
         return (Buffer.compare(this.toBytes(), other.toBytes()))
     }
 
+    /**
+     * Get address in hex
+     */
     toHex() {
         return this._address.toString('hex')
     }
