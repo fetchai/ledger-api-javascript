@@ -15,7 +15,8 @@ const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
  */
 export class Address {
     /**
-     * @param  {} identity
+     * @param  {Object|Buffer|String} identity Address object or Buffer or String.
+     * @throws {ValidationError} ValidationError ValidationError on any failures.
      */
     constructor(identity) {
         if (identity instanceof Address) {

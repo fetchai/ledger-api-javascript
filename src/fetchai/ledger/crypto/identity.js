@@ -1,6 +1,6 @@
 import * as secp256k1 from 'secp256k1'
-import {ValidationError} from '../errors'
-import {default as btoa} from 'btoa'
+import { ValidationError } from '../errors'
+import { default as btoa } from 'btoa'
 
 /**
  * An identity is the public half of a private / public key pair.
@@ -61,8 +61,8 @@ export class Identity {
         return this.pub_key
     }
 
-
-    /** Verify the signature
+    /**
+     * Verify the signature
      * @param  {String} message Message which wants to verify
      * @param  {String} signature Signature
      * @returns signature is valid or not
