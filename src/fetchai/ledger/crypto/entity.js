@@ -13,6 +13,7 @@ import * as  fs from 'fs'
 export class Entity extends Identity {
     /**
      * @param  {Buffer} private_key_bytes construct or generate the private key if one is not specified
+     * @throws {ValidationError} ValidationError if unable to load private key from input
      */
     constructor(private_key_bytes) {
 
@@ -69,6 +70,7 @@ export class Entity extends Identity {
     sign(extMsgHash) {
         return secp256k1.sign(extMsgHash, this.privKey)
     }
+
     /**
      * Get the signature hex
      * @param  {Object} sigObj signature obj

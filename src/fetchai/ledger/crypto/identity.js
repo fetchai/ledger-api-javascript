@@ -10,7 +10,8 @@ import {default as btoa} from 'btoa'
  */
 export class Identity {
     /**
-     * @param  {} pub_key
+     * @param  {Object|Buffer} pub_key Identity object or Buffer
+     * @throws {ValidationError} ValidationError if invalid public key or unable to load public key from input
      */
     constructor(pub_key) {
         if (pub_key instanceof Identity) {
@@ -25,27 +26,47 @@ export class Identity {
         }
     }
 
-    // get public key with 04 prefix
+    /**
+     * Get public key with 04 prefix
+     */
     prefixed_public_key() {
         return Buffer.concat([Buffer.from('04', 'hex'), this.pub_key])
     }
 
+    /**
+     * Get base64 encoded public key
+     */
     public_key_base64() {
         return btoa(this.pub_key)
     }
 
+    /**
+     * Get the public key in bytes(Buffer)
+     */
     public_key() {
         return this.pub_key
     }
 
+    /**
+     * Get the public key hex
+     */
     public_key_hex() {
         return this.pub_key.toString('hex')
     }
 
+    /**
+     * Get the public key in bytes(Buffer)
+     */
     public_key_bytes() {
         return this.pub_key
     }
 
+
+    /** Verify the signature
+     * @param  {String} message Message which wants to verify
+     * @param  {String} signature Signature
+     * @returns signature is valid or not
+     */
     verify(message, signature) {
         return secp256k1.verify(message, signature, this.prefixed_public_key())
     }
