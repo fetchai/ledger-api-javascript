@@ -10,7 +10,7 @@
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand src/test",
     "coverage": "jest src/test --coverage --coverageDirectory=coverage",
     "end-to-end": "npm run build && node src/tests/end-to-end-tests/test_transfer.js",
-    "generate-docs": "node_modules/.bin/jsdoc src/fetchai/ledger/api/token.js src/fetchai/ledger/api/init.js src/fetchai/ledger/api/contracts.js -r src/fetchai/ledger/crypto -d docs --verbose -t node_modules/minami/"
+    "generate-docs": "node_modules/jsdoc/jsdoc.js src/fetchai/ledger/api/token.js src/fetchai/ledger/api/init.js src/fetchai/ledger/api/contracts.js -r src/fetchai/ledger/crypto -d docs --verbose -t node_modules/minami/"
   },
   "jest": {
     "setupFiles": [
@@ -67,7 +67,7 @@
     "eslint": "^6.5.1",
     "jest": "^24.9.0",
     "jest-coverage-ratchet": "^0.2.3",
-    "jsdoc": "^3.6.3",
+    "jsdoc": "3.5.5",
     "minami": "^1.2.3",
     "prettier-eslint": "^8.8.2"
   }
