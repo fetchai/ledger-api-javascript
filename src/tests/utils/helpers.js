@@ -1,7 +1,8 @@
 import * as bs58 from 'bs58'
 import {createHash} from 'crypto'
 import {Address} from '../../fetchai/ledger/crypto/address'
-import {Entity, Identity} from '../../fetchai/ledger/crypto'
+import {Entity} from '../../fetchai/ledger/crypto/entity'
+import {Identity} from '../../fetchai/ledger/crypto/identity'
 
 export const LOCAL_HOST = '127.0.0.1'
 export const DEFAULT_PORT = 8000
@@ -28,8 +29,6 @@ export const [ENTITIES, IDENTITIES, ADDRESSES] = (() => {
 
 
 
-
-
 //TODO remove functions names preceeding underscore.
 export function calc_digest(address_raw) {
     const hash_func = createHash('sha256')
@@ -52,3 +51,18 @@ export function dummy_address() {
     return new Address(Buffer.from(digest))
 }
 
+export function equals(x, y) {
+    if (x === y) return true
+    for (var p in x) {
+        if (!x.hasOwnProperty(p)) continue
+        if (!y.hasOwnProperty(p)) return false
+        if (x[p] === y[p]) continue
+        if (typeof x[p] === 'string' && x[p].length > 150) continue
+        if (typeof (x[p]) !== 'object') return false
+        if (!equals(x[p], y[p])) return false
+    }
+    for (p in y) {
+        if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false
+    }
+    return true
+}

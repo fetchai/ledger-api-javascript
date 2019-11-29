@@ -12,9 +12,8 @@ lint:
 # Build Es6 project
 build: clean compile
 
-test:
-	@npm install wait-on
-	@npx jest src/test --maxConcurrency=1
+test: bundle
+	@npm run test
 
 test_with_coverage:
 	@npm run coverage
@@ -24,3 +23,6 @@ balance: lint compile
 
 wealth: lint compile
 	@node dist/examples/wealth.js
+
+bundle:
+	@./node_modules/.bin/webpack

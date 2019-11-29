@@ -18,7 +18,7 @@ async function main() {
     )
 
     const j = await api.wealth(entity, 1000)
-    console.log('wealth after', j)
+    logger.info('wealth after', j)
 }
 
 main()

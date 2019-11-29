@@ -3,7 +3,6 @@ import {Contract} from '../fetchai/ledger/contract'
 import {LedgerApi} from '../fetchai/ledger/api'
 import {TRANSFER_CONTRACT} from '../contracts'
 
-
 async function print_address_balances(api, contract, addresses) {
 
     let balance, query
