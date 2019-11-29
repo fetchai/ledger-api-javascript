@@ -26,10 +26,10 @@ export class ContractsApi extends ApiEndpoint {
     }
 
     /**
-     *
+     * Create contract
      * @param {Object} owner Entity object
-     * @param {Number} fee
-     * @param {String} contract
+     * @param {Number} fee fee associated with the contract creation.
+     * @param {String} contract contract
      * @param {Object} [shard_mask=null] BitVector object
      */
     async create(owner, fee, contract, shard_mask = null) {
@@ -58,11 +58,11 @@ export class ContractsApi extends ApiEndpoint {
     }
 
     /**
-     *
+     * Query on contract
      * @param {Object} contract_digest Address object
      * @param {Object} contract_owner Address object
      * @param {String} query query string
-     * @param {*} data json payload
+     * @param {JSON} data json payload
      */
     async query(contract_digest, contract_owner, query, data) {
         assert(this.isJSON(data))
@@ -72,14 +72,14 @@ export class ContractsApi extends ApiEndpoint {
     }
 
     /**
-     *
+     * Action on ledger/contract
      * @param {Object} contract_digest Address class object
      * @param {Object} contract_address Address class object
      * @param {String} action action
      * @param {Number} fee fee associated with the action.
-     * @param {*} from_address
-     * @param {*} signers
-     * @param {*} args
+     * @param {Object} from_address from address
+     * @param {Array} signers Entity list
+     * @param {*} args arguments
      * @param {Object} shard_mask BitVector object
      */
     async action(contract_digest, contract_address, action, fee, from_address, signers, args, shard_mask = null) {
