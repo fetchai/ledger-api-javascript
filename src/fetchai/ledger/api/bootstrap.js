@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {IncompatibleLedgerVersionError, NetworkUnavailableError, RunTimeError} from '../errors'
 import * as semver from 'semver'
-import {__version__} from '../__init__'
+import {__version__} from '../init'
 
 export class Bootstrap {
 
