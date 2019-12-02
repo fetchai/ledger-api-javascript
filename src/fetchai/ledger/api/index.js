@@ -1,5 +1,5 @@
 export * from './common'
 export * from './token'
-export * from './__init__'
+export * from './init'
 export * from './bootstrap'
 export * from './tx'

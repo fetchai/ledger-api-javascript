@@ -4,12 +4,13 @@
   "description": "Fetch.AI Ledger Javascript API",
   "main": "dist/index.js",
   "scripts": {
-    "e2e" : "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
+    "e2e": "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
     "build": "babel src/ -d dist/",
     "test": "jest src/test",
     "lint": "eslint .",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand src/test",
-    "coverage": "jest src/test --coverage --coverageDirectory=coverage"
+    "coverage": "jest src/test --coverage --coverageDirectory=coverage",
+    "generate-docs": "node_modules/jsdoc/jsdoc.js src/fetchai/ledger/api/token.js src/fetchai/ledger/api/init.js src/fetchai/ledger/api/contracts.js -r src/fetchai/ledger/crypto -d docs --verbose -t node_modules/minami/"
   },
   "jest": {
     "setupFiles": [
@@ -68,6 +69,8 @@
     "eslint": "^6.5.1",
     "jest": "^24.9.0",
     "jest-coverage-ratchet": "^0.2.3",
+    "jsdoc": "3.5.5",
+    "minami": "^1.2.3",
     "prettier-eslint": "^8.8.2",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",

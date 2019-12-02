@@ -1,18 +1,24 @@
-import {ApiError} from '../errors'
-import {logger} from '../utils'
-import {ApiEndpoint} from './common'
-import {BitVector} from '../bitvector'
-import {encode_transaction} from '../serialization/transaction'
-import {Address} from '../crypto'
-import {BN} from 'bn.js'
+import { ApiError } from '../errors'
+import { logger } from '../utils'
+import { ApiEndpoint } from './common'
+import { BitVector } from '../bitvector'
+import { encode_transaction } from '../serialization/transaction'
+import { Address } from '../crypto'
+import { BN } from 'bn.js'
 
 /**
- * This class for all tokens operations
+ * This class for all Tokens APIs.
  *
  * @public
  * @class
  */
 export class TokenApi extends ApiEndpoint {
+    /**
+     * Create new TokenApi object with host and port.
+     * @constructor
+     * @param {String} host ledger host
+     * @param {Number} port ledger port
+     */
     constructor(host, port) {
         logger.info(
             `Creating new Token api object with host:${host} and port:${port}`
@@ -22,18 +28,19 @@ export class TokenApi extends ApiEndpoint {
     }
 
     /**
-     * Query the balance for a given address from the remote node
-     *
-     * @public
+     * Query the balance for a given address from the remote node.
+     * @async
      * @method
-     * @param  {address} The base64 encoded string containing the address of the node
+     * @param {Object} address base64 encoded string containing the address of the node.
+     * @returns {Number} The balance value retried.
+     * @throws {ApiError} ApiError on any failures.
      */
     async balance(address) {
         logger.info(`request for check balance of address: ${address}`)
         // convert the input to an address
         address = new Address(address)
         // format and make the request
-        let request = {address: address.toString()}
+        let request = { address: address.toString() }
 
         let [, data] = await super._post_json('balance', request, this.prefix)
         logger.info(`Balance of ${address} is ${data.balance}`)
@@ -47,12 +54,13 @@ export class TokenApi extends ApiEndpoint {
     }
 
     /**
-     * Creates wealth for specified account
-     *
-     * @public
+     * Creates wealth for specified account.
+     * @async
      * @method
-     * @param  {address} The entity object to create wealth for
-     * @param  {amount} The amount of wealth to be generated
+     * @param {Object} entity Entity object to create wealth for.
+     * @param {Number} amount amount of wealth to be generated
+     * @returns The digest of the submitted transaction.
+     * @throws {ApiError} ApiError on any failures.
      */
     async wealth(entity, amount) {
         logger.info(
@@ -75,14 +83,13 @@ export class TokenApi extends ApiEndpoint {
     }
 
     /**
-     * Transfers wealth from one account to another account
-     *
-     * @public
-     * @method
-     * @param  {entity} The bytes of the private key of the source address
-     * @param  {to} The bytes of the targeted address to send funds to
-     * @param  {amount} The amount of funds being transferred
-     * @param  {fee} The fee associated with the transfer
+     * Transfers wealth from one account to another account.
+     * @param {Object} entity Entity bytes of the private key of the source address.
+     * @param {Object} to to bytes of the targeted address to send funds to.
+     * @param {Number} amount amount of funds being transferred.
+     * @param {Number} fee fee associated with the transfer.
+     * @returns The digest of the submitted transaction.
+     * @throws {ApiError} ApiError on any failures.
      */
     async transfer(entity, to, amount, fee) {
         // format the data to be closed by the transaction

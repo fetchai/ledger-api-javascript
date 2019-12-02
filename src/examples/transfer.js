@@ -1,5 +1,5 @@
 import {Entity} from '../fetchai/ledger/crypto/entity'
-import {LedgerApi} from '../fetchai/ledger/api/__init__'
+import {LedgerApi} from '../fetchai/ledger/api/init'
 
 const HOST = '127.0.0.1'
 const PORT = 8000

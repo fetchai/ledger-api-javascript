@@ -1,9 +1,18 @@
 import * as secp256k1 from 'secp256k1'
-import {ValidationError} from '../errors'
-import {default as btoa} from 'btoa'
+import { ValidationError } from '../errors'
+import { default as btoa } from 'btoa'
 
+/**
+ * An identity is the public half of a private / public key pair.
+ *
+ * @public
+ * @class
+ */
 export class Identity {
-
+    /**
+     * @param  {Object|Buffer} pub_key Identity object or Buffer
+     * @throws {ValidationError} ValidationError if invalid public key or unable to load public key from input
+     */
     constructor(pub_key) {
         if (pub_key instanceof Identity) {
             this.pub_key = pub_key.public_key()
@@ -17,27 +26,47 @@ export class Identity {
         }
     }
 
-    // get public key with 04 prefix
+    /**
+     * Get public key with 04 prefix.
+     */
     prefixed_public_key() {
         return Buffer.concat([Buffer.from('04', 'hex'), this.pub_key])
     }
 
+    /**
+     * Get base64 encoded public key.
+     */
     public_key_base64() {
         return btoa(this.pub_key)
     }
 
+    /**
+     * Get the public key in bytes(Buffer).
+     */
     public_key() {
         return this.pub_key
     }
 
+    /**
+     * Get the public key hex.
+     */
     public_key_hex() {
         return this.pub_key.toString('hex')
     }
 
+    /**
+     * Get the public key in bytes(Buffer).
+     */
     public_key_bytes() {
         return this.pub_key
     }
 
+    /**
+     * Verify the signature.
+     * @param  {String} message Message which wants to verify
+     * @param  {String} signature Signature
+     * @returns signature is valid or not
+     */
     verify(message, signature) {
         return secp256k1.verify(message, signature, this.prefixed_public_key())
     }
