@@ -10,6 +10,7 @@
     "build": "babel src/ -d dist/ && rm -rf bundle/ index.js && webpack",
     "test": "jest src/test",
     "lint": "eslint .",
+    "prepublish": "npm build",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand src/test",
     "coverage": "jest src/test --coverage --coverageDirectory=coverage",
     "generate-docs": "node_modules/jsdoc/jsdoc.js src/fetchai/ledger/api/token.js src/fetchai/ledger/api/init.js src/fetchai/ledger/api/contracts.js -r src/fetchai/ledger/crypto -d docs --verbose -t node_modules/minami/"
