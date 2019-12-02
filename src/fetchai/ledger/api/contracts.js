@@ -1,27 +1,45 @@
 import assert from 'assert'
-import {encode, ExtensionCodec} from '@msgpack/msgpack'
-import {Address} from '../crypto/address'
-import {ApiEndpoint} from './common'
-import {BitVector} from '../bitvector'
-import {Contract} from '../contract'
-import {encode_transaction} from '../serialization/transaction'
-import {logger} from '../utils'
+import { encode, ExtensionCodec } from '@msgpack/msgpack'
+import { Address } from '../crypto/address'
+import { ApiEndpoint } from './common'
+import { BitVector } from '../bitvector'
+import { Contract } from '../contract'
+import { encode_transaction } from '../serialization/transaction'
+import { logger } from '../utils'
 
-
+/**
+ * This class for all Tokens APIs.
+ *
+ * @public
+ * @class
+ */
 export class ContractsApi extends ApiEndpoint {
-
+    /**
+     *
+     * @param {String} HOST Ledger host.
+     * @param {String} PORT Ledger port.
+     */
     constructor(HOST, PORT) {
         super(HOST, PORT)
         // tidy up before submitting
         this.prefix = 'fetch.contract'
     }
 
+    /**
+     * Create contract
+     * @param {Object} owner Entity object
+     * @param {Number} fee fee associated with the contract creation.
+     * @param {String} contract contract
+     * @param {Object} [shard_mask=null] BitVector object
+     */
     async create(owner, fee, contract, shard_mask = null) {
         assert(contract instanceof Contract)
         const ENDPOINT = 'create'
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {
-            logger.info('WARNING: defaulting to wildcard shard mask as none supplied')
+            logger.info(
+                'WARNING: defaulting to wildcard shard mask as none supplied'
+            )
             shard_mask = new BitVector()
         }
 
@@ -30,17 +48,26 @@ export class ContractsApi extends ApiEndpoint {
         tx.target_chain_code(this.prefix, shard_mask)
         tx.action(ENDPOINT)
 
-        tx.data(JSON.stringify({
-            'text': contract.encoded_source(),
-            'digest': contract.digest().toHex(),
-            'nonce': contract.nonce()
-        }))
+        tx.data(
+            JSON.stringify({
+                text: contract.encoded_source(),
+                digest: contract.digest().toHex(),
+                nonce: contract.nonce()
+            })
+        )
         tx.add_signer(owner.public_key_hex())
         const encoded_tx = encode_transaction(tx, [owner])
         contract.owner(owner)
         return await this._post_tx_json(encoded_tx, ENDPOINT)
     }
 
+    /**
+     * Query on contract
+     * @param {Object} contract_digest Address object
+     * @param {Object} contract_owner Address object
+     * @param {String} query query string
+     * @param {JSON} data json payload
+     */
     async query(contract_digest, contract_owner, query, data) {
         assert(this.isJSON(data))
         const prefix = `${contract_digest.toHex()}.${contract_owner.toString()}`
@@ -48,7 +75,27 @@ export class ContractsApi extends ApiEndpoint {
         return await this._post_json(query, encoded, prefix)
     }
 
-    async action(contract_digest, contract_address, action, fee, from_address, signers, args, shard_mask = null) {
+    /**
+     * Action on ledger/contract
+     * @param {Object} contract_digest Address class object
+     * @param {Object} contract_address Address class object
+     * @param {String} action action
+     * @param {Number} fee fee associated with the action.
+     * @param {Object} from_address from address
+     * @param {Array} signers Entity list
+     * @param {*} args arguments
+     * @param {Object} shard_mask BitVector object
+     */
+    async action(
+        contract_digest,
+        contract_address,
+        action,
+        fee,
+        from_address,
+        signers,
+        args,
+        shard_mask = null
+    ) {
         if (shard_mask === null) {
             shard_mask = new BitVector()
         }
@@ -70,7 +117,7 @@ export class ContractsApi extends ApiEndpoint {
         const extensionCodec = new ExtensionCodec()
         extensionCodec.register({
             type: 77,
-            encode: (object) => {
+            encode: object => {
                 if (object instanceof Address) {
                     return object.toBytes()
                 } else {
@@ -78,9 +125,8 @@ export class ContractsApi extends ApiEndpoint {
                 }
             }
         })
-        return encode(args, {extensionCodec})
+        return encode(args, { extensionCodec })
     }
-
 
     _encode_json_payload(data) {
         assert(typeof data === 'object' && data !== null)
@@ -94,7 +140,7 @@ export class ContractsApi extends ApiEndpoint {
             if (key.endsWith('_')) {
                 new_key = key.substring(0, key.length - 1)
                 // mutate key name
-                delete Object.assign(data, {[new_key]: data[key]})[new_key]
+                delete Object.assign(data, { [new_key]: data[key] })[new_key]
                 key = new_key
             }
 
@@ -110,7 +156,7 @@ export class ContractsApi extends ApiEndpoint {
     }
 
     static _is_primitive(test) {
-        return (test !== Object(test))
+        return test !== Object(test)
     }
 
     // taken from http://stackz.ru/en/4295386/how-can-i-check-if-a-value-is-a-json-object
@@ -126,7 +172,4 @@ export class ContractsApi extends ApiEndpoint {
             return false
         }
     }
-
-
 }
-
