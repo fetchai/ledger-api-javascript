@@ -32,7 +32,7 @@
     }
   },
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "@msgpack/msgpack": "^1.9.3",
     "await-of": "^1.2.0",
