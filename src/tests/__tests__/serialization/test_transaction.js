@@ -256,7 +256,7 @@ function assertIsExpectedTx(payload, transaction_bytes, expected_hex_payload) {
     let signature
 
     for (let signee of Object.keys(payload._signers)) {
-        [signature, buffer] = bytearray.decode(buffer)
+        [signature, buffer] = bytearray.decode_bytearray(buffer)
         // validate the signature is correct for the payload
         identity = new Identity(Buffer.from(signee, 'hex'))
         expect(identity.verify(payload_bytes_hash, signature)).toBe(true)

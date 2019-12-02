@@ -7,7 +7,7 @@ describe(':Address', () => {
     test('test encode', () => {
         const ref_address = dummy_address()
         const buf = Buffer.from('')
-        const encoded = address.encode(buf, ref_address)
+        const encoded = address.encode_address(buf, ref_address)
         const expected = ref_address.toBytes()
         expect(Buffer.byteLength(expected)).toBe(Buffer.byteLength(encoded))
         expect(expected.toString('hex')).toBe(encoded.toString('hex'))
@@ -15,7 +15,7 @@ describe(':Address', () => {
 
     test('test decode', () => {
         const ref_address = dummy_address()
-        const [address_obj, buffer] = address.decode(ref_address.toBytes())
+        const [address_obj, buffer] = address.decode_address(ref_address.toBytes())
         const expected = ref_address.toBytes()
         const address_bytes = address_obj.toBytes()
         expect(address_obj).toBeInstanceOf(Address)
