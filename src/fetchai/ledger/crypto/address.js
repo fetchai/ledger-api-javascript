@@ -1,14 +1,23 @@
 import * as bs58 from 'bs58'
-import {ValidationError} from '../errors'
-import {createHash} from 'crypto'
-import {Identity} from './identity'
+import { ValidationError } from '../errors'
+import { createHash } from 'crypto'
+import { Identity } from './identity'
 
 const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4
 const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
 
+/**
+ * Address creation from identity, bytes and string.
+ *
+ * @public
+ * @class
+ */
 export class Address {
-
+    /**
+     * @param  {Object|Buffer|String} identity Address object or Buffer or String.
+     * @throws {ValidationError} ValidationError on any failures.
+     */
     constructor(identity) {
         if (identity instanceof Address) {
             this._address = identity._address
@@ -28,7 +37,9 @@ export class Address {
             const bytes = bs58.decode(identity)
 
             if (Buffer.byteLength(bytes) !== DISPLAY_BYTE_LENGTH) {
-                throw new ValidationError('Unable to parse address, incorrect size')
+                throw new ValidationError(
+                    'Unable to parse address, incorrect size'
+                )
             }
 
             // split the identity into address and checksum
@@ -48,18 +59,31 @@ export class Address {
         }
     }
 
+    /**
+     * Get address in string
+     */
     toString() {
         return this._display
     }
 
+    /**
+     * Get address in bytes
+     */
     toBytes() {
         return this._address
     }
 
+    /**
+     * Check equality of two address
+     * @param  {bytes} other Address in bytes
+     */
     equals(other) {
-        return (Buffer.compare(this.toBytes(), other.toBytes()))
+        return Buffer.compare(this.toBytes(), other.toBytes())
     }
 
+    /**
+     * Get address in hex
+     */
     toHex() {
         return this._address.toString('hex')
     }

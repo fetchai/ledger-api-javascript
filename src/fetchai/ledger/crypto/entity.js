@@ -1,8 +1,8 @@
-import {randomBytes} from 'crypto'
+import { randomBytes } from 'crypto'
 import * as secp256k1 from 'secp256k1'
-import {ValidationError} from '../errors'
-import {Identity} from './identity'
-import * as  fs from 'fs'
+import { ValidationError } from '../errors'
+import { Identity } from './identity'
+import * as fs from 'fs'
 
 /**
  * An entity is a full private/public key pair.
@@ -11,17 +11,24 @@ import * as  fs from 'fs'
  * @class
  */
 export class Entity extends Identity {
-
+    /**
+     * @param  {Buffer} private_key_bytes construct or generate the private key if one is not specified.
+     * @throws {ValidationError} ValidationError if unable to load private key from input.
+     */
     constructor(private_key_bytes) {
-
         // construct or generate the private key if one is not specified
         if (private_key_bytes) {
             if (secp256k1.privateKeyVerify(private_key_bytes)) {
-                const pubKey = Buffer.from(secp256k1.publicKeyCreate(private_key_bytes, false).toString('hex').substring(2), 'hex')
+                const pubKey = Buffer.from(
+                    secp256k1
+                        .publicKeyCreate(private_key_bytes, false)
+                        .toString('hex')
+                        .substring(2),
+                    'hex'
+                )
                 super(pubKey)
                 this.pubKey = pubKey
                 this.privKey = private_key_bytes
-
             } else {
                 throw new ValidationError(
                     'Unable to load private key from input'
@@ -32,7 +39,13 @@ export class Entity extends Identity {
             let pubKey
             do {
                 privKey = randomBytes(32)
-                pubKey = Buffer.from(secp256k1.publicKeyCreate(privKey, false).toString('hex').substring(2), 'hex')
+                pubKey = Buffer.from(
+                    secp256k1
+                        .publicKeyCreate(privKey, false)
+                        .toString('hex')
+                        .substring(2),
+                    'hex'
+                )
             } while (!secp256k1.privateKeyVerify(privKey))
             super(pubKey)
             this.pubKey = pubKey
@@ -40,24 +53,40 @@ export class Entity extends Identity {
         }
     }
 
+    /**
+     * Get the private key.
+     */
     private_key() {
         return this.privKey
     }
 
+    /**
+     * Get the private key hex.
+     */
     private_key_hex() {
         return this.privKey.toString('hex')
     }
 
-
+    /**
+     * Get the public key hex.
+     */
     public_key_hex() {
         return this.pubKey.toString('hex')
     }
 
-    // sign the message. returns sign obj
+    /**
+     * sign the message.
+     * @param  {String} extMsgHash Message hash
+     * @returns signature obj
+     */
     sign(extMsgHash) {
         return secp256k1.sign(extMsgHash, this.privKey)
     }
 
+    /**
+     * Get the signature hex
+     * @param  {Object} sigObj signature obj
+     */
     signature_hex(sigObj) {
         return sigObj.signature.toString('hex')
     }
