@@ -1,9 +1,9 @@
 {
   "name": "ledger-api-javascript",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Fetch.AI Ledger Javascript API",
   "main": "./dist/fetchai/ledger/index.js",
-  "source": "src/index.js",
+  "source": "src/ledger/index.js",
   "browser": "index.js",
   "scripts": {
     "e2e": "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
