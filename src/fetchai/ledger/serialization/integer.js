@@ -31,7 +31,7 @@ const _calculate_log2_num_bytes = value => {
  * @param  {buffer} Bytes data
  * @param  {value} The value to be encoded as a BN.js object
  */
-const encode = (buffer, value) => {
+const encode_integer = (buffer, value) => {
 
     if (!BN.isBN(value)) {
         throw new ValidationError('value to encode must be BN.js object')
@@ -61,7 +61,7 @@ const encode = (buffer, value) => {
 }
 
 
-const decode = (buffer) => {
+const decode_integer = (buffer) => {
 
     if (buffer.length === 0) {
         throw new ValidationError('Incorrect value being decoded')
@@ -96,4 +96,4 @@ const decode = (buffer) => {
     }
 }
 
-export {encode, decode}
+export {encode_integer, decode_integer}

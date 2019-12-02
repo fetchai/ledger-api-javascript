@@ -78,23 +78,23 @@ const encode_payload = payload => {
     header1 |= signalled_signatures & 0x3f
     let buffer = Buffer.from([MAGIC, header0, header1, RESERVED])
 
-    buffer = address.encode(buffer, payload.from_address())
+    buffer = address.encode_address(buffer, payload.from_address())
     if (num_transfers > 1) {
-        buffer = integer.encode(buffer, new BN(num_transfers - 2))
+        buffer = integer.encode_integer(buffer, new BN(num_transfers - 2))
     }
 
     for (let [key, value] of Object.entries(payload._transfers)) {
-        buffer = address.encode(buffer, key)
-        buffer = integer.encode(buffer, value)
+        buffer = address.encode_address(buffer, key)
+        buffer = integer.encode_integer(buffer, value)
     }
 
     if (has_valid_from) {
-        buffer = integer.encode(buffer, new BN(payload.valid_from()))
+        buffer = integer.encode_integer(buffer, new BN(payload.valid_from()))
     }
 
-    buffer = integer.encode(buffer, payload.valid_until())
-    buffer = integer.encode(buffer, payload.charge_rate())
-    buffer = integer.encode(buffer, payload.charge_limit())
+    buffer = integer.encode_integer(buffer, payload.valid_until())
+    buffer = integer.encode_integer(buffer, payload.charge_rate())
+    buffer = integer.encode_integer(buffer, payload.charge_limit())
     if (NO_CONTRACT !== contract_mode) {
         let shard_mask = payload.shard_mask()
         let shard_mask_length = shard_mask.__len__()
@@ -127,33 +127,33 @@ const encode_payload = payload => {
         }
 
         if (SMART_CONTRACT === contract_mode || SYNERGETIC === contract_mode) {
-            buffer = address.encode(buffer, payload.contract_digest())
-            buffer = address.encode(buffer, payload.contract_address())
+            buffer = address.encode_address(buffer, payload.contract_digest())
+            buffer = address.encode_address(buffer, payload.contract_address())
         } else if (CHAIN_CODE === contract_mode) {
             let encoded_chain_code = Buffer.from(payload.chain_code(), 'ascii')
-            buffer = bytearray.encode(buffer, encoded_chain_code)
+            buffer = bytearray.encode_bytearray(buffer, encoded_chain_code)
         } else {
             assert(false)
         }
 
-        buffer = bytearray.encode(
+        buffer = bytearray.encode_bytearray(
             buffer,
             Buffer.from(payload.action(), 'ascii')
         )
         const data = Buffer.from(payload.data())
-        buffer = bytearray.encode(buffer, data)
+        buffer = bytearray.encode_bytearray(buffer, data)
     }
 
     buffer = Buffer.concat([buffer, payload.counter().toBuffer('be', 8)])
 
 
     if (num_extra_signatures > 0) {
-        buffer = integer.encode(buffer, new BN(num_extra_signatures))
+        buffer = integer.encode_integer(buffer, new BN(num_extra_signatures))
     }
 
     // write all the signers public keys
     for (let signer of Object.keys(payload._signers)) {
-        buffer = identity.encode(
+        buffer = identity.encode_identity(
             buffer,
             Buffer.from(
                 signer,
@@ -182,7 +182,7 @@ const encode_transaction = (payload, signers) => {
             if (signer === hex_key) {
                 flag = true
                 const sign_obj = signers[i].sign(payload_bytes)
-                buffer = bytearray.encode(buffer, sign_obj.signature)
+                buffer = bytearray.encode_bytearray(buffer, sign_obj.signature)
             }
         }
 
@@ -236,13 +236,13 @@ const decode_transaction = (buffer) => {
     const tx = new Transaction()
     // decode the address from the buffer
     let address_decoded;
-    [address_decoded, buffer] = address.decode(buffer)
+    [address_decoded, buffer] = address.decode_address(buffer)
     tx.from_address(address_decoded)
 
     if (transfer_flag) {
         let transfer_count
         if (multiple_transfers_flag) {
-            [transfer_count, buffer] = integer.decode(buffer)
+            [transfer_count, buffer] = integer.decode_integer(buffer)
             transfer_count = transfer_count.toNumber() + 2
         } else {
             transfer_count = 1
@@ -250,25 +250,25 @@ const decode_transaction = (buffer) => {
 
         let to, amount
         for (let i = 0; i < transfer_count; i++) {
-            [to, buffer] = address.decode(buffer);
-            [amount, buffer] = integer.decode(buffer)
+            [to, buffer] = address.decode_address(buffer);
+            [amount, buffer] = integer.decode_integer(buffer)
             tx.add_transfer(to, amount)
         }
     }
 
     if (valid_from_flag) {
         let valid_from;
-        [valid_from, buffer] = integer.decode(buffer)
+        [valid_from, buffer] = integer.decode_integer(buffer)
         tx.valid_from(valid_from)
     }
     let valid_until, charge_rate, charge_limit;
-    [valid_until, buffer] = integer.decode(buffer)
+    [valid_until, buffer] = integer.decode_integer(buffer)
     tx.valid_until(valid_until);
-    [charge_rate, buffer] = integer.decode(buffer)
+    [charge_rate, buffer] = integer.decode_integer(buffer)
     tx.charge_rate(charge_rate);
 
     //  assert not charge_unit_flag, "Currently the charge unit field is not supported"
-    [charge_limit, buffer] = integer.decode(buffer)
+    [charge_limit, buffer] = integer.decode_integer(buffer)
     tx.charge_limit(charge_limit)
     if (contract_type != NO_CONTRACT) {
 
@@ -306,13 +306,13 @@ const decode_transaction = (buffer) => {
         }
         if (contract_type == SMART_CONTRACT || contract_type == SYNERGETIC) {
             let contract_digest, contract_address;
-            [contract_digest, buffer] = address.decode(buffer);
-            [contract_address, buffer] = address.decode(buffer)
+            [contract_digest, buffer] = address.decode_address(buffer);
+            [contract_address, buffer] = address.decode_address(buffer)
             tx.target_contract(contract_digest, contract_address, shard_mask)
 
         } else if (contract_type == CHAIN_CODE) {
             let encoded_chain_code_name;
-            [encoded_chain_code_name, buffer] = bytearray.decode(buffer)
+            [encoded_chain_code_name, buffer] = bytearray.decode_bytearray(buffer)
             tx.target_chain_code(encoded_chain_code_name.toString(), shard_mask)
         } else {
             // this is mostly a guard against a desync between this function and `_map_contract_mode`
@@ -320,8 +320,8 @@ const decode_transaction = (buffer) => {
         }
         let action
         let data;
-        [action, buffer] = bytearray.decode(buffer);
-        [data, buffer] = bytearray.decode(buffer)
+        [action, buffer] = bytearray.decode_bytearray(buffer);
+        [data, buffer] = bytearray.decode_bytearray(buffer)
         tx.action(action.toString())
         tx.data(data.toString())
 
@@ -332,14 +332,14 @@ const decode_transaction = (buffer) => {
 
     if (signature_count_minus1 == 0x3F) {
         let additional_signatures;
-        [additional_signatures, buffer] = bytearray.decode(buffer)
+        [additional_signatures, buffer] = bytearray.decode_bytearray(buffer)
         num_signatures = num_signatures + additional_signatures
     }
     const public_keys = []
 
     let pk
     for (let i = 0; i < num_signatures; i++) {
-        [pk, buffer] = identity.decode(buffer)
+        [pk, buffer] = identity.decode_identity(buffer)
         public_keys.push(pk)
     }
 
@@ -351,7 +351,7 @@ const decode_transaction = (buffer) => {
 
     public_keys.forEach((ident) => {
         let identity, signature;
-        [signature, buffer] = bytearray.decode(buffer)
+        [signature, buffer] = bytearray.decode_bytearray(buffer)
         identity = new Identity(ident)
         let payload_bytes_digest = _calc_digest_utf(payload_bytes)
         verified.push(identity.verify(payload_bytes_digest, signature))
