@@ -1,6 +1,13 @@
-.vscode
+# IDE Folders
+.vscode/
+.idea/
+
+# Intermediate Data
+coverage/
+dist/
 node_modules/
-app.js
-index.js
-input1.json
-package-lock.json
+bundle/
+docs/
+
+# Top Level Excludes
+/index.js
