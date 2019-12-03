@@ -1,15 +1,16 @@
 {
-  "name": "ledger-api-javascript",
-  "version": "1.0.0",
+  "name": "fetchai-ledger-api",
+  "version": "0.0.1-alpha.2",
   "description": "Fetch.AI Ledger Javascript API",
   "main": "./dist/fetchai/ledger/index.js",
-  "source": "src/index.js",
+  "source": "src/ledger/index.js",
   "browser": "index.js",
   "scripts": {
     "e2e": "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
     "build": "babel src/ -d dist/ && rm -rf bundle/ index.js && webpack",
     "test": "jest src/test",
     "lint": "eslint .",
+    "prepublish": "npm build",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand src/test",
     "coverage": "jest src/test --coverage --coverageDirectory=coverage",
     "generate-docs": "node_modules/jsdoc/jsdoc.js src/fetchai/ledger/api/token.js src/fetchai/ledger/api/init.js src/fetchai/ledger/api/contracts.js -r src/fetchai/ledger/crypto -d docs --verbose -t node_modules/minami/"
@@ -31,7 +32,7 @@
     }
   },
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "@msgpack/msgpack": "^1.9.3",
     "await-of": "^1.2.0",
