@@ -9,6 +9,7 @@ node_modules/
 bundle/
 docs/
 vanilla.js
+bundle.js
 # Top Level Excludes
 app.js
 input1.json
