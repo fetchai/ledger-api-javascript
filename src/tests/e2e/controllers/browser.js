@@ -7,7 +7,7 @@ import {logger} from '../../../fetchai/ledger/utils'
 
 const ROOT_FP = '/home/douglas/ledger-api-javascript'
 const HTML_FP = '/src/tests/e2e/index.html'
-const TEST = '/src/tests/e2e/bundle.js'
+const TEST = '/src/tests/e2e/vanilla.js'
 
 const DEFAULT_TIMEOUT = 120000
 
@@ -85,8 +85,8 @@ async function test_wealth(){
 
 
 function get_script(name){
-    let bundle = fs.readFileSync(path.join(ROOT_FP + '/bundle/bundle.js'), 'utf8')
-    fs.writeFileSync(path.join(ROOT_FP + TEST), `var result = ${bundle}`)
+    let bundle = fs.readFileSync(path.join(ROOT_FP + '/bundle/vanilla.js'), 'utf8')
+    fs.writeFileSync(path.join(ROOT_FP + TEST), `${bundle}`)
     let test_server = fs.readFileSync(path.join(ROOT_FP + `/src/tests/e2e/browser/${name}.js`), 'utf8')
     fs.appendFileSync(path.join(ROOT_FP + TEST), test_server)
     return fs.readFileSync(path.join(ROOT_FP + TEST), 'utf8')

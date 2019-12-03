@@ -1,5 +1,5 @@
-const api = new result.LedgerApi('127.0.0.1', 8000)
-const identity1 = new result.Entity()
+const api = new fetchai.LedgerApi('127.0.0.1', 8000)
+const identity1 = new fetchai.Entity()
 const tx = api.tokens.wealth(identity1, 1000)
 
 tx.then((tx) => {

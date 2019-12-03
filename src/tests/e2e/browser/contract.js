@@ -1,16 +1,16 @@
 const tok_transfer_amount = 200
 const fet_tx_fee = 160
-let api = new result.LedgerApi('127.0.0.1', 8000)
-const identity1 = new result.Entity()
-const identity2 = new result.Entity()
-const address1 = new result.Address(identity1)
-const address2 = new result.Address(identity2)
+let api = new fetchai.LedgerApi('127.0.0.1', 8000)
+const identity1 = new fetchai.Entity()
+const identity2 = new fetchai.Entity()
+const address1 = new fetchai.Address(identity1)
+const address2 = new fetchai.Address(identity2)
 const tx = api.tokens.wealth(identity1, 10000)
 
     tx.then((tx) => {
         const sync = api.sync([tx])
         sync.then(() => {
-            const contract = new result.Contract(result.TRANSFER_CONTRACT, identity1)
+            const contract = new fetchai.Contract(fetchai.TRANSFER_CONTRACT, identity1)
             const created = contract.create(api, identity1, 4000)
             created.then(function(created){
                 const sync2 = api.sync([created])
