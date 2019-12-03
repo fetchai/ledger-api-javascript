@@ -1,7 +1,7 @@
 import * as bs58 from 'bs58'
-import { ValidationError } from '../errors'
-import { createHash } from 'crypto'
-import { Identity } from './identity'
+import {ValidationError} from '../errors'
+import {createHash} from 'crypto'
+import {Identity} from './identity'
 
 const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4

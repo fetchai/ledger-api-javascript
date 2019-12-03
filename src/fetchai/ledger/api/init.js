@@ -1,13 +1,13 @@
 import * as semver from 'semver'
-import { __compatible__ } from '../init'
-import { ApiError } from '../errors/apiError'
-import { ContractsApi } from './contracts'
-import { IncompatibleLedgerVersionError, ValidationError } from '../errors'
-import { RunTimeError } from '../errors/runTimeError'
-import { ServerApi } from './server'
-import { TokenApi } from './token'
-import { TransactionApi } from './tx'
-import { Bootstrap } from './bootstrap'
+import {__compatible__} from '../init'
+import {ApiError} from '../errors/apiError'
+import {ContractsApi} from './contracts'
+import {IncompatibleLedgerVersionError, ValidationError} from '../errors'
+import {RunTimeError} from '../errors/runTimeError'
+import {ServerApi} from './server'
+import {TokenApi} from './token'
+import {TransactionApi} from './tx'
+import {Bootstrap} from './bootstrap'
 
 const DEFAULT_TIMEOUT = 120000
 

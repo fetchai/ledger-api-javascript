@@ -31,6 +31,7 @@ export class Transaction {
         this._data = ''
         this._signers = {}
     }
+
     // Get and Set from_address param
     from_address(address = '') {
         if (address) {

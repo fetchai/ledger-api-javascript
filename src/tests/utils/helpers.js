@@ -28,7 +28,6 @@ export const [ENTITIES, IDENTITIES, ADDRESSES] = (() => {
 })()
 
 
-
 //TODO remove functions names preceeding underscore.
 export function calc_digest(address_raw) {
     const hash_func = createHash('sha256')
