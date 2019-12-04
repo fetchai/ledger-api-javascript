@@ -5,6 +5,7 @@
   "main": "./dist/fetchai/ledger/index.js",
   "source": "src/ledger/index.js",
   "browser": "index.js",
+  "types": "./types/fetchai-ledger-api.d.ts",
   "scripts": {
     "e2e": "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
     "build": "babel src/ -d dist/ && rm -rf bundle/ index.js && webpack",
