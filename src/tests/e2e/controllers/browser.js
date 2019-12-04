@@ -7,7 +7,7 @@ import {logger} from '../../../fetchai/ledger/utils'
 
 const ROOT_FP = '/home/douglas/ledger-api-javascript'
 const HTML_FP = '/src/tests/e2e/index.html'
-const TEST = '/src/tests/e2e/bundle.js'
+const TEST = '/src/tests/e2e/vanilla.js'
 
 const DEFAULT_TIMEOUT = 120000
 
@@ -23,7 +23,7 @@ async function main() {
 
 main()
 
-async function test_contract(){
+async function test_contract() {
     const driver = get_driver()
     const script = get_script('contract')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
@@ -39,7 +39,7 @@ async function test_contract(){
     logger.info('test_contract passed')
 }
 
-async function test_balance(){
+async function test_balance() {
     const driver = get_driver()
     const script = get_script('balance')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
@@ -50,7 +50,7 @@ async function test_balance(){
 
 }
 
-async function test_server(){
+async function test_server() {
     const driver = get_driver()
     const script = get_script('server')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
@@ -61,7 +61,7 @@ async function test_server(){
 
 }
 
-async function test_transfer(){
+async function test_transfer() {
     const driver = get_driver()
     const script = get_script('transfer')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
@@ -73,7 +73,7 @@ async function test_transfer(){
     logger.info('test_transfer passed')
 }
 
-async function test_wealth(){
+async function test_wealth() {
     const driver = get_driver()
     const script = get_script('wealth')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
@@ -84,16 +84,17 @@ async function test_wealth(){
 }
 
 
-function get_script(name){
-    let bundle = fs.readFileSync(path.join(ROOT_FP + '/bundle/bundle.js'), 'utf8')
-    fs.writeFileSync(path.join(ROOT_FP + TEST), `var result = ${bundle}`)
+function get_script(name) {
+    let bundle = fs.readFileSync(path.join(ROOT_FP + '/bundle/vanilla.js'), 'utf8')
+    fs.writeFileSync(path.join(ROOT_FP + TEST), `${bundle}`)
     let test_server = fs.readFileSync(path.join(ROOT_FP + `/src/tests/e2e/browser/${name}.js`), 'utf8')
     fs.appendFileSync(path.join(ROOT_FP + TEST), test_server)
     return fs.readFileSync(path.join(ROOT_FP + TEST), 'utf8')
 }
-function get_driver(){
-    return  new webdriver.Builder().forBrowser('chrome')
-        .setChromeOptions(new chrome.Options().headless().windowSize({ width: 640,  height: 480 }
+
+function get_driver() {
+    return new webdriver.Builder().forBrowser('chrome')
+        .setChromeOptions(new chrome.Options().headless().windowSize({width: 640, height: 480}
         )).build()
 }
 

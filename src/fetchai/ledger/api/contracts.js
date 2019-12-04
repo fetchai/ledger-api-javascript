@@ -1,11 +1,11 @@
 import assert from 'assert'
-import { encode, ExtensionCodec } from '@msgpack/msgpack'
-import { Address } from '../crypto/address'
-import { ApiEndpoint } from './common'
-import { BitVector } from '../bitvector'
-import { Contract } from '../contract'
-import { encode_transaction } from '../serialization/transaction'
-import { logger } from '../utils'
+import {encode, ExtensionCodec} from '@msgpack/msgpack'
+import {Address} from '../crypto/address'
+import {ApiEndpoint} from './common'
+import {BitVector} from '../bitvector'
+import {Contract} from '../contract'
+import {encode_transaction} from '../serialization/transaction'
+import {logger} from '../utils'
 
 /**
  * This class for all Tokens APIs.
@@ -125,7 +125,7 @@ export class ContractsApi extends ApiEndpoint {
                 }
             }
         })
-        return encode(args, { extensionCodec })
+        return encode(args, {extensionCodec})
     }
 
     _encode_json_payload(data) {
@@ -140,7 +140,7 @@ export class ContractsApi extends ApiEndpoint {
             if (key.endsWith('_')) {
                 new_key = key.substring(0, key.length - 1)
                 // mutate key name
-                delete Object.assign(data, { [new_key]: data[key] })[new_key]
+                delete Object.assign(data, {[new_key]: data[key]})[new_key]
                 key = new_key
             }
 

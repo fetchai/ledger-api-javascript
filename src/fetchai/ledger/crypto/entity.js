@@ -1,7 +1,7 @@
-import { randomBytes } from 'crypto'
+import {randomBytes} from 'crypto'
 import * as secp256k1 from 'secp256k1'
-import { ValidationError } from '../errors'
-import { Identity } from './identity'
+import {ValidationError} from '../errors'
+import {Identity} from './identity'
 import * as fs from 'fs'
 
 /**
