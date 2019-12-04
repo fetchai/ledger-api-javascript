@@ -33,7 +33,7 @@ export class BitVector {
 
     byte_length(): number;
 
-    get(number): number;
+    get(bit: number): number;
 
     instance_bytes(): string | any;
 
