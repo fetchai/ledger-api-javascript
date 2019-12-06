@@ -102,15 +102,14 @@ export class Entity extends Identity {
         return new Entity(private_key_bytes)
     }
 
-    static prompt_load(fp, password) {
-        // let password = readline.question('Please enter password ')
-        if (!Entity._strong_password(password)) {
-            throw new ValidationError(
-                'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
-            )
-        }
-        return Entity.load(fp, password)
-    }
+    // static prompt_load(fp, password) {
+    //     if (!Entity._strong_password(password)) {
+    //         throw new ValidationError(
+    //             'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
+    //         )
+    //     }
+    //     return Entity.load(fp, password)
+    // }
 
     static loads(s) {
         const obj = JSON.parse(s)
@@ -118,6 +117,11 @@ export class Entity extends Identity {
     }
 
     static load(fp, password) {
+        if (!Entity._strong_password(password)) {
+            throw new ValidationError(
+                'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
+            )
+        }
         let obj = JSON.parse(fs.readFileSync(fp, 'utf8'))
         return Entity._from_json_object(obj, password)
     }
