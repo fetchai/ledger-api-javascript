@@ -51,7 +51,6 @@
     "fs": "0.0.1-security",
     "jest-coverage-validator": "^0.6.9",
     "path": "^0.12.7",
-    "readline-sync": "^1.4.10",
     "secp256k1": "^3.7.1",
     "selenium-webdriver": "^4.0.0-alpha.5",
     "semver": "^6.3.0",
