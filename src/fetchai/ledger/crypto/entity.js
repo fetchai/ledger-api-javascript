@@ -3,8 +3,6 @@ import * as secp256k1 from 'secp256k1'
 import { ValidationError } from '../errors'
 import { Identity } from './identity'
 import fs from 'fs'
-// import { logger } from '../utils'
-import * as readline from 'readline-sync'
 import * as aesjs from 'aes-js'
 
 /**
@@ -104,11 +102,12 @@ export class Entity extends Identity {
         return new Entity(private_key_bytes)
     }
 
-    static prompt_load(fp) {
-        // Prompt user to input data in console.
-        let password = readline.question('Please enter password ')
-        while (!Entity._strong_password(password)) {
-            password = readline.question('Please enter password ')
+    static prompt_load(fp, password) {
+        // let password = readline.question('Please enter password ')
+        if (!Entity._strong_password(password)) {
+            throw new ValidationError(
+                'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
+            )
         }
         return Entity.load(fp, password)
     }
@@ -123,11 +122,12 @@ export class Entity extends Identity {
         return Entity._from_json_object(obj, password)
     }
 
-    prompt_dump(fp) {
-        // Prompt user to input data in console.
-        let password = readline.question('Please enter password ')
-        while (!Entity._strong_password(password)) {
-            password = readline.question('Please enter password ')
+    prompt_dump(fp, password) {
+        // let password = readline.question('Please enter password ')
+        if (!Entity._strong_password(password)) {
+            throw new ValidationError(
+                'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
+            )
         }
         return this.dump(fp, password)
     }
