@@ -81,8 +81,10 @@ module.exports = [
             publicPath: '/bundle/',
             filename: 'fetchai-ledger-api.min.js',
             library: 'fetchai',
-            libraryTarget: 'var'
+            libraryTarget: 'var',
+            sourceMapFilename: 'fetchai-ledger-api.min.js.map'
         },
+        devtool: 'source-map',
         devServer: {
             contentBase: './bundle'
         }
