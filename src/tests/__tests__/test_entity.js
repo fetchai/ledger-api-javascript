@@ -1,6 +1,6 @@
-import {Entity} from '../../fetchai/ledger/crypto/entity'
-import {createHash} from 'crypto'
-import {ValidationError} from '../../fetchai/ledger/errors'
+import { Entity } from '../../fetchai/ledger/crypto/entity'
+import { createHash } from 'crypto'
+import { ValidationError } from '../../fetchai/ledger/errors'
 
 const THIRTY_TWO_BYTE_BASE64 = 'XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M='
 
@@ -12,7 +12,8 @@ function _calc_digest(address_raw) {
 }
 
 jest.mock('fs', () => {
-    const MOCK_FILE_INFO = '{"privateKey": "XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M="}'
+    const MOCK_FILE_INFO =
+        '{"privateKey": "XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M="}'
     return {
         readFileSync: () => {
             return MOCK_FILE_INFO
@@ -21,7 +22,6 @@ jest.mock('fs', () => {
 })
 
 describe(':Entity', () => {
-
     test('test generation', () => {
         const reference = new Entity()
         const other = new Entity(reference.private_key())
@@ -29,7 +29,6 @@ describe(':Entity', () => {
         expect(reference.private_key_hex()).toEqual(other.private_key_hex())
         expect(reference.public_key()).toEqual(other.public_key())
         expect(reference.public_key_hex()).toEqual(other.public_key_hex())
-
     })
 
     test('test signing verifying cycle', () => {
@@ -61,22 +60,6 @@ describe(':Entity', () => {
         }).toThrow(ValidationError)
     })
 
-    test('test to json object', () => {
-        const ref = new Entity()
-        const ref_key = ref.private_key()
-        const base64_Key = ref_key.toString('base64')
-        const jsonObj = ref._to_json_object()
-        expect(jsonObj.privateKey).toEqual(base64_Key)
-    })
-
-    test('test from json object', () => {
-        const obj = JSON.parse(`{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`)
-        const base64 = Buffer.from(obj.privateKey, 'base64')
-        const entity = Entity._from_json_object(obj)
-        const private_key_hex = entity.private_key_hex()
-        expect(base64.toString('hex')).toEqual(private_key_hex)
-    })
-
     test('test signature to hex', () => {
         const digest = _calc_digest(Buffer.from('rand'))
         const entity = new Entity()
@@ -93,14 +76,4 @@ describe(':Entity', () => {
         const private_key_hex = entity.private_key_hex()
         expect(base64.toString('hex')).toEqual(private_key_hex)
     })
-
-    test.skip('test load', () => {
-        const s = `{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`
-        const obj = JSON.parse(s)
-        const base64 = Buffer.from(obj.privateKey, 'base64')
-        const entity = Entity.load('test.json')
-        const private_key_hex = entity.private_key_hex()
-        expect(base64.toString('hex')).toEqual(private_key_hex)
-    })
 })
-
