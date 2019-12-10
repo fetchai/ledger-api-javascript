@@ -13,7 +13,7 @@ function _calc_digest(address_raw) {
 
 jest.mock('fs', () => {
     const MOCK_FILE_INFO =
-        '{"privateKey": "XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M="}'
+        '{"key_length":32,"init_vector":"A6iVObnjv/A5ApVyvclV4A==","password_salt":"4ODfF30sz2NIb67ZNtjS2Q==","privateKey":"zBd+gM3SLgLhqxtSj80jQzbGb4W4Af/BRr/XcboKw2o="}'
     return {
         readFileSync: () => {
             return MOCK_FILE_INFO
@@ -75,5 +75,15 @@ describe(':Entity', () => {
         const entity = Entity.loads(s)
         const private_key_hex = entity.private_key_hex()
         expect(base64.toString('hex')).toEqual(private_key_hex)
+    })
+
+    test('test prompt dumps', () => {
+        const entity = new Entity()
+        const data = JSON.parse(entity.prompt_dump('src/tests/__tests__/private.key', '1234567890qwertyuiopQWERTYUIOP!@#$'))
+        expect(data).toHaveProperty('key_length')
+        expect(data).toHaveProperty('init_vector')
+        expect(data).toHaveProperty('password_salt')
+        expect(data).toHaveProperty('privateKey')
+        expect(data.key_length).toEqual(32)
     })
 })
