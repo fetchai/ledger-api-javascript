@@ -77,13 +77,28 @@ describe(':Entity', () => {
         expect(base64.toString('hex')).toEqual(private_key_hex)
     })
 
+    test('test load', () => {
+        const entity = Entity.load('src/tests/__tests__/utils/private.key', '1234567890qwertyuiopQWERTYUIOP!@#$')
+        expect(entity.private_key_hex()).toEqual('49c361daee7b3b94ad5c367d6a4ab9d95d62098289a4e5e67146f64074442190')
+        const ref = new Entity(entity.privKey)
+        expect(entity.private_key_hex()).toEqual(ref.private_key_hex())
+    })
+
     test('test prompt dumps', () => {
         const entity = new Entity()
-        const data = JSON.parse(entity.prompt_dump('src/tests/__tests__/private.key', '1234567890qwertyuiopQWERTYUIOP!@#$'))
+        const data = JSON.parse(entity.prompt_dump('src/tests/__tests__/utils/private.key', '1234567890qwertyuiopQWERTYUIOP!@#$'))
         expect(data).toHaveProperty('key_length')
         expect(data).toHaveProperty('init_vector')
         expect(data).toHaveProperty('password_salt')
         expect(data).toHaveProperty('privateKey')
         expect(data.key_length).toEqual(32)
+        expect(data.privateKey).toHaveLength(44)
+    })
+
+    test('test validation of strong password', () => {
+        let data = Entity._strong_password('1234567890qwertyuiopQWERTYUIOP!@#$')
+        expect(data).toBe(true)
+        data = Entity._strong_password('1234567890')
+        expect(data).toBe(false)
     })
 })
