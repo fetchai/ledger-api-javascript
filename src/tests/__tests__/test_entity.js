@@ -13,7 +13,7 @@ function _calc_digest(address_raw) {
 
 jest.mock('fs', () => {
     const MOCK_FILE_INFO =
-        '{"privateKey": "XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M="}'
+        '{"key_length":32,"init_vector":"A6iVObnjv/A5ApVyvclV4A==","password_salt":"4ODfF30sz2NIb67ZNtjS2Q==","privateKey":"zBd+gM3SLgLhqxtSj80jQzbGb4W4Af/BRr/XcboKw2o="}'
     return {
         readFileSync: () => {
             return MOCK_FILE_INFO
@@ -75,5 +75,30 @@ describe(':Entity', () => {
         const entity = Entity.loads(s)
         const private_key_hex = entity.private_key_hex()
         expect(base64.toString('hex')).toEqual(private_key_hex)
+    })
+
+    test('test load', () => {
+        const entity = Entity.load('src/tests/__tests__/utils/private_key.txt', '1234567890qwertyuiopQWERTYUIOP!@#$')
+        expect(entity.private_key_hex()).toEqual('49c361daee7b3b94ad5c367d6a4ab9d95d62098289a4e5e67146f64074442190')
+        const ref = new Entity(entity.privKey)
+        expect(entity.private_key_hex()).toEqual(ref.private_key_hex())
+    })
+
+    test('test prompt dumps', () => {
+        const entity = new Entity()
+        const data = JSON.parse(entity.prompt_dump('src/tests/__tests__/utils/private_key.txt', '1234567890qwertyuiopQWERTYUIOP!@#$'))
+        expect(data).toHaveProperty('key_length')
+        expect(data).toHaveProperty('init_vector')
+        expect(data).toHaveProperty('password_salt')
+        expect(data).toHaveProperty('privateKey')
+        expect(data.key_length).toEqual(32)
+        expect(data.privateKey).toHaveLength(44)
+    })
+
+    test('test validation of strong password', () => {
+        let data = Entity._strong_password('1234567890qwertyuiopQWERTYUIOP!@#$')
+        expect(data).toBe(true)
+        data = Entity._strong_password('1234567890')
+        expect(data).toBe(false)
     })
 })
