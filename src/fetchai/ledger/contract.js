@@ -8,7 +8,8 @@ import {default as atob} from 'atob'
 import {default as btoa} from 'btoa'
 import {LedgerApi} from './api'
 import {logger} from './utils'
-import {RunTimeError} from './errors'
+import {RunTimeError, ValidationError} from './errors'
+import {Parser} from "./parser/parser";
 
 
 const _compute_digest = (source) => {
@@ -117,6 +118,14 @@ export class Contract {
             throw new RunTimeError('Contract has no owner, unable to perform any queries. Did you deploy it?')
         }
 
+         const annotations = Parser.get_annotations(this._source)
+
+         if (typeof annotations['@query'] === 'undefined' || !annotations['@query'].includes(name)){
+               throw new ValidationError(
+                    `Contract does not contain function: ${name} with annotation @query`
+                )
+         }
+
         // if(!this.queries.contains(name)){
         //     throw new RunTimeError(name + ' is not an valid query name. Valid options are: ' + this.queries.join(','))
         // }
@@ -137,6 +146,14 @@ export class Contract {
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any actions. Did you deploy it?')
         }
+
+        const annotations = Parser.get_annotations(this._source)
+
+         if (typeof annotations['@action'] === 'undefined' || !annotations['@action'].includes(name)){
+               throw new ValidationError(
+                    `Contract does not contain function: ${name} with annotation @action`
+                )
+         }
 
         // if(!name in this._actions){
         //      throw new RunTimeError(`${name} is not an valid action name. Valid options are: ${this._actions.join(',')}`)

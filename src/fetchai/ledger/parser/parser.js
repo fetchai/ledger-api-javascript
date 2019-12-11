@@ -6,25 +6,20 @@ const REGEX_USE_NAME = /(?<=\use).+?(?=\[)/
 const REGEX_BETWEEN_SQUARE_BRACKETS = /(?<=\[).+?(?=\])/
 const REGEX_BETWEEN_ROUND_BRACKETS = /(?<=\().+?(?=\))/
 const REGEX_COMMENT = /\/.*/
+// from function (as a string) we extract the name
+const REGEX_FUNCTION_NAME = /(?<=\function).+?(?=\))/
 
 export class Parser {
-// get names of all annotted functions
-// any annotation and lsit of functions names
-
-//     static function main(source){
-//
-// }
 
     static remove_comments(source){
          const regexp = RegExp(REGEX_COMMENT,'g')
          return source.replace(regexp, '')
     }
 
-
     static get_functions(source) {
         source = Parser.remove_comments(source)
         const regexp = RegExp(REGEX_FUNC,'g');
-        return [...source.matchAll(regexp)]
+        return [...source.matchAll(regexp)].map((arr) => arr[0])
     }
 
     static get_sharded_use_names(source) {
@@ -68,40 +63,58 @@ export class Parser {
         return annotations
     }
 
+    static get_resource_addresses(source) {
+        // const funcs = Parser.get_functions(source)
 
-// param is array of functions as strings
-    static get_rescource_addresses(source) {
+        const sharded_use_names = Parser.get_sharded_use_names(source)
         const funcs = Parser.get_functions(source)
 
-       let rescource_addresses = [];
+       let resource_addresses = [];
 
         for (let i = 0; i < funcs.length; i++) {
 
             let func_params = REGEX_BETWEEN_ROUND_BRACKETS.exec(funcs[i])
-            let func_params_arr = func_params.split(',');
+
+            if(func_params === null) continue
+
+            let func_params_arr = func_params[0].split(',');
             // assumes that func param names must be unique, delete when verified this is true
             let func_params_obj = {}
 
+            // we create an object of with function param identifiers as the keys, adn type as values
             for (let i = 0; i < func_params_arr.length; i++) {
-                let [param_type, identifier] = func_params_arr.split(':');
+                let [identifier, param_type] = func_params_arr[i].split(':');
+                param_type = param_type.trim();
+                identifier = identifier.trim();
                 func_params_obj[identifier] = param_type;
             }
 
-            // we only bother with first match of use statement within each func - delete this comment if this is correct usage
+            // we only bother with first match of use statement within each func - delete this comment if this is correct usage.
             let use = REGEX_USE.exec(funcs[i]);
             if(use === null) continue;
-            let use_params = REGEX_BETWEEN_SQUARE_BRACKETS.exec(use[0])
-            let use_params_arr = use_params.split(',');
 
-            for (let i = 0; i < funcs.length; i++) {
+             let use_name = REGEX_USE_NAME.exec(use)[0].trim();
+
+             if(!sharded_use_names.includes(use_name)) continue;
+
+            let use_params = REGEX_BETWEEN_SQUARE_BRACKETS.exec(use[0])
+
+            let use_params_arr = use_params[0].split(',');
+            for (let i = 0; i < use_params_arr.length; i++) {
                 // won't actually work just to see
-                if(typeof funcs[i] === 'string'){
-                       rescource_addresses.push(use_params[i])
+                use_params_arr[i] = use_params_arr[i].trim();
+                if(use_params_arr[i].startsWith("\"")) {
+                    debugger;
+                       resource_addresses.push(use_name + ".str")
                 } else {
-                       func_params_obj[funcs[i]]
+                    debugger
+                       let type = func_params_obj[use_params_arr[i]]
+                    resource_addresses.push(use_name + "." + type)
                 }
             }
         }
+
+        return resource_addresses
     }
 
 
