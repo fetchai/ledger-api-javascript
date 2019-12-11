@@ -151,10 +151,7 @@ export class Transaction {
         assert(BN.isBN(amount))
         assert(amount.gtn(new BN(0)))
 
-        // if it is an identity we turn it into an address
-        if (address instanceof Identity) {
-            address = new Address(address)
-        }
+        address = new Address(address)
 
         if (address instanceof Address) {
             address = address.toHex()
