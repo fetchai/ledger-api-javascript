@@ -22,7 +22,6 @@ const NONCE = (() => {
     Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')
 })()
 
-
 describe(':ContractsApi', () => {
 
     afterEach(() => {

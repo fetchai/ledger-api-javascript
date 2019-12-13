@@ -10,6 +10,7 @@ import {LedgerApi} from './api'
 import {logger} from './utils'
 import {RunTimeError, ValidationError} from './errors'
 import {Parser} from "./parser/parser";
+import {ShardMask} from "./serialization/shardmask";
 
 
 const _compute_digest = (source) => {
@@ -149,28 +150,16 @@ export class Contract {
 
         const annotations = Parser.get_annotations(this._source)
 
-         if (typeof annotations['@action'] === 'undefined' || !annotations['@action'].includes(name)){
+         if (typeof annotations['@action'] === 'undefined' || !annotations['@action'].includes(name)) {
                throw new ValidationError(
                     `Contract does not contain function: ${name} with annotation @action`
                 )
          }
 
-        // if(!name in this._actions){
-        //      throw new RunTimeError(`${name} is not an valid action name. Valid options are: ${this._actions.join(',')}`)
-        //  }
-        // (self, api: ContractsApiLike, name: str, fee: int, signers: List[Entity], *args):
-        let shard_mask
-        try {
-            // Generate resource addresses used by persistent globals
-            // const resource_addresses = [ShardMask.state_to_address(address, self) for address in
-            //                       self._parser.used_globals_to_addresses(name, list(args))]
-            // Generate shard mask from resource addresses
-            //   const shard_mask = ShardMask.resources_to_shard_mask(resource_addresses, api.server.num_lanes())
-            shard_mask = new BitVector()
-        } catch (e) {
-            logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
-            shard_mask = new BitVector()
-        }
+        // now lets validate the args
+        const resource_addresses = Parser.get_resource_addresses(this._source, name, args)
+        const num_lanes = await api.server.num_lanes()
+        let shard_mask = ShardMask.resources_to_shard_mask(resource_addresses, num_lanes)
         return Contract._api(api).action(this._digest, this._address, name, fee, this._owner, signers, args, shard_mask)
     }
 

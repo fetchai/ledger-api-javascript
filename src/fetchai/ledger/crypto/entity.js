@@ -1,9 +1,10 @@
-import { randomBytes, pbkdf2Sync } from 'crypto'
+import {randomBytes, pbkdf2Sync, pbkdf2, BinaryLike} from 'crypto'
 import * as secp256k1 from 'secp256k1'
-import { ValidationError } from '../errors'
+import {RunTimeError, ValidationError} from '../errors'
 import { Identity } from './identity'
 import fs from 'fs'
 import * as aesjs from 'aes-js'
+import { promisify } from 'util'
 
 /**
  * An entity is a full private/public key pair.
@@ -144,18 +145,18 @@ export class Entity extends Identity {
         return JSON.stringify(this._to_json_object(password), fp)
     }
 
-    _to_json_object(password) {
-        let data = this._encrypt(password, this.privKey)
+    async _to_json_object(password) {
+        let data = await this._encrypt(password, this.privKey)
         return {
-            key_length: data.key_length,
-            init_vector: data.init_vector.toString('base64'),
-            password_salt: data.password_salt.toString('base64'),
-            privateKey: data.privateKey.toString('base64')
-        }
+                key_length: data.key_length,
+                init_vector: data.init_vector.toString('base64'),
+                password_salt: data.password_salt.toString('base64'),
+                privateKey: data.privateKey.toString('base64')
+            }
     }
 
-    static _from_json_object(obj, password) {
-        const private_key = Entity._decrypt(
+    static async _from_json_object(obj, password) {
+        const private_key = await Entity._decrypt(
             password,
             Buffer.from(obj.password_salt, 'base64'),
             Buffer.from(obj.privateKey, 'base64'),
@@ -171,38 +172,45 @@ export class Entity extends Identity {
      * @returns encrypted data, length of original data, initialization vector for aes, password hashing salt
      * @ignore
      */
-    _encrypt(password, data) {
+   async _encrypt(password, data) {
         // Generate hash from password
         const salt = randomBytes(16)
-        const hashed_pass = pbkdf2Sync(password, salt, 2000000, 32, 'sha256')
 
-        // Random initialization vector
-        const iv = randomBytes(16)
+        const promisified_pbkdf2 = promisify(pbkdf2)
+let hashed_pass;
+         try {
+      hashed_pass = await promisified_pbkdf2(password, salt, 2000000, 32, 'sha256')
+    } catch (err) {
+        throw new RunTimeError('Encryption failed')
+    }
+             // Random initialization vector
+             const iv = randomBytes(16)
 
-        // Encrypt data using AES
-        // https://www.npmjs.com/package/aes-js#cbc---cipher-block-chaining-recommended
-        const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv)
+             // Encrypt data using AES
+             // https://www.npmjs.com/package/aes-js#cbc---cipher-block-chaining-recommended
+             const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv)
 
-        // Pad data to multiple of 16
-        const n = data.length
-        if (n % 16 != 0) {
-            data += Buffer.alloc(0) * (16 - (n % 16))
-        }
+             // Pad data to multiple of 16
+             const n = data.length
+             if (n % 16 != 0) {
+                 data += Buffer.alloc(0) * (16 - (n % 16))
+             }
 
-        let encrypted = Buffer.alloc(0)
-        while (data.length) {
-            encrypted = Buffer.concat([
-                encrypted,
-                Buffer.from(aes.encrypt(data.slice(0, 16)))
-            ])
-            data = data.slice(16)
-        }
-        return {
-            key_length: n,
-            init_vector: iv,
-            password_salt: salt,
-            privateKey: encrypted
-        }
+             let encrypted = Buffer.alloc(0)
+             while (data.length) {
+                 encrypted = Buffer.concat([
+                     encrypted,
+                     Buffer.from(aes.encrypt(data.slice(0, 16)))
+                 ])
+                 data = data.slice(16)
+             }
+
+             return {
+                 key_length: n,
+                 init_vector: iv,
+                 password_salt: salt,
+                 privateKey: encrypted
+               }
     }
 
     /**
@@ -215,9 +223,15 @@ export class Entity extends Identity {
      * @returns decrypted data as plaintext
      * @ignore
      */
-    static _decrypt(password, salt, data, n, iv) {
-        // Hash password
-        const hashed_pass = pbkdf2Sync(password, salt, 2000000, 32, 'sha256')
+    static async _decrypt(password, salt, data, n, iv) {
+        const promisified_pbkdf2 = promisify(pbkdf2)
+
+        let hashed_pass;
+         try {
+            hashed_pass = await promisified_pbkdf2(password, salt, 2000000, 32, 'sha256')
+    } catch (err) {
+        throw new RunTimeError('Decryption failed')
+    }
 
         // Decrypt data, noting original length
         const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv)

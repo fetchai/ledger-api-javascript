@@ -31,6 +31,8 @@ describe(':Entity', () => {
         expect(reference.public_key_hex()).toEqual(other.public_key_hex())
     })
 
+
+
     test('test signing verifying cycle', () => {
         const digest = _calc_digest(Buffer.from('rand'))
         const entity = new Entity()

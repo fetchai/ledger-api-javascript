@@ -39,6 +39,7 @@ export class LedgerApi {
         this.tokens = new TokenApi(host, port)
         this.contracts = new ContractsApi(host, port)
         this.tx = new TransactionApi(host, port)
+        this.server = new ServerApi(host, port)
     }
 
     /** Sync the ledger.

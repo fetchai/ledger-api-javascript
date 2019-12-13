@@ -46,6 +46,18 @@ export class BitVector {
         return ''
     }
 
+
+    static from_indices(indices, size) {
+        let bits = new BitVector(size)
+
+        for (let i = 0; i < indices.length; i++) {
+             assert(0 <= indices[i] < size)
+             bits.set(indices[i], 1)
+        }
+        return bits
+    }
+
+
     static from_bytes(data, bit_size) {
         // data in bytes
         // ensure the bit size matches the expectation

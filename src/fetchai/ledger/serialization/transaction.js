@@ -102,7 +102,6 @@ const encode_payload = payload => {
             // signal this is a wildcard transaction
             buffer = Buffer.concat([buffer, Buffer.from([0x80])])
         } else {
-
             let shard_mask_bytes = shard_mask.__bytes__()
             let log2_mask_length = log2(shard_mask_length)
             let contract_header

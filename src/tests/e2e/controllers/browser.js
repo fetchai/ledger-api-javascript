@@ -12,16 +12,30 @@ const TEST = '/src/tests/e2e/vanilla.js'
 const DEFAULT_TIMEOUT = 120000
 
 async function main() {
-    await test_balance()
+    await test_password_encryption()
+   await test_balance()
     await test_wealth()
-    await test_transfer()
+   await test_transfer()
     await test_server()
     await test_contract()
+    console.log('Browser E2E All Succeeded')
     logger.info('Browser E2E All Succeeded')
     Assert.success()
 }
 
 main()
+
+
+
+async function test_password_encryption(){
+     const driver = get_driver()
+    const script = get_script('password_encryption')
+    await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
+    await driver.executeScript(script)
+    const PASSWORD_ENCRYPTION = await poll(driver, 'PASSWORD_ENCRYPTION')
+    Assert.assert_equal(PASSWORD_ENCRYPTION, true)
+    logger.info('test_password_encryption passed')
+}
 
 async function test_contract() {
     const driver = get_driver()
@@ -85,7 +99,7 @@ async function test_wealth() {
 
 
 function get_script(name) {
-    let bundle = fs.readFileSync(path.join(ROOT_FP + '/bundle/vanilla.js'), 'utf8')
+    let bundle = fs.readFileSync(path.join(ROOT_FP + '/bundle/fetchai-ledger-api.js'), 'utf8')
     fs.writeFileSync(path.join(ROOT_FP + TEST), `${bundle}`)
     let test_server = fs.readFileSync(path.join(ROOT_FP + `/src/tests/e2e/browser/${name}.js`), 'utf8')
     fs.appendFileSync(path.join(ROOT_FP + TEST), test_server)
@@ -98,10 +112,10 @@ function get_driver() {
         )).build()
 }
 
-// // For debugging swap get_driver() for this for easier debugging
-// function get_driver_not_headless(){
-//     return new webdriver.Builder().forBrowser('chrome').build()
-// }
+// For debugging swap get_driver() for this for easier debugging
+function get_driver_not_headless(){
+    return new webdriver.Builder().forBrowser('chrome').build()
+}
 
 async function poll(driver, property, timeout = false) {
     const asyncTimerPromise = new Promise((resolve) => {

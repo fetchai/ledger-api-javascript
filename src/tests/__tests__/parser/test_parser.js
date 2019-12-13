@@ -7,7 +7,6 @@ const SINGLE_LINE_CONTRACT = 'const SIMPLE_CONTRACT =@init function init(owner: 
 
 
 describe(':Parser', () => {
-
     test('test extracting functions', () => {
         const array = Parser.get_functions(TRANSFER_CONTRACT)
         // we remove newlines from output to compare over line line
@@ -51,12 +50,15 @@ describe(':Parser', () => {
            const unique_init_statements_count = Object.keys(actual_inits).length;
            expect(unique_init_statements_count).toBe(3);
 
+           // should be a single  init in this contract
            expect(actual_inits['@init'].length).toBe(1);
            expect(actual_inits['@init'][0]).toBe("setup");
 
+             // should be a single  init in this contract
            expect(actual_inits['@action'].length).toBe(1);
            expect(actual_inits['@action'][0]).toBe("transfer");
 
+             // should be a single  init in this contract
            expect(actual_inits['@query'].length).toBe(1);
            expect(actual_inits['@query'][0]).toBe("balance");
        })
@@ -80,12 +82,13 @@ describe(':Parser', () => {
           expect(actual_inits['@init'][1]).toBe("alternative");
        })
 
-    test('test get rescource addresses', () => {
-       // think of a second one maybe with not getting persistenet statements when nested in functions
-       const addresses = Parser.get_resource_addresses(COMPLEX_USE_STATEMENTS_CONTRACT)
-       debugger;
-
-    })
+    // test('test get rescource addresses', () => {
+    //    // think of a second one maybe with not getting persistenet statements when nested in functions
+    //    // const addresses = Parser.get_resource_addresses(COMPLEX_USE_STATEMENTS_CONTRACT, )
+    //
+    //     debugger;
+    //
+    // })
 
     // test('test get annotations on file with no annotations', () => {
     //    // think of a second one maybe with not getting persistenet statements when nested in functions

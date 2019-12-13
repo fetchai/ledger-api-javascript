@@ -78,7 +78,7 @@ function list_servers_false() {
 function server_status() {
     return [
         JSON.parse(`{"method":"get","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/status"}`),
-        JSON.parse('{"data": {"lanes": 3, "version": "0.9.0"}}')
+        JSON.parse('{"data": {"lanes": 4, "version": "0.9.0"}}')
     ]
 }
 
