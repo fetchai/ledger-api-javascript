@@ -1,4 +1,5 @@
 import {ValidationError} from "../errors";
+import {Address} from "../crypto/address";
 
 const FUNC = /function ([\s\S]*?)endfunction/
 const FUNC_NAME_WITH_ANNOTATION = /@[a-z0-9]+[\s]{0,}(function)+[\s]{0,}[a-z0-9]{1,}/
@@ -101,7 +102,7 @@ export class Parser {
                      let identifier = non_paramaterized_use_name.exec(use_statements[i])
 
                      obj.sharded = false;
-                     obj.identifier = identifier.trim()
+                     obj.identifier = identifier[0].trim()
                    ret.push(obj)
                      continue;
                }
@@ -148,7 +149,7 @@ export class Parser {
 
           if(!valid_perisistent_statements){
             // so at least one of our parameterized use statements doesn't have an associated use statement
-            throw new ValidationError("All pararmeterized use statements must have an associated persistent statement stating that they are sharded ")
+            throw new ValidationError("All parameterized use statements must have an associated Persistent statement stating that they are sharded ")
            }
 
         for (let i = 0; i < use_statements.length; i++) {
@@ -160,15 +161,21 @@ export class Parser {
             for (let j = 0; j < use_statements[i].params.length; j++) {
                     if(use_statements[i].params[j].startsWith("\"")) {
                         // string we just add the name
-                        resource_addresses.push(use_statements[i].identifier + "." + use_statements[i].params[j])
+                        resource_addresses.push(use_statements[i].identifier + "." + use_statements[i].params[j].substring(1, use_statements[i].params[j].length-1))
                     } else {
                               for (let k = 0; k < func_params.length; k++) {
                                   if(use_statements[i].params[j] == func_params[k].identifier) {
                                       if(func_params[k].type !== "Address" && func_params[k].type !== "String") {
+                                          debugger;
                                            throw new ValidationError(`named function ${func_name} params referenced by use statements must be of type Address or String: found type ${func_params[k].type}`)
                                       }
 
-                                      resource_addresses.push(use_statements[i].identifier + "." + ordered_args[k])
+                                      // if it is an address we take the display.
+                                      if(ordered_args[k] instanceof Address){
+                                          resource_addresses.push(use_statements[i].identifier + "." + ordered_args[k].toString())
+                                      } else {
+                                          resource_addresses.push(use_statements[i].identifier + "." + ordered_args[k])
+                                      }
 
                                   }
                               }

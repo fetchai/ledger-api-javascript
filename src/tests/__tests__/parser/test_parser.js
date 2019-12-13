@@ -1,12 +1,14 @@
 import {TRANSFER_CONTRACT, SIMPLE_CONTRACT, NO_ANNOTATIONS, MULTIPLE_INITS} from '../../../contracts/transfer'
 import {Parser} from '../../../fetchai/ledger/parser'
 import {AUCTION_CONTRACT, COMPLEX_USE_STATEMENTS_CONTRACT} from "../../../contracts";
-
+import {Address} from "../../../fetchai/ledger/crypto/address";
+import {Entity} from "../../../fetchai/ledger/crypto/entity";
 
 const SINGLE_LINE_CONTRACT = 'const SIMPLE_CONTRACT =@init function init(owner: Address) endfunction @action function action1() endfunction @action function action2() endfunction @query function query1() endfunction @query function query2() endfunction'
 
 
 describe(':Parser', () => {
+
     test('test extracting functions', () => {
         const array = Parser.get_functions(TRANSFER_CONTRACT)
         // we remove newlines from output to compare over line line
@@ -29,7 +31,6 @@ describe(':Parser', () => {
         const array = Parser.get_functions(TRANSFER_CONTRACT)
         expect(array).toHaveLength(3)
     })
-
 
     test('test get_sharded_use_names', () => {
                const array = Parser.get_sharded_use_names(TRANSFER_CONTRACT)
@@ -82,23 +83,25 @@ describe(':Parser', () => {
           expect(actual_inits['@init'][1]).toBe("alternative");
        })
 
-    // test('test get rescource addresses', () => {
-    //    // think of a second one maybe with not getting persistenet statements when nested in functions
-    //    // const addresses = Parser.get_resource_addresses(COMPLEX_USE_STATEMENTS_CONTRACT, )
-    //
-    //     debugger;
-    //
-    // })
+    test('test get rescource addresses', () => {
+debugger;
+        const address1 = new Address("nLYsNsbFGDgcGJa3e7xn2V82fnpaGZVSuJUHCkeY9Cm6SfEyG")
+        const address2 = new Address("8ixTnu8sHN9VyS51GhZyxxoTLexXdZes3WkmCFoR7ufBZWnQq")
+       // think of a second one maybe with not getting persistenet statements when nested in functions
+      const addresses = Parser.get_resource_addresses(COMPLEX_USE_STATEMENTS_CONTRACT, "transfer", [address1, address2, 200])
 
-    // test('test get annotations on file with no annotations', () => {
-    //    // think of a second one maybe with not getting persistenet statements when nested in functions
-    //
-    //    })
-    //
-    //        test('test get rescource addresses on function with no annotations'), () => {
-    //    // think of a second one maybe with not getting persistenet statements when nested in functions
-    //
-    //    })
-    //
+        debugger;
+    })
+
+    test('test get annotations on file with no annotations', () => {
+       // think of a second one maybe with not getting persistenet statements when nested in functions
+
+       })
+
+           test('test get rescource addresses on function with no annotations'), () => {
+       // think of a second one maybe with not getting persistenet statements when nested in functions
+
+       })
+
 }
 )

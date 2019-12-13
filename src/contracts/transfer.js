@@ -149,7 +149,6 @@ endfunction
 const COMPLEX_USE_STATEMENTS_CONTRACT = `
 persistent sharded balance_state : UInt64;
 
-
 @init
 function setup(owner : Address)
   use balance_state[owner];
@@ -158,9 +157,9 @@ function setup(owner : Address)
 endfunction
 
 @action
-function transfer(from: Address, to: Address, amount: UInt64)
+function transfer(from: Address, to: Address, amount: String)
   use balance_state["this_string", to, amount];   
-
+  use test;
   // Check if the sender has enough balance to proceed
   if (balance_state.get(from, 0u64) >= amount)
     // update the account balances
@@ -173,7 +172,6 @@ endfunction
 @query
 function balance(address: Address) : UInt64
   use balance_state[address];
-
   return balance_state.get(address, 0u64);
 endfunction
 

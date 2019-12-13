@@ -51,6 +51,9 @@ export class BitVector {
         let bits = new BitVector(size)
 
         for (let i = 0; i < indices.length; i++) {
+
+            if(!(0 <= indices[i] < size)) debugger;
+
              assert(0 <= indices[i] < size)
              bits.set(indices[i], 1)
         }
