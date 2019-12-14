@@ -27,7 +27,7 @@ function format_contract_url(host, port, prefix = null, endpoint = null, protoco
  * @class
  */
 export class ApiEndpoint {
-    constructor(host, port) {
+    constructor(host, port, api) {
         logger.info(
             `Creating new api endpoint object with host:${host} and port:${port}`
         )
@@ -43,7 +43,7 @@ export class ApiEndpoint {
         this.prefix = 'fetch/token'
         this._host = host
         this._port = port
-        this.default_block_validity_period = 100
+        this.DEFAULT_BLOCK_VALIDITY_PERIOD = 100
     }
 
     protocol() {
@@ -110,7 +110,7 @@ export class ApiEndpoint {
 
     async create_skeleton_tx(fee, validity_period = null) {
         if (!validity_period) {
-            validity_period = this.default_block_validity_period
+            validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
         }
 
         // query what the current block number is on the node
@@ -127,6 +127,19 @@ export class ApiEndpoint {
         return tx
     }
 
+    // tx is transaction
+    async set_validity_period(tx, validity_period = null){
+         if (!validity_period) {
+            validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
+        }
+
+        // query what the current block number is on the node
+        const current_block = await this._current_block_number()
+
+        tx.valid_until(current_block + validity_period)
+
+        return tx.valid_until()
+}
     async _current_block_number() {
         let response = await this._get_json('status/chain', {size: 1})
         let block_number = -1
@@ -193,7 +206,54 @@ export class ApiEndpoint {
         return null
     }
 
+
+ // before submot consider refactoring this to static as in pythn.
     _encode_json(obj) {
         return Buffer.from(JSON.stringify(obj), 'ascii')
     }
 }
+
+
+export class TransactionFactory {
+   //python API_PREFIX = None
+   const API_PREFIX = ""
+
+    @classmethod
+    static create_skeleton_tx(cls, fee: int):
+        # build up the basic transaction information
+        tx = Transaction()
+        tx.charge_rate = 1
+        tx.charge_limit = fee
+
+        return tx
+
+    @classmethod
+    def _create_action_tx(cls, fee: int, entity: AddressLike, action: str, shard_mask: Optional[BitVector] = None):
+        tx = cls._create_skeleton_tx(fee)
+        tx.from_address = Address(entity)
+        tx.target_chain_code(cls.API_PREFIX, shard_mask if shard_mask else BitVector())
+        tx.action = action
+        return tx
+
+    @classmethod
+    def _encode_json(cls, obj):
+        return json.dumps(obj).encode('ascii')
+
+    @classmethod
+    def _encode_msgpack_payload(cls, *args):
+        items = []
+        for value in args:
+            if cls._is_primitive(value):
+                items.append(value)
+            elif isinstance(value, Address):
+                items.append(msgpack.ExtType(77, bytes(value)))
+            else:
+                raise RuntimeError('Unknown item to pack: ' + value.__class__.__name__)
+        return msgpack.packb(items)
+
+    @staticmethod
+    def _is_primitive(value):
+        for type in (bool, int, float, str):
+            if isinstance(value, type):
+                return True
+        return False
