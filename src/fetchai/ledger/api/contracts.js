@@ -200,7 +200,8 @@ export class ContractsApi extends ApiEndpoint {
 
 export class ContractTxFactory extends TransactionFactory {
 
-const API_PREFIX = 'fetch.contract'
+    const
+    API_PREFIX = 'fetch.contract'
 
     constructor(api) {
         super()
@@ -222,13 +223,13 @@ const API_PREFIX = 'fetch.contract'
         this.api.server.set_validity_period(tx, validity_period)
     }
 
-     action(contract_address, action,
-               fee, from_address, args,
-               signers = null,
-               shard_mask = null){
+    action(contract_address, action,
+           fee, from_address, args,
+           signers = null,
+           shard_mask = null) {
 
         // Default to wildcard shard mask if none supplied
-        if(shard_mask === null) {
+        if (shard_mask === null) {
             logger.info("Defaulting to wildcard shard mask as none supplied")
             shard_mask = new BitVector()
         }
@@ -239,20 +240,21 @@ const API_PREFIX = 'fetch.contract'
         tx.data(TransactionFactory.encode_msgpack_payload(args))
         this.set_validity_period(tx)
 
-        if(signers !== null) {
-            signers.forEach((signer) => {tx.add_signer(signer)})
+        if (signers !== null) {
+            signers.forEach((signer) => {
+                tx.add_signer(signer)
+            })
         } else {
             tx.add_signer(from_address)
         }
         return tx
-}
+    }
 
 
-
-create(owner, contract, fee, signers = null,
-               shard_mask = null){
+    create(owner, contract, fee, signers = null,
+           shard_mask = null) {
         // Default to wildcard shard mask if none supplied
-        if(shard_mask === null) {
+        if (shard_mask === null) {
             logger.info("Defaulting to wildcard shard mask as none supplied")
             shard_mask = new BitVector()
         }
@@ -266,13 +268,16 @@ create(owner, contract, fee, signers = null,
         })
         this.set_validity_period(tx)
 
-         if(signers !== null) {
-            signers.forEach((signer) => {tx.add_signer(signer)})
+        if (signers !== null) {
+            signers.forEach((signer) => {
+                tx.add_signer(signer)
+            })
         } else {
             tx.add_signer(owner)
         }
 
         return tx
 
+    }
 }
 

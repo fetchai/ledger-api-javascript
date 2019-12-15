@@ -238,7 +238,12 @@ export class ApiEndpoint {
 
 export class TransactionFactory {
     //python API_PREFIX = None
-    const API_PREFIX = "";
+
+
+    constructor() {
+       this.API_PREFIX = "";
+    }
+
 
     static create_skeleton_tx(fee) {
         // build up the basic transaction information
@@ -252,7 +257,7 @@ export class TransactionFactory {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask;
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
-        tx.target_chain_code(API_PREFIX, mask)
+        tx.target_chain_code(this.API_PREFIX, mask)
         tx.action(action)
         return tx
     }
