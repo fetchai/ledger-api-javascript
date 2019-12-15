@@ -55,11 +55,11 @@ export class TokenApi extends ApiEndpoint {
 
     /**
      *   :param address: The base58 encoded string containing the address of the node
-        :return: The balance value retried
-        :raises: ApiError on any failures
-        Query the stake for a given address from the remote node
+     :return: The balance value retried
+     :raises: ApiError on any failures
+     Query the stake for a given address from the remote node
      */
-   async stake(address) {
+    async stake(address) {
         // convert the input to an address
         address = new Address(address)
 
@@ -84,14 +84,14 @@ export class TokenApi extends ApiEndpoint {
 
     /**
      *   """
-        Query the stake on cooldown for a given address from the remote node
+     Query the stake on cooldown for a given address from the remote node
 
-        :param address: The base58 encoded string containing the address of the node
-        :return: The balance value retried
-        :raises: ApiError on any failures
-        """
+     :param address: The base58 encoded string containing the address of the node
+     :return: The balance value retried
+     :raises: ApiError on any failures
+     """
      */
-    async stake_cooldown(address){
+    async stake_cooldown(address) {
         // convert the input to an address
         address = new Address(address)
 
@@ -99,10 +99,10 @@ export class TokenApi extends ApiEndpoint {
         const request = {
             'address': address.toString()
         }
-        const [success, data] =  await super._post_json('cooldownStake', request)
+        const [success, data] = await super._post_json('cooldownStake', request)
 
         // check for error cases
-        if(!success) {
+        if (!success) {
             throw new ApiError('Failed to request cooldown stake for address ' + address.toString())
         }
 
@@ -111,8 +111,7 @@ export class TokenApi extends ApiEndpoint {
         }
         // return the result
         return data
-}
-
+    }
 
 
     /**
@@ -146,29 +145,30 @@ export class TokenApi extends ApiEndpoint {
 
     /**
      *  """
-        Sets the deed for a multi-sig account
+     Sets the deed for a multi-sig account
 
-        :param entity: The entity object to create wealth for
-        :param deed: The deed to set
-        :param signatories: The entities that will sign this action
-        :return: The digest of the submitted transaction
-        :raises: ApiError on any failures
-        """
+     :param entity: The entity object to create wealth for
+     :param deed: The deed to set
+     :param signatories: The entities that will sign this action
+     :return: The digest of the submitted transaction
+     :raises: ApiError on any failures
+     """
      * @param entity
      * @param deed
      * @param signatories
      */
-    async deed(entity, deed, signatories = null){
+    async deed(entity, deed, signatories = null) {
 
         const ENDPOINT = 'deed'
 
         const tx = await TokenTxFactory.deed(entity, deed, signatories)
         await super.set_validity_period(tx)
 
-        signatories = (signatories === null)? [entity] : signatories;
-       const encoded_tx = encode_transaction(tx, signatories)
+        signatories = (signatories === null) ? [entity] : signatories;
+        const encoded_tx = encode_transaction(tx, signatories)
         return await super._post_tx_json(encoded_tx, ENDPOINT)
-}
+    }
+
     /**
      * Transfers wealth from one account to another account.
      * @param {Object} entity Entity bytes of the private key of the source address.
@@ -202,77 +202,183 @@ export class TokenApi extends ApiEndpoint {
         return await this._post_tx_json(encoded_tx, 'transfer')
     }
 
+    /**
+     *   """
+     Stakes a specific amount of
 
-      add_stake(entity, amount: int, fee: int):
-        """
-        Stakes a specific amount of
-
-        :param entity: The entity object that desires to stake
-        :param amount: The amount to stake
-        :return: The digest of the submitted transaction
-        :raises: ApiError on any failures
-        """
-
-        ENDPOINT = 'addStake'
-
-        tx = TokenTxFactory.add_stake(entity, amount, fee)
-        self._set_validity_period(tx)
+     :param entity: The entity object that desires to stake
+     :param amount: The amount to stake
+     :return: The digest of the submitted transaction
+     :raises: ApiError on any failures
+     """
+     * @param entity
+     * @param amount
+     * @param fee
+     */
+    async add_stake(entity, amount, fee) {
+        const ENDPOINT = 'addStake'
+        const tx = await TokenTxFactory.add_stake(entity, amount, fee)
+        await super.set_validity_period(tx)
 
         // encode and sign the transaction
-        encoded_tx = transaction.encode_transaction(tx, [entity])
-
+        const encoded_tx = encode_transaction(tx, [entity])
         // submit the transaction
-        return self._post_tx_json(encoded_tx, ENDPOINT)
+        return await super._post_json(encoded_tx, ENDPOINT)
+    }
 
     /**
      * """
-        Destakes a specific amount of tokens from a staking miner. This will put the
-        tokens in a cool down period
+     Destakes a specific amount of tokens from a staking miner. This will put the
+     tokens in a cool down period
 
-        :param entity: The entity object that desires to destake
-        :param amount: The amount of tokens to destake
-        :return: The digest of the submitted transaction
-        :raises: ApiError on any failures
-        """
+     :param entity: The entity object that desires to destake
+     :param amount: The amount of tokens to destake
+     :return: The digest of the submitted transaction
+     :raises: ApiError on any failures
+     """
      * @param self
      * @param entity
      * @param amount
      * @param fee
      */
-     de_stake(self, entity: Entity, amount: int, fee: int) {
+    async de_stake(entity, amount, fee) {
+        const ENDPOINT = 'deStake'
 
-
-       const ENDPOINT = 'deStake'
-
-        tx = TokenTxFactory.de_stake(entity, amount, fee)
-        self._set_validity_period(tx)
+        const tx = TokenTxFactory.de_stake(entity, amount, fee)
+        await super.set_validity_period(tx)
 
         // encode and sign the transaction
-        encoded_tx = transaction.encode_transaction(tx, [entity])
+        const encoded_tx = encode_transaction(tx, [entity])
 
         // submit the transaction
-        return self._post_tx_json(encoded_tx, ENDPOINT)
+        return await super._post_json(encoded_tx, ENDPOINT)
+    }
 
-     collect_stake(self, entity: Entity, fee: int):
-        """
-        Collect all stakes that have reached the end of the cooldown period
+    /**
+     *   """
+     Collect all stakes that have reached the end of the cooldown period
 
-        :param entity: The entity object that desires to collect
-        :return: The digest of the submitted transaction
-        :raises: ApiError on any failures
-        """
+     :param entity: The entity object that desires to collect
+     :return: The digest of the submitted transaction
+     :raises: ApiError on any failures
+     """
+     * @param self
+     * @param entity
+     * @param fee
+     * @returns {Promise<*|null>}
+     */
+    async collect_stake(self, entity, fee) {
+        const ENDPOINT = 'collectStake'
 
-        ENDPOINT = 'collectStake'
-
-        tx = TokenTxFactory.collect_stake(entity, fee)
-        self._set_validity_period(tx)
+        const tx = await TokenTxFactory.collect_stake(entity, fee)
+        await super.set_validity_period(tx)
 
         // encode and sign the transaction
-        encoded_tx = transaction.encode_transaction(tx, [entity])
-
+        const encoded_tx = encode_transaction(tx, [entity])
         // submit the transaction
-        return self._post_tx_json(encoded_tx, ENDPOINT)
-
-
+        return await super._post_json(encoded_tx, ENDPOINT)
+    }
 
 }
+
+export class TokenTxFactory extends TransactionFactory {
+
+
+   constructor() {
+       super()
+    const API_PREFIX = 'fetch.token'
+   }
+
+   static wealth(entity, amount) {
+
+       // build up the basic transaction information
+       const tx = TransactionFactory.create_action_tx(1, entity, 'wealth')
+
+       tx.add_signer(entity)
+
+        const encoded = super._encode_json({
+            address: entity.public_key(), //base64 encoded public key
+            amount: amount
+        })
+       // format the transaction payload
+       tx.data(encoded)
+
+       return tx
+   }
+
+   static deed(entity, deed, signatories = null) {
+       const tx = TransactionFactory.create_action_tx(10000, entity, 'deed')
+
+       if(signatories !== null) {
+           signatories.forEach( sig => tx.add_signer(sig))
+       } else {
+           tx.add_signer(entity)
+       }
+       const deed_json = deed.deed_creation_json()
+
+       tx.data = cls._encode_json(deed_json)
+
+       return tx
+   }
+   static async transfer(entity, to, amount, fee, signatories = null) {
+       // build up the basic transaction information
+       const tx = await super.create_skeleton_tx(fee)
+       tx.from_address = new Address(entity)
+       tx.add_transfer(to, amount)
+
+       if(signatories !== null) {
+           signatories.forEach((ent) =>  tx.add_signer(ent))
+       } else {
+           tx.add_signer(entity)
+       }
+       return tx
+   }
+   static add_stake(entity, amount, fee, signatories = null) {
+
+       // build up the basic transaction information
+       const tx = TransactionFactory.create_action_tx(fee, entity, 'addStake')
+
+        if(signatories !== null) {
+           signatories.forEach((ent) =>  tx.add_signer(ent))
+       } else {
+           tx.add_signer(entity)
+       }
+
+         const encoded = super._encode_json({
+            address: entity.public_key(), //base64 encoded public key
+            amount: amount
+        })
+
+       tx.data(encoded)
+       return tx
+   }
+   static de_stake(cls, entity: Entity, amount: int, fee: int, signatories: list = None) {
+
+       // build up the basic transaction information
+       const tx = TransactionFactory.create_action_tx(fee, entity, 'deStake')
+       if signatories:
+       for ent in signatories:
+       tx.add_signer(ent)
+   else:
+       tx.add_signer(entity)
+
+       // format the transaction payload
+       tx.data = cls._encode_json({
+           'address': entity.public_key,
+           'amount': amount
+       })
+
+       return tx
+   }
+   static collect_stake(cls, entity: Entity, fee: int, signatories: list = None) {
+
+       // build up the basic transaction information
+       const tx = TransactionFactory.create_action_tx(fee, entity, 'collectStake')
+       if signatories:
+       for ent in signatories:
+       tx.add_signer(ent)
+   else:
+       tx.add_signer(entity)
+
+       return tx
+   }
