@@ -283,102 +283,103 @@ export class TokenApi extends ApiEndpoint {
 
 export class TokenTxFactory extends TransactionFactory {
 
+    constructor() {
+        super()
+        const API_PREFIX = 'fetch.token'
+    }
 
-   constructor() {
-       super()
-    const API_PREFIX = 'fetch.token'
-   }
+    static wealth(entity, amount) {
+        // build up the basic transaction information
+        const tx = TransactionFactory.create_action_tx(1, entity, 'wealth')
 
-   static wealth(entity, amount) {
-
-       // build up the basic transaction information
-       const tx = TransactionFactory.create_action_tx(1, entity, 'wealth')
-
-       tx.add_signer(entity)
+        tx.add_signer(entity)
 
         const encoded = super._encode_json({
             address: entity.public_key(), //base64 encoded public key
             amount: amount
         })
-       // format the transaction payload
-       tx.data(encoded)
+        // format the transaction payload
+        tx.data(encoded)
 
-       return tx
-   }
+        return tx
+    }
 
-   static deed(entity, deed, signatories = null) {
-       const tx = TransactionFactory.create_action_tx(10000, entity, 'deed')
+    static deed(entity, deed, signatories = null) {
+        const tx = TransactionFactory.create_action_tx(10000, entity, 'deed')
 
-       if(signatories !== null) {
-           signatories.forEach( sig => tx.add_signer(sig))
-       } else {
-           tx.add_signer(entity)
-       }
-       const deed_json = deed.deed_creation_json()
+        if (signatories !== null) {
+            signatories.forEach(sig => tx.add_signer(sig))
+        } else {
+            tx.add_signer(entity)
+        }
+        const deed_json = deed.deed_creation_json()
 
-       tx.data = cls._encode_json(deed_json)
+        tx.data = cls._encode_json(deed_json)
 
-       return tx
-   }
-   static async transfer(entity, to, amount, fee, signatories = null) {
-       // build up the basic transaction information
-       const tx = await super.create_skeleton_tx(fee)
-       tx.from_address = new Address(entity)
-       tx.add_transfer(to, amount)
+        return tx
+    }
 
-       if(signatories !== null) {
-           signatories.forEach((ent) =>  tx.add_signer(ent))
-       } else {
-           tx.add_signer(entity)
-       }
-       return tx
-   }
-   static add_stake(entity, amount, fee, signatories = null) {
+    static async transfer(entity, to, amount, fee, signatories = null) {
+        // build up the basic transaction information
+        const tx = await super.create_skeleton_tx(fee)
+        tx.from_address = new Address(entity)
+        tx.add_transfer(to, amount)
 
-       // build up the basic transaction information
-       const tx = TransactionFactory.create_action_tx(fee, entity, 'addStake')
+        if (signatories !== null) {
+            signatories.forEach((ent) => tx.add_signer(ent))
+        } else {
+            tx.add_signer(entity)
+        }
+        return tx
+    }
 
-        if(signatories !== null) {
-           signatories.forEach((ent) =>  tx.add_signer(ent))
-       } else {
-           tx.add_signer(entity)
-       }
+    static add_stake(entity, amount, fee, signatories = null) {
+        // build up the basic transaction information
+        const tx = TransactionFactory.create_action_tx(fee, entity, 'addStake')
 
-         const encoded = super._encode_json({
+        if (signatories !== null) {
+            signatories.forEach((ent) => tx.add_signer(ent))
+        } else {
+            tx.add_signer(entity)
+        }
+
+        const encoded = super._encode_json({
             address: entity.public_key(), //base64 encoded public key
             amount: amount
         })
 
-       tx.data(encoded)
-       return tx
-   }
-   static de_stake(cls, entity: Entity, amount: int, fee: int, signatories: list = None) {
+        tx.data(encoded)
+        return tx
+    }
 
-       // build up the basic transaction information
-       const tx = TransactionFactory.create_action_tx(fee, entity, 'deStake')
-       if signatories:
-       for ent in signatories:
-       tx.add_signer(ent)
-   else:
-       tx.add_signer(entity)
+    static de_stake(entity, amount, fee, signatories = null) {
+        // build up the basic transaction information
+        const tx = TransactionFactory.create_action_tx(fee, entity, 'deStake')
 
-       // format the transaction payload
-       tx.data = cls._encode_json({
-           'address': entity.public_key,
-           'amount': amount
-       })
+        if (signatories !== null) {
+            signatories.forEach((ent) => tx.add_signer(ent))
+        } else {
+            tx.add_signer(entity)
+        }
 
-       return tx
-   }
-   static collect_stake(cls, entity: Entity, fee: int, signatories: list = None) {
+        // format the transaction payload
+        tx.data = cls._encode_json({
+            'address': entity.public_key,
+            'amount': amount
+        })
 
-       // build up the basic transaction information
-       const tx = TransactionFactory.create_action_tx(fee, entity, 'collectStake')
-       if signatories:
-       for ent in signatories:
-       tx.add_signer(ent)
-   else:
-       tx.add_signer(entity)
+        return tx
+    }
 
-       return tx
-   }
+    static collect_stake(entity, fee, signatories = null) {
+        // build up the basic transaction information
+        const tx = TransactionFactory.create_action_tx(fee, entity, 'collectStake')
+
+        if (signatories !== null) {
+            signatories.forEach((ent) => tx.add_signer(ent))
+        } else {
+            tx.add_signer(entity)
+        }
+        return tx
+    }
+}
