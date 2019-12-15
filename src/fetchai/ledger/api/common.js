@@ -3,6 +3,9 @@ import {ApiError} from '../errors'
 import {BN} from 'bn.js'
 import {logger} from '../utils'
 import {Transaction} from '../transaction'
+import assert from "assert";
+import {encode, ExtensionCodec} from "@msgpack/msgpack";
+import {Address} from "../crypto";
 
 function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
     let canonical_name, url
@@ -43,7 +46,8 @@ export class ApiEndpoint {
         this.prefix = 'fetch/token'
         this._host = host
         this._port = port
-        this.DEFAULT_BLOCK_VALIDITY_PERIOD = 100
+        this.DEFAULT_BLOCK_VALIDITY_PERIOD = 100;
+        this.parent_api = api
     }
 
     protocol() {
@@ -127,6 +131,20 @@ export class ApiEndpoint {
         return tx
     }
 
+    async submit_signed_tx(tx, signatures) {
+        // """
+        // Appends signatures to a transaction and submits it, returning the transaction digest
+        // :param tx: A pre-assembled transaction
+        // :param signatures: A dict of signers signatures
+        // :return: The digest of the submitted transaction
+        // :raises: ApiError on any failures
+        // """
+        // Encode transaction and append signatures
+        const encoded_tx = transaction.encode_multisig_transaction(tx, signatures)
+        // Submit and return digest
+        const res = await this._post_tx_json(encoded_tx, tx.action)
+        return res;
+    }
     // tx is transaction
     async set_validity_period(tx, validity_period = null){
          if (!validity_period) {
@@ -211,49 +229,52 @@ export class ApiEndpoint {
     _encode_json(obj) {
         return Buffer.from(JSON.stringify(obj), 'ascii')
     }
+
+
+
+
 }
 
 
 export class TransactionFactory {
-   //python API_PREFIX = None
-   const API_PREFIX = ""
+    //python API_PREFIX = None
+    const API_PREFIX = "";
 
-    @classmethod
-    static create_skeleton_tx(cls, fee: int):
-        # build up the basic transaction information
-        tx = Transaction()
+    static create_skeleton_tx(fee) {
+        // build up the basic transaction information
+        const tx = new Transaction()
         tx.charge_rate = 1
         tx.charge_limit = fee
-
         return tx
+    }
 
-    @classmethod
-    def _create_action_tx(cls, fee: int, entity: AddressLike, action: str, shard_mask: Optional[BitVector] = None):
-        tx = cls._create_skeleton_tx(fee)
-        tx.from_address = Address(entity)
-        tx.target_chain_code(cls.API_PREFIX, shard_mask if shard_mask else BitVector())
-        tx.action = action
+    static create_action_tx(fee, entity, action, shard_mask = null) {
+        const mask = (shard_mask === null) ? new BitVector() : shard_mask;
+        const tx = TransactionFactory.create_skeleton_tx(fee)
+        tx.from_address(new Address(entity))
+        tx.target_chain_code(API_PREFIX, mask)
+        tx.action(action)
         return tx
+    }
 
-    @classmethod
-    def _encode_json(cls, obj):
-        return json.dumps(obj).encode('ascii')
+    // before submot consider refactoring this to generic utility methods.
+    static encode_json(obj) {
+        return Buffer.from(JSON.stringify(obj), 'ascii')
+    }
 
-    @classmethod
-    def _encode_msgpack_payload(cls, *args):
-        items = []
-        for value in args:
-            if cls._is_primitive(value):
-                items.append(value)
-            elif isinstance(value, Address):
-                items.append(msgpack.ExtType(77, bytes(value)))
-            else:
-                raise RuntimeError('Unknown item to pack: ' + value.__class__.__name__)
-        return msgpack.packb(items)
-
-    @staticmethod
-    def _is_primitive(value):
-        for type in (bool, int, float, str):
-            if isinstance(value, type):
-                return True
-        return False
+    static encode_msgpack_payload(args) {
+        assert(Array.isArray(args))
+        const extensionCodec = new ExtensionCodec()
+        extensionCodec.register({
+            type: 77,
+            encode: object => {
+                if (object instanceof Address) {
+                    return object.toBytes()
+                } else {
+                    return null
+                }
+            }
+        })
+        return encode(args, {extensionCodec})
+    }
+}

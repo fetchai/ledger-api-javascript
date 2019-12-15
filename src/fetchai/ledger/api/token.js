@@ -109,7 +109,7 @@ export class TokenApi extends ApiEndpoint {
         })
         tx.data(encoded)
 
-        const encoded_tx = await encode_transaction(tx, [entity])
+        const encoded_tx = encode_transaction(tx, [entity])
 
         // submit the transaction
         return await this._post_tx_json(encoded_tx, 'transfer')

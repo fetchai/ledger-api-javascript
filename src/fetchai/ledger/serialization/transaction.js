@@ -348,7 +348,6 @@ const decode_transaction = (buffer) => {
     const payload_bytes = input_buffer.slice(0, expected_payload_end)
     const verified = []
 
-
     public_keys.forEach((ident) => {
         let identity, signature;
         [signature, buffer] = bytearray.decode_bytearray(buffer)

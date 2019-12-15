@@ -166,6 +166,7 @@ export class Transaction {
     }
 
     target_contract(digest, address, mask) {
+        // python doesn't have any contract digest, maybe this is bug. delete this comment when verified.
         this._contract_digest = new Address(digest)
         this._contract_address = new Address(address)
         this._shard_mask = new BitVector(mask)

@@ -32,31 +32,37 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} contract contract
      * @param {Object} [shard_mask=null] BitVector object
      */
-    async create(owner, fee, contract, shard_mask = null) {
+    async create(owner, fee, contract, signers = null, shard_mask = null) {
         assert(contract instanceof Contract)
         const ENDPOINT = 'create'
         // Default to wildcard shard mask if none supplied
-        if (shard_mask === null) {
-            logger.info(
-                'WARNING: defaulting to wildcard shard mask as none supplied'
-            )
-            shard_mask = new BitVector()
-        }
-
-        const tx = await this.create_skeleton_tx(fee)
-        tx.from_address(owner)
-        tx.target_chain_code(this.prefix, shard_mask)
-        tx.action(ENDPOINT)
-
-        tx.data(
-            JSON.stringify({
-                text: contract.encoded_source(),
-                digest: contract.digest().toHex(),
-                nonce: contract.nonce()
-            })
-        )
-        tx.add_signer(owner.public_key_hex())
-        const encoded_tx = encode_transaction(tx, [owner])
+        // if (shard_mask === null) {
+        //     logger.info(
+        //         'WARNING: defaulting to wildcard shard mask as none supplied'
+        //     )
+        //     shard_mask = new BitVector()
+        // }
+        //
+        //
+        // const tx = await this.create_skeleton_tx(fee)
+        // tx.from_address(owner)
+        // tx.target_chain_code(this.prefix, shard_mask)
+        // tx.action(ENDPOINT)
+        //
+        // tx.data(
+        //     JSON.stringify({
+        //         text: contract.encoded_source(),
+        //         digest: contract.digest().toHex(),
+        //         nonce: contract.nonce()
+        //     })
+        // )
+        // tx.add_signer(owner.public_key_hex())
+        const contractTxFactory = new ContractTxFactory(self._parent_api);
+        const tx = contractTxFactory.create(owner, contract, fee, shard_mask)
+       // const encoded_tx = encode_transaction(tx, [owner])
+         // TODO: Is multisig contract creation possible?
+        signers = (signers !== null) ? signers : [owner]
+        const encoded_tx = transaction.encode_transaction(tx, signers)
         contract.owner(owner)
         return await this._post_tx_json(encoded_tx, ENDPOINT)
     }
@@ -96,37 +102,47 @@ export class ContractsApi extends ApiEndpoint {
         args,
         shard_mask = null
     ) {
-        if (shard_mask === null) {
-            shard_mask = new BitVector()
-        }
+
+        /*
+            def action(self, contract_address: Address, action: str,
+               fee: int, from_address: Address, *args,
+               signers: EntityList, shard_mask: BitVector = None):
+
+        tx = ContractTxFactory(self._parent_api).action(contract_address,
+                                                        action, fee, from_address, *args,
+                                                        signers=signers, shard_mask=shard_mask)
+        tx.data = self._encode_msgpack_payload(*args)
+        self._set_validity_period(tx)
+
+        for signer in signers:
+            tx.add_signer(signer)
+
+        encoded_tx = transaction.encode_transaction(tx, signers)
+
+        return self._post_tx_json(encoded_tx, None)
+         */
+
+        // if (shard_mask === null) {
+        //     shard_mask = new BitVector()
+        // }
         // build up the basic transaction information
-        const tx = await this.create_skeleton_tx(fee)
-        tx.from_address(from_address)
-        tx.target_contract(contract_digest, contract_address, shard_mask)
-        tx.action(action)
-        tx.data(this._encode_msgpack_payload(args))
+        // const tx = await this.create_skeleton_tx(fee)
+        // tx.from_address(from_address)
+        // tx.target_contract(contract_digest, contract_address, shard_mask)
+        // tx.action(action)
+         const contractTxFactory = new ContractTxFactory(this.parent_api);
+        let tx = contractTxFactory.action(contract_address,action, fee, from_address, args, signers, shard_mask)
+        tx.data(TransactionFactory.encode_msgpack_payload(args))
         for (let i = 0; i < signers.length; i++) {
             tx.add_signer(signers[i].public_key_hex())
         }
+                tx.set_validity_period(tx)
+
         const encoded_tx = encode_transaction(tx, signers)
         return await this._post_tx_json(encoded_tx, null)
     }
 
-    _encode_msgpack_payload(args) {
-        assert(Array.isArray(args))
-        const extensionCodec = new ExtensionCodec()
-        extensionCodec.register({
-            type: 77,
-            encode: object => {
-                if (object instanceof Address) {
-                    return object.toBytes()
-                } else {
-                    return null
-                }
-            }
-        })
-        return encode(args, {extensionCodec})
-    }
+
 
     _encode_json_payload(data) {
         assert(typeof data === 'object' && data !== null)
@@ -172,4 +188,91 @@ export class ContractsApi extends ApiEndpoint {
             return false
         }
     }
+
+
+
+  post_tx_json(tx_data, endpoint = null){
+        return super._post_tx_json(tx_data, endpoint)
 }
+
+
+
+
+export class ContractTxFactory extends TransactionFactory {
+
+const API_PREFIX = 'fetch.contract'
+
+    constructor(api) {
+        super()
+        this.api = api
+    }
+
+    //"""Replicate server interface for fetching number of lanes"""
+    server() {
+        return this.api.server
+    }
+
+    /**
+     * Replicate setting of validity period using server
+     *
+     * @param tx
+     * @param validity_period
+     */
+    set_validity_period(tx, validity_period = null) {
+        this.api.server.set_validity_period(tx, validity_period)
+    }
+
+     action(contract_address, action,
+               fee, from_address, args,
+               signers = null,
+               shard_mask = null){
+
+        // Default to wildcard shard mask if none supplied
+        if(shard_mask === null) {
+            logger.info("Defaulting to wildcard shard mask as none supplied")
+            shard_mask = new BitVector()
+        }
+
+        // build up the basic transaction information
+        const tx = TransactionFactory.create_action_tx(fee, from_address, action, shard_mask)
+        tx.target_contract(contract_address, shard_mask)
+        tx.data(TransactionFactory.encode_msgpack_payload(args))
+        this.set_validity_period(tx)
+
+        if(signers !== null) {
+            signers.forEach((signer) => {tx.add_signer(signer)})
+        } else {
+            tx.add_signer(from_address)
+        }
+        return tx
+}
+
+
+
+create(owner, contract, fee, signers = null,
+               shard_mask = null){
+        // Default to wildcard shard mask if none supplied
+        if(shard_mask === null) {
+            logger.info("Defaulting to wildcard shard mask as none supplied")
+            shard_mask = new BitVector()
+        }
+
+        // build up the basic transaction information
+        tx = this._create_action_tx(fee, owner, 'create', shard_mask)
+        tx.data = this._encode_json({
+            'nonce': contract.nonce,
+            'text': contract.encoded_source,
+            'digest': contract.digest.to_hex()
+        })
+        this.set_validity_period(tx)
+
+         if(signers !== null) {
+            signers.forEach((signer) => {tx.add_signer(signer)})
+        } else {
+            tx.add_signer(owner)
+        }
+
+        return tx
+
+}
+
