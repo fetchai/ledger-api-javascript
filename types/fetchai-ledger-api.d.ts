@@ -281,7 +281,7 @@ export namespace Bootstrap {
 
     function list_servers(active?: boolean): void;
 
-    function server_from_name(network: string): void;
+    function server_from_name(network: string): any;
 
     function split_address(address: string): void;
 }
