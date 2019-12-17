@@ -229,10 +229,6 @@ export class ApiEndpoint {
     _encode_json(obj) {
         return Buffer.from(JSON.stringify(obj), 'ascii')
     }
-
-
-
-
 }
 
 

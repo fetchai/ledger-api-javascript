@@ -138,6 +138,8 @@ describe(':Test Transaction', () => {
     test('Test add_signer and signers', () => {
         let txObj = new Transaction()
         txObj.add_signer('thisIsSigner')
+        const test = txObj.signers();
+        debugger;
         expect(txObj.signers()['thisIsSigner']).toBe('')
     })
 })
