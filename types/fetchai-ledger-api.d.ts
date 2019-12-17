@@ -1,3 +1,6 @@
+import * as fetchai_ledger_api from '../src/fetchai/ledger/index'
+declare module "fetchai_ledger_api";
+
 export class Address {
     constructor(Identity);
 
