@@ -6,6 +6,7 @@ import {Transaction} from '../transaction'
 import assert from "assert";
 import {encode, ExtensionCodec} from "@msgpack/msgpack";
 import {Address} from "../crypto";
+import {BitVector} from "../bitvector";
 
 function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
     let canonical_name, url
@@ -154,7 +155,7 @@ export class ApiEndpoint {
         // query what the current block number is on the node
         const current_block = await this._current_block_number()
 
-        tx.valid_until(current_block + validity_period)
+        tx.valid_until(new BN(current_block + validity_period))
 
         return tx.valid_until()
 }
@@ -223,29 +224,27 @@ export class ApiEndpoint {
         }
         return null
     }
-
-
- // before submot consider refactoring this to static as in pythn.
-    _encode_json(obj) {
-        return Buffer.from(JSON.stringify(obj), 'ascii')
-    }
 }
 
+const prefix = "";
 
 export class TransactionFactory {
     //python API_PREFIX = None
 
-
     constructor() {
-       this.API_PREFIX = "";
+
     }
 
+
+  static get_prefix() {
+    return prefix;
+  }
 
     static create_skeleton_tx(fee) {
         // build up the basic transaction information
         const tx = new Transaction()
-        tx.charge_rate = 1
-        tx.charge_limit = fee
+        tx.charge_rate(new BN(1))
+        tx.charge_limit(new BN(fee))
         return tx
     }
 
@@ -253,14 +252,9 @@ export class TransactionFactory {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask;
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
-        tx.target_chain_code(this.API_PREFIX, mask)
+        tx.target_chain_code(TransactionFactory.get_prefix(), mask)
         tx.action(action)
         return tx
-    }
-
-    // before submot consider refactoring this to generic utility methods.
-    static encode_json(obj) {
-        return Buffer.from(JSON.stringify(obj), 'ascii')
     }
 
     static encode_msgpack_payload(args) {

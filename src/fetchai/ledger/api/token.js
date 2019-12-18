@@ -1,6 +1,6 @@
 import {ApiError} from '../errors'
 import {logger} from '../utils'
-import {ApiEndpoint} from './common'
+import {ApiEndpoint, TransactionFactory} from './common'
 import {BitVector} from '../bitvector'
 import {encode_transaction} from '../serialization/transaction'
 import {Address} from '../crypto'
@@ -19,12 +19,12 @@ export class TokenApi extends ApiEndpoint {
      * @param {String} host ledger host
      * @param {Number} port ledger port
      */
-    constructor(host, port) {
+    constructor(host, port, api) {
         logger.info(
             `Creating new Token api object with host:${host} and port:${port}`
         )
-        super(host, port)
-        this.API_PREFIX = 'fetch.token'
+        super(host, port, api)
+        this.prefix = 'fetch.token'
     }
 
     /**
@@ -131,7 +131,7 @@ export class TokenApi extends ApiEndpoint {
         let shard_mask = new BitVector()
         let tx = await super.create_skeleton_tx(1)
         tx.from_address(entity)
-        tx.target_chain_code(this.API_PREFIX, shard_mask)
+        tx.target_chain_code(this.prefix, shard_mask)
         tx.action('wealth')
         tx.add_signer(entity.public_key_hex())
 
@@ -190,8 +190,8 @@ export class TokenApi extends ApiEndpoint {
         tx.add_transfer(to, new BN(amount))
         tx.add_signer(entity.public_key_hex()) // hex of public key
 
-        const encoded = super._encode_json({
-            address: entity.public_key(), //base64 encoded public key
+        const encoded = JSON.stringify({
+            address: entity.public_key_base64(), //base64 encoded public key
             amount: amount
         })
         tx.data(encoded)
@@ -223,7 +223,7 @@ export class TokenApi extends ApiEndpoint {
         // encode and sign the transaction
         const encoded_tx = encode_transaction(tx, [entity])
         // submit the transaction
-        return await super._post_json(encoded_tx, ENDPOINT)
+        return await super._post_tx_json(encoded_tx, ENDPOINT)
     }
 
     /**
@@ -251,7 +251,7 @@ export class TokenApi extends ApiEndpoint {
         const encoded_tx = encode_transaction(tx, [entity])
 
         // submit the transaction
-        return await super._post_json(encoded_tx, ENDPOINT)
+        return await super._post_tx_json(encoded_tx, ENDPOINT)
     }
 
     /**
@@ -276,7 +276,7 @@ export class TokenApi extends ApiEndpoint {
         // encode and sign the transaction
         const encoded_tx = encode_transaction(tx, [entity])
         // submit the transaction
-        return await super._post_json(encoded_tx, ENDPOINT)
+        return await super._post_tx_json(encoded_tx, ENDPOINT)
     }
 
 }
@@ -285,17 +285,17 @@ export class TokenTxFactory extends TransactionFactory {
 
     constructor() {
         super()
-        const API_PREFIX = 'fetch.token'
+        const prefix = 'fetch.token'
     }
 
     static wealth(entity, amount) {
         // build up the basic transaction information
         const tx = TransactionFactory.create_action_tx(1, entity, 'wealth')
 
-        tx.add_signer(entity)
+        tx.add_signer(entity.public_key_hex())
 
-        const encoded = super._encode_json({
-            address: entity.public_key(), //base64 encoded public key
+        const encoded = JSON.stringify({
+            address: entity.public_key_base64(), //base64 encoded public key
             amount: amount
         })
         // format the transaction payload
@@ -308,13 +308,13 @@ export class TokenTxFactory extends TransactionFactory {
         const tx = TransactionFactory.create_action_tx(10000, entity, 'deed')
 
         if (signatories !== null) {
-            signatories.forEach(sig => tx.add_signer(sig))
+            signatories.forEach(sig => tx.add_signer(sig.public_key_hex()))
         } else {
-            tx.add_signer(entity)
+            tx.add_signer(entity.public_key_hex())
         }
         const deed_json = deed.deed_creation_json()
 
-        tx.data = cls._encode_json(deed_json)
+        tx.data = JSON.stringify(deed_json)
 
         return tx
     }
@@ -326,9 +326,9 @@ export class TokenTxFactory extends TransactionFactory {
         tx.add_transfer(to, amount)
 
         if (signatories !== null) {
-            signatories.forEach((ent) => tx.add_signer(ent))
+            signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
         } else {
-            tx.add_signer(entity)
+            tx.add_signer(entity.public_key_hex())
         }
         return tx
     }
@@ -338,13 +338,13 @@ export class TokenTxFactory extends TransactionFactory {
         const tx = TransactionFactory.create_action_tx(fee, entity, 'addStake')
 
         if (signatories !== null) {
-            signatories.forEach((ent) => tx.add_signer(ent))
+            signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
         } else {
-            tx.add_signer(entity)
+            tx.add_signer(entity.public_key_hex())
         }
 
-        const encoded = super._encode_json({
-            address: entity.public_key(), //base64 encoded public key
+        const encoded = JSON.stringify({
+            address: entity.public_key_base64(), //base64 encoded public key
             amount: amount
         })
 
@@ -357,14 +357,14 @@ export class TokenTxFactory extends TransactionFactory {
         const tx = TransactionFactory.create_action_tx(fee, entity, 'deStake')
 
         if (signatories !== null) {
-            signatories.forEach((ent) => tx.add_signer(ent))
+            signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
         } else {
-            tx.add_signer(entity)
+            tx.add_signer(entity.public_key_hex())
         }
 
         // format the transaction payload
-        tx.data = cls._encode_json({
-            'address': entity.public_key,
+        tx.data = JSON.stringify({
+            'address': entity.public_key_base64(),
             'amount': amount
         })
 
@@ -376,9 +376,9 @@ export class TokenTxFactory extends TransactionFactory {
         const tx = TransactionFactory.create_action_tx(fee, entity, 'collectStake')
 
         if (signatories !== null) {
-            signatories.forEach((ent) => tx.add_signer(ent))
+            signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
         } else {
-            tx.add_signer(entity)
+            tx.add_signer(entity.public_key_hex())
         }
         return tx
     }

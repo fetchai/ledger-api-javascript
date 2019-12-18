@@ -84,8 +84,6 @@ export class Deed {
      deed_creation_json(allow_no_amend=false){
 
            const signees = {}
-
-
                this.signees.forEach((obj) => {
                    let address = new Address(obj.signee).toString()
                    signees[address] = obj.voting_weight

@@ -1,11 +1,12 @@
 import assert from 'assert'
 import {encode, ExtensionCodec} from '@msgpack/msgpack'
 import {Address} from '../crypto/address'
-import {ApiEndpoint} from './common'
+import {ApiEndpoint, TransactionFactory} from './common'
 import {BitVector} from '../bitvector'
 import {Contract} from '../contract'
 import {encode_transaction} from '../serialization/transaction'
 import {logger} from '../utils'
+import {ValidationError} from "../errors";
 
 /**
  * This class for all Tokens APIs.
@@ -19,8 +20,8 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} HOST Ledger host.
      * @param {String} PORT Ledger port.
      */
-    constructor(HOST, PORT) {
-        super(HOST, PORT)
+    constructor(HOST, PORT, api) {
+        super(HOST, PORT, api)
         // tidy up before submitting
         this.prefix = 'fetch.contract'
     }
@@ -57,26 +58,25 @@ export class ContractsApi extends ApiEndpoint {
         //     })
         // )
         // tx.add_signer(owner.public_key_hex())
-        const contractTxFactory = new ContractTxFactory(self._parent_api);
-        const tx = contractTxFactory.create(owner, contract, fee, shard_mask)
-       // const encoded_tx = encode_transaction(tx, [owner])
-         // TODO: Is multisig contract creation possible?
+        const contractTxFactory = new ContractTxFactory(this.parent_api);
+        const tx = contractTxFactory.create(owner, contract, fee, null, shard_mask)
+        // const encoded_tx = encode_transaction(tx, [owner])
+        // TODO: Is multisig contract creation possible?
         signers = (signers !== null) ? signers : [owner]
-        const encoded_tx = transaction.encode_transaction(tx, signers)
+        const encoded_tx = encode_transaction(tx, signers)
         contract.owner(owner)
         return await this._post_tx_json(encoded_tx, ENDPOINT)
     }
 
     /**
      * Query on contract
-     * @param {Object} contract_digest Address object
      * @param {Object} contract_owner Address object
      * @param {String} query query string
      * @param {JSON} data json payload
      */
-    async query(contract_digest, contract_owner, query, data) {
+    async query(contract_owner, query, data) {
         assert(this.isJSON(data))
-        const prefix = `${contract_digest.toHex()}.${contract_owner.toString()}`
+        const prefix = contract_owner.toString()
         const encoded = this._encode_json_payload(data)
         return await this._post_json(query, encoded, prefix)
     }
@@ -93,7 +93,6 @@ export class ContractsApi extends ApiEndpoint {
      * @param {Object} shard_mask BitVector object
      */
     async action(
-        contract_digest,
         contract_address,
         action,
         fee,
@@ -102,6 +101,7 @@ export class ContractsApi extends ApiEndpoint {
         args,
         shard_mask = null
     ) {
+        debugger;
 
         /*
             def action(self, contract_address: Address, action: str,
@@ -130,18 +130,17 @@ export class ContractsApi extends ApiEndpoint {
         // tx.from_address(from_address)
         // tx.target_contract(contract_digest, contract_address, shard_mask)
         // tx.action(action)
-         const contractTxFactory = new ContractTxFactory(this.parent_api);
-        let tx = contractTxFactory.action(contract_address,action, fee, from_address, args, signers, shard_mask)
+        const contractTxFactory = new ContractTxFactory(this.parent_api);
+        let tx = contractTxFactory.action(contract_address, action, fee, from_address, args, signers, shard_mask)
         tx.data(TransactionFactory.encode_msgpack_payload(args))
         for (let i = 0; i < signers.length; i++) {
             tx.add_signer(signers[i].public_key_hex())
         }
-                tx.set_validity_period(tx)
+       await this.set_validity_period(tx)
 
         const encoded_tx = encode_transaction(tx, signers)
         return await this._post_tx_json(encoded_tx, null)
     }
-
 
 
     _encode_json_payload(data) {
@@ -190,22 +189,18 @@ export class ContractsApi extends ApiEndpoint {
     }
 
 
-
-  post_tx_json(tx_data, endpoint = null){
+    post_tx_json(tx_data, endpoint = null) {
         return super._post_tx_json(tx_data, endpoint)
+    }
+
+
 }
 
-
-
-
 export class ContractTxFactory extends TransactionFactory {
-
-    const
-    API_PREFIX = 'fetch.contract'
-
     constructor(api) {
         super()
-        this.api = api
+        this.api = api;
+        this.prefix = 'fetch.contract';
     }
 
     //"""Replicate server interface for fetching number of lanes"""
@@ -227,7 +222,7 @@ export class ContractTxFactory extends TransactionFactory {
            fee, from_address, args,
            signers = null,
            shard_mask = null) {
-
+debugger;
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {
             logger.info("Defaulting to wildcard shard mask as none supplied")
@@ -242,9 +237,11 @@ export class ContractTxFactory extends TransactionFactory {
 
         if (signers !== null) {
             signers.forEach((signer) => {
-                tx.add_signer(signer)
+                tx.add_signer(signer.public_key_hex())
             })
         } else {
+            debugger;
+            throw new ValidationError("TESTING ERROR TO REMOVE")
             tx.add_signer(from_address)
         }
         return tx
@@ -260,20 +257,24 @@ export class ContractTxFactory extends TransactionFactory {
         }
 
         // build up the basic transaction information
-        tx = this._create_action_tx(fee, owner, 'create', shard_mask)
-        tx.data = this._encode_json({
-            'nonce': contract.nonce,
-            'text': contract.encoded_source,
-            'digest': contract.digest.to_hex()
-        })
+        const tx = TransactionFactory.create_action_tx(fee, owner, 'create', shard_mask)
+        const data = JSON.stringify({
+            'nonce': contract.nonce(),
+            'text': contract.encoded_source()
+        });
+        debugger;
+        console.log("data is : " + data);
+        tx.data(data)
         this.set_validity_period(tx)
 
         if (signers !== null) {
+            debugger;
             signers.forEach((signer) => {
-                tx.add_signer(signer)
+                tx.add_signer(signer.public_key_hex())
             })
         } else {
-            tx.add_signer(owner)
+            debugger;
+            tx.add_signer(owner.public_key_hex())
         }
 
         return tx

@@ -1,3 +1,7 @@
+import {Entity} from "../fetchai/ledger/crypto/entity";
+import {Address} from "../fetchai/ledger/crypto/address";
+import {LedgerApi} from "../fetchai/ledger/api";
+
 const HOST = '127.0.0.1'
 const PORT = 8000
 
@@ -12,11 +16,6 @@ async function main(){
 
     // create the APIs
     const api = new LedgerApi(HOST, PORT)
-
-    // create the balance
-    console.log('Submitting wealth creation...')
-     txs = await api.tokens.wealth(entity, 10000)
-    await api.sync(txs)
 
     balance = await api.tokens.balance(entity)
     console.log('Balance:', balance)

@@ -1,5 +1,9 @@
-import {Entity} from "../../fetchai/ledger/crypto";
-
+import {Entity} from "../../fetchai/ledger/crypto/entity";
+import {Address} from "../../fetchai/ledger/crypto/Address";
+import {LedgerApi} from "../../fetchai/ledger/api";
+import {ContractTxFactory} from "../../fetchai/ledger/api/contracts";
+import {Deed} from "../../fetchai/ledger/crypto/deed";
+import {Contract} from "../../fetchai/ledger";
 
 const CONTRACT_TEXT = `
 persistent sharded balance_state : UInt64;
@@ -101,8 +105,8 @@ async  function main(){
    // Both the transfer and execute thresholds must be met to create a contract
    // TODO: Contract creation both requires meeting the thresholds below, and can only be signed by a single
    //  signatory. Therefore a single board member must be able to exceed these thresholds for creation
-    deed.set_threshold(Operation.EXECUTE, 2)
-    deed.set_threshold(Operation.TRANSFER, 2)
+    deed.set_threshold(deed.OPERATIONS.EXECUTE, 2)
+    deed.set_threshold(deed.OPERATIONS.TRANSFER, 2)
 
    // Submit deed
     txs = await api.tokens.deed(multi_sig_identity, deed)

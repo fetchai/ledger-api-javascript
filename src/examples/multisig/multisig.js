@@ -1,5 +1,6 @@
 import {LedgerApi, TokenApi} from "../../fetchai/ledger/api";
 import {Entity} from "../../fetchai/ledger/crypto/entity";
+import {Deed} from "../../fetchai/ledger/crypto/deed";
 
 const HOST = '127.0.0.1'
 const PORT = 8000
@@ -103,7 +104,6 @@ function print_signing_votes(board){
     console.log("\nSingle member transfer with 2 votes should no longer succeed...")
             print_signing_votes(board[3])
     try {
-
         tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20, board[0].member)
         await api.sync(tx)
     } catch(e){
@@ -131,8 +131,9 @@ function print_signing_votes(board){
 
     deed.amend_threshold (1)
     console.log("\nExpecting further amendment to fail...")
+            signatories = board.map( obj => obj.member )
     try {
-                    signatories = board.map( obj => obj.member )
+
         let tx = await api.tokens.deed(multi_sig_identity, deed, signatories)
         await api.sync(tx)
        } catch(e) {

@@ -108,7 +108,7 @@ export class Contract {
             logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
             shard_mask = new BitVector()
         }
-        return Contract._api(api).create(owner, fee, this, shard_mask)
+        return Contract._api(api).create(owner, fee, this, null, shard_mask)
     }
 
     async query(api, name, data) {
@@ -120,7 +120,7 @@ export class Contract {
         // if(!this.queries.contains(name)){
         //     throw new RunTimeError(name + ' is not an valid query name. Valid options are: ' + this.queries.join(','))
         // }
-        const [success, response] = await Contract._api(api).query(this._digest, this._address, name, data)
+        const [success, response] = await Contract._api(api).query(this._address, name, data)
 
         if (!success) {
             if (response !== null && 'msg' in response) {
@@ -154,7 +154,7 @@ export class Contract {
             logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
             shard_mask = new BitVector()
         }
-        return Contract._api(api).action(this._digest, this._address, name, fee, this._owner, signers, args, shard_mask)
+        return Contract._api(api).action(this._address, name, fee, this._owner, signers, args, shard_mask)
     }
 
 

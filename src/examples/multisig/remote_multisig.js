@@ -1,4 +1,9 @@
 // Demonstrates the distributed sharing of a multi-sig transaction before submission
+import {LedgerApi} from "../../fetchai/ledger/api";
+import {Entity} from "../../fetchai/ledger/crypto/entity";
+import {Deed} from "../../fetchai/ledger/crypto/deed";
+import {TokenTxFactory} from "../../fetchai/ledger/api/token";
+
 const HOST = '127.0.0.1'
 const PORT = 8000
 
@@ -32,7 +37,7 @@ async function main() {
         deed.set_signee(board.member, board.voting_weight)
     })
     deed.amend_threshold(4)
-    deed.set_threshold(Operation.TRANSFER, 3)
+    deed.set_threshold(deed.OPERATIONS.TRANSFER, 3)
 
     txs = await api.tokens.deed(multi_sig_identity, deed)
     await api.sync(txs)
@@ -48,16 +53,17 @@ async function main() {
     console.log("Generating transaction and distributing to signers...")
 
     // Add intended signers to transaction
-    tx = await TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board)
-    api.tokens._set_validity_period(tx)
+    txs = await TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board)
+    api.tokens.set_validity_period(txs)
+
 
     // Serialize and send to be signed
-    stx = tx.encode_partial()
+    txs = txs.encode_partial()
 
     // Have signers individually sign transaction
-    signed_txs = []
+   const signed_txs = []
     //for signer in board:
-    board.foreach(async (board_member) => {
+    board.forEach(async (board_member) => {
         // Signer builds their own transaction to compare to
         let signer_tx = await TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board)
 
@@ -65,9 +71,8 @@ async function main() {
         let itx = Transaction.decode_partial(stx)
 
         // Some transaction details aren't expected to match/can't be predicted
-        signer_tx.valid_until = itx.valid_until
-        signer_tx.counter = itx.counter
-
+        signer_tx.valid_until(itx.valid_until())
+        signer_tx.counter(itx.counter())
 
         if (signer_tx.compare(itx)) {
             console.log("Transactions match")
@@ -84,7 +89,7 @@ async function main() {
     console.log("Gathering and combining signed transactions...")
     // stxs = [Transaction.decode_partial(s) for s in signed_txs]
 
-    stxs = []
+    let stxs = []
     signed_txs.foreach((s) => {
         stxs.push(Transaction.decode_partial(s));
     })
@@ -107,7 +112,7 @@ async function main() {
     api.tokens._set_validity_period(tx)
 
     // Serialize and send to be signed
-    stx = tx.encode_partial()
+    txs = tx.encode_partial()
 
     // Have signers individually sign transaction and pass on to next signer
    // for signer in board:

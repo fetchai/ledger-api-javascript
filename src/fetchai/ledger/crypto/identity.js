@@ -76,8 +76,8 @@ export class Identity {
         return new Identity(private_key_bytes)
     }
 
-    static from_hex(private_key_hex) {
-        const private_key_bytes = Buffer.from(private_key_hex, 'hex')
-        return new Identity(private_key_bytes)
+    static from_hex(public_key_hex) {
+        const public_key_bytes = Buffer.from(public_key_hex, 'hex')
+        return new Identity(public_key_bytes)
     }
 }

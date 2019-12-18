@@ -12,7 +12,6 @@ describe(':Test Transaction', () => {
         expect(txObj._valid_until.cmp(new BN(0))).toBe(0)
         expect(txObj._charge_rate.cmp(new BN(0))).toBe(0)
         expect(txObj._charge_limit.cmp(new BN(0))).toBe(0)
-        expect(txObj._contract_digest).toBe('')
         expect(txObj._contract_address).toBe('')
         expect(txObj._chain_code).toBe('')
         expect(txObj._shard_mask._size).toBe(0)
@@ -66,11 +65,6 @@ describe(':Test Transaction', () => {
         expect(txObj._charge_limit).toMatchObject(new BN(14))
     })
 
-    test('Test contract_digest', () => {
-        let txObj = new Transaction()
-        expect(txObj.contract_digest()).toBe(txObj._contract_digest)
-    })
-
     test('Test contract_address', () => {
         let txObj = new Transaction()
         expect(txObj.contract_address()).toBe(txObj._contract_address)
@@ -110,10 +104,8 @@ describe(':Test Transaction', () => {
 
     test('Test target_contract', () => {
         let txObj = new Transaction()
-        const digest = dummy_address()
         const address = dummy_address()
-        txObj.target_contract(digest, address, new BitVector(10))
-        expect(txObj._contract_digest).toBeInstanceOf(Address)
+        txObj.target_contract(address, new BitVector(10))
         expect(txObj._contract_address).toBeInstanceOf(Address)
         expect(txObj._shard_mask._size).toBe(new BitVector(10)._size)
         expect(txObj._shard_mask._byte_size).toBe(new BitVector(10)._byte_size)
@@ -123,7 +115,6 @@ describe(':Test Transaction', () => {
     test('Test target_chain_code', () => {
         let txObj = new Transaction()
         txObj.target_chain_code(2, new BitVector(10))
-        expect(txObj._contract_digest).toBe('')
         expect(txObj._contract_address).toBe('')
         expect(txObj._shard_mask._size).toBe(new BitVector(10)._size)
         expect(txObj._shard_mask._byte_size).toBe(new BitVector(10)._byte_size)
@@ -138,8 +129,6 @@ describe(':Test Transaction', () => {
     test('Test add_signer and signers', () => {
         let txObj = new Transaction()
         txObj.add_signer('thisIsSigner')
-        const test = txObj.signers();
-        debugger;
         expect(txObj.signers()['thisIsSigner']).toBe('')
     })
 })

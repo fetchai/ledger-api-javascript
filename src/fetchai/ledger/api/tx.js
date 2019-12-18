@@ -52,7 +52,6 @@ export class TxContents {
         action,
         chain_code,
         from_address,
-        contract_digest,
         contract_address,
         valid_from,
         valid_until,
@@ -67,7 +66,6 @@ export class TxContents {
         this.action = action
         this.chain_code = chain_code
         this.from_address = new Address(from_address)
-        this.contract_digest = (contract_digest) ? contract_digest : null
         this.contract_address = (contract_address) ? new Address(contract_address) : null
         this.valid_from = valid_from
         this.valid_until = valid_until
@@ -105,7 +103,6 @@ export class TxContents {
             data.action,
             data.chainCode,
             data.from,
-            data.contractDigest,
             data.contractAddress,
             data.validFrom,
             data.validUntil,

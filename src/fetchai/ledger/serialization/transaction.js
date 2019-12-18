@@ -10,14 +10,14 @@ import {BitVector} from '../bitvector'
 import {Identity} from '../crypto/identity'
 import {Transaction} from '../transaction'
 import {BN} from 'bn.js'
-
+import {encode_bytearray} from "./bytearray";
 // *******************************
 // ********** Constants **********
 // *******************************
 const MAGIC = 0xa1
 // a reserved byte.
 const RESERVED = 0x00
-const VERSION = 2
+const VERSION = 3
 const NO_CONTRACT = 0
 const SMART_CONTRACT = 1
 const CHAIN_CODE = 2
@@ -49,7 +49,6 @@ const _map_contract_mode = payload => {
         if (payload.chain_code()) {
             return CHAIN_CODE
         }
-        assert(payload.contract_digest() != null)
         return SMART_CONTRACT
     } else {
         return NO_CONTRACT
@@ -127,7 +126,6 @@ const encode_payload = payload => {
         }
 
         if (SMART_CONTRACT === contract_mode || SYNERGETIC === contract_mode) {
-            buffer = address.encode_address(buffer, payload.contract_digest())
             buffer = address.encode_address(buffer, payload.contract_address())
         } else if (CHAIN_CODE === contract_mode) {
             let encoded_chain_code = Buffer.from(payload.chain_code(), 'ascii')
@@ -140,6 +138,10 @@ const encode_payload = payload => {
             buffer,
             Buffer.from(payload.action(), 'ascii')
         )
+        if(typeof payload.data !== "function"){
+             debugger;
+        }
+
         const data = Buffer.from(payload.data())
         buffer = bytearray.encode_bytearray(buffer, data)
     }
@@ -167,27 +169,17 @@ const encode_payload = payload => {
 
 const encode_multisig_transaction = (payload, signatures) => {
     // assert isinstance(payload, bytes) or isinstance(payload, transaction.Transaction)
-    assert((payload instance bytes) or isinstance(payload, transaction.Transaction)
+    //assert((payload instance bytes) or isinstance(payload, transaction.Transaction)
 
     // encode the contents of the transaction
-    encode_payload(payload)
+    let buffer = encode_payload(payload);
 
-    const signers = payload.signers())
+    const signers = payload.signers()
     // append signatures in order
     for(let key in signers){
-        if(typeof )
+                  buffer = encode_bytearray(buffer2, signatures[key].signature)
     }
-
- ?? RETURN TO FINISH THIS>
-
-    for signer in payload.signers.keys():
-        if isinstance(signatures[signer], bytes):
-            bytearray.encode(buffer, signatures[signer])
-        else:
-            bytearray.encode(buffer, signatures[signer]['signature'])
-
-    // return the encoded transaction
-    return buffer.getvalue()
+    return buffer
 }
 
 const encode_transaction = (payload, signers) => {
@@ -223,8 +215,6 @@ const encode_transaction = (payload, signers) => {
 
 
 const decode_payload = (buffer) => {
-    // we use the origin later to determine the payload
-    const input_buffer = buffer
     // ensure the at the magic is correctly configured
     const magic = buffer.slice(0, 1)
     buffer = buffer.slice(1)
@@ -333,10 +323,9 @@ const decode_payload = (buffer) => {
             }
         }
         if (contract_type == SMART_CONTRACT || contract_type == SYNERGETIC) {
-            let contract_digest, contract_address;
-            [contract_digest, buffer] = address.decode_address(buffer);
+            let contract_address;
             [contract_address, buffer] = address.decode_address(buffer)
-            tx.target_contract(contract_digest, contract_address, shard_mask)
+            tx.target_contract(contract_address, shard_mask)
 
         } else if (contract_type == CHAIN_CODE) {
             let encoded_chain_code_name;
@@ -370,39 +359,36 @@ const decode_payload = (buffer) => {
     for (let i = 0; i < num_signatures; i++) {
         [pk, buffer] = identity.decode_identity(buffer)
         public_keys.push(pk)
+        let ident = new Identity(pk)
+        tx.add_signer(ident.public_key_hex())
     }
+    return [tx, buffer]
+}
 
+const decode_transaction = (buffer) => {
+    const input_buffer = buffer;
+    let tx;
+    [tx, buffer] = decode_payload(buffer)
+    const num_signatures = Object.keys(tx.signers()).length
     const signatures_serial_length = EXPECTED_SERIAL_SIGNATURE_LENGTH * num_signatures
     const expected_payload_end = Buffer.byteLength(input_buffer) - signatures_serial_length
     const payload_bytes = input_buffer.slice(0, expected_payload_end)
     const verified = []
 
-    public_keys.forEach((ident) => {
+    let signers = Object.keys(tx.signers())
+    for(let i =0; i < signers.length; i++){
         let identity, signature;
         [signature, buffer] = bytearray.decode_bytearray(buffer)
-        identity = new Identity(ident)
+        identity = Identity.from_hex(signers[i])
         let payload_bytes_digest = _calc_digest_utf(payload_bytes)
         verified.push(identity.verify(payload_bytes_digest, signature))
-        tx.add_signer(identity.public_key_hex())
-    })
-
-
-    return [tx, buffer]
-
-    // const success = verified.every((verified) => verified === true)[]
-    // return [success, tx]
+        tx._signers[identity.public_key_hex()] = {
+            'signature': signature,
+            'verified': verified[verified.length-1],
+        }
+    }
+    const success = verified.every((verified) => verified === true)
+    return [success, tx]
 }
 
-decode_transaction(buffer){
-    const input_buffer = buffer;
-    const [tx, buffer] = decode_payload(buffer)
-     tx.signers()
-
-    const num_signatures =
-     const signatures_serial_length = EXPECTED_SERIAL_SIGNATURE_LENGTH * num_signatures
-    const expected_payload_end = Buffer.byteLength(input_buffer) - signatures_serial_length
-    const payload_bytes = input_buffer.slice(0, expected_payload_end)
-
-}
-
-export {encode_transaction, decode_transaction}
+export {encode_transaction, decode_transaction, decode_payload, encode_multisig_transaction}
