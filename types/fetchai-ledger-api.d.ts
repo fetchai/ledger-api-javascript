@@ -1,3 +1,6 @@
+import * as fetchai_ledger_api from '../src/fetchai/ledger/index'
+declare module "fetchai_ledger_api";
+
 export class Address {
     constructor(Identity);
 
@@ -278,7 +281,7 @@ export namespace Bootstrap {
 
     function list_servers(active?: boolean): void;
 
-    function server_from_name(network: string): void;
+    function server_from_name(network: string): any;
 
     function split_address(address: string): void;
 }
