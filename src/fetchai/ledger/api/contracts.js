@@ -259,9 +259,11 @@ debugger;
         // build up the basic transaction information
         const tx = TransactionFactory.create_action_tx(fee, owner, 'create', shard_mask)
         const data = JSON.stringify({
+            'text': contract.encoded_source(),
             'nonce': contract.nonce(),
-            'text': contract.encoded_source()
+            'digest': contract.digest().toHex()
         });
+
         debugger;
         console.log("data is : " + data);
         tx.data(data)
