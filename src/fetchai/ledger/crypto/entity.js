@@ -228,7 +228,7 @@ export class Entity extends Identity {
 
         let hashed_pass
         try {
-            hashed_pass = await promisified_pbkdf2(password, salt, 2000000, 32, 'sha256')
+            hashed_pass = await promisified_pbkdf2(password, new Buffer(salt, 'hex'), 2000000, 32, 'sha256')
         } catch (err) {
             throw new RunTimeError('Decryption failed')
         }
