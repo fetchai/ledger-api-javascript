@@ -1,6 +1,6 @@
-import { Entity } from '../../fetchai/ledger/crypto/entity'
-import { createHash } from 'crypto'
-import { ValidationError } from '../../fetchai/ledger/errors'
+import {Entity} from '../../fetchai/ledger/crypto/entity'
+import {createHash} from 'crypto'
+import {ValidationError} from '../../fetchai/ledger/errors'
 
 const THIRTY_TWO_BYTE_BASE64 = 'XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M='
 
@@ -30,7 +30,6 @@ describe(':Entity', () => {
         expect(reference.public_key()).toEqual(other.public_key())
         expect(reference.public_key_hex()).toEqual(other.public_key_hex())
     })
-
 
 
     test('test signing verifying cycle', () => {
