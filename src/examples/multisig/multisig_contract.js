@@ -1,9 +1,9 @@
 import {Entity} from "../../fetchai/ledger/crypto/entity";
-import {Address} from "../../fetchai/ledger/crypto/Address";
 import {LedgerApi} from "../../fetchai/ledger/api";
 import {ContractTxFactory} from "../../fetchai/ledger/api/contracts";
 import {Deed} from "../../fetchai/ledger/crypto/deed";
 import {Contract} from "../../fetchai/ledger";
+import {Address} from "../../fetchai/ledger/crypto";
 
 const CONTRACT_TEXT = `
 persistent sharded balance_state : UInt64;
@@ -63,17 +63,17 @@ async function print_address_balances(api, contract, addresses) {
 async  function main(){
     let txs;
    // generate a random identity
-   const multi_sig_identity = Entity()
+   const multi_sig_identity = Entity.from_hex('6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b')
 
    // create our first private key pair
     const multi_sig_address = new Address(multi_sig_identity)
 
    // generate a board to control multi-sig account, with variable voting weights
     const board = []
-            board.push({ member: new Entity(), voting_weight: 1})
-            board.push({ member: new Entity(), voting_weight: 1})
-            board.push({ member: new Entity(), voting_weight: 1})
-            board.push({ member: new Entity(), voting_weight: 2})
+    board.push({member: Entity.from_hex("e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8"), voting_weight: 1})
+    board.push({member: Entity.from_hex("4083a476c4872f25cb40839ac8d994924bcef12d83e2ba4bd3ed6c9705959860"), voting_weight: 1})
+    board.push({member: Entity.from_hex("20293422c4b5faefba3422ed436427f2d37f310673681e98ac8637b04e756de3"), voting_weight: 1})
+    board.push({member: Entity.from_hex("d5f10ad865fff147ae7fcfdc98b755452a27a345975c8b9b3433ff16f23495fb"), voting_weight: 2})
 
    // create a second private key pair
     const entity2 = new Entity()
@@ -85,13 +85,13 @@ async  function main(){
     const contract_factory = new ContractTxFactory(api)
 
    // create wealth so that we have the funds to be able to create contracts on the network
-    txs = api.tokens.wealth(multi_sig_identity, 10000)
-    api.sync(txs)
+   //  txs = api.tokens.wealth(multi_sig_identity, 10000)
+   //  api.sync([txs])
 
-    board.forEach(async (obj)  =>  {
-        txs = await api.tokens.wealth(obj.member, 10000);
-        await  api.sync(txs)
-    })
+    // board.forEach(async (obj)  =>  {
+    //     txs = await api.tokens.wealth(obj.member, 10000);
+    //     await  api.sync(txs)
+    // })
 
    // create a multisig deed for multi_sig_identity
     console.log("\nCreating deed...")
@@ -105,12 +105,12 @@ async  function main(){
    // Both the transfer and execute thresholds must be met to create a contract
    // TODO: Contract creation both requires meeting the thresholds below, and can only be signed by a single
    //  signatory. Therefore a single board member must be able to exceed these thresholds for creation
-    deed.set_threshold(deed.OPERATIONS.EXECUTE, 2)
-    deed.set_threshold(deed.OPERATIONS.TRANSFER, 2)
+    deed.set_threshold("EXECUTE", 2)
+    deed.set_threshold("TRANSFER", 2)
 
    // Submit deed
     txs = await api.tokens.deed(multi_sig_identity, deed)
-    await api.sync(txs)
+    await api.sync([txs])
 
    // create the smart contract
     console.log('\nSetting up smart contract')
@@ -121,7 +121,7 @@ async  function main(){
     tx.sign(board[3].member)
 
     txs = await api.contracts.submit_signed_tx(tx, tx.signers)
-    await api.sync(txs)
+    await api.sync([txs])
 
    // print the current status of all the tokens
     console.log('-- BEFORE --')

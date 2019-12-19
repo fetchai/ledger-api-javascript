@@ -313,9 +313,9 @@ export class TokenTxFactory extends TransactionFactory {
             tx.add_signer(entity.public_key_hex())
         }
         const deed_json = deed.deed_creation_json()
-
-        tx.data = JSON.stringify(deed_json)
-
+        const j = JSON.stringify(deed_json);
+debugger;
+        tx.data(JSON.stringify(deed_json))
         return tx
     }
 

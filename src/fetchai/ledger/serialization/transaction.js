@@ -138,10 +138,6 @@ const encode_payload = payload => {
             buffer,
             Buffer.from(payload.action(), 'ascii')
         )
-        if(typeof payload.data !== "function"){
-             debugger;
-        }
-
         const data = Buffer.from(payload.data())
         buffer = bytearray.encode_bytearray(buffer, data)
     }

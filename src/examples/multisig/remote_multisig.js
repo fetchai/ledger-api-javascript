@@ -14,7 +14,7 @@ async function main() {
     // create the APIs
     const api = new LedgerApi(HOST, PORT)
     // generate a random identity
-    const multi_sig_identity = new Entity()
+    const multi_sig_identity =  Entity.from_hex('6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b')
     // generate a board to control multi-sig account, with variable voting weights
     const board = []
     board.push({member: new Entity(), voting_weight: 1})
@@ -23,12 +23,6 @@ async function main() {
     board.push({member: new Entity(), voting_weight: 2})
     // generate another entity as a target for transfers
     const other_identity = new Entity()
-
-    // Create the balance
-    console.log('\nSubmitting wealth creation...')
-    txs = await api.tokens.wealth(multi_sig_identity, 100000)
-    await api.sync(txs)
-    console.log('Balance after wealth:', api.tokens.balance(multi_sig_identity))
 
     // Submit deed
     console.log("\nCreating deed...")

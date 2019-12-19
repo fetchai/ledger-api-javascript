@@ -1,6 +1,8 @@
 import {ValidationError} from "../errors";
+import {Address} from "./address";
+import {InvalidDeedError} from "../errors/invalidDeedError";
 
-AddressLike = Union[Address, Identity]
+// AddressLike = Union[Address, Identity]
 
 // class Operation(Enum):
 //     """Enables future amendments to the deed"""
@@ -47,7 +49,7 @@ export class Deed {
              throw new InvalidDeedError("Attempting to set threshold higher than available votes - it will never be met")
          }
 
-       Deed.valid_operation(operation)
+       this.valid_operation(operation)
        this.thresholds[operation] = threshold
      }
 
@@ -77,7 +79,7 @@ export class Deed {
      }
 
      set_amend_threshold(value) {
-         this.set_threshold(this.Operation.AMEND, value)
+         this.set_threshold("AMEND", value)
      }
 
 
@@ -91,7 +93,6 @@ export class Deed {
      })
 
         const deed = {
-            'address': new Address(this.address).toString(),
             'signees': signees,
             'thresholds': {}
         }
@@ -108,14 +109,15 @@ export class Deed {
         } else {
            throw new InvalidDeedError("Creating deed without amend threshold - future amendment will be impossible")
         }
+        let lower;
         // Add other thresholds
         for(let key in this.thresholds){
-              deed['thresholds'][key] = this.thresholds[key]
+            lower = key.toLowerCase()
+              deed['thresholds'][lower] = this.thresholds[key]
         }
-
         return deed;
 }
-static valid_operation(operation)
+valid_operation(operation)
 {
     if (typeof this.OPERATIONS[operation] === "undefined") {
         let str = "";

@@ -7,6 +7,7 @@ const PORT = 8000
 
 
 function print_signing_votes(board){
+
        console.log("print_signing_votes called");
        let str = "Votes: " + board[0].voting_weight;
 
@@ -19,12 +20,14 @@ function print_signing_votes(board){
         }
 
         async function main() {
-        let balance, balance1, balance2, signatories, txs;
+        let balance, balance1, balance2, signatories, txs, tx;;
     // create the APIs
     const api = new LedgerApi(HOST, PORT)
 
+    const identity1 = Entity.from_hex('6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b')
+
     // generate a random identity
-    const multi_sig_identity = Entity()
+    const multi_sig_identity =  Entity.from_hex('6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b')
     // generate a board to control multi-sig account, with variable voting weights
     const board = []
             board.push({ member: new Entity(), voting_weight: 1})
@@ -40,32 +43,27 @@ function print_signing_votes(board){
     // ]
     // // generate another entity as a target for transfers
     const other_identity = new Entity()
-
-    // Create the balance
-    console.log('Submitting wealth creation...')
-    tx = api.tokens.wealth(multi_sig_identity, 100000000)
-    await api.sync(tx)
     balance = await api.tokens.balance(multi_sig_identity)
     console.log('Balance after wealth:', balance)
 
     // Transfers can happen normally without a deed
     console.log('Submitting pre-deed transfer with original signature...')
          tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
-         await api.sync(tx)
+         await api.sync([tx])
          balance1 =   await api.tokens.balance(multi_sig_identity)
          balance2 =   await api.tokens.balance(other_identity)
     console.log('Balance 1:', balance1)
-    console.log('Balance 2:', balance2)
 
     // Submit deed
     console.log("\nCreating deed...")
     const deed = new Deed(multi_sig_identity)
 
     board.forEach((item) => { deed.set_signee(item.member, item.voting_weight) })
-    deed.amend_threshold(4)
-    deed.transfer_threshold(2)
-    tx = api.tokens.deed(multi_sig_identity, deed)
-    await api.sync(tx)
+    deed.set_amend_threshold(4)
+    deed.set_threshold("TRANSFER", 2)
+
+   tx = await api.tokens.deed(multi_sig_identity, deed)
+    await api.sync([tx])
     // Original address can no longer validate transfers
     console.log("\nTransfer with original signature should fail...")
 
@@ -96,7 +94,7 @@ function print_signing_votes(board){
 
     // Amend the deed
     console.log("\nAmending deed to increase transfer threshold to 3 votes...")
-    deed.transfer_threshold = 3
+     deed.set_threshold("TRANSFER", 3)
     txs = (multi_sig_identity, deed, board)
     await api.sync(txs)
 
@@ -124,9 +122,9 @@ function print_signing_votes(board){
 
     // Warning: if no amend threshold is set, future amendments are impossible
     console.log("\nAmending deed to remove threshold...")
-    deed.amend_threshold(null)
+    deed.set_amend_threshold(null)
             signatories = board.map( obj => obj.member )
-            tx = api.tokens.deed(multi_sig_identity, deed, )
+            tx = api.tokens.deed(multi_sig_identity, deed, signatories)
     await api.sync(tx)
 
     deed.amend_threshold (1)
