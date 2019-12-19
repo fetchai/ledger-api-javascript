@@ -32,10 +32,6 @@ describe(':Entity', () => {
 
         const reference2 = new Entity()
 
-        const h2 = reference2.private_key_hex()
-        const a2 = new Address(reference2).toString()
-
-        debugger;
 
 
         const other = new Entity(reference.private_key())

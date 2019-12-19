@@ -2,7 +2,7 @@ import * as  fs from 'fs'
 import assert from 'assert'
 import {Address} from './crypto/address'
 import {BitVector} from './bitvector'
-import {ContractsApi} from './api/contracts'
+import {ContractsApi, ContractTxFactory} from './api/contracts'
 import {createHash, randomBytes} from 'crypto'
 import {default as atob} from 'atob'
 import {default as btoa} from 'btoa'
@@ -92,7 +92,7 @@ export class Contract {
         return this._address
     }
 
-    async create(api, owner, fee) {
+    async create(api, owner, fee, signers = null) {
         this.owner(owner)
 
         if (this._init === null) {
@@ -108,7 +108,7 @@ export class Contract {
             logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
             shard_mask = new BitVector()
         }
-        return Contract._api(api).create(owner, fee, this, null, shard_mask)
+        return Contract._api(api).create(owner, fee, this, signers, shard_mask)
     }
 
     async query(api, name, data) {
@@ -159,7 +159,7 @@ export class Contract {
 
 
     static _api(ContractsApiLike) {
-        if (ContractsApiLike instanceof ContractsApi) {
+        if (ContractsApiLike instanceof ContractTxFactory) {
             return ContractsApiLike
         } else if (ContractsApiLike instanceof LedgerApi) {
             return ContractsApiLike.contracts

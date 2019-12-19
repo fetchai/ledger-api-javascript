@@ -7,6 +7,7 @@ import assert from "assert";
 import {encode, ExtensionCodec} from "@msgpack/msgpack";
 import {Address} from "../crypto";
 import {BitVector} from "../bitvector";
+import {encode_multisig_transaction} from "../serialization/transaction";
 
 function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
     let canonical_name, url
@@ -141,9 +142,9 @@ export class ApiEndpoint {
         // :raises: ApiError on any failures
         // """
         // Encode transaction and append signatures
-        const encoded_tx = transaction.encode_multisig_transaction(tx, signatures)
+        const encoded_tx = encode_multisig_transaction(tx, signatures)
         // Submit and return digest
-        const res = await this._post_tx_json(encoded_tx, tx.action)
+        const res = await this._post_tx_json(encoded_tx, tx.action())
         return res;
     }
     // tx is transaction
@@ -155,7 +156,8 @@ export class ApiEndpoint {
         // query what the current block number is on the node
         const current_block = await this._current_block_number()
 
-        tx.valid_until(new BN(current_block + validity_period))
+     //   tx.valid_until(new BN(current_block + validity_period))
+        tx.valid_until(new BN(1000))
 
         return tx.valid_until()
 }
@@ -203,6 +205,7 @@ export class ApiEndpoint {
             ver: '1.2',
             data: tx_data.toString('base64')
         }
+        debugger;
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
         // make the request
@@ -226,7 +229,7 @@ export class ApiEndpoint {
     }
 }
 
-const prefix = "";
+const prefix = "fetch.token";
 
 export class TransactionFactory {
     //python API_PREFIX = None

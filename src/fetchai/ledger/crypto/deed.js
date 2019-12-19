@@ -2,25 +2,6 @@ import {ValidationError} from "../errors";
 import {Address} from "./address";
 import {InvalidDeedError} from "../errors/invalidDeedError";
 
-// AddressLike = Union[Address, Identity]
-
-// class Operation(Enum):
-//     """Enables future amendments to the deed"""
-//     amend = 1
-//     """Enables FET transfers"""
-//     transfer = 2
-//     """Enab"""
-//     execute = 3
-//
-//     stake = 4
-//
-//     def __repr__(self):
-//         return '<%s.%s>' % (self.__class__.__name__, self.name)
-//
-//     def __str__(self):
-//         return self.name
-
-
 export class Deed {
        constructor(address) {
            this.address = address
@@ -30,12 +11,11 @@ export class Deed {
        }
 
     set_signee(signee, voting_weight) {
-        this.signees.push({signee: signee, voting_weight: voting_weight})
+        this.signees.push({ signee: signee, voting_weight: voting_weight})
     }
 
     remove_signee(signee){
-        // if signee in this._signees:
-        //     del this._signees[signee]
+
         for(let i = 0; i < this.signees.length; i++){
             if(this.signees[i].signee.public_key_hex() === signee.public_key_hex()){
                   this.signees.splice(i, 1);
@@ -69,6 +49,7 @@ export class Deed {
           return this.signees.reduce((accum, curr) => accum + curr.voting_weight)
      }
 
+     // lets change this to make it more uniform
      amend_threshold(){
 
            if(typeof this.thresholds.AMEND !== "undefined") {
@@ -86,11 +67,11 @@ export class Deed {
      deed_creation_json(allow_no_amend=false){
 
            const signees = {}
-               this.signees.forEach((obj) => {
-                   let address = new Address(obj.signee).toString()
-                   signees[address] = obj.voting_weight
-
-     })
+          for( var i = 0; i < this.signees.length; i++){
+              let address = new Address(this.signees[i].signee).toString()
+               signees[address] = this.signees[i].voting_weight
+               console.log("signeesa adres" + signees[address])
+          }
 
         const deed = {
             'signees': signees,
@@ -107,6 +88,7 @@ export class Deed {
         else if(allow_no_amend) {
             logging.warning("Creating deed without amend threshold - future amendment will be impossible")
         } else {
+            debugger
            throw new InvalidDeedError("Creating deed without amend threshold - future amendment will be impossible")
         }
         let lower;

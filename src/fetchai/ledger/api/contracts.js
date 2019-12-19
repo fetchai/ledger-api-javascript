@@ -101,7 +101,7 @@ export class ContractsApi extends ApiEndpoint {
         args,
         shard_mask = null
     ) {
-        debugger;
+
 
         /*
             def action(self, contract_address: Address, action: str,
@@ -222,7 +222,6 @@ export class ContractTxFactory extends TransactionFactory {
            fee, from_address, args,
            signers = null,
            shard_mask = null) {
-debugger;
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {
             logger.info("Defaulting to wildcard shard mask as none supplied")
@@ -248,8 +247,9 @@ debugger;
     }
 
 
-    create(owner, contract, fee, signers = null,
+    create(owner, fee, contract,  signers = null,
            shard_mask = null) {
+
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {
             logger.info("Defaulting to wildcard shard mask as none supplied")
@@ -264,18 +264,14 @@ debugger;
             'digest': contract.digest().toHex()
         });
 
-        debugger;
-        console.log("data is : " + data);
         tx.data(data)
         this.set_validity_period(tx)
 
         if (signers !== null) {
-            debugger;
             signers.forEach((signer) => {
                 tx.add_signer(signer.public_key_hex())
             })
         } else {
-            debugger;
             tx.add_signer(owner.public_key_hex())
         }
 

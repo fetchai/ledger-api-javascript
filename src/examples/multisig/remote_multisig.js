@@ -30,7 +30,7 @@ async function main() {
     board.forEach((board) => {
         deed.set_signee(board.member, board.voting_weight)
     })
-    deed.amend_threshold(4)
+    deed.set_amend_threshold(4)
     deed.set_threshold(deed.OPERATIONS.TRANSFER, 3)
 
     txs = await api.tokens.deed(multi_sig_identity, deed)
@@ -103,7 +103,7 @@ async function main() {
     console.log("\nGenerating transaction and sending down the line of signers...")
     // Add intended signers to transaction
     const tx = await TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, signatories = board)
-    api.tokens._set_validity_period(tx)
+    await api.tokens.set_validity_period(tx)
 
     // Serialize and send to be signed
     txs = tx.encode_partial()
@@ -112,14 +112,14 @@ async function main() {
    // for signer in board:
     board.foreach((board_member) => {
     // Signer builds their own transaction to compare to
-    signer_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
+    let signer_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
 
     // Signer decodes payload to inspect transaction
     itx = Transaction.decode_partial(stx)
 
     // Some transaction details aren't expected to match/can't be predicted
-    signer_tx.valid_until = itx.valid_until
-    signer_tx.counter = itx.counter
+    signer_tx.valid_until(itx.valid_until())
+    signer_tx.counter(itx.counter())
 
 
     if(signer_tx.compare(itx)){

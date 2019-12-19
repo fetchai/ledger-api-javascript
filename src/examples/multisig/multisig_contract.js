@@ -61,7 +61,7 @@ async function print_address_balances(api, contract, addresses) {
 
 
 async  function main(){
-    let txs;
+    let txs, tx;
    // generate a random identity
    const multi_sig_identity = Entity.from_hex('6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b')
 
@@ -83,7 +83,6 @@ async  function main(){
     const api = new LedgerApi('127.0.0.1', 8000)
    // create contract factory
     const contract_factory = new ContractTxFactory(api)
-
    // create wealth so that we have the funds to be able to create contracts on the network
    //  txs = api.tokens.wealth(multi_sig_identity, 10000)
    //  api.sync([txs])
@@ -100,8 +99,7 @@ async  function main(){
     //     deed.set_signee(sig, weight)
 
     board.forEach((item) => deed.set_signee(item.member, item.voting_weight))
-
-    deed.amend_threshold(4)
+    deed.set_amend_threshold(4)
    // Both the transfer and execute thresholds must be met to create a contract
    // TODO: Contract creation both requires meeting the thresholds below, and can only be signed by a single
    //  signatory. Therefore a single board member must be able to exceed these thresholds for creation
@@ -117,15 +115,15 @@ async  function main(){
     const contract = new Contract(CONTRACT_TEXT, multi_sig_identity)
 
    // TODO: Must be signed by single board member with sufficient votes
-    tx = await contract.create(contract_factory, multi_sig_identity, 4000, board[3].member)
+    tx = await contract.create(contract_factory, multi_sig_identity, 4000, [board[3].member])
     tx.sign(board[3].member)
 
-    txs = await api.contracts.submit_signed_tx(tx, tx.signers)
+    txs = await api.contracts.submit_signed_tx(tx, tx.signers())
     await api.sync([txs])
 
    // print the current status of all the tokens
     console.log('-- BEFORE --')
-    print_address_balances(api, contract, [multi_sig_address, address2])
+    await print_address_balances(api, contract, [multi_sig_address, address2])
 
    // transfer from one to the other using our newly deployed contract
     const tok_transfer_amount = 200
@@ -136,10 +134,10 @@ async  function main(){
     tx = await contract.action(contract_factory, 'transfer', fet_tx_fee, multi_sig_address, address2, tok_transfer_amount, signers)
     board.forEach((board)=> {tx.sign(board.member)})
 
-    txs = await api.contracts.submit_signed_tx(tx, tx.signers)
+    txs = await api.contracts.submit_signed_tx(tx, tx.signers())
     await api.sync(txs)
 
     console.log('-- AFTER --')
-    print_address_balances(api, contract, [multi_sig_address, address2])
+    await print_address_balances(api, contract, [multi_sig_address, address2])
 }
     main()

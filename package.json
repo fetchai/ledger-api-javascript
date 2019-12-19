@@ -8,6 +8,7 @@
   "scripts": {
     "e2e": "node dist/tests/e2e/controllers/server.js && node dist/tests/e2e/controllers/browser.js",
     "build": "babel src/ -d dist/ && rm -rf bundle/ index.js && webpack",
+    "dist": "babel src/ -d dist/",
     "test": "jest src/test",
     "lint": "eslint .",
     "prepublish": "npm build",

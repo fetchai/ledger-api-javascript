@@ -73,6 +73,7 @@ const encode_payload = payload => {
     header0 |= has_valid_from ? 1 : 0
     // determine the mode of the contract
     const contract_mode = _map_contract_mode(payload)
+
     let header1 = contract_mode << 6
     header1 |= signalled_signatures & 0x3f
     let buffer = Buffer.from([MAGIC, header0, header1, RESERVED])
@@ -169,11 +170,10 @@ const encode_multisig_transaction = (payload, signatures) => {
 
     // encode the contents of the transaction
     let buffer = encode_payload(payload);
-
     const signers = payload.signers()
     // append signatures in order
     for(let key in signers){
-                  buffer = encode_bytearray(buffer2, signatures[key].signature)
+                  buffer = encode_bytearray(buffer, signatures[key].signature)
     }
     return buffer
 }
@@ -387,4 +387,4 @@ const decode_transaction = (buffer) => {
     return [success, tx]
 }
 
-export {encode_transaction, decode_transaction, decode_payload, encode_multisig_transaction}
+export {encode_transaction, decode_transaction, decode_payload, encode_multisig_transaction, encode_payload}

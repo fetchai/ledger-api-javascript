@@ -3,9 +3,27 @@ import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
 import {BN} from 'bn.js'
 import assert from 'assert'
-import {randomBytes} from 'crypto'
+import {createHash, randomBytes} from 'crypto'
 import * as identity from "./serialization/identity";
 import * as bytearray from "./serialization/bytearray";
+import {
+    decode_integer,
+    decode_payload,
+    decode_transaction,
+    encode_bytearray,
+    encode_identity,
+    encode_payload
+} from "./serialization";
+import * as integer from "./serialization/integer";
+import {RunTimeError} from "./errors";
+
+
+function calc_digest(address_raw) {
+    const hash_func = createHash('sha256')
+    hash_func.update(address_raw)
+    const digest = hash_func.digest()
+    return digest
+}
 
 /**
  * This class for Transactions related operations
@@ -148,9 +166,9 @@ export class Transaction {
     }
 
     payload() {
-        const buffer = transaction.encode_payload(this)
+        const buffer = encode_payload(this)
         // so to get running lets just do like hex or whatever since only used to compare but then actually get same as python and delete this comment at later stage.
-        return buffer.toString('hex')
+        return buffer
     }
 
     static from_payload(payload) {
@@ -217,10 +235,11 @@ export class Transaction {
 
     sign(signer) {
         if (typeof this._signers[signer.public_key_hex()] !== "undefined") {
-            const signature = signer.sign(self.payload)
-            this._signers[Identity(signer)] = {
-                'signature': signature,
-                'verified': signer.verify(this.payload(), signature)
+            const payload_digest = calc_digest(this.payload())
+            const sign_obj = signer.sign(payload_digest)
+            this._signers[signer.public_key_hex()] = {
+                'signature': sign_obj.signature,
+                'verified': signer.verify(payload_digest, sign_obj.signature)
             }
         }
     }
@@ -232,7 +251,7 @@ export class Transaction {
         }
 
         const signers = txs2.signers();
-        for (key in signers) {
+        for (let key in signers) {
             if (typeof signers.key !== "undefined" && typeof this._signers[key] === "undefined") {
                 this._signers[key] = signers[key];
             }
@@ -244,7 +263,7 @@ export class Transaction {
 
         const num_signed = Object.values(this._signers).reduce((accum, current) => (typeof current.signature !== "undefined") ? current + 1 : current)
         //  num_signed = len([s for s in self.signers.values() if s
-        buffer = integer.encode(buffer, num_signed)
+        buffer = integer.encode_integer(buffer, num_signed)
 
         for (let key in this._signers) {
             if (typeof this._signers[key].signature !== "undefined") {
@@ -271,8 +290,11 @@ export class Transaction {
             }
         }
 
-
-        const success = verified.every((verified) => verified === true)
+        for(let key in tx.signers){
+            if(!tx.signers[key].verified){
+                 throw new RunTimeError('Not all keys were able to sign successfully')
+            }
+        }
 
         // reinstate before submission
         // if not all(s['verified'] for s in tx.signers.values() if 'verified' in s):

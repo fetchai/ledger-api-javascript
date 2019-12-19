@@ -25,7 +25,6 @@ async function main() {
     const nonce = Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')
     // create the smart contract
     const contract = new Contract(TRANSFER_CONTRACT, entity1, nonce)
-    debugger;
     const created = await contract.create(api, entity1, 4000)
     await api.sync([created])
     console.log('-- BEFORE --')

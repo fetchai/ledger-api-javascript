@@ -96,6 +96,9 @@ export class LedgerApi {
 
     async _poll(digest) {
         let status = await this.tx.status(digest)
+
+        if(status.status === "Fatal Error") debugger;
+
         console.log('status is', status.status)
         return /Executed|Submitted/.test(status.status)
     }

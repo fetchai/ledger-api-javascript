@@ -178,29 +178,60 @@ export class TokenApi extends ApiEndpoint {
      * @returns The digest of the submitted transaction.
      * @throws {ApiError} ApiError on any failures.
      */
-    async transfer(entity, to, amount, fee) {
-        // format the data to be closed by the transaction
-        logger.info(
-            `request for transferring ${amount} wealth from ${entity.public_key_hex()} to ${to} with fee ${fee}`
-        )
+    async transfer(entity, to, amount, fee, signatories = null) {
 
-        // build up the basic transaction information
-        let tx = await super.create_skeleton_tx(fee)
-        tx.from_address(entity) //hex of address
-        tx.add_transfer(to, new BN(amount))
-        tx.add_signer(entity.public_key_hex()) // hex of public key
 
-        const encoded = JSON.stringify({
-            address: entity.public_key_base64(), //base64 encoded public key
-            amount: amount
-        })
-        tx.data(encoded)
+        const ENDPOINT = 'transfer'
 
-        const encoded_tx = encode_transaction(tx, [entity])
+        const tx = await TokenTxFactory.transfer(entity, to, amount, fee, signatories)
+        this.set_validity_period(tx)
 
-        // submit the transaction
-        return await this._post_tx_json(encoded_tx, 'transfer')
+        // encode and sign the transaction
+
+        if(signatories == null){
+            signatories = [entity]
+        }
+debugger;
+        const encoded_tx = encode_transaction(tx, signatories)
+        //submit the transaction
+        return await this._post_tx_json(encoded_tx, ENDPOINT)
+
+        // // format the data to be closed by the transaction
+        // logger.info(
+        //     `request for transferring ${amount} wealth from ${entity.public_key_hex()} to ${to} with fee ${fee}`
+        // )
+        //
+        // // build up the basic transaction information
+        // let tx = await super.create_skeleton_tx(fee)
+        // tx.from_address(entity) //hex of address
+        // tx.add_transfer(to, new BN(amount))
+        // tx.add_signer(entity.public_key_hex()) // hex of public key
+        //
+        // const encoded = JSON.stringify({
+        //     address: entity.public_key_base64(), //base64 encoded public key
+        //     amount: amount
+        // })
+        // tx.data(encoded)
+        //
+        // const encoded_tx = encode_transaction(tx, [entity])
+        //
+        // // submit the transaction
+        // return await this._post_tx_json(encoded_tx, 'transfer')
     }
+
+    /*
+
+        ENDPOINT = 'transfer'
+
+        tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
+        self._set_validity_period(tx)
+
+        # encode and sign the transaction
+        encoded_tx = transaction.encode_transaction(tx, signatories if signatories else [entity])
+
+        # submit the transaction
+        return self._post_tx_json(encoded_tx, ENDPOINT)
+     */
 
     /**
      *   """
@@ -313,17 +344,16 @@ export class TokenTxFactory extends TransactionFactory {
             tx.add_signer(entity.public_key_hex())
         }
         const deed_json = deed.deed_creation_json()
-        const j = JSON.stringify(deed_json);
-debugger;
         tx.data(JSON.stringify(deed_json))
         return tx
     }
 
     static async transfer(entity, to, amount, fee, signatories = null) {
+        debugger;
         // build up the basic transaction information
-        const tx = await super.create_skeleton_tx(fee)
-        tx.from_address = new Address(entity)
-        tx.add_transfer(to, amount)
+        const tx = super.create_skeleton_tx(fee)
+        tx.from_address(new Address(entity))
+        tx.add_transfer(to, new BN(amount))
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
