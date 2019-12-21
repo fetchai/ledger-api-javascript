@@ -58,7 +58,6 @@ async function test_server() {
     const [uri, port] = await poll(driver, 'SERVER')
     Assert.assert(uri.includes('.fetch-ai.com') && port === 443)
     logger.info('test_server passed')
-
 }
 
 async function test_transfer() {

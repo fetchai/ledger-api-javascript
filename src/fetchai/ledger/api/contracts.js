@@ -59,7 +59,7 @@ export class ContractsApi extends ApiEndpoint {
         // )
         // tx.add_signer(owner.public_key_hex())
         const contractTxFactory = new ContractTxFactory(this.parent_api);
-        const tx = contractTxFactory.create(owner, contract, fee, null, shard_mask)
+        const tx = await contractTxFactory.create(owner, contract, fee, null, shard_mask)
         // const encoded_tx = encode_transaction(tx, [owner])
         // TODO: Is multisig contract creation possible?
         signers = (signers !== null) ? signers : [owner]
@@ -198,7 +198,7 @@ export class ContractsApi extends ApiEndpoint {
 
 export class ContractTxFactory extends TransactionFactory {
     constructor(api) {
-        super()
+        super('fetch.contract')
         this.api = api;
         this.prefix = 'fetch.contract';
     }
@@ -214,11 +214,11 @@ export class ContractTxFactory extends TransactionFactory {
      * @param tx
      * @param validity_period
      */
-    set_validity_period(tx, validity_period = null) {
-        this.api.server.set_validity_period(tx, validity_period)
+    async set_validity_period(tx, validity_period = null) {
+        await this.api.server.set_validity_period(tx, validity_period)
     }
 
-    action(contract_address, action,
+    async action(contract_address, action,
            fee, from_address, args,
            signers = null,
            shard_mask = null) {
@@ -229,13 +229,14 @@ export class ContractTxFactory extends TransactionFactory {
         }
 
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, from_address, action, shard_mask)
+        const tx = TransactionFactory.create_action_tx(fee, from_address, action, 'fetch.contract', shard_mask)
         tx.target_contract(contract_address, shard_mask)
         tx.data(TransactionFactory.encode_msgpack_payload(args))
-        this.set_validity_period(tx)
+        await this.set_validity_period(tx)
 
         if (signers !== null) {
             signers.forEach((signer) => {
+                debugger;
                 tx.add_signer(signer.public_key_hex())
             })
         } else {
@@ -247,7 +248,7 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
 
-    create(owner, fee, contract,  signers = null,
+    async create(owner, fee, contract,  signers = null,
            shard_mask = null) {
 
         // Default to wildcard shard mask if none supplied
@@ -257,7 +258,7 @@ export class ContractTxFactory extends TransactionFactory {
         }
 
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, owner, 'create', shard_mask)
+        const tx = TransactionFactory.create_action_tx(fee, owner, 'create', 'fetch.contract', shard_mask)
         const data = JSON.stringify({
             'text': contract.encoded_source(),
             'nonce': contract.nonce(),
@@ -265,7 +266,7 @@ export class ContractTxFactory extends TransactionFactory {
         });
 
         tx.data(data)
-        this.set_validity_period(tx)
+        await this.set_validity_period(tx)
 
         if (signers !== null) {
             signers.forEach((signer) => {

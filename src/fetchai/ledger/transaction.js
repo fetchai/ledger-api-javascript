@@ -261,28 +261,33 @@ export class Transaction {
     encode_partial() {
         let buffer = encode_payload(this)
 
-        const num_signed = Object.values(this._signers).reduce((accum, current) => (typeof current.signature !== "undefined") ? current + 1 : current)
+        const num_signed = Object.values(this._signers).reduce((accum = 0, current) => {
+            debugger;
+            return (typeof current.signature !== "undefined") ? accum + 1 : accum}) || 0
+        console.log("num signed : " + num_signed)
         //  num_signed = len([s for s in self.signers.values() if s
-        buffer = integer.encode_integer(buffer, num_signed)
+        buffer = integer.encode_integer(buffer, new BN(num_signed))
 
         for (let key in this._signers) {
             if (typeof this._signers[key].signature !== "undefined") {
                 let buff = Buffer.from(key, 'hex');
-                buffer = encode_identity(buffer, new Identity(buff))
+                let test = new Identity(buff)
+                debugger;
+                buffer = encode_identity(buffer, test)
                 buffer = encode_bytearray(buffer, this._signers[key].signature)
             }
         }
         return buffer;
     }
 
-    static decode_partial() {
-        const tx = decode_payload(buffer)
+    static decode_partial(buffer) {
+        const [tx,] = decode_payload(buffer)
 
         const num_sigs = decode_integer(buffer)
         let decoded, signer, signature;
         for (let i = 0; i < num_sigs; i++) {
             [decoded, buffer] = identity.decode_identity(buffer)
-                [signer, buffer] = identity.decode(buffer)
+                [signer, buffer] = identity.decode_identity(buffer)
                 [signature, buffer] = bytearray.decode_bytearray(buffer)
             tx.signers[signer] = {
                 'signature': signature,

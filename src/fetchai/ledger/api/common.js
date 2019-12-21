@@ -205,7 +205,9 @@ export class ApiEndpoint {
             ver: '1.2',
             data: tx_data.toString('base64')
         }
-        debugger;
+        console.log("tss")
+        console.log(tx_data.toString('base64'))
+
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
         // make the request
@@ -229,8 +231,6 @@ export class ApiEndpoint {
     }
 }
 
-const prefix = "fetch.token";
-
 export class TransactionFactory {
     //python API_PREFIX = None
 
@@ -238,10 +238,6 @@ export class TransactionFactory {
 
     }
 
-
-  static get_prefix() {
-    return prefix;
-  }
 
     static create_skeleton_tx(fee) {
         // build up the basic transaction information
@@ -251,11 +247,13 @@ export class TransactionFactory {
         return tx
     }
 
-    static create_action_tx(fee, entity, action, shard_mask = null) {
+    static create_action_tx(fee, entity, action, prefix, shard_mask = null) {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask;
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
-        tx.target_chain_code(TransactionFactory.get_prefix(), mask)
+        console.log("this.prefix is : " + prefix);
+
+        tx.target_chain_code(prefix, mask)
         tx.action(action)
         return tx
     }

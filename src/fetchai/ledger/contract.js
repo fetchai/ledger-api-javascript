@@ -132,7 +132,7 @@ export class Contract {
         return response['result']
     }
 
-    async action(api, name, fee, signers, args) {
+    async action(api, name, fee, args, signers = null) {
         // verify if we are used undefined
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any actions. Did you deploy it?')
@@ -154,7 +154,10 @@ export class Contract {
             logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
             shard_mask = new BitVector()
         }
-        return Contract._api(api).action(this._address, name, fee, this._owner, signers, args, shard_mask)
+
+        const from_address = (signers.length ==1)? signers[0] : new Address(this._owner)
+debugger;
+        return Contract._api(api).action(this._address, name, fee, from_address, args, signers, shard_mask)
     }
 
 

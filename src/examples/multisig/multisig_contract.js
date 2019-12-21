@@ -48,7 +48,7 @@ async function print_address_balances(api, contract, addresses) {
     let balance, query
     for (let i = 0; i < addresses.length; i++) {
         balance = await api.tokens.balance(addresses[i])
-        query = await contract.query(api, 'balance', {address: addresses[i]})
+        query = await contract.query(api, 'balanceOf', {address: addresses[i]})
         console.log(`Address : ${addresses[i]}: ${balance} bFET ${query} TOK'.`)
     }
 }
@@ -117,8 +117,9 @@ async  function main(){
    // TODO: Must be signed by single board member with sufficient votes
     tx = await contract.create(contract_factory, multi_sig_identity, 4000, [board[3].member])
     tx.sign(board[3].member)
-
+console.log("starts")
     txs = await api.contracts.submit_signed_tx(tx, tx.signers())
+    console.log("ends")
     await api.sync([txs])
 
    // print the current status of all the tokens
@@ -131,7 +132,9 @@ async  function main(){
 
     console.log("Building contract call transaction...")
     const signers = board.map( obj => obj.member )
-    tx = await contract.action(contract_factory, 'transfer', fet_tx_fee, multi_sig_address, address2, tok_transfer_amount, signers)
+    debugger;
+    tx = await contract.action(contract_factory, 'transfer', fet_tx_fee, [multi_sig_address, address2, tok_transfer_amount], signers)
+    debugger;
     board.forEach((board)=> {tx.sign(board.member)})
 
     txs = await api.contracts.submit_signed_tx(tx, tx.signers())

@@ -157,11 +157,11 @@ export class TokenApi extends ApiEndpoint {
      * @param deed
      * @param signatories
      */
-    async deed(entity, deed, signatories = null) {
+    async deed(entity, deed, signatories = null, allow_no_amend = false) {
 
         const ENDPOINT = 'deed'
 
-        const tx = await TokenTxFactory.deed(entity, deed, signatories)
+        const tx = await TokenTxFactory.deed(entity, deed, signatories, allow_no_amend)
         await super.set_validity_period(tx)
 
         signatories = (signatories === null) ? [entity] : signatories;
@@ -184,14 +184,13 @@ export class TokenApi extends ApiEndpoint {
         const ENDPOINT = 'transfer'
 
         const tx = await TokenTxFactory.transfer(entity, to, amount, fee, signatories)
-        this.set_validity_period(tx)
+        await this.set_validity_period(tx)
 
         // encode and sign the transaction
 
         if(signatories == null){
             signatories = [entity]
         }
-debugger;
         const encoded_tx = encode_transaction(tx, signatories)
         //submit the transaction
         return await this._post_tx_json(encoded_tx, ENDPOINT)
@@ -315,8 +314,8 @@ debugger;
 export class TokenTxFactory extends TransactionFactory {
 
     constructor() {
-        super()
-        const prefix = 'fetch.token'
+        super('fetch.token')
+        this.prefix = 'fetch.token'
     }
 
     static wealth(entity, amount) {
@@ -335,21 +334,22 @@ export class TokenTxFactory extends TransactionFactory {
         return tx
     }
 
-    static deed(entity, deed, signatories = null) {
-        const tx = TransactionFactory.create_action_tx(10000, entity, 'deed')
+    static deed(entity, deed, signatories = null, allow_no_amend = false) {
+        const tx = TransactionFactory.create_action_tx(10000, entity,'deed', 'fetch.token')
 
         if (signatories !== null) {
+
             signatories.forEach(sig => tx.add_signer(sig.public_key_hex()))
         } else {
             tx.add_signer(entity.public_key_hex())
         }
-        const deed_json = deed.deed_creation_json()
+        const deed_json = deed.deed_creation_json(allow_no_amend)
         tx.data(JSON.stringify(deed_json))
         return tx
     }
 
     static async transfer(entity, to, amount, fee, signatories = null) {
-        debugger;
+
         // build up the basic transaction information
         const tx = super.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
@@ -365,7 +365,7 @@ export class TokenTxFactory extends TransactionFactory {
 
     static add_stake(entity, amount, fee, signatories = null) {
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, entity, 'addStake')
+        const tx = TransactionFactory.create_action_tx(fee, entity, 'addStake', 'fetch.token')
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
@@ -384,7 +384,7 @@ export class TokenTxFactory extends TransactionFactory {
 
     static de_stake(entity, amount, fee, signatories = null) {
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, entity, 'deStake')
+        const tx = TransactionFactory.create_action_tx(fee, entity, 'deStake', 'fetch.token')
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
@@ -403,7 +403,7 @@ export class TokenTxFactory extends TransactionFactory {
 
     static collect_stake(entity, fee, signatories = null) {
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, entity, 'collectStake')
+        const tx = TransactionFactory.create_action_tx(fee, entity, 'collectStake', 'fetch.token')
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))

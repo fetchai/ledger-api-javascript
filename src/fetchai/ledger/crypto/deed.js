@@ -30,8 +30,13 @@ export class Deed {
          }
 
        this.valid_operation(operation)
-       this.thresholds[operation] = threshold
-     }
+         // null removes this from list of thresholds
+      if(threshold === null){
+          delete this.thresholds[operation]
+      } else {
+          this.thresholds[operation] = threshold
+      }
+      }
 
      remove_threshold(operation){
           for (var key in this.thresholds) {
@@ -86,7 +91,7 @@ export class Deed {
         }
         // Warnings/errors if no amend threshold set
         else if(allow_no_amend) {
-            logging.warning("Creating deed without amend threshold - future amendment will be impossible")
+           // logging.warning("Creating deed without amend threshold - future amendment will be impossible")
         } else {
             debugger
            throw new InvalidDeedError("Creating deed without amend threshold - future amendment will be impossible")

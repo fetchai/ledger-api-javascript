@@ -7,7 +7,7 @@ const PORT = 8000
 
 
 function print_signing_votes(board){
-
+debugger;
        console.log("print_signing_votes called");
        let str = "Votes: " + board[0].voting_weight;
 let sum = 0
@@ -93,7 +93,7 @@ let sum = 0
 
     // Some entities may have more voting power
     console.log("\nSubmitting transfer with single signature with 2 votes...")
-    print_signing_votes(board[3])
+    print_signing_votes([board[3]])
     signatories = board.slice(0, 3).map( obj => obj.member )
     txs = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
     await api.sync([txs])
@@ -106,13 +106,14 @@ let sum = 0
     console.log("\nAmending deed to increase transfer threshold to 3 votes...")
      deed.set_threshold("TRANSFER", 3)
 
-
-    txs = await deed(multi_sig_identity, deed, board)
+debugger;
+    signatories = board.map( obj => obj.member )
+    txs = await api.tokens.deed(multi_sig_identity, deed, signatories)
     await api.sync([txs])
 
     // Single member no longer has enough voting power
     console.log("\nSingle member transfer with 2 votes should no longer succeed...")
-            print_signing_votes(board[3])
+            print_signing_votes([board[3]])
     // try {
     //     tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20, board[0].member)
     //     await api.sync([tx])
@@ -136,7 +137,8 @@ let sum = 0
     console.log("\nAmending deed to remove threshold...")
     deed.set_amend_threshold(null)
             signatories = board.map( obj => obj.member )
-            tx =  await api.tokens.deed(multi_sig_identity, deed, signatories)
+            const allow_no_amend = true;
+            tx =  await api.tokens.deed(multi_sig_identity, deed, signatories, allow_no_amend)
     await api.sync([tx])
 
     deed.amend_threshold (1)
