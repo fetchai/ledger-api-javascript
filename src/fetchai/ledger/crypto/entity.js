@@ -102,33 +102,24 @@ export class Entity extends Identity {
         return new Entity(private_key_bytes)
     }
 
-    // static prompt_load(fp, password) {
-    //     if (!Entity._strong_password(password)) {
-    //         throw new ValidationError(
-    //             'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
-    //         )
-    //     }
-    //     return Entity.load(fp, password)
-    // }
-
-    static loads(s) {
-        const obj = JSON.parse(s)
-        return Entity.from_base64(obj.privateKey)
+    static loads(s, password) {
+        let obj = JSON.parse(s)
+        return Entity.from_json_object(obj, password)
     }
 
     static load(fp, password) {
-        if (!Entity._strong_password(password)) {
+        if (!Entity.strong_password(password)) {
             throw new ValidationError(
                 'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
             )
         }
         let obj = JSON.parse(fs.readFileSync(fp, 'utf8'))
-        return Entity._from_json_object(obj, password)
+        return Entity.from_json_object(obj, password)
     }
 
     prompt_dump(fp, password) {
         // let password = readline.question('Please enter password ')
-        if (!Entity._strong_password(password)) {
+        if (!Entity.strong_password(password)) {
             throw new ValidationError(
                 'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
             )
@@ -137,15 +128,15 @@ export class Entity extends Identity {
     }
 
     dumps(password) {
-        return JSON.stringify(this._to_json_object(password))
+        return JSON.stringify(this.to_json_object(password))
     }
 
     dump(fp, password) {
-        return JSON.stringify(this._to_json_object(password), fp)
+        return JSON.stringify(this.to_json_object(password), fp)
     }
 
-    _to_json_object(password) {
-        let data = this._encrypt(password, this.privKey)
+    to_json_object(password) {
+        let data = this.encrypt(password, this.privKey)
         return {
             key_length: data.key_length,
             init_vector: data.init_vector.toString('base64'),
@@ -154,8 +145,8 @@ export class Entity extends Identity {
         }
     }
 
-    static _from_json_object(obj, password) {
-        const private_key = Entity._decrypt(
+    static from_json_object(obj, password) {
+        const private_key = Entity.decrypt(
             password,
             Buffer.from(obj.password_salt, 'base64'),
             Buffer.from(obj.privateKey, 'base64'),
@@ -171,7 +162,7 @@ export class Entity extends Identity {
      * @returns encrypted data, length of original data, initialization vector for aes, password hashing salt
      * @ignore
      */
-    _encrypt(password, data) {
+    encrypt(password, data) {
         // Generate hash from password
         const salt = randomBytes(16)
         const hashed_pass = pbkdf2Sync(password, salt, 2000000, 32, 'sha256')
@@ -215,7 +206,7 @@ export class Entity extends Identity {
      * @returns decrypted data as plaintext
      * @ignore
      */
-    static _decrypt(password, salt, data, n, iv) {
+    static decrypt(password, salt, data, n, iv) {
         // Hash password
         const hashed_pass = pbkdf2Sync(password, salt, 2000000, 32, 'sha256')
 
@@ -242,7 +233,7 @@ export class Entity extends Identity {
      * @returns {Boolean} True if password is strong
      * @ignore
      */
-    static _strong_password(password) {
+    static strong_password(password) {
         if (password.length < 14) {
             console.error(
                 'Please enter a password at least 14 characters long'

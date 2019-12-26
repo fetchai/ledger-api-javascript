@@ -58,8 +58,8 @@ const _map_contract_mode = payload => {
 
 const encode_payload = payload => {
 
-    const num_transfers = Object.keys(payload._transfers).length
-    const num_signatures = Object.keys(payload._signers).length
+    const num_transfers = payload.transfers().length
+    const num_signatures = payload._signers.size
     // sanity check
     assert(num_signatures >= 1)
     const num_extra_signatures =
@@ -83,9 +83,11 @@ const encode_payload = payload => {
         buffer = integer.encode_integer(buffer, new BN(num_transfers - 2))
     }
 
-    for (let [key, value] of Object.entries(payload._transfers)) {
-        buffer = address.encode_address(buffer, key)
-        buffer = integer.encode_integer(buffer, value)
+    let transfers = payload.transfers()
+
+    for(let i =0; i < transfers.length; i++){
+         buffer = address.encode_address(buffer, transfers[i].address)
+        buffer = integer.encode_integer(buffer, transfers[i].amount)
     }
 
     if (has_valid_from) {
@@ -151,15 +153,26 @@ const encode_payload = payload => {
     }
 
     // write all the signers public keys
-    for (let signer of Object.keys(payload._signers)) {
-        buffer = identity.encode_identity(
-            buffer,
-            Buffer.from(
-                signer,
-                'hex'
+
+    payload._signers.forEach((v, k)=>{
+            buffer = identity.encode_identity(
+                buffer,
+                Buffer.from(
+                    k,
+                    'hex'
+                )
             )
-        )
-    }
+    })
+
+    // for (let signer of Object.keys(payload._signers)) {
+    //     buffer = identity.encode_identity(
+    //         buffer,
+    //         Buffer.from(
+    //             signer,
+    //             'hex'
+    //         )
+    //     )
+    // }
     logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
     return buffer
 }
@@ -167,14 +180,19 @@ const encode_payload = payload => {
 const encode_multisig_transaction = (payload, signatures) => {
     // assert isinstance(payload, bytes) or isinstance(payload, transaction.Transaction)
     //assert((payload instance bytes) or isinstance(payload, transaction.Transaction)
-
     // encode the contents of the transaction
     let buffer = encode_payload(payload);
     const signers = payload.signers()
+
     // append signatures in order
-    for(let key in signers){
-                  buffer = encode_bytearray(buffer, signatures[key].signature)
-    }
+    //for(let key in signers){
+    signers.forEach((v, k, m)=>{
+          if(signatures.has(k) && typeof signatures.get(k).signature !== "undefined"){
+              console.log("STEPPED");
+              buffer = encode_bytearray(buffer, signatures.get(k).signature)
+          }
+    })
+
     return buffer
 }
 
@@ -185,25 +203,26 @@ const encode_transaction = (payload, signers) => {
     let payload_bytes = _calc_digest_utf(buffer)
 
     // append all the signatures of the signers in order
-    for (let signer of Object.keys(payload._signers)) {
-
+   // for (let signer of Object.keys(payload._signers)) {
+    let flag = false
+    payload.signers().forEach((v, k, m)=> {
         let hex_key
-        let flag = false
+
         for (let i = 0; i < signers.length; i++) {
             hex_key = signers[i].pubKey.toString('hex')
             // check if payload sig matches one passed in this param.
-            if (signer === hex_key) {
+            if (k === hex_key) {
                 flag = true
                 const sign_obj = signers[i].sign(payload_bytes)
                 buffer = bytearray.encode_bytearray(buffer, sign_obj.signature)
             }
         }
+    })
 
-        if (!flag) {
+    if (!flag) {
             throw new ValidationError('Missing signer signing set')
-        }
-
     }
+
     logger.info(`\n encoded transaction: ${buffer.toString('hex')} \n`)
     // return the encoded transaction
     return buffer
@@ -365,24 +384,24 @@ const decode_transaction = (buffer) => {
     const input_buffer = buffer;
     let tx;
     [tx, buffer] = decode_payload(buffer)
-    const num_signatures = Object.keys(tx.signers()).length
+    const num_signatures = tx.signers().size
     const signatures_serial_length = EXPECTED_SERIAL_SIGNATURE_LENGTH * num_signatures
     const expected_payload_end = Buffer.byteLength(input_buffer) - signatures_serial_length
     const payload_bytes = input_buffer.slice(0, expected_payload_end)
     const verified = []
 
-    let signers = Object.keys(tx.signers())
-    for(let i =0; i < signers.length; i++){
+   tx.signers().forEach((v, k, m)=> {
+    ////for(let i =0; i < signers.length; i++){
         let identity, signature;
         [signature, buffer] = bytearray.decode_bytearray(buffer)
-        identity = Identity.from_hex(signers[i])
+        identity = Identity.from_hex(k)
         let payload_bytes_digest = _calc_digest_utf(payload_bytes)
         verified.push(identity.verify(payload_bytes_digest, signature))
-        tx._signers[identity.public_key_hex()] = {
+        tx._signers.set(identity.public_key_hex(), {
             'signature': signature,
-            'verified': verified[verified.length-1],
-        }
-    }
+            'verified': verified[verified.length-1]
+        })
+    })
     const success = verified.every((verified) => verified === true)
     return [success, tx]
 }

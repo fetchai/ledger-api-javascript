@@ -27,7 +27,7 @@ const decode_identity = (buffer) => {
     const len = UNCOMPRESSED_SCEP256K1_PUBLIC_KEY_LEN + 1
     const ret = buffer.slice(1, len)
     buffer = buffer.slice(len)
-    return [ret, buffer]
+    return [new Identity(ret), buffer]
 }
 
 export {encode_identity, decode_identity}

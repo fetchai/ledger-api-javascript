@@ -4,16 +4,18 @@ const {DEFAULT_PORT, LOCAL_HOST} = require('../utils/helpers')
 
 export default jest.fn((request) => {
 
-    const requests = [balance, wealth, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
+    const requests = [balance, balance_token, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
     let req, res
     for (let i = 0; i < requests.length; i++) {
         [req, res] = requests[i].call()
         if (equals(request, req)) {
             if (requests[i].name === 'balance') balance_called++
+            if (requests[i].name === 'balance') debugger;
             // kinda hacky but if balance called 3 times we return bigger value
             return Promise.resolve(res)
         }
     }
+    debugger;
 })
 // e use this variable to
 let balance_called = 0
@@ -23,6 +25,14 @@ function balance() {
         JSON.parse(`{"method":"post","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/contract/fetch/token/balance","data":{"address":"2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
         (balance_called >= 2) ? JSON.parse('{"data": {"balance": 500}}') : JSON.parse('{"data": {"balance": 275}}')]
 }
+
+function balance_token() {
+    return [
+        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/balance","data":{"address":"dTSCNwHBPoDdESpxj6NQkPDvX3DN1DFKGsUPZNVWDVDrfur4z"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+        JSON.parse('{"data": {"balance": 300}}')]
+}
+
+
 
 function tx_content() {
     return [
@@ -82,12 +92,6 @@ function server_status() {
     ]
 }
 
-function wealth() {
-    return [
-        JSON.parse(`{"method":"post","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/contract/fetch/token/wealth","data":{"ver":"1.2","data":"oSCAl6OJh12f8ttl9GTNglv4vlnTzB5rQs3FLhwEdq4yDE1pAQGAC2ZldGNoLnRva2VuBndlYWx0aCp7ImFtb3VudCI6IDEwMDAgInRpbWVzdGFtcCI6MTU3MjgxODU2OTIzMX0EKjivzRm2uTkgcwV8jd4qxY0Spny6uXc374AsTOB+QDccgXdgm7l+zN0KtN93+drXnQgNZGYI894K/w1INoA6/EAgUYTmrx+5iMM96EKfeIrU8jE29ATRVdHTW5KTho56BnScJOPDui3TBOck5xKjccziTyxRFSg9DxzZ5Pxc8SiG"},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
-        JSON.parse('{"status": 200, "data": {"txs":["be448a628ed7d406eaf497b7bf56722f1df661c67856b9cedf6d75180859964c"],"counts":{"received":1,"submitted":1}}}')]
-}
-
 function contract_wealth() {
     return [
         JSON.parse(`{"method":"post","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/contract/fetch/token/wealth","data":{"ver":"1.2","data":"oSCApa9rtwCdsUEqst1+IA9wg/vH8+uQJY215165yDg2i1NpAQGAC2ZldGNoLnRva2VuBndlYWx0aC17ImFtb3VudCI6IDEwMDAwLCAidGltZXN0YW1wIjogMTU3MzYwMTY3NzI5MX0EiAYJb1TBsUiCagaw3dqYxjqQ3sOFCl4xBPYRLk+4PJjHqr/SZfuPa4ZQ6oyOzcC1J1r8QQUs1WsyXQxD+8FdakB4RkNJVSqcXay0m/HjiD2wdd3yZC0aajuun59Xn1TrdxvBprGZhmiAEVPwkpew4sio9BF2BLUlzt6YJ7LcO7Sk"},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
@@ -108,7 +112,7 @@ function contract_create() {
 
 function query_contract() {
     return [
-        JSON.parse(`{"method":"post","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/contract/71ea077acc07d4a01a54a272e54908bf2e4b1fca3288cb744b4c67e6e5d700c1/LdZTa21Zcdk2RqbBtJVsxkV66g9SRZcZnpNTcZwSzKccFnFDB/balance","data":{"address":"2FyD1Q6tJJDpoEUQTjf6Rt6Kbv45Q2ZGaqQgAzVunzSjMAN8AZ"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/YFzha5hwrQNqM7ykZwQsA7m9Q4rCgbm5R6vdt1eWQLEPrGc52/balance","data":{"address":"2FyD1Q6tJJDpoEUQTjf6Rt6Kbv45Q2ZGaqQgAzVunzSjMAN8AZ"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
         JSON.parse('{"data":{"status":"success","result":1000000}}')]
 }
 

@@ -104,6 +104,7 @@ export class Deed {
         }
         return deed;
 }
+
 valid_operation(operation)
 {
     if (typeof this.OPERATIONS[operation] === "undefined") {

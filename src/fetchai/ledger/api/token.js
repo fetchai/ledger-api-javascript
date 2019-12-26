@@ -42,7 +42,7 @@ export class TokenApi extends ApiEndpoint {
         // format and make the request
         let request = {address: address.toString()}
 
-        let [, data] = await super._post_json('balance', request, this.prefix)
+        let [, data] = await super.post_json('balance', request, this.prefix)
         logger.info(`Balance of ${address} is ${data.balance}`)
 
         if (!('balance' in data)) {
@@ -67,7 +67,7 @@ export class TokenApi extends ApiEndpoint {
         const request = {
             'address': address.toString()
         }
-        const [success, data] = await super._post_json('stake', request)
+        const [success, data] = await super.post_json('stake', request)
 
         // check for error cases
         if (!success) {
@@ -83,13 +83,10 @@ export class TokenApi extends ApiEndpoint {
     }
 
     /**
-     *   """
-     Query the stake on cooldown for a given address from the remote node
-
-     :param address: The base58 encoded string containing the address of the node
-     :return: The balance value retried
-     :raises: ApiError on any failures
-     """
+     * Query the stake on cooldown for a given address from the remote node
+     *
+     * @param address  The base58 encoded string containing the address of the node
+     * @returns {Promise<void>}
      */
     async stake_cooldown(address) {
         // convert the input to an address
@@ -99,7 +96,7 @@ export class TokenApi extends ApiEndpoint {
         const request = {
             'address': address.toString()
         }
-        const [success, data] = await super._post_json('cooldownStake', request)
+        const [success, data] = await super.post_json('cooldownStake', request)
 
         // check for error cases
         if (!success) {
@@ -113,64 +110,28 @@ export class TokenApi extends ApiEndpoint {
         return data
     }
 
-
     /**
-     * Creates wealth for specified account.
-     * @async
-     * @method
-     * @param {Object} entity Entity object to create wealth for.
-     * @param {Number} amount amount of wealth to be generated
-     * @returns The digest of the submitted transaction.
-     * @throws {ApiError} ApiError on any failures.
-     */
-    async wealth(entity, amount) {
-        logger.info(
-            `request for creating wealth of address ${entity.public_key_hex()} for amount ${amount}`
-        )
-        // wildcard for the moment
-        let shard_mask = new BitVector()
-        let tx = await super.create_skeleton_tx(1)
-        tx.from_address(entity)
-        tx.target_chain_code(this.prefix, shard_mask)
-        tx.action('wealth')
-        tx.add_signer(entity.public_key_hex())
-
-        let s = `{"amount": ${amount}, "timestamp": ${Date.now()}}`
-        tx.data(s)
-        const encoded_tx = encode_transaction(tx, [entity])
-
-        // submit the transaction
-        return await this._post_tx_json(encoded_tx, 'wealth')
-    }
-
-    /**
-     *  """
-     Sets the deed for a multi-sig account
-
-     :param entity: The entity object to create wealth for
-     :param deed: The deed to set
-     :param signatories: The entities that will sign this action
-     :return: The digest of the submitted transaction
-     :raises: ApiError on any failures
-     """
-     * @param entity
-     * @param deed
-     * @param signatories
+     * Sets the deed for a multi-sig account
+     *
+     * @param entity The entity object to create deed for
+     * @param deed The deed to set
+     * @param signatories The entities that will sign this action
+     * @param allow_no_amend if true will not be able to ammend deed
+     * @returns {Promise<*>} The digest of the submitted transaction
      */
     async deed(entity, deed, signatories = null, allow_no_amend = false) {
 
         const ENDPOINT = 'deed'
-
         const tx = await TokenTxFactory.deed(entity, deed, signatories, allow_no_amend)
         await super.set_validity_period(tx)
 
         signatories = (signatories === null) ? [entity] : signatories;
         const encoded_tx = encode_transaction(tx, signatories)
-        return await super._post_tx_json(encoded_tx, ENDPOINT)
+        return await super.post_tx_json(encoded_tx, ENDPOINT)
     }
 
     /**
-     * Transfers wealth from one account to another account.
+     * Transfers FET from one account to another account.
      * @param {Object} entity Entity bytes of the private key of the source address.
      * @param {Object} to to bytes of the targeted address to send funds to.
      * @param {Number} amount amount of funds being transferred.
@@ -179,11 +140,9 @@ export class TokenApi extends ApiEndpoint {
      * @throws {ApiError} ApiError on any failures.
      */
     async transfer(entity, to, amount, fee, signatories = null) {
-
-
         const ENDPOINT = 'transfer'
 
-        const tx = await TokenTxFactory.transfer(entity, to, amount, fee, signatories)
+        const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
         await this.set_validity_period(tx)
 
         // encode and sign the transaction
@@ -193,83 +152,33 @@ export class TokenApi extends ApiEndpoint {
         }
         const encoded_tx = encode_transaction(tx, signatories)
         //submit the transaction
-        return await this._post_tx_json(encoded_tx, ENDPOINT)
-
-        // // format the data to be closed by the transaction
-        // logger.info(
-        //     `request for transferring ${amount} wealth from ${entity.public_key_hex()} to ${to} with fee ${fee}`
-        // )
-        //
-        // // build up the basic transaction information
-        // let tx = await super.create_skeleton_tx(fee)
-        // tx.from_address(entity) //hex of address
-        // tx.add_transfer(to, new BN(amount))
-        // tx.add_signer(entity.public_key_hex()) // hex of public key
-        //
-        // const encoded = JSON.stringify({
-        //     address: entity.public_key_base64(), //base64 encoded public key
-        //     amount: amount
-        // })
-        // tx.data(encoded)
-        //
-        // const encoded_tx = encode_transaction(tx, [entity])
-        //
-        // // submit the transaction
-        // return await this._post_tx_json(encoded_tx, 'transfer')
+        return await this.post_tx_json(encoded_tx, ENDPOINT)
     }
 
-    /*
-
-        ENDPOINT = 'transfer'
-
-        tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
-        self._set_validity_period(tx)
-
-        # encode and sign the transaction
-        encoded_tx = transaction.encode_transaction(tx, signatories if signatories else [entity])
-
-        # submit the transaction
-        return self._post_tx_json(encoded_tx, ENDPOINT)
-     */
-
     /**
-     *   """
-     Stakes a specific amount of
-
-     :param entity: The entity object that desires to stake
-     :param amount: The amount to stake
-     :return: The digest of the submitted transaction
-     :raises: ApiError on any failures
-     """
-     * @param entity
-     * @param amount
+     * Stakes a specific amount of
+     *
+     * @param entity The entity object that desires to stake
+     * @param amount The amount to stake
      * @param fee
      */
     async add_stake(entity, amount, fee) {
         const ENDPOINT = 'addStake'
         const tx = await TokenTxFactory.add_stake(entity, amount, fee)
         await super.set_validity_period(tx)
-
         // encode and sign the transaction
         const encoded_tx = encode_transaction(tx, [entity])
         // submit the transaction
-        return await super._post_tx_json(encoded_tx, ENDPOINT)
+        return await super.post_tx_json(encoded_tx, ENDPOINT)
     }
 
     /**
-     * """
-     Destakes a specific amount of tokens from a staking miner. This will put the
-     tokens in a cool down period
-
-     :param entity: The entity object that desires to destake
-     :param amount: The amount of tokens to destake
-     :return: The digest of the submitted transaction
-     :raises: ApiError on any failures
-     """
-     * @param self
-     * @param entity
-     * @param amount
+     * Destakes a specific amount of tokens from a staking miner. This will put the tokens in a cool down period
+     *
+     * @param entity The entity object that desires to destake
+     * @param amount The amount of tokens to destake
      * @param fee
+     * @returns {Promise<*>} The digest of the submitted transaction
      */
     async de_stake(entity, amount, fee) {
         const ENDPOINT = 'deStake'
@@ -281,32 +190,24 @@ export class TokenApi extends ApiEndpoint {
         const encoded_tx = encode_transaction(tx, [entity])
 
         // submit the transaction
-        return await super._post_tx_json(encoded_tx, ENDPOINT)
+        return await super.post_tx_json(encoded_tx, ENDPOINT)
     }
 
     /**
-     *   """
-     Collect all stakes that have reached the end of the cooldown period
-
-     :param entity: The entity object that desires to collect
-     :return: The digest of the submitted transaction
-     :raises: ApiError on any failures
-     """
-     * @param self
-     * @param entity
+     * Collect all stakes that have reached the end of the cooldown period
+     *
+     * @param entity The entity object that desires to collect
      * @param fee
-     * @returns {Promise<*|null>}
+     * @returns {Promise<*>}
      */
-    async collect_stake(self, entity, fee) {
+    async collect_stake(entity, fee) {
         const ENDPOINT = 'collectStake'
-
-        const tx = await TokenTxFactory.collect_stake(entity, fee)
+        const tx = TokenTxFactory.collect_stake(entity, fee)
         await super.set_validity_period(tx)
-
         // encode and sign the transaction
         const encoded_tx = encode_transaction(tx, [entity])
         // submit the transaction
-        return await super._post_tx_json(encoded_tx, ENDPOINT)
+        return await super.post_tx_json(encoded_tx, ENDPOINT)
     }
 
 }
@@ -316,22 +217,6 @@ export class TokenTxFactory extends TransactionFactory {
     constructor() {
         super('fetch.token')
         this.prefix = 'fetch.token'
-    }
-
-    static wealth(entity, amount) {
-        // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(1, entity, 'wealth')
-
-        tx.add_signer(entity.public_key_hex())
-
-        const encoded = JSON.stringify({
-            address: entity.public_key_base64(), //base64 encoded public key
-            amount: amount
-        })
-        // format the transaction payload
-        tx.data(encoded)
-
-        return tx
     }
 
     static deed(entity, deed, signatories = null, allow_no_amend = false) {
@@ -348,13 +233,12 @@ export class TokenTxFactory extends TransactionFactory {
         return tx
     }
 
-    static async transfer(entity, to, amount, fee, signatories = null) {
+    static transfer(entity, to, amount, fee, signatories = null) {
 
         // build up the basic transaction information
         const tx = super.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
         tx.add_transfer(to, new BN(amount))
-
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
         } else {
@@ -393,10 +277,10 @@ export class TokenTxFactory extends TransactionFactory {
         }
 
         // format the transaction payload
-        tx.data = JSON.stringify({
+        tx.data(JSON.stringify({
             'address': entity.public_key_base64(),
             'amount': amount
-        })
+        }))
 
         return tx
     }

@@ -7,7 +7,6 @@ const PORT = 8000
 
 
 function print_signing_votes(board){
-debugger;
        console.log("print_signing_votes called");
        let str = "Votes: " + board[0].voting_weight;
 let sum = 0

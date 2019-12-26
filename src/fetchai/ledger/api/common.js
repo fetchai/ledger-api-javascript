@@ -12,7 +12,7 @@ import {encode_multisig_transaction} from "../serialization/transaction";
 function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
     let canonical_name, url
 
-    if (endpoint === null) {
+    if (endpoint === null || endpoint === "") {
         url = `${protocol}://${host}:${port}/api/contract/submit`
     } else {
         if (prefix == null) {
@@ -73,7 +73,7 @@ export class ApiEndpoint {
      * @param  {data} data for request body.
      * @param  {prefix} prefix of the url.
      */
-    async _post_json(endpoint, data = {}, prefix = this.prefix) {
+    async post_json(endpoint, data = {}, prefix = this.prefix) {
         // format and make the request
         //  let url = `http://${this._host}:${this._port}/api/contract/${prefix}/${endpoint}`
         const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
@@ -120,7 +120,7 @@ export class ApiEndpoint {
         }
 
         // query what the current block number is on the node
-        let current_block = await this._current_block_number()
+        let current_block = await this.current_block_number()
         if (current_block < 0) {
             throw new ApiError('Unable to query current block number')
         }
@@ -144,7 +144,7 @@ export class ApiEndpoint {
         // Encode transaction and append signatures
         const encoded_tx = encode_multisig_transaction(tx, signatures)
         // Submit and return digest
-        const res = await this._post_tx_json(encoded_tx, tx.action())
+        const res = await this.post_tx_json(encoded_tx, tx.action())
         return res;
     }
     // tx is transaction
@@ -154,14 +154,14 @@ export class ApiEndpoint {
         }
 
         // query what the current block number is on the node
-        const current_block = await this._current_block_number()
+        const current_block = await this.current_block_number()
 
      //   tx.valid_until(new BN(current_block + validity_period))
         tx.valid_until(new BN(1000))
 
         return tx.valid_until()
 }
-    async _current_block_number() {
+    async current_block_number() {
         let response = await this._get_json('status/chain', {size: 1})
         let block_number = -1
         if (response) {
@@ -196,7 +196,7 @@ export class ApiEndpoint {
         return null
     }
 
-    async _post_tx_json(tx_data, endpoint) {
+    async post_tx_json(tx_data, endpoint) {
         let request_headers = {
             'content-type': 'application/vnd+fetch.transaction+json'
         }
@@ -205,11 +205,12 @@ export class ApiEndpoint {
             ver: '1.2',
             data: tx_data.toString('base64')
         }
-        console.log("tss")
-        console.log(tx_data.toString('base64'))
+
 
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
+         console.log("tss + url:" + url)
+        console.log(tx_data.toString('base64'))
         // make the request
         let resp
         try {
@@ -220,6 +221,7 @@ export class ApiEndpoint {
                 headers: request_headers
             })
         } catch (error) {
+            debugger;
             throw new ApiError('Malformed response from server')
         }
 

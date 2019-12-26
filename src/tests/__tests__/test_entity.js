@@ -96,9 +96,9 @@ describe(':Entity', () => {
     })
 
     test('test validation of strong password', () => {
-        let data = Entity._strong_password('1234567890qwertyuiopQWERTYUIOP!@#$')
+        let data = Entity.strong_password('1234567890qwertyuiopQWERTYUIOP!@#$')
         expect(data).toBe(true)
-        data = Entity._strong_password('1234567890')
+        data = Entity.strong_password('1234567890')
         expect(data).toBe(false)
     })
 })

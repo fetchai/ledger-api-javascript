@@ -23,14 +23,6 @@ describe(':LedgerApi', () => {
         await expect(promise).resolves.toEqual(275)
     })
 
-    test('test wealth', async () => {
-        const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
-        const entity = new Entity(Buffer.from('2ff324b9d3367b160069ec67260959b4955ab519426603b5e59d5990128163f3', 'hex'))
-        const promise = api.wealth(entity, 500)
-        await expect(promise).resolves.toHaveProperty('txs')
-        expect(axios).toHaveBeenCalledTimes(2)
-    })
-
     test('test transfer', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const promise = api.tokens.balance('2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5')

@@ -32,7 +32,7 @@ export class Bootstrap {
         const available_servers = server_list.map(a => a.name)
         // Check requested server is on list
         if (!available_servers.includes(network)) {
-            throw new NetworkUnavailableError(`Requested network not present on network: ${network}`)
+            throw new NetworkUnavailableError(`Requested server not present on network: ${network}`)
         }
 
         let server_details

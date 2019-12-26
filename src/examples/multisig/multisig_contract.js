@@ -112,9 +112,11 @@ async  function main(){
 
    // create the smart contract
     console.log('\nSetting up smart contract')
-    const contract = new Contract(CONTRACT_TEXT, multi_sig_identity)
+
+    const contract = new Contract(CONTRACT_TEXT, multi_sig_identity, )
 
    // TODO: Must be signed by single board member with sufficient votes
+
     tx = await contract.create(contract_factory, multi_sig_identity, 4000, [board[3].member])
     tx.sign(board[3].member)
 console.log("starts")
@@ -132,14 +134,11 @@ console.log("starts")
 
     console.log("Building contract call transaction...")
     const signers = board.map( obj => obj.member )
-    debugger;
+
     tx = await contract.action(contract_factory, 'transfer', fet_tx_fee, [multi_sig_address, address2, tok_transfer_amount], signers)
-    debugger;
     board.forEach((board)=> {tx.sign(board.member)})
-
     txs = await api.contracts.submit_signed_tx(tx, tx.signers())
-    await api.sync(txs)
-
+    await api.sync([txs])
     console.log('-- AFTER --')
     await print_address_balances(api, contract, [multi_sig_address, address2])
 }

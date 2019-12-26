@@ -2,6 +2,7 @@ import {BitVector} from './bitvector'
 import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
 import {BN} from 'bn.js'
+import {logger} from './utils'
 import assert from 'assert'
 import {createHash, randomBytes} from 'crypto'
 import * as identity from "./serialization/identity";
@@ -34,13 +35,13 @@ function calc_digest(address_raw) {
 export class Transaction {
     constructor() {
         this._from = ''
-        this._transfers = {}
+        this._transfers = []
         this._valid_from = new BN(0)
         this._valid_until = new BN(0)
         this._charge_rate = new BN(0)
         this._charge_limit = new BN(0)
         this._contract_address = ''
-        this._counter = new BN(randomBytes(8))
+        this._counter = new BN(Buffer.from('EE86419F0178ACAE', 'hex'))
         this._chain_code = ''
         this._shard_mask = new BitVector() // BitVector class instance
         this._action = ''
@@ -48,7 +49,7 @@ export class Transaction {
             synergetic_data_submission: false
         }
         this._data = ''
-        this._signers = {}
+        this._signers = new Map()
     }
 
     // Get and Set from_address param
@@ -62,18 +63,6 @@ export class Transaction {
 
     transfers() {
         return this._transfers
-    }
-
-    /**
-     * NOT IN PYTHON
-     */
-    set_transfer(address, amount = new BN(0)) {
-        assert(BN.isBN(amount))
-
-        if (address instanceof Address) {
-            address = address.toHex()
-        }
-        return this._transfers[address] = amount
     }
 
     // Get and Set valid_from param
@@ -158,7 +147,10 @@ export class Transaction {
     }
 
     compare(other) {
-        if (this.payload() !== other.payload()) {
+                      const x = this.payload().toString('hex')
+                                                 const y = other.payload().toString('hex')
+        if (x !== y) {
+
             return false;
         } else {
             return true;
@@ -172,7 +164,9 @@ export class Transaction {
     }
 
     static from_payload(payload) {
-        return decode_transaction(payload)
+         let [tx, buffer] = decode_payload(payload)
+
+        return [tx, buffer]
     }
 
     static from_encoded(encoded_transaction) {
@@ -192,18 +186,10 @@ export class Transaction {
     add_transfer(address, amount) {
         assert(BN.isBN(amount))
         assert(amount.gtn(new BN(0)))
-
         // if it is an identity we turn it into an address
-        if (address instanceof Identity) {
             address = new Address(address)
-        }
-
-        if (address instanceof Address) {
             address = address.toHex()
-        }
-
-        let current = (this._transfers[address]) ? this._transfers[address] : new BN(0)
-        this._transfers[address] = current.add(amount)
+            this._transfers.push({address: address, amount: new BN(amount)})
     }
 
     target_contract(address, mask) {
@@ -228,84 +214,106 @@ export class Transaction {
     }
 
     add_signer(signer) {
-        if (!(signer in this._signers)) {
-            this._signers[signer] = '' // will be replaced with a signature in the future
+        if (!(this._signers.has(signer))) {
+            this._signers.set(signer, '') // will be replaced with a signature in the future
         }
     }
 
     sign(signer) {
-        if (typeof this._signers[signer.public_key_hex()] !== "undefined") {
+        if (this._signers.has(signer.public_key_hex())) {
             const payload_digest = calc_digest(this.payload())
             const sign_obj = signer.sign(payload_digest)
-            this._signers[signer.public_key_hex()] = {
+            this._signers.set(signer.public_key_hex(), {
                 'signature': sign_obj.signature,
                 'verified': signer.verify(payload_digest, sign_obj.signature)
-            }
+            })
         }
     }
 
     merge_signatures(tx2) {
-        if (this.payload() !== tx2.payload()) {
+        if (this.compare(tx2)) {
+
+             const signers = tx2.signers();
+           // for (let key in signers) {
+            signers.forEach((v, k, m) => {
+                if(signers.has(k) && typeof signers.get(k).signature !== "undefined"){
+                    const s = signers.get(k)
+                    this._signers.set(k, s)
+                }
+            })
+
+        } else {
+            console.log("Attempting to combine transactions with different payloads")
             logger.info("Attempting to combine transactions with different payloads")
             return null
-        }
-
-        const signers = txs2.signers();
-        for (let key in signers) {
-            if (typeof signers.key !== "undefined" && typeof this._signers[key] === "undefined") {
-                this._signers[key] = signers[key];
-            }
         }
     }
 
     encode_partial() {
-        let buffer = encode_payload(this)
 
-        const num_signed = Object.values(this._signers).reduce((accum = 0, current) => {
-            debugger;
-            return (typeof current.signature !== "undefined") ? accum + 1 : accum}) || 0
+        let buffer = encode_payload(this)
+        let num_signed = 0;
+
+       // Object.values(this._signers).filter(current => typeof current.signature !== "undefined").length
+          this._signers.forEach((v, k, m)=>{
+              if(typeof v.signature !== "undefined") num_signed++;
+          })
+
         console.log("num signed : " + num_signed)
         //  num_signed = len([s for s in self.signers.values() if s
         buffer = integer.encode_integer(buffer, new BN(num_signed))
 
-        for (let key in this._signers) {
-            if (typeof this._signers[key].signature !== "undefined") {
-                let buff = Buffer.from(key, 'hex');
+       // for (let key in this._signers) { //
+       this._signers.forEach((v, k, m)=> {
+            if(typeof v.signature !== "undefined"){
+                  let buff = Buffer.from(k, 'hex');
                 let test = new Identity(buff)
-                debugger;
                 buffer = encode_identity(buffer, test)
-                buffer = encode_bytearray(buffer, this._signers[key].signature)
+                buffer = encode_bytearray(buffer, v.signature)
             }
-        }
+       })
+            // if (typeof this._signers[key].signature !== "undefined") {
+            //     let buff = Buffer.from(key, 'hex');
+            //     let test = new Identity(buff)
+            //
+            //     buffer = encode_identity(buffer, test)
+            //     buffer = encode_bytearray(buffer, this._signers[key].signature)
+            // }
+       // }
         return buffer;
     }
 
     static decode_partial(buffer) {
-        const [tx,] = decode_payload(buffer)
+        let tx;
+        [tx, buffer] = decode_payload(buffer)
+ let num_sigs;
+        [num_sigs, buffer] = decode_integer(buffer)
+        // console.log("num sigs : " + num_sigs)
+          const payload_digest = calc_digest(tx.payload())
 
-        const num_sigs = decode_integer(buffer)
-        let decoded, signer, signature;
-        for (let i = 0; i < num_sigs; i++) {
-            [decoded, buffer] = identity.decode_identity(buffer)
+        for (let i = 0; i < num_sigs.toNumber(); i++) {
+                let signer;
                 [signer, buffer] = identity.decode_identity(buffer)
+                    let signature;
+
                 [signature, buffer] = bytearray.decode_bytearray(buffer)
-            tx.signers[signer] = {
+            signature = Buffer.from(signature)
+
+            tx._signers.set(signer.public_key_hex(), {
                 'signature': signature,
-                'verified': signer.verify(tx.payload, signature)
-            }
+                'verified': signer.verify(payload_digest, signature)
+            })
         }
 
-        for(let key in tx.signers){
-            if(!tx.signers[key].verified){
+        tx.signers().forEach((v, k, m)=> {
+
+            if(v.verified && !v.verified){
                  throw new RunTimeError('Not all keys were able to sign successfully')
             }
-        }
-
+        })
         // reinstate before submission
         // if not all(s['verified'] for s in tx.signers.values() if 'verified' in s):
         //     logging.warning("Some signatures failed to verify")
-
         return tx
-
     }
 }

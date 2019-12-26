@@ -11,7 +11,7 @@ import {logger} from './utils'
 import {RunTimeError} from './errors'
 
 
-const _compute_digest = (source) => {
+const compute_digest = (source) => {
     const hash_func = createHash('sha256')
     hash_func.update(source)
     const digest = hash_func.digest()
@@ -32,7 +32,7 @@ export class Contract {
     constructor(source, owner, nonce = null) {
         assert(typeof source === 'string')
         this._source = source
-        this._digest = _compute_digest(source)
+        this._digest = compute_digest(source)
         this._owner = new Address(owner)
         this._nonce = nonce || randomBytes(8)
         this._address = new Address(calc_address(this._owner, this._nonce))
@@ -72,12 +72,12 @@ export class Contract {
     }
 
     static loads(s) {
-        return Contract._from_json_object(JSON.parse(s))
+        return Contract.from_json_object(JSON.parse(s))
     }
 
     static load(fp) {
         const obj = JSON.parse(fs.readFileSync(fp, 'utf8'))
-        return Contract._from_json_object(obj)
+        return Contract.from_json_object(obj)
     }
 
     nonce() {
@@ -156,7 +156,7 @@ export class Contract {
         }
 
         const from_address = (signers.length ==1)? signers[0] : new Address(this._owner)
-debugger;
+
         return Contract._api(api).action(this._address, name, fee, from_address, args, signers, shard_mask)
     }
 
@@ -171,7 +171,7 @@ debugger;
         }
     }
 
-    static _from_json_object(obj) {
+    static from_json_object(obj) {
         assert(obj['version'] === 1)
         const source = atob(obj.source)
         const owner = obj['owner']
@@ -182,7 +182,7 @@ debugger;
             nonce)
     }
 
-    _to_json_object() {
+    to_json_object() {
         return {
             'version': 1,
             'owner': this._owner.toString(), // None if self._owner is None else str(self._owner),

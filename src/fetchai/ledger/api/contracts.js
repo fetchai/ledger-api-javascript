@@ -65,7 +65,7 @@ export class ContractsApi extends ApiEndpoint {
         signers = (signers !== null) ? signers : [owner]
         const encoded_tx = encode_transaction(tx, signers)
         contract.owner(owner)
-        return await this._post_tx_json(encoded_tx, ENDPOINT)
+        return await this.post_tx_json(encoded_tx, ENDPOINT)
     }
 
     /**
@@ -78,7 +78,7 @@ export class ContractsApi extends ApiEndpoint {
         assert(this.isJSON(data))
         const prefix = contract_owner.toString()
         const encoded = this._encode_json_payload(data)
-        return await this._post_json(query, encoded, prefix)
+        return await this.post_json(query, encoded, prefix)
     }
 
     /**
@@ -131,15 +131,14 @@ export class ContractsApi extends ApiEndpoint {
         // tx.target_contract(contract_digest, contract_address, shard_mask)
         // tx.action(action)
         const contractTxFactory = new ContractTxFactory(this.parent_api);
-        let tx = contractTxFactory.action(contract_address, action, fee, from_address, args, signers, shard_mask)
-        tx.data(TransactionFactory.encode_msgpack_payload(args))
+        let tx = await contractTxFactory.action(contract_address, action, fee, from_address, args, signers, shard_mask)
         for (let i = 0; i < signers.length; i++) {
             tx.add_signer(signers[i].public_key_hex())
         }
        await this.set_validity_period(tx)
 
         const encoded_tx = encode_transaction(tx, signers)
-        return await this._post_tx_json(encoded_tx, null)
+        return await this.post_tx_json(encoded_tx, null)
     }
 
 
@@ -190,7 +189,8 @@ export class ContractsApi extends ApiEndpoint {
 
 
     post_tx_json(tx_data, endpoint = null) {
-        return super._post_tx_json(tx_data, endpoint)
+        debugger;
+        return super.post_tx_json(tx_data, null)
     }
 
 
@@ -236,7 +236,7 @@ export class ContractTxFactory extends TransactionFactory {
 
         if (signers !== null) {
             signers.forEach((signer) => {
-                debugger;
+
                 tx.add_signer(signer.public_key_hex())
             })
         } else {
@@ -248,7 +248,7 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
 
-    async create(owner, fee, contract,  signers = null,
+    async create(owner, contract, fee, signers = null,
            shard_mask = null) {
 
         // Default to wildcard shard mask if none supplied
