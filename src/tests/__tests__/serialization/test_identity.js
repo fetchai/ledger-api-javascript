@@ -27,7 +27,7 @@ describe(':Identity', () => {
         const ref = Buffer.concat([buf, Buffer.from([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]), entity.public_key_bytes()])
         const [decoded, buffer] = identity.decode_identity(ref)
         const bytes = entity.public_key_bytes()
-        expect(decoded.toString('hex')).toBe(bytes.toString('hex'))
+        expect(decoded.public_key_bytes().toString('hex')).toBe(bytes.toString('hex'))
         expect(Buffer.byteLength(buffer)).toBe(0)
     })
 })

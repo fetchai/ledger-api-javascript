@@ -5,6 +5,7 @@ import {BitVector} from '../bitvector'
 import {encode_transaction} from '../serialization/transaction'
 import {Address} from '../crypto'
 import {BN} from 'bn.js'
+import assert from "assert";
 
 /**
  * This class for all Tokens APIs.
@@ -140,6 +141,8 @@ export class TokenApi extends ApiEndpoint {
      * @throws {ApiError} ApiError on any failures.
      */
     async transfer(entity, to, amount, fee, signatories = null) {
+         assert(BN.isBN(amount))
+                    assert(BN.isBN(fee))
         const ENDPOINT = 'transfer'
 
         const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
@@ -163,6 +166,8 @@ export class TokenApi extends ApiEndpoint {
      * @param fee
      */
     async add_stake(entity, amount, fee) {
+         assert(BN.isBN(amount))
+                    assert(BN.isBN(fee))
         const ENDPOINT = 'addStake'
         const tx = await TokenTxFactory.add_stake(entity, amount, fee)
         await super.set_validity_period(tx)
@@ -181,6 +186,8 @@ export class TokenApi extends ApiEndpoint {
      * @returns {Promise<*>} The digest of the submitted transaction
      */
     async de_stake(entity, amount, fee) {
+         assert(BN.isBN(amount))
+                    assert(BN.isBN(fee))
         const ENDPOINT = 'deStake'
 
         const tx = TokenTxFactory.de_stake(entity, amount, fee)
@@ -201,6 +208,7 @@ export class TokenApi extends ApiEndpoint {
      * @returns {Promise<*>}
      */
     async collect_stake(entity, fee) {
+                    assert(BN.isBN(fee))
         const ENDPOINT = 'collectStake'
         const tx = TokenTxFactory.collect_stake(entity, fee)
         await super.set_validity_period(tx)
@@ -234,7 +242,8 @@ export class TokenTxFactory extends TransactionFactory {
     }
 
     static transfer(entity, to, amount, fee, signatories = null) {
-
+                   assert(BN.isBN(amount))
+                    assert(BN.isBN(fee))
         // build up the basic transaction information
         const tx = super.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
@@ -249,6 +258,9 @@ export class TokenTxFactory extends TransactionFactory {
 
     static add_stake(entity, amount, fee, signatories = null) {
         // build up the basic transaction information
+                    assert(BN.isBN(amount))
+                    assert(BN.isBN(fee))
+
         const tx = TransactionFactory.create_action_tx(fee, entity, 'addStake', 'fetch.token')
 
         if (signatories !== null) {
@@ -267,6 +279,8 @@ export class TokenTxFactory extends TransactionFactory {
     }
 
     static de_stake(entity, amount, fee, signatories = null) {
+         assert(BN.isBN(amount))
+         assert(BN.isBN(fee))
         // build up the basic transaction information
         const tx = TransactionFactory.create_action_tx(fee, entity, 'deStake', 'fetch.token')
 
@@ -286,6 +300,7 @@ export class TokenTxFactory extends TransactionFactory {
     }
 
     static collect_stake(entity, fee, signatories = null) {
+         assert(BN.isBN(fee))
         // build up the basic transaction information
         const tx = TransactionFactory.create_action_tx(fee, entity, 'collectStake', 'fetch.token')
 

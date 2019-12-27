@@ -1,6 +1,7 @@
 import {Entity} from "../fetchai/ledger/crypto/entity";
 import {Address} from "../fetchai/ledger/crypto/address";
 import {LedgerApi} from "../fetchai/ledger/api";
+import {BN} from 'bn.js'
 
 const HOST = '127.0.0.1'
 const PORT = 8000
@@ -24,7 +25,7 @@ async function main(){
 
     // submit and wait for the transfer to be complete
     console.log('Submitting stake request...')
-    stake = await api.tokens.add_stake(entity, 1000, 50)
+    stake = await api.tokens.add_stake(entity, new BN(1000), new BN(50))
     await api.sync([stake])
 
     setInterval(async () => {
@@ -40,12 +41,12 @@ async function main(){
         // De-stake half of the staked balance
         stake = await api.tokens.stake(entity)
         to_destake = parseInt(stake/2)
-        txs = await api.tokens.de_stake(entity, to_destake, 500)
+        txs = await api.tokens.de_stake(entity, to_destake, new BN(500))
         await api.sync([txs])
-        txs = await api.tokens.collect_stake(entity, 500)
+        txs = await api.tokens.collect_stake(entity, new BN(500))
         // Collect cooled down stakes
         await api.sync([txs])
-    }, 1000)
+    }, 3000)
 
 }
     main()

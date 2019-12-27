@@ -31,16 +31,13 @@ describe(':ContractsApi', () => {
 
     test('test create', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
-        const tx = await api.tokens.wealth(ENTITIES[0], 10000)
-        await api.sync([tx])
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
         const created = await contract.create(api, ENTITIES[0], 4000)
-
         expect(created).toHaveProperty('txs')
-        expect(axios).toHaveBeenCalledTimes(5)
+        expect(axios).toHaveBeenCalledTimes(2)
         const promise_sync = await api.sync(JSON.parse('[{"txs":["bbc6e88d647ab41923216cdaaba8cdd01f42e953c6583e59179d9b32f52f5777"],"counts":{"received":1,"submitted":1}}]'))
         await expect(promise_sync).toBe(true)
-        expect(axios).toHaveBeenCalledTimes(6)
+        expect(axios).toHaveBeenCalledTimes(3)
     })
 
     test('test query', async () => {

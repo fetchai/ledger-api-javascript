@@ -1,6 +1,8 @@
 import { Entity } from '../../fetchai/ledger/crypto/entity'
 import { createHash } from 'crypto'
 import { ValidationError } from '../../fetchai/ledger/errors'
+import {PASSWORD} from "../utils/helpers";
+
 
 const THIRTY_TWO_BYTE_BASE64 = 'XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M='
 
@@ -72,7 +74,7 @@ describe(':Entity', () => {
         const s = `{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`
         const obj = JSON.parse(s)
         const base64 = Buffer.from(obj.privateKey, 'base64')
-        const entity = Entity.loads(s)
+        const entity = Entity.loads(s, PASSWORD)
         const private_key_hex = entity.private_key_hex()
         expect(base64.toString('hex')).toEqual(private_key_hex)
     })

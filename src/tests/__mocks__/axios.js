@@ -4,19 +4,51 @@ const {DEFAULT_PORT, LOCAL_HOST} = require('../utils/helpers')
 
 export default jest.fn((request) => {
 
-    const requests = [balance, balance_token, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
+    const requests = [stake, stake_cooldown, collect_stake, deed, balance, balance_token, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
     let req, res
     for (let i = 0; i < requests.length; i++) {
         [req, res] = requests[i].call()
         if (equals(request, req)) {
             if (requests[i].name === 'balance') balance_called++
-            if (requests[i].name === 'balance') debugger;
+            debugger;
             // kinda hacky but if balance called 3 times we return bigger value
             return Promise.resolve(res)
         }
     }
     debugger;
 })
+
+function stake() {
+    return [
+        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/addStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoATKAC2ZldGNoLnRva2VuCGFkZFN0YWtldHsiYWRkcmVzcyI6IkdNS2pPdmk5TExwL3B4U29RS01Jb2hlcVJJT0lDeDd4UzAvZi9naXJsVzQvUzVJYzdETytmQ1dNL1hBbG9ybXBRbmNPV3hkMWk4eEpZYnZjZGFBbEhBPT0iLCJhbW91bnQiOjEwMDB97oZBnwF4rK4EGMKjOvi9LLp/pxSoQKMIoheqRIOICx7xS0/f/girlW4/S5Ic7DO+fCWM/XAlormpQncOWxd1i8xJYbvcdaAlHEA3UZ6Q4iklaWDRrkZxEvVWLqT0dfYCaGXYRjBX55XAjEswudIl/XRtak+2zTUNrw0NsKyAxCLf1/ayRhIQ+WTd"},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"data": {"stake": 500}}')]
+}
+
+function collect_stake() {
+    return [
+        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/collectStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoAcEBLIALZmV0Y2gudG9rZW4MY29sbGVjdFN0YWtlAO6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxACRV31mXnLHFceJxfpn1KFZBdnDYlPeAB/CaquVwb+Wkia81pLKF5nV/36Fm7+wJoIbrs13eLeAvko22Wx1v6Fg=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"data": {"stake": 500}}')]
+}
+
+
+function deed() {
+    return [
+        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/deed","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoAcEnEIALZmV0Y2gudG9rZW4EZGVlZFN7InNpZ25lZXMiOnsiRlducXppdXp3OEV4UEpYVGU1SzlYdXIyWWIxWW1hRTRvWm5MS0NEQ0RVVXVKTHBoTCI6Mn0sInRocmVzaG9sZHMiOnt9fe6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxASsNGdihFfe5zJAVMQkiqsa7bc50H9eIvUzJJw/qxp8QxUkVzM9j+TP2XOB1NVHXnU6qykxbk1pP9dMVfIrqVAA=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"data": {"stake": 500}}')]
+}
+
+// function de_stake() {
+//     return [
+//         JSON.parse(`{"method":"post","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/contract/fetch/token/balance","data":{"address":"2JYHJirXFQd2ZertwThfLX87cbc2XyxXNzjJWwysNP2NXPmkN5"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+//         (balance_called >= 2) ? JSON.parse('{"data": {"balance": 500}}') : JSON.parse('{"data": {"balance": 275}}')]
+// }
+
+function stake_cooldown() {
+    return [
+        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/cooldownStake","data":{"address":"dcgBKQnx4i3ayLbqcqstt4kSHNfDC4Am9TgyhF4RimY1eNHTP"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+         JSON.parse('{"data": {"cooldownStake": 500}}')]
+}
+
 // e use this variable to
 let balance_called = 0
 
@@ -31,8 +63,6 @@ function balance_token() {
         JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/balance","data":{"address":"dTSCNwHBPoDdESpxj6NQkPDvX3DN1DFKGsUPZNVWDVDrfur4z"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
         JSON.parse('{"data": {"balance": 300}}')]
 }
-
-
 
 function tx_content() {
     return [
@@ -112,7 +142,7 @@ function contract_create() {
 
 function query_contract() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/YFzha5hwrQNqM7ykZwQsA7m9Q4rCgbm5R6vdt1eWQLEPrGc52/balance","data":{"address":"2FyD1Q6tJJDpoEUQTjf6Rt6Kbv45Q2ZGaqQgAzVunzSjMAN8AZ"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/2jNdCGmBaStrCpYLjfvUPovib7uTK4fCL8eZnBiohEKwCWmsVE/balance","data":{"address":"2FyD1Q6tJJDpoEUQTjf6Rt6Kbv45Q2ZGaqQgAzVunzSjMAN8AZ"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
         JSON.parse('{"data":{"status":"success","result":1000000}}')]
 }
 

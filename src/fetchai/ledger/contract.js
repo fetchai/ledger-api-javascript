@@ -64,11 +64,11 @@ export class Contract {
     }
 
     dumps() {
-        return JSON.stringify(this._to_json_object())
+        return JSON.stringify(this.to_json_object())
     }
 
     dump(fp) {
-        fs.writeFileSync(fp, JSON.stringify(this._to_json_object()))
+        fs.writeFileSync(fp, JSON.stringify(this.to_json_object()))
     }
 
     static loads(s) {
@@ -108,7 +108,7 @@ export class Contract {
             logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
             shard_mask = new BitVector()
         }
-        return Contract._api(api).create(owner, fee, this, signers, shard_mask)
+        return Contract.api(api).create(owner, fee, this, signers, shard_mask)
     }
 
     async query(api, name, data) {
@@ -120,7 +120,7 @@ export class Contract {
         // if(!this.queries.contains(name)){
         //     throw new RunTimeError(name + ' is not an valid query name. Valid options are: ' + this.queries.join(','))
         // }
-        const [success, response] = await Contract._api(api).query(this._address, name, data)
+        const [success, response] = await Contract.api(api).query(this._address, name, data)
 
         if (!success) {
             if (response !== null && 'msg' in response) {
@@ -157,11 +157,11 @@ export class Contract {
 
         const from_address = (signers.length ==1)? signers[0] : new Address(this._owner)
 
-        return Contract._api(api).action(this._address, name, fee, from_address, args, signers, shard_mask)
+        return Contract.api(api).action(this._address, name, fee, from_address, args, signers, shard_mask)
     }
 
 
-    static _api(ContractsApiLike) {
+    static api(ContractsApiLike) {
         if (ContractsApiLike instanceof ContractTxFactory) {
             return ContractsApiLike
         } else if (ContractsApiLike instanceof LedgerApi) {
