@@ -4,8 +4,8 @@ import {Address} from '../crypto/address'
 import {BN} from 'bn.js'
 import {ApiEndpoint} from './common'
 
-const SUCCESSFUL_TERMINAL_STATES = ('Executed', 'Submitted')
-const NON_TERMINAL_STATES = ('Unknown', 'Pending')
+const SUCCESSFUL_TERMINAL_STATES = ['Executed', 'Submitted']
+const NON_TERMINAL_STATES = ['Unknown', 'Pending']
 
 /*
 takes an array and turns it into an object, setting the to field and the amount field.
@@ -36,6 +36,11 @@ export class TxStatus {
         return (!NON_TERMINAL_STATES.includes(this.status) &&
             !SUCCESSFUL_TERMINAL_STATES.includes(this.status))
     }
+
+    non_terminal() {
+        return NON_TERMINAL_STATES.includes(this.status)
+    }
+
 
     digest_hex() {
         return this.digest_hex

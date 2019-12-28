@@ -2,6 +2,7 @@ import {Address, Entity} from '../fetchai/ledger/crypto'
 import {Contract} from '../fetchai/ledger/contract'
 import {LedgerApi} from '../fetchai/ledger/api'
 import {TRANSFER_CONTRACT} from '../contracts'
+import {RunTimeError} from "../fetchai/ledger/errors";
 
 async function print_address_balances(api, contract, addresses) {
 
@@ -23,9 +24,11 @@ async function main() {
 
     const api = new LedgerApi('127.0.0.1', 8000)
     const nonce = Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')
+
     // create the smart contract
     const contract = new Contract(TRANSFER_CONTRACT, entity1, nonce)
     const created = await contract.create(api, entity1, 4000)
+    //     await api.sync([created]).catch((msg) => throw new RunTimeError($));
     await api.sync([created])
     console.log('-- BEFORE --')
     await print_address_balances(api, contract, [address1, address2])

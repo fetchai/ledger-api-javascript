@@ -19,7 +19,7 @@ const [ENTITIES, ADDRESSES] = (() => {
 
 
 const NONCE = (() => {
-    Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')
+    return Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')
 })()
 
 
@@ -42,6 +42,7 @@ describe(':ContractsApi', () => {
 
     test('test query', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
+        debugger;
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
         const query = await contract.query(api, 'balance', {address: ADDRESSES[0]})
         expect(query).toBe(1000000)

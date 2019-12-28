@@ -188,7 +188,7 @@ export class ContractsApi extends ApiEndpoint {
     }
 
 
-    post_tx_json(tx_data, endpoint = null) {
+    async post_tx_json(tx_data, endpoint = null) {
         return super.post_tx_json(tx_data, null)
     }
 

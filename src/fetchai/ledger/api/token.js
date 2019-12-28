@@ -1,4 +1,4 @@
-import {ApiError} from '../errors'
+import {ApiError, ValidationError} from '../errors'
 import {logger} from '../utils'
 import {ApiEndpoint, TransactionFactory} from './common'
 import {BitVector} from '../bitvector'
@@ -6,6 +6,27 @@ import {encode_transaction} from '../serialization/transaction'
 import {Address} from '../crypto'
 import {BN} from 'bn.js'
 import assert from "assert";
+
+/**
+ * if number is not Big Number instance converts to BN, or throws if int passed is too large or small throw.
+ *
+ * @param num
+ * @returns {BN}
+ */
+const convert_number = (num) => {
+
+     // currently only support BN.js or number
+    if (typeof num !== "number" && !BN.isBN(num))
+    {
+        throw new ValidationError(`${num} is must be instance of BN.js or an Integer`)
+    }
+
+    if(typeof num === "number" && !Number.isSafeInteger(num)) {
+            throw new ValidationError(` ${num} is not a safe number (<53 bits), please use an instance of BN.js`)
+    }
+
+    return new BN(num);
+}
 
 /**
  * This class for all Tokens APIs.
@@ -51,7 +72,7 @@ export class TokenApi extends ApiEndpoint {
         }
 
         // return the balance
-        return data['balance']
+        return new BN(data['balance'])
     }
 
     /**
@@ -80,7 +101,7 @@ export class TokenApi extends ApiEndpoint {
         }
 
         // return the balance
-        return parseInt(data['stake'])
+        return new BN(data['stake'])
     }
 
     /**
@@ -108,6 +129,7 @@ export class TokenApi extends ApiEndpoint {
             throw new ApiError('Malformed response from server')
         }
         // return the result
+        debugger;
         return data
     }
 
@@ -141,8 +163,8 @@ export class TokenApi extends ApiEndpoint {
      * @throws {ApiError} ApiError on any failures.
      */
     async transfer(entity, to, amount, fee, signatories = null) {
-         assert(BN.isBN(amount))
-                    assert(BN.isBN(fee))
+         amount = convert_number(amount);
+         fee = convert_number(fee);
         const ENDPOINT = 'transfer'
 
         const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
@@ -166,8 +188,8 @@ export class TokenApi extends ApiEndpoint {
      * @param fee
      */
     async add_stake(entity, amount, fee) {
-         assert(BN.isBN(amount))
-                    assert(BN.isBN(fee))
+        amount = convert_number(amount)
+        fee = convert_number(fee)
         const ENDPOINT = 'addStake'
         const tx = await TokenTxFactory.add_stake(entity, amount, fee)
         await super.set_validity_period(tx)
@@ -186,8 +208,8 @@ export class TokenApi extends ApiEndpoint {
      * @returns {Promise<*>} The digest of the submitted transaction
      */
     async de_stake(entity, amount, fee) {
-         assert(BN.isBN(amount))
-                    assert(BN.isBN(fee))
+         fee = convert_number(fee)
+        amount = convert_number(amount)
         const ENDPOINT = 'deStake'
 
         const tx = TokenTxFactory.de_stake(entity, amount, fee)
@@ -208,7 +230,7 @@ export class TokenApi extends ApiEndpoint {
      * @returns {Promise<*>}
      */
     async collect_stake(entity, fee) {
-                    assert(BN.isBN(fee))
+        fee = convert_number(fee)
         const ENDPOINT = 'collectStake'
         const tx = TokenTxFactory.collect_stake(entity, fee)
         await super.set_validity_period(tx)
@@ -242,12 +264,12 @@ export class TokenTxFactory extends TransactionFactory {
     }
 
     static transfer(entity, to, amount, fee, signatories = null) {
-                   assert(BN.isBN(amount))
-                    assert(BN.isBN(fee))
+                   fee = convert_number(fee)
+        amount = convert_number(amount)
         // build up the basic transaction information
         const tx = super.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
-        tx.add_transfer(to, new BN(amount))
+        tx.add_transfer(to, amount)
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
         } else {
@@ -258,8 +280,8 @@ export class TokenTxFactory extends TransactionFactory {
 
     static add_stake(entity, amount, fee, signatories = null) {
         // build up the basic transaction information
-                    assert(BN.isBN(amount))
-                    assert(BN.isBN(fee))
+                  fee = convert_number(fee)
+        amount = convert_number(amount)
 
         const tx = TransactionFactory.create_action_tx(fee, entity, 'addStake', 'fetch.token')
 

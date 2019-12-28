@@ -15,7 +15,7 @@ async function main() {
     console.log('Balance 1 (before):' + balance1)
     let balance2 = await api.tokens.balance(identity2)
     console.log('Balance 2 (before):' + balance2)
-    const tx2 = await api.tokens.transfer(identity1, identity2, 250, 20)
+    const tx2 = await api.tokens.transfer(identity1, identity2, 250000, 20)
     await api.sync([tx2])
 
     balance1 = await api.tokens.balance(identity1)

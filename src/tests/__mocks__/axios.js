@@ -34,7 +34,7 @@ function collect_stake() {
 function deed() {
     return [
         JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/deed","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoAcEnEIALZmV0Y2gudG9rZW4EZGVlZFN7InNpZ25lZXMiOnsiRlducXppdXp3OEV4UEpYVGU1SzlYdXIyWWIxWW1hRTRvWm5MS0NEQ0RVVXVKTHBoTCI6Mn0sInRocmVzaG9sZHMiOnt9fe6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxASsNGdihFfe5zJAVMQkiqsa7bc50H9eIvUzJJw/qxp8QxUkVzM9j+TP2XOB1NVHXnU6qykxbk1pP9dMVfIrqVAA=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
-        JSON.parse('{"data": {"stake": 500}}')]
+        JSON.parse('{"status": 200, "data": {"txs":["68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516"] }}')]
 }
 
 // function de_stake() {
@@ -142,7 +142,7 @@ function contract_create() {
 
 function query_contract() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/2jNdCGmBaStrCpYLjfvUPovib7uTK4fCL8eZnBiohEKwCWmsVE/balance","data":{"address":"2FyD1Q6tJJDpoEUQTjf6Rt6Kbv45Q2ZGaqQgAzVunzSjMAN8AZ"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+        JSON.parse(`"{"method":"post","url":"http://127.0.0.1:8000/api/contract/25b6zQfoFcy7iVneBJtua7LrxTuiCzQA8F4GngJCZSpMKEfQpz/balance","data":{"address":"2FyD1Q6tJJDpoEUQTjf6Rt6Kbv45Q2ZGaqQgAzVunzSjMAN8AZ"},"headers":{"Content-Type":"application/json; charset=utf-8"}}"`),
         JSON.parse('{"data":{"status":"success","result":1000000}}')]
 }
 

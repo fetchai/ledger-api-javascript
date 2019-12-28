@@ -67,6 +67,8 @@ let sum = 0
     deed.set_threshold("TRANSFER", 2)
 
    tx = await api.tokens.deed(multi_sig_identity, deed)
+            debugger;
+         console.log("TX IS ::", tx);
     await api.sync([tx])
     // Original address can no longer validate transfers
     console.log("\nTransfer with original signature should fail...")

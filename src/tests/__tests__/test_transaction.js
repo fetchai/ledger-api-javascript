@@ -208,9 +208,9 @@ for(let i = 0; i < 4; i++){
 }
 const target_identity = new Entity()
 const tx = TokenTxFactory.transfer(source_identity, new Identity(target_identity),
-                                          500, 500, [source_identity])
+                                          new BN(500), new BN(500), [source_identity])
 const mstx = await TokenTxFactory.transfer(multi_sig_identity, new Identity(target_identity),
-                                          500, 500, multi_sig_board)
+                                          new BN(500), new BN(500), multi_sig_board)
 
        const  txs = []
 
