@@ -14,8 +14,14 @@ export default jest.fn((request) => {
             return Promise.resolve(res)
         }
     }
-    debugger;
+
 })
+
+// function transfer_contents() {
+//     return [
+//         JSON.parse(` `),
+//         JSON.parse('{"data": {"stake": 500}}')]
+// }
 
 function stake() {
     return [
@@ -65,7 +71,7 @@ function balance_token() {
 
 function tx_content() {
     return [
-        JSON.parse('{"method":"get","url":"http://127.0.0.1:8000/api/tx/be448a628ed7d406eaf497b7bf56722f1df661c67856b9cedf6d75180859964c"}'),
+        JSON.parse('{"method":"get","url":"http://127.0.0.1:8000/api/tx/be448a628ed7d333eaf497b7bf56722f1df661c67856b9cedf6d75180859964c"}'),
         JSON.parse('{"status": 200, "data": {"digest":"0x123456","action":"transfer","chainCode":"action.transfer","from":"U5dUjGzmAnajivcn4i9K4HpKvoTvBrDkna1zePXcwjdwbz1yB","validFrom":0,"validUntil":100,"charge":2,"chargeLimit":5,"transfers":[],"signatories":["abc"],"data":"def"}}')
     ]
 }

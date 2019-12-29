@@ -43,7 +43,6 @@ let sum = 0
     console.log('Balance after wealth:', balance)
     // Transfers can happen normally without a deed
     console.log('Submitting pre-deed transfer with original signature...')
-            debugger;
          tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
          await api.sync([tx]).catch(errors => {
         print_errors(errors);
@@ -61,16 +60,15 @@ let sum = 0
     deed.set_threshold("TRANSFER", 2)
 
    tx = await api.tokens.deed(multi_sig_identity, deed)
-            debugger;
          console.log("TX IS ::", tx);
-    await api.sync([tx]).catch(errors => {
+    await api.sync([tx], 20).catch(errors => {
         print_errors(errors);
         throw new Error();
     })
     // Original address can no longer validate transfers
     console.log("\nTransfer with original signature should fail...")
 
-
+debugger;
       tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
      await api.sync([tx]).catch(errors => {
        console.log(`Transaction failed as expected. \n Transaction status: ${errors[0].get_status()}`)

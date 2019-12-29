@@ -58,7 +58,6 @@ export class LedgerApi {
         if (!Array.isArray(txs)) {
             txs = [txs]
         }
-        debugger;
         const limit = timeout === false ? DEFAULT_TIMEOUT : timeout * 1000
         if (!Array.isArray(txs) || !txs.length) {
             throw new TypeError('Unknown argument type')
@@ -71,7 +70,7 @@ export class LedgerApi {
         const waiting = []
 
         const asyncTimerPromise = new Promise((resolve, reject) => {
-            debugger;
+
             const start = Date.now()
 
             const loop = setInterval(async () => {
@@ -86,15 +85,11 @@ export class LedgerApi {
 
 
                 }
-                let tx_status, successful_tx;
-                for (let i = 0; i < txs.length; i++) {
-                    try {
-                        tx_status = await this.tx.status(txs[i].txs[0])
-                    } catch (e) {
-                        if (!(e instanceof ApiError)) {
-                            throw e
-                        }
-                    }
+                let successful_tx;
+                // we poll all of the digests.
+               const tx_statuses = await poll(txs)
+
+                tx_statuses((tx_status)=>{
 
                     if(tx_status.failed()){
                        failed.push(tx_status)
@@ -109,19 +104,20 @@ export class LedgerApi {
                         }
                     }
 
-                    if(tx_status.successful() || extend_success_status.includes(tx_status.status)){
+                     if(tx_status.successful() || extend_success_status.includes(tx_status.status)){
                         let index = waiting.findIndex(item => {
                             const x = Date.now() - item.time;
-                            debugger;
+
                             return x > hold_state_sec && item.tx_status.get_digest_hex() === tx_status.get_digest_hex()
                         })
 
                          if(index !== -1){
+                             // splice it out of the array incase we
                              // if its been in
                              successful_tx = true
                          } else {
                              let index = waiting.findIndex(item => {
-                                 debugger;
+
                                  let x = item.tx_status.get_digest_hex();
                                  return tx_status.get_digest_hex() === x
                              })
@@ -131,15 +127,22 @@ export class LedgerApi {
                          }
                     }
 
+
                     // we expect failed requests to return null, or throw an ApiError
                     if (successful_tx || tx_status.failed()) {
                         txs.splice(i, 1)
                         i--
                     }
-                }
+
+
+                })
+
                 let elapsed_time = Date.now() - start
 
                 if (elapsed_time >= limit) {
+                    // and return all those which still have not.
+                    failed.push()
+                   return reject(failed)
                     throw new RunTimeError('Timeout exceeded waiting for txs')
                 }
             }, 100)
@@ -147,14 +150,24 @@ export class LedgerApi {
         return asyncTimerPromise
     }
 
-    async poll(digest) {
-        let status = await this.tx.status(digest)
+    async poll(txs) {
+         let tx_status;
+         const res = [];
 
-        if(status.status === "Fatal Error") debugger;
+                for (let i = 0; i < txs.length; i++) {
+                    try {
+                        tx_status = await this.tx.status(txs[i].txs[0])
+                        res.push(tx_status);
+                    } catch (e) {
 
-        console.log('status is', status.status)
-        return /Executed|Submitted/.test(status.status)
+                        if (!(e instanceof ApiError)) {
+                            throw e
+                        }
+                    }
+                }
+                return res;
     }
+
 
     static async from_network_name(host, port) {
         const server = new ServerApi(host, port)

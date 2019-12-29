@@ -14,6 +14,7 @@ function _calc_digest(address_raw) {
 }
 
 jest.mock('fs', () => {
+    debugger;
     const MOCK_FILE_INFO =
         '{"key_length":32,"init_vector":"A6iVObnjv/A5ApVyvclV4A==","password_salt":"4ODfF30sz2NIb67ZNtjS2Q==","privateKey":"zBd+gM3SLgLhqxtSj80jQzbGb4W4Af/BRr/XcboKw2o="}'
     return {

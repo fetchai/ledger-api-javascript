@@ -129,7 +129,6 @@ export class TokenApi extends ApiEndpoint {
             throw new ApiError('Malformed response from server')
         }
         // return the result
-        debugger;
         return data
     }
 
