@@ -102,7 +102,7 @@ export class LedgerApi {
 
                     if(tx_status.non_terminal()){
                         // if a transaction reverts its status to a non-terminal state within hold time then revert.
-                         let index = waiting.findIndex(item => (Date.now - item.time) < hold_state_sec  && item.tx_status.digest_hex() === tx_status.digest_hex())
+                         let index = waiting.findIndex(item => (Date.now - item.time) < hold_state_sec  && item.tx_status.get_digest_hex() === tx_status.get_digest_hex())
 
                         if(index !== -1){
                              waiting.splice(index, 1)
@@ -110,13 +110,21 @@ export class LedgerApi {
                     }
 
                     if(tx_status.successful() || extend_success_status.includes(tx_status.status)){
-                        let index = waiting.findIndex(item => (Date.now - item.time) > hold_state_sec && item.tx_status.digest_hex() === tx_status.digest_hex())
+                        let index = waiting.findIndex(item => {
+                            const x = Date.now() - item.time;
+                            debugger;
+                            return x > hold_state_sec && item.tx_status.get_digest_hex() === tx_status.get_digest_hex()
+                        })
 
                          if(index !== -1){
                              // if its been in
                              successful_tx = true
                          } else {
-                             let index = waiting.findIndex(item => item.tx_status.digest_hex() === tx_status.digest_hex())
+                             let index = waiting.findIndex(item => {
+                                 debugger;
+                                 let x = item.tx_status.get_digest_hex();
+                                 return tx_status.get_digest_hex() === x
+                             })
                              if(index === -1)  {
                                  waiting.push({time: Date.now(), tx_status: tx_status})
                              }

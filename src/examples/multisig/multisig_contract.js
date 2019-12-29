@@ -53,11 +53,11 @@ async function print_address_balances(api, contract, addresses) {
     }
 }
 
-// def print_address_balances(api: LedgerApi, contract: Contract, addresses: List[Address]):
-//     for idx, address in enumerate(addresses):
-//         print('Address{}: {:<6d} bFET {:<10d} TOK'.format(idx, api.tokens.balance(address),
-//                                                           contract.query(api, 'balanceOf', address=address)))
-//     print()
+function print_errors(errors){
+    errors.forEach((tx)=>{
+        console.log(`The following transaction: "${tx.get_digest_hex()}" did not succeed. It exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
+    })
+}
 
 
 async  function main(){
@@ -83,20 +83,10 @@ async  function main(){
     const api = new LedgerApi('127.0.0.1', 8000)
    // create contract factory
     const contract_factory = new ContractTxFactory(api)
-   // create wealth so that we have the funds to be able to create contracts on the network
-   //  txs = api.tokens.wealth(multi_sig_identity, 10000)
-   //  api.sync([txs])
-
-    // board.forEach(async (obj)  =>  {
-    //     txs = await api.tokens.wealth(obj.member, 10000);
-    //     await  api.sync(txs)
-    // })
 
    // create a multisig deed for multi_sig_identity
     console.log("\nCreating deed...")
     const deed = new Deed(multi_sig_identity)
-    // for sig, weight in voting_weights.items():
-    //     deed.set_signee(sig, weight)
 
     board.forEach((item) => deed.set_signee(item.member, item.voting_weight))
     deed.set_amend_threshold(4)
@@ -108,7 +98,10 @@ async  function main(){
 
    // Submit deed
     txs = await api.tokens.deed(multi_sig_identity, deed)
-    await api.sync([txs])
+    await api.sync([txs]).catch(errors => {
+        print_errors(errors);
+        throw new Error();
+    })
 
    // create the smart contract
     console.log('\nSetting up smart contract')
@@ -122,7 +115,10 @@ async  function main(){
 console.log("starts")
     txs = await api.contracts.submit_signed_tx(tx, tx.signers())
     console.log("ends")
-    await api.sync([txs])
+    await api.sync([txs]).catch(errors => {
+        print_errors(errors);
+        throw new Error();
+    })
 
    // print the current status of all the tokens
     console.log('-- BEFORE --')
@@ -138,7 +134,10 @@ console.log("starts")
     tx = await contract.action(contract_factory, 'transfer', fet_tx_fee, [multi_sig_address, address2, tok_transfer_amount], signers)
     board.forEach((board)=> {tx.sign(board.member)})
     txs = await api.contracts.submit_signed_tx(tx, tx.signers())
-    await api.sync([txs])
+    await api.sync([txs]).catch(errors => {
+        print_errors(errors);
+        throw new Error();
+    })
     console.log('-- AFTER --')
     await print_address_balances(api, contract, [multi_sig_address, address2])
 }

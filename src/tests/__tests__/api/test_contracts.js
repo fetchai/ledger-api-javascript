@@ -37,7 +37,7 @@ describe(':ContractsApi', () => {
         expect(axios).toHaveBeenCalledTimes(2)
         const promise_sync = await api.sync(JSON.parse('[{"txs":["bbc6e88d647ab41923216cdaaba8cdd01f42e953c6583e59179d9b32f52f5777"],"counts":{"received":1,"submitted":1}}]'))
         await expect(promise_sync).toBe(true)
-        expect(axios).toHaveBeenCalledTimes(3)
+        expect(axios).toHaveBeenCalledTimes(4)
     })
 
     test('test query', async () => {

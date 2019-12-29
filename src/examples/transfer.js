@@ -4,6 +4,12 @@ import {LedgerApi} from '../fetchai/ledger/api/init'
 const HOST = '127.0.0.1'
 const PORT = 8000
 
+function print_errors(errors){
+    errors.forEach((tx)=>{
+        console.log(`The following transaction: "${tx.get_digest_hex()}" did not succeed. It exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
+    })
+}
+
 async function main() {
     // create the APIs
     const api = new LedgerApi(HOST, PORT)
@@ -15,8 +21,10 @@ async function main() {
     console.log('Balance 1 (before):' + balance1)
     let balance2 = await api.tokens.balance(identity2)
     console.log('Balance 2 (before):' + balance2)
-    const tx2 = await api.tokens.transfer(identity1, identity2, 250000, 20)
-    await api.sync([tx2])
+    const tx2 = await api.tokens.transfer(identity1, identity2, 2500, 20)
+    await api.sync([tx2]).catch((errors)=>{
+        print_errors(errors);
+    })
 
     balance1 = await api.tokens.balance(identity1)
     console.log('Balance 1:' + balance1)

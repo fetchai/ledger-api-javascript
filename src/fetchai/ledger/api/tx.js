@@ -28,6 +28,14 @@ export class TxStatus {
         this.fee = new BN(fee)
     }
 
+    get_status(){
+        return this.status;
+    }
+
+    get_exit_code(){
+        return this.exit_code;
+    }
+
     successful() {
         return SUCCESSFUL_TERMINAL_STATES.includes(this.status)
     }
@@ -42,11 +50,11 @@ export class TxStatus {
     }
 
 
-    digest_hex() {
+    get_digest_hex() {
         return this.digest_hex
     }
 
-    digest_bytes() {
+    get_digest_bytes() {
         return this.digest_bytes
     }
 }
