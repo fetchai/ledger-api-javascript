@@ -8,8 +8,9 @@ describe(':TXContentsTest', () => {
     test('test contents', async () => {
         const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
         debugger;
-        const transfer = await api.transfer(ENTITIES[0], ENTITIES[1], 1000)
+        const transfer = await api.transfer(ENTITIES[0], ENTITIES[1], 1000, 50)
         const TApi = new TransactionApi(LOCAL_HOST, DEFAULT_PORT)
+        debugger;
         const data = await TApi.contents(transfer.txs[0])
         const a = TxContents.from_json(data)
         expect(a.digest_hex).toBe('123456')
