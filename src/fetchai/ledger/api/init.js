@@ -92,12 +92,14 @@ export class LedgerApi {
 
                 for (let i = 0; i < txs.length; i++) {
 
+                    // if failed we push into array of failed and go to next one.
                     if (txs[i].failed()) {
                         failed.push(txs[i])
                         txs.splice(i, 1)
                         i--
                         continue;
                     }
+
 
                     if (txs[i].non_terminal()) {
                         // if a transaction reverts its status to a non-terminal state within hold time then revert.
@@ -119,6 +121,7 @@ export class LedgerApi {
                             txs.splice(i, 1)
                             i--;
                         } else {
+                            // check if it is currently waiting for hold time to elapse.
                             let index = waiting.findIndex(item => {
 
                                 let x = item.tx_status.get_digest_hex();
@@ -156,7 +159,7 @@ export class LedgerApi {
                 } else {
                     tx_status = await this.tx.status(txs[i].txs[0]);
                 }
-                txs[i] = tx_status;
+                res.push(tx_status);
             } catch (e) {
 // if wedon't fail whole thing then we must push it into it to keep arrays same length.
                 if (!(e instanceof ApiError)) {

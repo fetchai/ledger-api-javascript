@@ -108,13 +108,15 @@ async function main() {
     deed.set_threshold("EXECUTE", 2)
     deed.set_threshold("TRANSFER", 2)
 
-    // Submit deed
+    //Submit deed
     txs = await api.tokens.deed(multi_sig_identity, deed)
+    debugger;
     await api.sync([txs]).catch(errors => {
         print_errors(errors);
         throw new Error();
     })
 
+    // throw new Error();
     // create the smart contract
     console.log('\nSetting up smart contract')
 
