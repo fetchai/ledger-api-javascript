@@ -5,10 +5,11 @@ import {Identity} from '../fetchai/ledger/crypto'
 const PASSWORD = 'Password!12345'
 const ADDRESS = 'dTSCNwHBPoDdESpxj6NQkPDvX3DN1DFKGsUPZNVWDVDrfur4z'
 
-/**
-     * Working with Private Keys
-     *
-     **/
+
+// *************************************
+// ***** Working with Private Keys *****
+// *************************************
+
 
 // Create a new (random) Private key by instantiating an Entity object like so:
 const entity = new Entity()
@@ -35,10 +36,9 @@ console.log(entity3.private_key_hex())
 
 console.assert(entity.private_key_hex() == entity3.private_key_hex(), 'Private keys should match across the given entities \n')
 
-/**
-     * Serializing Private Keys
-     *
-     */
+// *************************************
+// ***** Serializing Private Keys ******
+// *************************************
 
 // We provide in-built JSON serialization methods, which encrypt the private Key using AES
 const json_object = entity.to_json_object(PASSWORD)
@@ -62,10 +62,10 @@ let result = (password_flag) ? ' is strong enough  :' : ' is not strong enough'
 
 console.log(`The given password ${PASSWORD} ${result} to be used with our serialization functionality\n`)
 
-/**
-     * Working with Public keys
-     *
-     */
+// *************************************
+// ***** Working with Public keys ******
+// *************************************
+
 
 // Whilst an Entity objects represent a Public/Private key pair an Identity only represents a public key.
 let identity = new Identity(entity)
@@ -88,10 +88,10 @@ console.log('An Identity Object represents a public key\n')
 // We can Construct an identity from buffer
 const ident4 = new Identity(public_key_bytes)
 
-/**
-     * Working with Addresses
-     *
-     */
+
+// *************************************
+// ****** Working with Addresses *******
+// *************************************
 
 // We can construct an address from an entity object
 const address = new Address(entity)

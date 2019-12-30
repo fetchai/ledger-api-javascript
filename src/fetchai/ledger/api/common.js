@@ -158,8 +158,7 @@ export class ApiEndpoint {
         // query what the current block number is on the node
         const current_block = await this.current_block_number()
 
-        //   tx.valid_until(new BN(current_block + validity_period))
-        tx.valid_until(new BN(1000))
+        tx.valid_until(new BN(current_block + validity_period))
 
         return tx.valid_until()
     }
@@ -212,8 +211,6 @@ export class ApiEndpoint {
 
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
-        console.log('tss + url:' + url)
-        console.log(tx_data.toString('base64'))
         // make the request
         let resp
         try {
@@ -224,7 +221,6 @@ export class ApiEndpoint {
                 headers: request_headers
             })
         } catch (error) {
-            debugger
             throw new ApiError('Malformed response from server')
         }
 

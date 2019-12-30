@@ -89,14 +89,9 @@ export class Deed {
             if (this.thresholds.AMEND > this.total_votes()) {
                 throw new InvalidDeedError('Amend threshold greater than total voting power - future amendment will be impossible')
             }
-        }
-        // Warnings/errors if no amend threshold set
-        else if (allow_no_amend) {
-            // logging.warning("Creating deed without amend threshold - future amendment will be impossible")
-        } else {
-            debugger
-            throw new InvalidDeedError('Creating deed without amend threshold - future amendment will be impossible')
-        }
+        } else if (!allow_no_amend) {
+            throw new InvalidDeedError('Creating deed without amend threshold - future amendment will be impossible')        }
+
         let lower
         // Add other thresholds
         for (let key in this.thresholds) {
@@ -109,8 +104,8 @@ export class Deed {
     valid_operation(operation) {
         if (typeof this.OPERATIONS[operation] === 'undefined') {
             let str = ''
-            for (var operation in this.OPERATIONS) {
-                str += operation + ', '
+            for (let op in this.OPERATIONS) {
+                str += op + ', '
             }
             str.substring(0, str.length - 2)
             throw new ValidationError(` ${operation} is not valid a valid operation. Valid operations are : ${str}`)

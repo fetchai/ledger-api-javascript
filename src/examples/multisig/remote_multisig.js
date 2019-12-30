@@ -15,7 +15,7 @@ function print_errors(errors) {
 }
 
 async function main() {
-    let balance, balance1, balance2, txs, tx, itx
+    let balance, txs, tx, itx
     // create the APIs
     const api = new LedgerApi(HOST, PORT)
     // We generate an identity from a known key, which contains funds.
@@ -56,8 +56,8 @@ async function main() {
     console.log('Before remote-multisig transfer \n')
 
     console.log('Balance 1:', await api.tokens.balance(multi_sig_identity).toString())
-    balance2 = await api.tokens.balance(other_identity)
-    console.log('Balance 2:', balance2.toString())
+    balance = await api.tokens.balance(other_identity)
+    console.log('Balance 2:', balance.toString())
     // Scatter/gather example
     console.log('Generating transaction and distributing to signers...')
     // Add intended signers to transaction

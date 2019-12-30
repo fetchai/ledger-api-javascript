@@ -7,8 +7,6 @@ const mock = require('mock-fs')
 const sinon = require('sinon')
 
 
-const THIRTY_TWO_BYTE_BASE64 = 'XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M='
-
 function _calc_digest(address_raw) {
     const hash_func = createHash('sha256')
     hash_func.update(address_raw)
@@ -26,11 +24,10 @@ describe(':Entity', () => {
 
 
     beforeEach(() => {
-
         writeFileSync = sinon.stub(fs, 'writeFileSync').returns({})
     })
-    afterEach(() => {
 
+    afterEach(() => {
         writeFileSync.restore()
     })
 

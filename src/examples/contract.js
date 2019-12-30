@@ -29,6 +29,7 @@ async function main() {
     const address2 = new Address(entity2)
 
     const api = new LedgerApi('127.0.0.1', 8000)
+    //todo remove nonce
     const nonce = Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')
 
     // create the smart contract

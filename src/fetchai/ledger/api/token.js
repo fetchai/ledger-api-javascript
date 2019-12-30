@@ -1,7 +1,6 @@
 import {ApiError, ValidationError} from '../errors'
 import {logger} from '../utils'
 import {ApiEndpoint, TransactionFactory} from './common'
-import {BitVector} from '../bitvector'
 import {encode_transaction} from '../serialization/transaction'
 import {Address} from '../crypto'
 import {BN} from 'bn.js'

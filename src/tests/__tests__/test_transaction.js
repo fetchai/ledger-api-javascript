@@ -7,19 +7,6 @@ import {TokenTxFactory} from '../../fetchai/ledger/api/token'
 import {Entity} from '../../fetchai/ledger/crypto/entity'
 import {Identity} from '../../fetchai/ledger/crypto'
 
-
-// const source_identity = new Entity()
-// const multi_sig_identity = new Entity()
-// const multi_sig_board = [];
-// for(let i = 0; i < 4; i++){
-//     multi_sig_board.push(new Entity())
-// }
-// const target_identity = new Entity()
-// const tx = TokenTxFactory.transfer(source_identity, new Identity(target_identity),
-//                                           500, 500, [source_identity])
-// const mstx = TokenTxFactory.transfer(multi_sig_identity, Identity(target_identity),
-//                                           500, 500, multi_sig_board)
-
 describe(':Test Transaction', () => {
     test('Testing transaction constructor', () => {
         let txObj = new Transaction()
@@ -162,15 +149,12 @@ describe(':Test Transaction', () => {
 
 
     test('Test test partial serialize', async () => {
-        const source_identity = new Entity()
         const multi_sig_identity = new Entity()
         const multi_sig_board = []
         for (let i = 0; i < 4; i++) {
             multi_sig_board.push(new Entity())
         }
         const target_identity = new Entity()
-        const tx = TokenTxFactory.transfer(source_identity, new Identity(target_identity),
-            500, 500, [source_identity])
         const mstx = await TokenTxFactory.transfer(multi_sig_identity, new Identity(target_identity),
             500, 500, multi_sig_board)
 
@@ -182,33 +166,16 @@ describe(':Test Transaction', () => {
         const tx2 = Transaction.decode_partial(encoded)
 
         expect(mstx.compare(tx2)).toBe(true)
-
-        /*
-         self.assertTrue(self.mstx.compare(tx2))
-
-       # Check that signer signatures match that sent
-       for signer in self.mstx.signers:
-           self.assertIn(signer, tx2.signers)
-           if self.mstx.signers[signer] == {}:
-               self.assertEqual(tx2.signers[signer], {})
-           else:
-               self.assertEqual(self.mstx.signers[signer]['signature'], tx2.signers[signer]['signature'])
-               self.assertEqual(self.mstx.signers[signer]['verified'], tx2.signers[signer]['verified'])
-         */
     })
 
 
     test('Test test merge tx signatures', async () => {
-
-        const source_identity = new Entity()
         const multi_sig_identity = new Entity()
         const multi_sig_board = []
         for (let i = 0; i < 4; i++) {
             multi_sig_board.push(new Entity())
         }
         const target_identity = new Entity()
-        const tx = TokenTxFactory.transfer(source_identity, new Identity(target_identity),
-            new BN(500), new BN(500), [source_identity])
         const mstx = await TokenTxFactory.transfer(multi_sig_identity, new Identity(target_identity),
             new BN(500), new BN(500), multi_sig_board)
 
@@ -230,37 +197,8 @@ describe(':Test Transaction', () => {
             if (typeof signers[key].verified === 'undefined' || !signers[key].verified) {
                 flag = false
             }
-            // const success = verified.every((verified) => verified === true)
         }
         expect(flag).toBe(true)
-        console.log('passed')
-        //     self.assertTrue(all([s['verified'] for s in self.mstx.signers.values()]))
+
     })
-
-
-    // def test_invalid_sig(self):
-    //     self.mstx.sign(self.multi_sig_board[0])
-    //     self.mstx.signers[self.multi_sig_board[0]]['signature'] = b'invalid'
-    //
-    //     encoded = self.mstx.encode_partial()
-    //
-    //     with patch('logging.warning') as mock_warn:
-    //         tx2 = Transaction.decode_partial(encoded)
-    //         self.assertEqual(mock_warn.call_count, 1)
-    //
-    //     self.assertFalse(tx2.signers[self.multi_sig_board[0]]['verified'])
-    //
-    // def test_merge_tx_signatures(self):
-    //     payload = self.mstx.payload
-    //
-    //     txs = []
-    //     for signer in self.multi_sig_board:
-    //         tx = Transaction.from_payload(payload)
-    //         tx.sign(signer)
-    //         txs.append(tx.encode_partial())
-    //
-    //     for tx in txs:
-    //         self.mstx.merge_signatures(Transaction.decode_partial(tx))
-    //
-    //     self.assertTrue(all([s['verified'] for s in self.mstx.signers.values()]))
 })

@@ -1,4 +1,4 @@
-import {LedgerApi, TokenApi} from '../../fetchai/ledger/api'
+import {LedgerApi} from '../../fetchai/ledger/api'
 import {Entity} from '../../fetchai/ledger/crypto/entity'
 import {Deed} from '../../fetchai/ledger/crypto/deed'
 

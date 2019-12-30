@@ -1,12 +1,10 @@
 import assert from 'assert'
-import {encode, ExtensionCodec} from '@msgpack/msgpack'
 import {Address} from '../crypto/address'
 import {ApiEndpoint, TransactionFactory} from './common'
 import {BitVector} from '../bitvector'
 import {Contract} from '../contract'
 import {encode_transaction} from '../serialization/transaction'
 import {logger} from '../utils'
-import {ValidationError} from '../errors'
 
 /**
  * This class for all Tokens APIs.
@@ -188,7 +186,7 @@ export class ContractsApi extends ApiEndpoint {
     }
 
 
-    async post_tx_json(tx_data, endpoint = null) {
+    async post_tx_json(tx_data) {
         return super.post_tx_json(tx_data, null)
     }
 
@@ -238,11 +236,8 @@ export class ContractTxFactory extends TransactionFactory {
 
                 tx.add_signer(signer.public_key_hex())
             })
-        } else {
-            debugger
-            throw new ValidationError('TESTING ERROR TO REMOVE')
-            tx.add_signer(from_address)
         }
+
         return tx
     }
 

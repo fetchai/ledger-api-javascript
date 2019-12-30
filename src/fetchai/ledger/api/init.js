@@ -3,7 +3,6 @@ import {__compatible__} from '../init'
 import {ApiError} from '../errors/apiError'
 import {ContractsApi} from './contracts'
 import {IncompatibleLedgerVersionError, ValidationError} from '../errors'
-import {RunTimeError} from '../errors/runTimeError'
 import {ServerApi} from './server'
 import {TokenApi} from './token'
 import {TransactionApi, TxStatus} from './tx'
@@ -52,7 +51,6 @@ export class LedgerApi {
      * @param  {String} txs transactions string.
      * @param  {Boolean} [timeout=false] units seconds.
      * @returns {Promise} return asyncTimerPromise.
-     * @throws {TypeError|RunTimeError} TypeError or RunTimeError on any failures.
      */
     async sync(txs, timeout = false, hold_state_sec = 0, extend_success_status = []) {
 

@@ -16,6 +16,7 @@
       "error",
       4
     ],
+    "require-atomic-updates": "off",
     "no-prototype-builtins": "off",
     "linebreak-style": [
       "error",

@@ -186,7 +186,7 @@ const encode_multisig_transaction = (payload, signatures) => {
 
     // append signatures in order
     //for(let key in signers){
-    signers.forEach((v, k, m) => {
+    signers.forEach((v, k) => {
         if (signatures.has(k) && typeof signatures.get(k).signature !== 'undefined') {
             console.log('STEPPED')
             buffer = encode_bytearray(buffer, signatures.get(k).signature)
@@ -205,7 +205,7 @@ const encode_transaction = (payload, signers) => {
     // append all the signatures of the signers in order
     // for (let signer of Object.keys(payload._signers)) {
     let flag = false
-    payload.signers().forEach((v, k, m) => {
+    payload.signers().forEach((v, k) => {
         let hex_key
 
         for (let i = 0; i < signers.length; i++) {
@@ -390,8 +390,7 @@ const decode_transaction = (buffer) => {
     const payload_bytes = input_buffer.slice(0, expected_payload_end)
     const verified = []
 
-    tx.signers().forEach((v, k, m) => {
-        ////for(let i =0; i < signers.length; i++){
+    tx.signers().forEach((v, k) => {
         let identity, signature;
         [signature, buffer] = bytearray.decode_bytearray(buffer)
         identity = Identity.from_hex(k)

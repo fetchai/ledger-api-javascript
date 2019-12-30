@@ -1,6 +1,5 @@
 import {DEFAULT_PORT, ENTITIES, LOCAL_HOST} from '../../utils/helpers'
 import {TokenApi} from '../../../fetchai/ledger/api'
-import {Entity} from '../../../fetchai/ledger/crypto'
 import {Deed} from '../../../fetchai/ledger/crypto/deed'
 import {BN} from 'bn.js'
 
