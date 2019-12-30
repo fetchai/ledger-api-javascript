@@ -8,8 +8,8 @@ import {ServerApi} from './server'
 import {TokenApi} from './token'
 import {TransactionApi, TxStatus} from './tx'
 import {Bootstrap} from './bootstrap'
-
-const DEFAULT_TIMEOUT = 120000
+// reduced for testing
+const DEFAULT_TIMEOUT = 12000
 
 /**
  * This class for all ledger APIs.
@@ -55,13 +55,16 @@ export class LedgerApi {
      * @throws {TypeError|RunTimeError} TypeError or RunTimeError on any failures.
      */
     async sync(txs, timeout = false, hold_state_sec = 0, extend_success_status = []) {
+
+          if (!Array.isArray(txs) || !txs.length) {
+            throw new TypeError('Unknown argument type')
+        }
+
         if (!Array.isArray(txs)) {
             txs = [txs]
         }
         const limit = timeout === false ? DEFAULT_TIMEOUT : timeout * 1000
-        if (!Array.isArray(txs) || !txs.length) {
-            throw new TypeError('Unknown argument type')
-        }
+
 
         const failed = []
         // successful transactions are out in this waiting array, and then if they remain successful
@@ -82,12 +85,8 @@ export class LedgerApi {
                     } else {
                         return resolve(true)
                     }
-
-
                 }
-                let successful_tx;
                 // we poll all of the digests.
-                //debugger;
                 txs = await this.poll(txs)
 
                 for (let i = 0; i < txs.length; i++) {
@@ -138,10 +137,9 @@ export class LedgerApi {
                 let elapsed_time = Date.now() - start
 
                 if (elapsed_time >= limit) {
+                    clearInterval(loop)
                     // and return all those which still have not.
-                    failed.concat(txs)
-                    return reject(failed)
-                    // throw new RunTimeError('Timeout exceeded waiting for txs')
+                    return reject(failed.concat(txs))
                 }
             }, 100)
         })
@@ -161,8 +159,10 @@ export class LedgerApi {
                 }
                 res.push(tx_status);
             } catch (e) {
-// if wedon't fail whole thing then we must push it into it to keep arrays same length.
+
                 if (!(e instanceof ApiError)) {
+                    // if wedon't fail whole thing then we must push it into it to keep arrays same length.
+                    // this needs looking at and asking eds opinion for future direction.
                     throw e
                 }
             }

@@ -79,9 +79,6 @@ export class ApiEndpoint {
         const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
         // define the request headers
 
-        console.log(url)
-        console.log(data)
-
         let request_headers = {
             'Content-Type': 'application/json; charset=utf-8'
         }

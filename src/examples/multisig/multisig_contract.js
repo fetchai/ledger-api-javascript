@@ -47,7 +47,7 @@ endfunction
 async function print_address_balances(api, contract, addresses) {
     let balance, query
     for (let i = 0; i < addresses.length; i++) {
-        balance = await api.tokens.balance(addresses[i])
+        balance = await api.tokens.balance(addresses[i]).toString()
         query = await contract.query(api, 'balanceOf', {address: addresses[i]})
         console.log(`Address : ${addresses[i]}: ${balance} bFET ${query} TOK'.`)
     }
@@ -62,7 +62,8 @@ function print_errors(errors) {
 
 async function main() {
     let txs, tx;
-    // generate a random identity
+
+    // We generate an identity from a known key, which contains funds.
     const multi_sig_identity = Entity.from_hex('e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8')
 
     // create our first private key pair
@@ -110,13 +111,12 @@ async function main() {
 
     //Submit deed
     txs = await api.tokens.deed(multi_sig_identity, deed)
-    debugger;
+
     await api.sync([txs]).catch(errors => {
         print_errors(errors);
         throw new Error();
     })
 
-    // throw new Error();
     // create the smart contract
     console.log('\nSetting up smart contract')
 
@@ -136,7 +136,6 @@ async function main() {
 
     // print the current status of all the tokens
     console.log('-- BEFORE --')
-    debugger;
     await print_address_balances(api, contract, [multi_sig_address, address2])
 
     // transfer from one to the other using our newly deployed contract
