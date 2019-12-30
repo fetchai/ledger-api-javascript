@@ -57,8 +57,8 @@ describe(':Test Transaction', () => {
         txObj.add_transfer(address, new BN(40))
         txObj.add_transfer(address, new BN(10))
         let transfers = txObj.transfers();
-        transfers.forEach((el)=>{
-            if(el.address === address.toHex()) {
+        transfers.forEach((el) => {
+            if (el.address === address.toHex()) {
                 actual = actual.add(el.amount);
             }
         })
@@ -122,8 +122,8 @@ describe(':Test Transaction', () => {
         let address = dummy_address()
         txObj.add_transfer(address, new BN(10))
         let transfers = txObj.transfers();
-        transfers.forEach((el)=>{
-            if(el.address === address.toHex()) {
+        transfers.forEach((el) => {
+            if (el.address === address.toHex()) {
                 actual = actual.add(el.amount);
             }
         })
@@ -161,82 +161,81 @@ describe(':Test Transaction', () => {
     })
 
 
-     test('Test test partial serialize', async () => {
-const source_identity = new Entity()
-const multi_sig_identity = new Entity()
-const multi_sig_board = [];
-for(let i = 0; i < 4; i++){
-    multi_sig_board.push(new Entity())
-}
-const target_identity = new Entity()
-const tx = TokenTxFactory.transfer(source_identity, new Identity(target_identity),
-                                          500, 500, [source_identity])
-const mstx = await TokenTxFactory.transfer(multi_sig_identity, new Identity(target_identity),
-                                          500, 500, multi_sig_board)
+    test('Test test partial serialize', async () => {
+        const source_identity = new Entity()
+        const multi_sig_identity = new Entity()
+        const multi_sig_board = [];
+        for (let i = 0; i < 4; i++) {
+            multi_sig_board.push(new Entity())
+        }
+        const target_identity = new Entity()
+        const tx = TokenTxFactory.transfer(source_identity, new Identity(target_identity),
+            500, 500, [source_identity])
+        const mstx = await TokenTxFactory.transfer(multi_sig_identity, new Identity(target_identity),
+            500, 500, multi_sig_board)
 
-       mstx.sign(multi_sig_board[0])
-       mstx.sign(multi_sig_board[2])
+        mstx.sign(multi_sig_board[0])
+        mstx.sign(multi_sig_board[2])
 
-         const encoded = mstx.encode_partial()
+        const encoded = mstx.encode_partial()
 
         const tx2 = Transaction.decode_partial(encoded)
 
-         expect(mstx.compare(tx2)).toBe(true)
+        expect(mstx.compare(tx2)).toBe(true)
 
-         /*
-          self.assertTrue(self.mstx.compare(tx2))
+        /*
+         self.assertTrue(self.mstx.compare(tx2))
 
-        # Check that signer signatures match that sent
-        for signer in self.mstx.signers:
-            self.assertIn(signer, tx2.signers)
-            if self.mstx.signers[signer] == {}:
-                self.assertEqual(tx2.signers[signer], {})
-            else:
-                self.assertEqual(self.mstx.signers[signer]['signature'], tx2.signers[signer]['signature'])
-                self.assertEqual(self.mstx.signers[signer]['verified'], tx2.signers[signer]['verified'])
-          */
-     })
+       # Check that signer signatures match that sent
+       for signer in self.mstx.signers:
+           self.assertIn(signer, tx2.signers)
+           if self.mstx.signers[signer] == {}:
+               self.assertEqual(tx2.signers[signer], {})
+           else:
+               self.assertEqual(self.mstx.signers[signer]['signature'], tx2.signers[signer]['signature'])
+               self.assertEqual(self.mstx.signers[signer]['verified'], tx2.signers[signer]['verified'])
+         */
+    })
 
 
-   test('Test test merge tx signatures', async () => {
+    test('Test test merge tx signatures', async () => {
 
-       const source_identity = new Entity()
-const multi_sig_identity = new Entity()
-const multi_sig_board = [];
-for(let i = 0; i < 4; i++){
-    multi_sig_board.push(new Entity())
-}
-const target_identity = new Entity()
-const tx = TokenTxFactory.transfer(source_identity, new Identity(target_identity),
-                                          new BN(500), new BN(500), [source_identity])
-const mstx = await TokenTxFactory.transfer(multi_sig_identity, new Identity(target_identity),
-                                          new BN(500), new BN(500), multi_sig_board)
+        const source_identity = new Entity()
+        const multi_sig_identity = new Entity()
+        const multi_sig_board = [];
+        for (let i = 0; i < 4; i++) {
+            multi_sig_board.push(new Entity())
+        }
+        const target_identity = new Entity()
+        const tx = TokenTxFactory.transfer(source_identity, new Identity(target_identity),
+            new BN(500), new BN(500), [source_identity])
+        const mstx = await TokenTxFactory.transfer(multi_sig_identity, new Identity(target_identity),
+            new BN(500), new BN(500), multi_sig_board)
 
-       const  txs = []
+        const txs = []
 
-       for(let i = 0; i < 4; i++){
+        for (let i = 0; i < 4; i++) {
             let payload = mstx.payload();
-           let  [tx,] = Transaction.from_payload(payload)
+            let [tx,] = Transaction.from_payload(payload)
             tx.sign(multi_sig_board[i])
             txs.push(tx.encode_partial())
-       }
+        }
 
-        for(let i = 0; i < 4; i++){
+        for (let i = 0; i < 4; i++) {
             mstx.merge_signatures(Transaction.decode_partial(txs[i]))
         }
-       const signers = mstx.signers();
+        const signers = mstx.signers();
         let flag = true;
-         for(let key in signers) {
-             if(typeof signers[key].verified === "undefined" || ! signers[key].verified)
-             {
-                 flag = false;
-             }
-             // const success = verified.every((verified) => verified === true)
-         }
-          expect(flag).toBe(true)
-       console.log("passed");
-    //     self.assertTrue(all([s['verified'] for s in self.mstx.signers.values()]))
-   })
+        for (let key in signers) {
+            if (typeof signers[key].verified === "undefined" || !signers[key].verified) {
+                flag = false;
+            }
+            // const success = verified.every((verified) => verified === true)
+        }
+        expect(flag).toBe(true)
+        console.log("passed");
+        //     self.assertTrue(all([s['verified'] for s in self.mstx.signers.values()]))
+    })
 
 
     // def test_invalid_sig(self):

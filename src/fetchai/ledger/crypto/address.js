@@ -35,7 +35,7 @@ export class Address {
             this._address = identity
             this._display = this.calculate_display(this._address)
         } else if (typeof identity === 'string') {
-            if(!Address.is_address(identity))  {
+            if (!Address.is_address(identity)) {
                 throw new ValidationError('Invalid Address')
             }
 
@@ -54,22 +54,22 @@ export class Address {
      * @returns {boolean}
      */
     static is_address(b58_address) {
-            const bytes = bs58.decode(b58_address)
+        const bytes = bs58.decode(b58_address)
 
-            if (Buffer.byteLength(bytes) !== DISPLAY_BYTE_LENGTH) {
-               return false;
-            }
-            // split the identity into address and checksum
-            const address_raw = bytes.slice(0, BYTE_LENGTH)
-            const checksum = bytes.slice(BYTE_LENGTH)
-            //calculate the expected checksum
-            const expected_checksum = Address.calculate_checksum(address_raw)
+        if (Buffer.byteLength(bytes) !== DISPLAY_BYTE_LENGTH) {
+            return false;
+        }
+        // split the identity into address and checksum
+        const address_raw = bytes.slice(0, BYTE_LENGTH)
+        const checksum = bytes.slice(BYTE_LENGTH)
+        //calculate the expected checksum
+        const expected_checksum = Address.calculate_checksum(address_raw)
 
-            // check the validity of the checksum.
-            if (!Buffer.compare(checksum, expected_checksum)) {
-                return false
-            }
-return true;
+        // check the validity of the checksum.
+        if (!Buffer.compare(checksum, expected_checksum)) {
+            return false
+        }
+        return true;
     }
 
     /**

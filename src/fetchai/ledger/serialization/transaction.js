@@ -85,8 +85,8 @@ const encode_payload = payload => {
 
     let transfers = payload.transfers()
 
-    for(let i =0; i < transfers.length; i++){
-         buffer = address.encode_address(buffer, transfers[i].address)
+    for (let i = 0; i < transfers.length; i++) {
+        buffer = address.encode_address(buffer, transfers[i].address)
         buffer = integer.encode_integer(buffer, transfers[i].amount)
     }
 
@@ -154,14 +154,14 @@ const encode_payload = payload => {
 
     // write all the signers public keys
 
-    payload._signers.forEach((v, k)=>{
-            buffer = identity.encode_identity(
-                buffer,
-                Buffer.from(
-                    k,
-                    'hex'
-                )
+    payload._signers.forEach((v, k) => {
+        buffer = identity.encode_identity(
+            buffer,
+            Buffer.from(
+                k,
+                'hex'
             )
+        )
     })
 
     // for (let signer of Object.keys(payload._signers)) {
@@ -186,11 +186,11 @@ const encode_multisig_transaction = (payload, signatures) => {
 
     // append signatures in order
     //for(let key in signers){
-    signers.forEach((v, k, m)=>{
-          if(signatures.has(k) && typeof signatures.get(k).signature !== "undefined"){
-              console.log("STEPPED");
-              buffer = encode_bytearray(buffer, signatures.get(k).signature)
-          }
+    signers.forEach((v, k, m) => {
+        if (signatures.has(k) && typeof signatures.get(k).signature !== "undefined") {
+            console.log("STEPPED");
+            buffer = encode_bytearray(buffer, signatures.get(k).signature)
+        }
     })
 
     return buffer
@@ -203,9 +203,9 @@ const encode_transaction = (payload, signers) => {
     let payload_bytes = _calc_digest_utf(buffer)
 
     // append all the signatures of the signers in order
-   // for (let signer of Object.keys(payload._signers)) {
+    // for (let signer of Object.keys(payload._signers)) {
     let flag = false
-    payload.signers().forEach((v, k, m)=> {
+    payload.signers().forEach((v, k, m) => {
         let hex_key
 
         for (let i = 0; i < signers.length; i++) {
@@ -220,7 +220,7 @@ const encode_transaction = (payload, signers) => {
     })
 
     if (!flag) {
-            throw new ValidationError('Missing signer signing set')
+        throw new ValidationError('Missing signer signing set')
     }
 
     logger.info(`\n encoded transaction: ${buffer.toString('hex')} \n`)
@@ -265,7 +265,7 @@ const decode_payload = (buffer) => {
 
     const tx = new Transaction()
 
-   // Set synergetic contract type
+    // Set synergetic contract type
     tx.synergetic_data_submission(contract_type == SYNERGETIC)
     // decode the address from the buffer
     let address_decoded;
@@ -390,8 +390,8 @@ const decode_transaction = (buffer) => {
     const payload_bytes = input_buffer.slice(0, expected_payload_end)
     const verified = []
 
-   tx.signers().forEach((v, k, m)=> {
-    ////for(let i =0; i < signers.length; i++){
+    tx.signers().forEach((v, k, m) => {
+        ////for(let i =0; i < signers.length; i++){
         let identity, signature;
         [signature, buffer] = bytearray.decode_bytearray(buffer)
         identity = Identity.from_hex(k)
@@ -399,7 +399,7 @@ const decode_transaction = (buffer) => {
         verified.push(identity.verify(payload_bytes_digest, signature))
         tx._signers.set(identity.public_key_hex(), {
             'signature': signature,
-            'verified': verified[verified.length-1]
+            'verified': verified[verified.length - 1]
         })
     })
     const success = verified.every((verified) => verified === true)

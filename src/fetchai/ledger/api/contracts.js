@@ -78,7 +78,7 @@ export class ContractsApi extends ApiEndpoint {
         assert(this.isJSON(data))
         const prefix = contract_owner.toString()
         const encoded = this._encode_json_payload(data)
-        return await this.post_json(query, encoded, prefix)
+        return await this.post_json(query, encoded,  prefix)
     }
 
     /**
@@ -135,7 +135,7 @@ export class ContractsApi extends ApiEndpoint {
         for (let i = 0; i < signers.length; i++) {
             tx.add_signer(signers[i].public_key_hex())
         }
-       await this.set_validity_period(tx)
+        await this.set_validity_period(tx)
 
         const encoded_tx = encode_transaction(tx, signers)
         return await this.post_tx_json(encoded_tx, null)
@@ -218,9 +218,9 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
     async action(contract_address, action,
-           fee, from_address, args,
-           signers = null,
-           shard_mask = null) {
+                 fee, from_address, args,
+                 signers = null,
+                 shard_mask = null) {
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {
             logger.info("Defaulting to wildcard shard mask as none supplied")
@@ -248,7 +248,7 @@ export class ContractTxFactory extends TransactionFactory {
 
 
     async create(owner, contract, fee, signers = null,
-           shard_mask = null) {
+                 shard_mask = null) {
 
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {

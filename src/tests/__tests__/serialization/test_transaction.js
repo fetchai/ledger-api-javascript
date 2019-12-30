@@ -270,7 +270,7 @@ function assertTxAreEqual(reference, other) {
     const reference_transfers = reference.transfers();
     const other_transfers = other.transfers()
 
-    for(let i =0; i < reference_transfers.length; i++){
+    for (let i = 0; i < reference_transfers.length; i++) {
         expect(reference_transfers[i].address).toBe(other_transfers[i].address)
         expect(reference_transfers[i].amount.cmp(other_transfers[i].amount)).toBe(0)
     }

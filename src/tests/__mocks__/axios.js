@@ -51,7 +51,7 @@ function de_stake() {
 function stake_cooldown() {
     return [
         JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/cooldownStake","data":{"address":"dcgBKQnx4i3ayLbqcqstt4kSHNfDC4Am9TgyhF4RimY1eNHTP"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
-         JSON.parse('{"data": {"cooldownStake": 500}}')]
+        JSON.parse('{"data": {"cooldownStake": 500}}')]
 }
 
 // e use this variable to
@@ -158,7 +158,6 @@ function status() {
         JSON.parse('{"status": 200, "data":{"status": "Executed", "exit_code": 2, "tx": "0x00", "charge": 77, "charge_rate": 33, "fee": 5}}')
     ]
 }
-
 
 
 function status_chain() {

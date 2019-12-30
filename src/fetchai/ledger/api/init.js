@@ -54,7 +54,7 @@ export class LedgerApi {
      * @returns {Promise} return asyncTimerPromise.
      * @throws {TypeError|RunTimeError} TypeError or RunTimeError on any failures.
      */
-    async sync(txs, timeout = false, hold_state_sec=0, extend_success_status = []) {
+    async sync(txs, timeout = false, hold_state_sec = 0, extend_success_status = []) {
         if (!Array.isArray(txs)) {
             txs = [txs]
         }
@@ -77,7 +77,7 @@ export class LedgerApi {
                 if (txs.length === 0) {
                     clearInterval(loop)
 
-                    if(failed.length){
+                    if (failed.length) {
                         return reject(failed)
                     } else {
                         return resolve(true)
@@ -87,63 +87,58 @@ export class LedgerApi {
                 }
                 let successful_tx;
                 // we poll all of the digests.
-               const tx_statuses = await poll(txs)
+                //debugger;
+                txs = await this.poll(txs)
 
-                tx_statuses((tx_status)=>{
+                for (let i = 0; i < txs.length; i++) {
 
-                    if(tx_status.failed()){
-                       failed.push(tx_status)
+                    if (txs[i].failed()) {
+                        failed.push(txs[i])
+                        txs.splice(i, 1)
+                        i--
+                        continue;
                     }
 
-                    if(tx_status.non_terminal()){
+                    if (txs[i].non_terminal()) {
                         // if a transaction reverts its status to a non-terminal state within hold time then revert.
-                         let index = waiting.findIndex(item => (Date.now - item.time) < hold_state_sec  && item.tx_status.get_digest_hex() === tx_status.get_digest_hex())
+                        let index = waiting.findIndex(item => (Date.now - item.time) < hold_state_sec && item.tx_status.get_digest_hex() === txs[i].get_digest_hex())
 
-                        if(index !== -1){
-                             waiting.splice(index, 1)
+                        if (index !== -1) {
+                            waiting.splice(index, 1)
                         }
                     }
 
-                     if(tx_status.successful() || extend_success_status.includes(tx_status.status)){
+                    if (txs[i].successful() || extend_success_status.includes(txs[i].get_status())) {
                         let index = waiting.findIndex(item => {
                             const x = Date.now() - item.time;
-
-                            return x > hold_state_sec && item.tx_status.get_digest_hex() === tx_status.get_digest_hex()
+                            return x > hold_state_sec && item.tx_status.get_digest_hex() === txs[i].get_digest_hex()
                         })
 
-                         if(index !== -1){
-                             // splice it out of the array incase we
-                             // if its been in
-                             successful_tx = true
-                         } else {
-                             let index = waiting.findIndex(item => {
+                        if (index !== -1) {
+                            // splice it out of the array if successful
+                            txs.splice(i, 1)
+                            i--;
+                        } else {
+                            let index = waiting.findIndex(item => {
 
-                                 let x = item.tx_status.get_digest_hex();
-                                 return tx_status.get_digest_hex() === x
-                             })
-                             if(index === -1)  {
-                                 waiting.push({time: Date.now(), tx_status: tx_status})
-                             }
-                         }
+                                let x = item.tx_status.get_digest_hex();
+                                return txs[i].get_digest_hex() === x
+                            })
+                            if (index === -1) {
+                                waiting.push({time: Date.now(), tx_status: txs[i]})
+                            }
+                        }
                     }
 
-
-                    // we expect failed requests to return null, or throw an ApiError
-                    if (successful_tx || tx_status.failed()) {
-                        txs.splice(i, 1)
-                        i--
-                    }
-
-
-                })
+                }
 
                 let elapsed_time = Date.now() - start
 
                 if (elapsed_time >= limit) {
                     // and return all those which still have not.
-                    failed.push()
-                   return reject(failed)
-                    throw new RunTimeError('Timeout exceeded waiting for txs')
+                    failed.concat(txs)
+                    return reject(failed)
+                    // throw new RunTimeError('Timeout exceeded waiting for txs')
                 }
             }, 100)
         })
@@ -151,21 +146,25 @@ export class LedgerApi {
     }
 
     async poll(txs) {
-         let tx_status;
-         const res = [];
+        let tx_status;
+        const res = [];
 
-                for (let i = 0; i < txs.length; i++) {
-                    try {
-                        tx_status = await this.tx.status(txs[i].txs[0])
-                        res.push(tx_status);
-                    } catch (e) {
-
-                        if (!(e instanceof ApiError)) {
-                            throw e
-                        }
-                    }
+        for (let i = 0; i < txs.length; i++) {
+            try {
+                if (txs[i] instanceof TxStatus) {
+                    tx_status = await this.tx.status(txs[i].get_digest_hex());
+                } else {
+                    tx_status = await this.tx.status(txs[i].txs[0]);
                 }
-                return res;
+                txs[i] = tx_status;
+            } catch (e) {
+// if wedon't fail whole thing then we must push it into it to keep arrays same length.
+                if (!(e instanceof ApiError)) {
+                    throw e
+                }
+            }
+        }
+        return res;
     }
 
 
@@ -180,8 +179,8 @@ export class LedgerApi {
         ) {
             throw new IncompatibleLedgerVersionError(`Ledger version running on server is not compatible with this API  \n
                                                  Server version: ${server_version} \nExpected version: ${__compatible__.join(
-    ','
-)}`)
+                ','
+            )}`)
         }
         return true
     }

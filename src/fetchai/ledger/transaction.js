@@ -147,8 +147,8 @@ export class Transaction {
     }
 
     compare(other) {
-                      const x = this.payload().toString('hex')
-                                                 const y = other.payload().toString('hex')
+        const x = this.payload().toString('hex')
+        const y = other.payload().toString('hex')
         if (x !== y) {
 
             return false;
@@ -164,7 +164,7 @@ export class Transaction {
     }
 
     static from_payload(payload) {
-         let [tx, buffer] = decode_payload(payload)
+        let [tx, buffer] = decode_payload(payload)
 
         return [tx, buffer]
     }
@@ -187,9 +187,9 @@ export class Transaction {
         assert(BN.isBN(amount))
         assert(amount.gtn(new BN(0)))
         // if it is an identity we turn it into an address
-            address = new Address(address)
-            address = address.toHex()
-            this._transfers.push({address: address, amount: new BN(amount)})
+        address = new Address(address)
+        address = address.toHex()
+        this._transfers.push({address: address, amount: new BN(amount)})
     }
 
     target_contract(address, mask) {
@@ -233,10 +233,10 @@ export class Transaction {
     merge_signatures(tx2) {
         if (this.compare(tx2)) {
 
-             const signers = tx2.signers();
-           // for (let key in signers) {
+            const signers = tx2.signers();
+            // for (let key in signers) {
             signers.forEach((v, k, m) => {
-                if(signers.has(k) && typeof signers.get(k).signature !== "undefined"){
+                if (signers.has(k) && typeof signers.get(k).signature !== "undefined") {
                     const s = signers.get(k)
                     this._signers.set(k, s)
                 }
@@ -254,49 +254,49 @@ export class Transaction {
         let buffer = encode_payload(this)
         let num_signed = 0;
 
-       // Object.values(this._signers).filter(current => typeof current.signature !== "undefined").length
-          this._signers.forEach((v, k, m)=>{
-              if(typeof v.signature !== "undefined") num_signed++;
-          })
+        // Object.values(this._signers).filter(current => typeof current.signature !== "undefined").length
+        this._signers.forEach((v, k, m) => {
+            if (typeof v.signature !== "undefined") num_signed++;
+        })
 
         console.log("num signed : " + num_signed)
         //  num_signed = len([s for s in self.signers.values() if s
         buffer = integer.encode_integer(buffer, new BN(num_signed))
 
-       // for (let key in this._signers) { //
-       this._signers.forEach((v, k, m)=> {
-            if(typeof v.signature !== "undefined"){
-                  let buff = Buffer.from(k, 'hex');
+        // for (let key in this._signers) { //
+        this._signers.forEach((v, k, m) => {
+            if (typeof v.signature !== "undefined") {
+                let buff = Buffer.from(k, 'hex');
                 let test = new Identity(buff)
                 buffer = encode_identity(buffer, test)
                 buffer = encode_bytearray(buffer, v.signature)
             }
-       })
-            // if (typeof this._signers[key].signature !== "undefined") {
-            //     let buff = Buffer.from(key, 'hex');
-            //     let test = new Identity(buff)
-            //
-            //     buffer = encode_identity(buffer, test)
-            //     buffer = encode_bytearray(buffer, this._signers[key].signature)
-            // }
-       // }
+        })
+        // if (typeof this._signers[key].signature !== "undefined") {
+        //     let buff = Buffer.from(key, 'hex');
+        //     let test = new Identity(buff)
+        //
+        //     buffer = encode_identity(buffer, test)
+        //     buffer = encode_bytearray(buffer, this._signers[key].signature)
+        // }
+        // }
         return buffer;
     }
 
     static decode_partial(buffer) {
         let tx;
         [tx, buffer] = decode_payload(buffer)
- let num_sigs;
+        let num_sigs;
         [num_sigs, buffer] = decode_integer(buffer)
         // console.log("num sigs : " + num_sigs)
-          const payload_digest = calc_digest(tx.payload())
+        const payload_digest = calc_digest(tx.payload())
 
         for (let i = 0; i < num_sigs.toNumber(); i++) {
-                let signer;
-                [signer, buffer] = identity.decode_identity(buffer)
-                    let signature;
+            let signer;
+            [signer, buffer] = identity.decode_identity(buffer)
+            let signature;
 
-                [signature, buffer] = bytearray.decode_bytearray(buffer)
+            [signature, buffer] = bytearray.decode_bytearray(buffer)
             signature = Buffer.from(signature)
 
             tx._signers.set(signer.public_key_hex(), {
@@ -305,10 +305,10 @@ export class Transaction {
             })
         }
 
-        tx.signers().forEach((v, k, m)=> {
+        tx.signers().forEach((v, k, m) => {
 
-            if(v.verified && !v.verified){
-                 throw new RunTimeError('Not all keys were able to sign successfully')
+            if (v.verified && !v.verified) {
+                throw new RunTimeError('Not all keys were able to sign successfully')
             }
         })
         // reinstate before submission

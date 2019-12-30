@@ -1,6 +1,6 @@
-import { Entity } from '../../fetchai/ledger/crypto/entity'
-import { createHash } from 'crypto'
-import { ValidationError } from '../../fetchai/ledger/errors'
+import {Entity} from '../../fetchai/ledger/crypto/entity'
+import {createHash} from 'crypto'
+import {ValidationError} from '../../fetchai/ledger/errors'
 import {PASSWORD} from "../utils/helpers";
 
 

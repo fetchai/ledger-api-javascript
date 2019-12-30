@@ -3,8 +3,8 @@ import {Contract} from '../fetchai/ledger/contract'
 import {LedgerApi} from '../fetchai/ledger/api'
 import {TRANSFER_CONTRACT} from '../contracts'
 
-function print_errors(errors){
-    errors.forEach((tx)=>{
+function print_errors(errors) {
+    errors.forEach((tx) => {
         console.log(`The following transaction: "${tx.get_digest_hex()}" did not succeed. It exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
     })
 }

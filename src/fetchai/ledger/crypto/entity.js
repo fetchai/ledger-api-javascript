@@ -1,7 +1,7 @@
-import { randomBytes, pbkdf2Sync } from 'crypto'
+import {randomBytes, pbkdf2Sync} from 'crypto'
 import * as secp256k1 from 'secp256k1'
-import { ValidationError } from '../errors'
-import { Identity } from './identity'
+import {ValidationError} from '../errors'
+import {Identity} from './identity'
 import fs from 'fs'
 import * as aesjs from 'aes-js'
 

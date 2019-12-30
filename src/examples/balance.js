@@ -1,12 +1,12 @@
 import {TokenApi} from '../fetchai/ledger/api'
 import {RunTimeError} from "../fetchai/ledger/errors";
 
-    // see the bootstrap information for more information on obtaining a host and port to connect to our network.
-    const HOST = '127.0.0.1'
-    const PORT = 8000
+// see the bootstrap information for more information on obtaining a host and port to connect to our network.
+const HOST = '127.0.0.1'
+const PORT = 8000
 
 async function main() {
-        let balance;
+    let balance;
     const api = new TokenApi(HOST, PORT)
 
     try {
@@ -16,4 +16,5 @@ async function main() {
     }
     console.log("Balance: " + balance)
 }
+
 main()

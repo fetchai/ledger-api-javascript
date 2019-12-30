@@ -78,6 +78,10 @@ export class ApiEndpoint {
         //  let url = `http://${this._host}:${this._port}/api/contract/${prefix}/${endpoint}`
         const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
         // define the request headers
+
+        console.log(url)
+        console.log(data)
+
         let request_headers = {
             'Content-Type': 'application/json; charset=utf-8'
         }
@@ -147,20 +151,22 @@ export class ApiEndpoint {
         const res = await this.post_tx_json(encoded_tx, tx.action())
         return res;
     }
+
     // tx is transaction
-    async set_validity_period(tx, validity_period = null){
-         if (!validity_period) {
+    async set_validity_period(tx, validity_period = null) {
+        if (!validity_period) {
             validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
         }
 
         // query what the current block number is on the node
         const current_block = await this.current_block_number()
 
-     //   tx.valid_until(new BN(current_block + validity_period))
+        //   tx.valid_until(new BN(current_block + validity_period))
         tx.valid_until(new BN(1000))
 
         return tx.valid_until()
-}
+    }
+
     async current_block_number() {
         let response = await this._get_json('status/chain', {size: 1})
         let block_number = -1
@@ -209,7 +215,7 @@ export class ApiEndpoint {
 
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
-         console.log("tss + url:" + url)
+        console.log("tss + url:" + url)
         console.log(tx_data.toString('base64'))
         // make the request
         let resp

@@ -7,10 +7,10 @@ const HOST = '127.0.0.1'
 const PORT = 8000
 
 
-async function main(){
-     let txs, balance, stake, to_destake, cool_down;
+async function main() {
+    let txs, balance, stake, to_destake, cool_down;
 
-      const private_key_hex = 'e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8';
+    const private_key_hex = 'e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8';
     const entity = Entity.from_hex(private_key_hex)
     const address = new Address(entity)
     console.log('Address:', address)
@@ -30,7 +30,7 @@ async function main(){
 
     setInterval(async () => {
         balance = await api.tokens.balance(entity)
-         console.log('Balance............:', balance)
+        console.log('Balance............:', balance)
 
         stake = await api.tokens.stake(entity)
 
@@ -40,7 +40,7 @@ async function main(){
 
         // De-stake half of the staked balance
         stake = await api.tokens.stake(entity)
-        to_destake = parseInt(stake/2)
+        to_destake = parseInt(stake / 2)
         txs = await api.tokens.de_stake(entity, to_destake, new BN(500))
         await api.sync([txs])
         txs = await api.tokens.collect_stake(entity, new BN(500))
@@ -49,4 +49,5 @@ async function main(){
     }, 3000)
 
 }
-    main()
+
+main()

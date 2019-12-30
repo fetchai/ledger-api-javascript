@@ -1,4 +1,4 @@
-import { Entity } from '../../fetchai/ledger/crypto/entity'
+import {Entity} from '../../fetchai/ledger/crypto/entity'
 import fs from 'fs'
 
 async function main() {

@@ -14,7 +14,7 @@ async function main() {
     // TODO write good comment here
     const contents = await TApi.contents(tx.txs[0])
     console.log('contents is :', contents)
-     // whilst we can use the sync method which polls for the result of a TODO finish comment.
+    // whilst we can use the sync method which polls for the result of a TODO finish comment.
     const status = await TApi.status(tx.txs[0])
     console.log('status is :', status)
 }
