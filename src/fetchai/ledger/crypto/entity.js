@@ -113,7 +113,8 @@ export class Entity extends Identity {
                 'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
             )
         }
-        let obj = JSON.parse(fs.readFileSync(fp, 'utf8'))
+        const x = fs.readFileSync(fp, 'utf8');
+        let obj = JSON.parse(x)
         return Entity.from_json_object(obj, password)
     }
 
@@ -132,7 +133,7 @@ export class Entity extends Identity {
     }
 
     dump(fp, password) {
-        return JSON.stringify(this.to_json_object(password), fp)
+        fs.writeFileSync(fp, JSON.stringify(this.to_json_object(password)))
     }
 
     to_json_object(password) {
@@ -235,33 +236,22 @@ export class Entity extends Identity {
      */
     static strong_password(password) {
         if (password.length < 14) {
-            console.error(
-                'Please enter a password at least 14 characters long'
-            )
             return false
         }
 
         if (password.match('[a-z]+') === null) {
-            console.error(
-                'Password must contain at least one lower case character'
-            )
             return false
         }
 
         if (password.match('[A-Z]+') === null) {
-            console.error(
-                'Password must contain at least one upper case character'
-            )
             return false
         }
 
         if (password.match('[0-9]+') === null) {
-            console.error('Password must contain at least one number')
             return false
         }
 
         if (password.match('[@_!#$%^&*()<>?/\\|}{~:]') === null) {
-            console.error('Password must contain at least one symbol')
             return false
         }
         return true

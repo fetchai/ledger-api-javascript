@@ -5,7 +5,7 @@ import {BitVector} from '../bitvector'
 import {encode_transaction} from '../serialization/transaction'
 import {Address} from '../crypto'
 import {BN} from 'bn.js'
-import assert from "assert";
+import assert from 'assert'
 
 /**
  * if number is not Big Number instance converts to BN, or throws if int passed is too large or small throw.
@@ -16,15 +16,15 @@ import assert from "assert";
 const convert_number = (num) => {
 
     // currently only support BN.js or number
-    if (typeof num !== "number" && !BN.isBN(num)) {
+    if (typeof num !== 'number' && !BN.isBN(num)) {
         throw new ValidationError(`${num} is must be instance of BN.js or an Integer`)
     }
 
-    if (typeof num === "number" && !Number.isSafeInteger(num)) {
+    if (typeof num === 'number' && !Number.isSafeInteger(num)) {
         throw new ValidationError(` ${num} is not a safe number (<53 bits), please use an instance of BN.js`)
     }
 
-    return new BN(num);
+    return new BN(num)
 }
 
 /**
@@ -146,7 +146,7 @@ export class TokenApi extends ApiEndpoint {
         const tx = await TokenTxFactory.deed(entity, deed, signatories, allow_no_amend)
         await super.set_validity_period(tx)
 
-        signatories = (signatories === null) ? [entity] : signatories;
+        signatories = (signatories === null) ? [entity] : signatories
         const encoded_tx = encode_transaction(tx, signatories)
         return await super.post_tx_json(encoded_tx, ENDPOINT)
     }
@@ -161,8 +161,8 @@ export class TokenApi extends ApiEndpoint {
      * @throws {ApiError} ApiError on any failures.
      */
     async transfer(entity, to, amount, fee, signatories = null) {
-        amount = convert_number(amount);
-        fee = convert_number(fee);
+        amount = convert_number(amount)
+        fee = convert_number(fee)
         const ENDPOINT = 'transfer'
 
         const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)

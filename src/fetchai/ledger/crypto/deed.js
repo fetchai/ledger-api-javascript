@@ -1,13 +1,13 @@
-import {ValidationError} from "../errors";
-import {Address} from "./address";
-import {InvalidDeedError} from "../errors/invalidDeedError";
+import {ValidationError} from '../errors'
+import {Address} from './address'
+import {InvalidDeedError} from '../errors/invalidDeedError'
 
 export class Deed {
     constructor(address) {
         this.address = address
         this.signees = []
         this.thresholds = {}
-        this.OPERATIONS = {"AMEND": 1, "TRANSFER": 2, "EXECUTE": 3, "STAKE": 4}
+        this.OPERATIONS = {'AMEND': 1, 'TRANSFER': 2, 'EXECUTE': 3, 'STAKE': 4}
     }
 
     set_signee(signee, voting_weight) {
@@ -18,15 +18,15 @@ export class Deed {
 
         for (let i = 0; i < this.signees.length; i++) {
             if (this.signees[i].signee.public_key_hex() === signee.public_key_hex()) {
-                this.signees.splice(i, 1);
-                break;
+                this.signees.splice(i, 1)
+                break
             }
         }
     }
 
     set_threshold(operation, threshold) {
         if (threshold > this.total_votes) {
-            throw new InvalidDeedError("Attempting to set threshold higher than available votes - it will never be met")
+            throw new InvalidDeedError('Attempting to set threshold higher than available votes - it will never be met')
         }
 
         this.valid_operation(operation)
@@ -47,7 +47,7 @@ export class Deed {
     }
 
     return_threshold(operation) {
-        if (typeof this.thresholds[operation] === "undefined") return null;
+        if (typeof this.thresholds[operation] === 'undefined') return null
         return this.thresholds[operation]
     }
 
@@ -58,15 +58,15 @@ export class Deed {
     // lets change this to make it more uniform
     amend_threshold() {
 
-        if (typeof this.thresholds.AMEND !== "undefined") {
+        if (typeof this.thresholds.AMEND !== 'undefined') {
             return this.thresholds.AMEND
         } else {
-            return null;
+            return null
         }
     }
 
     set_amend_threshold(value) {
-        this.set_threshold("AMEND", value)
+        this.set_threshold('AMEND', value)
     }
 
 
@@ -76,7 +76,7 @@ export class Deed {
         for (var i = 0; i < this.signees.length; i++) {
             let address = new Address(this.signees[i].signee).toString()
             signees[address] = this.signees[i].voting_weight
-            console.log("signeesa adres" + signees[address])
+            console.log('signeesa adres' + signees[address])
         }
 
         const deed = {
@@ -84,10 +84,10 @@ export class Deed {
             'thresholds': {}
         }
 
-        if (typeof this.thresholds.AMEND !== "undefined") {
+        if (typeof this.thresholds.AMEND !== 'undefined') {
             // Error if amend threshold un-meetable
             if (this.thresholds.AMEND > this.total_votes()) {
-                throw new InvalidDeedError("Amend threshold greater than total voting power - future amendment will be impossible")
+                throw new InvalidDeedError('Amend threshold greater than total voting power - future amendment will be impossible')
             }
         }
         // Warnings/errors if no amend threshold set
@@ -95,24 +95,24 @@ export class Deed {
             // logging.warning("Creating deed without amend threshold - future amendment will be impossible")
         } else {
             debugger
-            throw new InvalidDeedError("Creating deed without amend threshold - future amendment will be impossible")
+            throw new InvalidDeedError('Creating deed without amend threshold - future amendment will be impossible')
         }
-        let lower;
+        let lower
         // Add other thresholds
         for (let key in this.thresholds) {
             lower = key.toLowerCase()
             deed['thresholds'][lower] = this.thresholds[key]
         }
-        return deed;
+        return deed
     }
 
     valid_operation(operation) {
-        if (typeof this.OPERATIONS[operation] === "undefined") {
-            let str = "";
+        if (typeof this.OPERATIONS[operation] === 'undefined') {
+            let str = ''
             for (var operation in this.OPERATIONS) {
-                str += operation + ", ";
+                str += operation + ', '
             }
-            str.substring(0, str.length - 2);
+            str.substring(0, str.length - 2)
             throw new ValidationError(` ${operation} is not valid a valid operation. Valid operations are : ${str}`)
         }
     }

@@ -1,6 +1,6 @@
-import {Entity} from "../fetchai/ledger/crypto/entity";
-import {Address} from "../fetchai/ledger/crypto/address";
-import {LedgerApi} from "../fetchai/ledger/api";
+import {Entity} from '../fetchai/ledger/crypto/entity'
+import {Address} from '../fetchai/ledger/crypto/address'
+import {LedgerApi} from '../fetchai/ledger/api'
 import {BN} from 'bn.js'
 
 const HOST = '127.0.0.1'
@@ -8,9 +8,9 @@ const PORT = 8000
 
 
 async function main() {
-    let txs, balance, stake, to_destake, cool_down;
+    let txs, balance, stake, to_destake, cool_down
 
-    const private_key_hex = 'e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8';
+    const private_key_hex = 'e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8'
     const entity = Entity.from_hex(private_key_hex)
     const address = new Address(entity)
     console.log('Address:', address)

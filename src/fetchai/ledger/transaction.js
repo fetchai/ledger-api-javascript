@@ -5,8 +5,8 @@ import {BN} from 'bn.js'
 import {logger} from './utils'
 import assert from 'assert'
 import {createHash, randomBytes} from 'crypto'
-import * as identity from "./serialization/identity";
-import * as bytearray from "./serialization/bytearray";
+import * as identity from './serialization/identity'
+import * as bytearray from './serialization/bytearray'
 import {
     decode_integer,
     decode_payload,
@@ -14,9 +14,9 @@ import {
     encode_bytearray,
     encode_identity,
     encode_payload
-} from "./serialization";
-import * as integer from "./serialization/integer";
-import {RunTimeError} from "./errors";
+} from './serialization'
+import * as integer from './serialization/integer'
+import {RunTimeError} from './errors'
 
 
 function calc_digest(address_raw) {
@@ -151,9 +151,9 @@ export class Transaction {
         const y = other.payload().toString('hex')
         if (x !== y) {
 
-            return false;
+            return false
         } else {
-            return true;
+            return true
         }
     }
 
@@ -172,9 +172,9 @@ export class Transaction {
     static from_encoded(encoded_transaction) {
         const [success, tx] = decode_transaction(encoded_transaction)
         if (success) {
-            return tx;
+            return tx
         } else {
-            return null;
+            return null
         }
     }
 
@@ -233,18 +233,18 @@ export class Transaction {
     merge_signatures(tx2) {
         if (this.compare(tx2)) {
 
-            const signers = tx2.signers();
+            const signers = tx2.signers()
             // for (let key in signers) {
             signers.forEach((v, k, m) => {
-                if (signers.has(k) && typeof signers.get(k).signature !== "undefined") {
+                if (signers.has(k) && typeof signers.get(k).signature !== 'undefined') {
                     const s = signers.get(k)
                     this._signers.set(k, s)
                 }
             })
 
         } else {
-            console.log("Attempting to combine transactions with different payloads")
-            logger.info("Attempting to combine transactions with different payloads")
+            console.log('Attempting to combine transactions with different payloads')
+            logger.info('Attempting to combine transactions with different payloads')
             return null
         }
     }
@@ -252,21 +252,21 @@ export class Transaction {
     encode_partial() {
 
         let buffer = encode_payload(this)
-        let num_signed = 0;
+        let num_signed = 0
 
         // Object.values(this._signers).filter(current => typeof current.signature !== "undefined").length
         this._signers.forEach((v, k, m) => {
-            if (typeof v.signature !== "undefined") num_signed++;
+            if (typeof v.signature !== 'undefined') num_signed++
         })
 
-        console.log("num signed : " + num_signed)
+        console.log('num signed : ' + num_signed)
         //  num_signed = len([s for s in self.signers.values() if s
         buffer = integer.encode_integer(buffer, new BN(num_signed))
 
         // for (let key in this._signers) { //
         this._signers.forEach((v, k, m) => {
-            if (typeof v.signature !== "undefined") {
-                let buff = Buffer.from(k, 'hex');
+            if (typeof v.signature !== 'undefined') {
+                let buff = Buffer.from(k, 'hex')
                 let test = new Identity(buff)
                 buffer = encode_identity(buffer, test)
                 buffer = encode_bytearray(buffer, v.signature)
@@ -280,7 +280,7 @@ export class Transaction {
         //     buffer = encode_bytearray(buffer, this._signers[key].signature)
         // }
         // }
-        return buffer;
+        return buffer
     }
 
     static decode_partial(buffer) {

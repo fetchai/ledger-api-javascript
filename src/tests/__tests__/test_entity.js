@@ -1,7 +1,10 @@
 import {Entity} from '../../fetchai/ledger/crypto/entity'
 import {createHash} from 'crypto'
 import {ValidationError} from '../../fetchai/ledger/errors'
-import {PASSWORD} from "../utils/helpers";
+import {PASSWORD} from '../utils/helpers'
+import fs from 'fs'
+const mock = require('mock-fs')
+const sinon = require('sinon')
 
 
 const THIRTY_TWO_BYTE_BASE64 = 'XZCS3TtyRvCwGzlvFGJhapDFCR5m/zb728SkAwbqz8M='
@@ -13,18 +16,25 @@ function _calc_digest(address_raw) {
     return digest
 }
 
-jest.mock('fs', () => {
-    debugger;
-    const MOCK_FILE_INFO =
-        '{"key_length":32,"init_vector":"A6iVObnjv/A5ApVyvclV4A==","password_salt":"4ODfF30sz2NIb67ZNtjS2Q==","privateKey":"zBd+gM3SLgLhqxtSj80jQzbGb4W4Af/BRr/XcboKw2o="}'
-    return {
-        readFileSync: () => {
-            return MOCK_FILE_INFO
-        }
-    }
+mock({
+    'path/to/some.png': '{"key_length":32,"init_vector":"LAunDQSK0yh1ixYStfBLdw==","password_salt":"jwhnMpDMp3kW/og8pZbiwA==","privateKey":"2Vdl4fr8gLlnuHEgwZrmeOsp4y6QLmHRlBeEj6qXPd0="}',
 })
 
 describe(':Entity', () => {
+
+    let writeFileSync
+
+
+    beforeEach(() => {
+
+        writeFileSync = sinon.stub(fs, 'writeFileSync').returns({})
+    })
+    afterEach(() => {
+
+        writeFileSync.restore()
+    })
+
+
     test('test generation', () => {
         const reference = new Entity()
         const other = new Entity(reference.private_key())
@@ -72,36 +82,36 @@ describe(':Entity', () => {
     })
 
     test('test loads', () => {
-        const s = `{"privateKey": "${THIRTY_TWO_BYTE_BASE64}"}`
-        const obj = JSON.parse(s)
-        const base64 = Buffer.from(obj.privateKey, 'base64')
+        const s = '{"key_length": 32, "init_vector": "/bfsgykBD4i6Mjkg5aAQfg==", "password_salt": "vnDS6A9WopD3TpzrMbLJKg==", "privateKey": "TObHSc42ev8idRQbd7Is+BSZG9aQk2o8plOff6t3+WM="}'
+        const ref = Entity.from_hex('84cd8d1df47f2be283107cc177003e0b062ee35be50087a66268417629edf730')
         const entity = Entity.loads(s, PASSWORD)
         const private_key_hex = entity.private_key_hex()
-        expect(base64.toString('hex')).toEqual(private_key_hex)
+        expect(ref.private_key_hex()).toEqual(private_key_hex)
     })
 
     test('test load', () => {
-        const entity = Entity.load('src/tests/__tests__/utils/private_key.txt', '1234567890qwertyuiopQWERTYUIOP!@#$')
-        expect(entity.private_key_hex()).toEqual('49c361daee7b3b94ad5c367d6a4ab9d95d62098289a4e5e67146f64074442190')
+        const entity = Entity.load('path/to/some.png', PASSWORD)
+        expect(entity.private_key_hex()).toEqual('47580e6993d7ae66c6fe13d435a2f960ab7e2551853a1be312fef14261111479')
         const ref = new Entity(entity.privKey)
         expect(entity.private_key_hex()).toEqual(ref.private_key_hex())
     })
 
-    test('test prompt dumps', () => {
-        const entity = new Entity()
-        const data = JSON.parse(entity.prompt_dump('src/tests/__tests__/utils/private_key.txt', '1234567890qwertyuiopQWERTYUIOP!@#$'))
-        expect(data).toHaveProperty('key_length')
-        expect(data).toHaveProperty('init_vector')
-        expect(data).toHaveProperty('password_salt')
-        expect(data).toHaveProperty('privateKey')
-        expect(data.key_length).toEqual(32)
-        expect(data.privateKey).toHaveLength(44)
+    test('test prompt dumps', async () => {
+        const entity = Entity.from_hex('84cd8d1df47f2be283107cc177003e0b062ee35be50087a66268417629edf730')
+        await entity.prompt_dump('path/to/some.png', PASSWORD)
+        expect(writeFileSync.calledOnce).toBe(true)
+        expect(writeFileSync.getCall(0).args[0]).toEqual('path/to/some.png')
+        let json_obj =  JSON.parse(writeFileSync.getCall(0).args[1])
+        expect(json_obj.key_length).toEqual(32)
+        expect(json_obj).toHaveProperty('init_vector')
+        expect(json_obj).toHaveProperty('password_salt')
+        expect(json_obj).toHaveProperty('privateKey')
     })
 
     test('test validation of strong password', () => {
-        let data = Entity.strong_password('1234567890qwertyuiopQWERTYUIOP!@#$')
-        expect(data).toBe(true)
-        data = Entity.strong_password('1234567890')
-        expect(data).toBe(false)
+        let valid = Entity.strong_password(PASSWORD)
+        expect(valid).toBe(true)
+        let invalid = Entity.strong_password('weakpassword')
+        expect(invalid).toBe(false)
     })
 })

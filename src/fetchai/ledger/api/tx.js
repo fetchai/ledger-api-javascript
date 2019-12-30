@@ -29,11 +29,11 @@ export class TxStatus {
     }
 
     get_status() {
-        return this.status;
+        return this.status
     }
 
     get_exit_code() {
-        return this.exit_code;
+        return this.exit_code
     }
 
     successful() {
@@ -62,17 +62,17 @@ export class TxStatus {
 export class TxContents {
 
     constructor(digest,
-                action,
-                chain_code,
-                from_address,
-                contract_address,
-                valid_from,
-                valid_until,
-                charge,
-                charge_limit,
-                transfers,
-                signatories,
-                data) {
+        action,
+        chain_code,
+        from_address,
+        contract_address,
+        valid_from,
+        valid_until,
+        charge,
+        charge_limit,
+        transfers,
+        signatories,
+        data) {
 
         this.digest_bytes = digest
         this.digest_hex = this.digest_bytes.toString('hex')

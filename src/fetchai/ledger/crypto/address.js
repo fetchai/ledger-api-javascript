@@ -2,6 +2,7 @@ import * as bs58 from 'bs58'
 import {ValidationError} from '../errors'
 import {createHash} from 'crypto'
 import {Identity} from './identity'
+import assert from "assert";
 
 const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4
@@ -48,12 +49,14 @@ export class Address {
 
 
     /**
-     * Check is a string a valid address
+     * Check is string is a  valid address
      *
      * @param b58_address
      * @returns {boolean}
      */
     static is_address(b58_address) {
+        if (typeof b58_address !== "string") return false;
+
         const bytes = bs58.decode(b58_address)
 
         if (Buffer.byteLength(bytes) !== DISPLAY_BYTE_LENGTH) {

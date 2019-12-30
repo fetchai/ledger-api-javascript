@@ -3,16 +3,16 @@ import {ApiError} from '../errors'
 import {BN} from 'bn.js'
 import {logger} from '../utils'
 import {Transaction} from '../transaction'
-import assert from "assert";
-import {encode, ExtensionCodec} from "@msgpack/msgpack";
-import {Address} from "../crypto";
-import {BitVector} from "../bitvector";
-import {encode_multisig_transaction} from "../serialization/transaction";
+import assert from 'assert'
+import {encode, ExtensionCodec} from '@msgpack/msgpack'
+import {Address} from '../crypto'
+import {BitVector} from '../bitvector'
+import {encode_multisig_transaction} from '../serialization/transaction'
 
 function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
     let canonical_name, url
 
-    if (endpoint === null || endpoint === "") {
+    if (endpoint === null || endpoint === '') {
         url = `${protocol}://${host}:${port}/api/contract/submit`
     } else {
         if (prefix == null) {
@@ -48,7 +48,7 @@ export class ApiEndpoint {
         this.prefix = 'fetch/token'
         this._host = host
         this._port = port
-        this.DEFAULT_BLOCK_VALIDITY_PERIOD = 100;
+        this.DEFAULT_BLOCK_VALIDITY_PERIOD = 100
         this.parent_api = api
     }
 
@@ -146,7 +146,7 @@ export class ApiEndpoint {
         const encoded_tx = encode_multisig_transaction(tx, signatures)
         // Submit and return digest
         const res = await this.post_tx_json(encoded_tx, tx.action())
-        return res;
+        return res
     }
 
     // tx is transaction
@@ -212,7 +212,7 @@ export class ApiEndpoint {
 
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
-        console.log("tss + url:" + url)
+        console.log('tss + url:' + url)
         console.log(tx_data.toString('base64'))
         // make the request
         let resp
@@ -224,7 +224,7 @@ export class ApiEndpoint {
                 headers: request_headers
             })
         } catch (error) {
-            debugger;
+            debugger
             throw new ApiError('Malformed response from server')
         }
 
@@ -253,10 +253,10 @@ export class TransactionFactory {
     }
 
     static create_action_tx(fee, entity, action, prefix, shard_mask = null) {
-        const mask = (shard_mask === null) ? new BitVector() : shard_mask;
+        const mask = (shard_mask === null) ? new BitVector() : shard_mask
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
-        console.log("this.prefix is : " + prefix);
+        console.log('this.prefix is : ' + prefix)
 
         tx.target_chain_code(prefix, mask)
         tx.action(action)

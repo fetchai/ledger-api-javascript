@@ -1,9 +1,9 @@
-import {Entity} from "../../fetchai/ledger/crypto/entity";
-import {LedgerApi} from "../../fetchai/ledger/api";
-import {ContractTxFactory} from "../../fetchai/ledger/api/contracts";
-import {Deed} from "../../fetchai/ledger/crypto/deed";
-import {Contract} from "../../fetchai/ledger";
-import {Address} from "../../fetchai/ledger/crypto";
+import {Entity} from '../../fetchai/ledger/crypto/entity'
+import {LedgerApi} from '../../fetchai/ledger/api'
+import {ContractTxFactory} from '../../fetchai/ledger/api/contracts'
+import {Deed} from '../../fetchai/ledger/crypto/deed'
+import {Contract} from '../../fetchai/ledger'
+import {Address} from '../../fetchai/ledger/crypto'
 
 const CONTRACT_TEXT = `
 persistent sharded balance_state : UInt64;
@@ -61,7 +61,7 @@ function print_errors(errors) {
 
 
 async function main() {
-    let txs, tx;
+    let txs, tx
 
     // We generate an identity from a known key, which contains funds.
     const multi_sig_identity = Entity.from_hex('e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8')
@@ -72,19 +72,19 @@ async function main() {
     // generate a board to control multi-sig account, with variable voting weights
     const board = []
     board.push({
-        member: Entity.from_hex("6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b"),
+        member: Entity.from_hex('6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b'),
         voting_weight: 1
     })
     board.push({
-        member: Entity.from_hex("4083a476c4872f25cb40839ac8d994924bcef12d83e2ba4bd3ed6c9705959860"),
+        member: Entity.from_hex('4083a476c4872f25cb40839ac8d994924bcef12d83e2ba4bd3ed6c9705959860'),
         voting_weight: 1
     })
     board.push({
-        member: Entity.from_hex("7da0e3fa62a916238decd4f54d43301c809595d66dd469f82f29e076752b155c"),
+        member: Entity.from_hex('7da0e3fa62a916238decd4f54d43301c809595d66dd469f82f29e076752b155c'),
         voting_weight: 1
     })
     board.push({
-        member: Entity.from_hex("20293422c4b5faefba3422ed436427f2d37f310673681e98ac8637b04e756de3"),
+        member: Entity.from_hex('20293422c4b5faefba3422ed436427f2d37f310673681e98ac8637b04e756de3'),
         voting_weight: 2
     })
 
@@ -98,7 +98,7 @@ async function main() {
     const contract_factory = new ContractTxFactory(api)
 
     // create a multisig deed for multi_sig_identity
-    console.log("\nCreating deed...")
+    console.log('\nCreating deed...')
     const deed = new Deed(multi_sig_identity)
 
     board.forEach((item) => deed.set_signee(item.member, item.voting_weight))
@@ -106,32 +106,32 @@ async function main() {
     // Both the transfer and execute thresholds must be met to create a contract
     // TODO: Contract creation both requires meeting the thresholds below, and can only be signed by a single
     //  signatory. Therefore a single board member must be able to exceed these thresholds for creation
-    deed.set_threshold("EXECUTE", 2)
-    deed.set_threshold("TRANSFER", 2)
+    deed.set_threshold('EXECUTE', 2)
+    deed.set_threshold('TRANSFER', 2)
 
     //Submit deed
     txs = await api.tokens.deed(multi_sig_identity, deed)
 
     await api.sync([txs]).catch(errors => {
-        print_errors(errors);
-        throw new Error();
+        print_errors(errors)
+        throw new Error()
     })
 
     // create the smart contract
     console.log('\nSetting up smart contract')
 
-   const contract = new Contract(CONTRACT_TEXT, multi_sig_identity, Buffer.from('590953aea8a09c51', 'hex'))
+    const contract = new Contract(CONTRACT_TEXT, multi_sig_identity, Buffer.from('590953aea8a09c51', 'hex'))
 
     // TODO: Must be signed by single board member with sufficient votes
 
     tx = await contract.create(contract_factory, multi_sig_identity, 4000, [board[3].member])
     tx.sign(board[3].member)
-    console.log("starts")
+    console.log('starts')
     txs = await api.contracts.submit_signed_tx(tx, tx.signers())
-    console.log("ends")
+    console.log('ends')
     await api.sync([txs]).catch(errors => {
-        print_errors(errors);
-        throw new Error();
+        print_errors(errors)
+        throw new Error()
     })
 
     // print the current status of all the tokens
@@ -142,7 +142,7 @@ async function main() {
     const tok_transfer_amount = 200
     const fet_tx_fee = 160
 
-    console.log("Building contract call transaction...")
+    console.log('Building contract call transaction...')
     const signers = board.map(obj => obj.member)
 
     tx = await contract.action(contract_factory, 'transfer', fet_tx_fee, [multi_sig_address, address2, tok_transfer_amount], signers)
@@ -150,10 +150,12 @@ async function main() {
         tx.sign(board.member)
     })
     txs = await api.contracts.submit_signed_tx(tx, tx.signers())
+
     await api.sync([txs]).catch(errors => {
-        print_errors(errors);
-        throw new Error();
+        print_errors(errors)
+        throw new Error()
     })
+
     console.log('-- AFTER --')
     await print_address_balances(api, contract, [multi_sig_address, address2])
 }

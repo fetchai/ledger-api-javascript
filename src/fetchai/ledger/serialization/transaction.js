@@ -10,7 +10,7 @@ import {BitVector} from '../bitvector'
 import {Identity} from '../crypto/identity'
 import {Transaction} from '../transaction'
 import {BN} from 'bn.js'
-import {encode_bytearray} from "./bytearray";
+import {encode_bytearray} from './bytearray'
 // *******************************
 // ********** Constants **********
 // *******************************
@@ -40,7 +40,7 @@ const _calc_digest_utf = (address_raw) => {
     return hash_func.digest()
 }
 
-const _map_contract_mode = payload => {
+const map_contract_mode = payload => {
 
     if (payload.synergetic_data_submission()) {
         return SYNERGETIC
@@ -72,7 +72,7 @@ const encode_payload = payload => {
     header0 |= (num_transfers > 1 ? 1 : 0) << 1
     header0 |= has_valid_from ? 1 : 0
     // determine the mode of the contract
-    const contract_mode = _map_contract_mode(payload)
+    const contract_mode = map_contract_mode(payload)
 
     let header1 = contract_mode << 6
     header1 |= signalled_signatures & 0x3f
@@ -181,14 +181,14 @@ const encode_multisig_transaction = (payload, signatures) => {
     // assert isinstance(payload, bytes) or isinstance(payload, transaction.Transaction)
     //assert((payload instance bytes) or isinstance(payload, transaction.Transaction)
     // encode the contents of the transaction
-    let buffer = encode_payload(payload);
+    let buffer = encode_payload(payload)
     const signers = payload.signers()
 
     // append signatures in order
     //for(let key in signers){
     signers.forEach((v, k, m) => {
-        if (signatures.has(k) && typeof signatures.get(k).signature !== "undefined") {
-            console.log("STEPPED");
+        if (signatures.has(k) && typeof signatures.get(k).signature !== 'undefined') {
+            console.log('STEPPED')
             buffer = encode_bytearray(buffer, signatures.get(k).signature)
         }
     })
@@ -347,7 +347,7 @@ const decode_payload = (buffer) => {
             [encoded_chain_code_name, buffer] = bytearray.decode_bytearray(buffer)
             tx.target_chain_code(encoded_chain_code_name.toString(), shard_mask)
         } else {
-            // this is mostly a guard against a desync between this function and `_map_contract_mode`
+            // this is mostly a guard against a desync between this function and `map_contract_mode`
             throw new RunTimeError('Unhandled contract type')
         }
         let action
@@ -381,7 +381,7 @@ const decode_payload = (buffer) => {
 }
 
 const decode_transaction = (buffer) => {
-    const input_buffer = buffer;
+    const input_buffer = buffer
     let tx;
     [tx, buffer] = decode_payload(buffer)
     const num_signatures = tx.signers().size

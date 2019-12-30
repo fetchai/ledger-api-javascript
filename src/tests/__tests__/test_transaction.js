@@ -3,9 +3,9 @@ import {BitVector} from '../../fetchai/ledger/bitvector'
 import {Address} from '../../fetchai/ledger/crypto/address'
 import {BN} from 'bn.js'
 import {dummy_address} from '../utils/helpers'
-import {TokenTxFactory} from "../../fetchai/ledger/api/token";
-import {Entity} from "../../fetchai/ledger/crypto/entity";
-import {Identity} from "../../fetchai/ledger/crypto";
+import {TokenTxFactory} from '../../fetchai/ledger/api/token'
+import {Entity} from '../../fetchai/ledger/crypto/entity'
+import {Identity} from '../../fetchai/ledger/crypto'
 
 
 // const source_identity = new Entity()
@@ -51,15 +51,15 @@ describe(':Test Transaction', () => {
     })
 
     test('Test add_transfer with amount', () => {
-        let actual = new BN(0);
+        let actual = new BN(0)
         let txObj = new Transaction()
         let address = dummy_address()
         txObj.add_transfer(address, new BN(40))
         txObj.add_transfer(address, new BN(10))
-        let transfers = txObj.transfers();
+        let transfers = txObj.transfers()
         transfers.forEach((el) => {
             if (el.address === address.toHex()) {
-                actual = actual.add(el.amount);
+                actual = actual.add(el.amount)
             }
         })
         expect(actual.toNumber()).toBe(40 + 10)
@@ -121,10 +121,10 @@ describe(':Test Transaction', () => {
         let txObj = new Transaction()
         let address = dummy_address()
         txObj.add_transfer(address, new BN(10))
-        let transfers = txObj.transfers();
+        let transfers = txObj.transfers()
         transfers.forEach((el) => {
             if (el.address === address.toHex()) {
-                actual = actual.add(el.amount);
+                actual = actual.add(el.amount)
             }
         })
         expect(actual.toNumber()).toBe(10)
@@ -164,7 +164,7 @@ describe(':Test Transaction', () => {
     test('Test test partial serialize', async () => {
         const source_identity = new Entity()
         const multi_sig_identity = new Entity()
-        const multi_sig_board = [];
+        const multi_sig_board = []
         for (let i = 0; i < 4; i++) {
             multi_sig_board.push(new Entity())
         }
@@ -202,7 +202,7 @@ describe(':Test Transaction', () => {
 
         const source_identity = new Entity()
         const multi_sig_identity = new Entity()
-        const multi_sig_board = [];
+        const multi_sig_board = []
         for (let i = 0; i < 4; i++) {
             multi_sig_board.push(new Entity())
         }
@@ -215,7 +215,7 @@ describe(':Test Transaction', () => {
         const txs = []
 
         for (let i = 0; i < 4; i++) {
-            let payload = mstx.payload();
+            let payload = mstx.payload()
             let [tx,] = Transaction.from_payload(payload)
             tx.sign(multi_sig_board[i])
             txs.push(tx.encode_partial())
@@ -224,16 +224,16 @@ describe(':Test Transaction', () => {
         for (let i = 0; i < 4; i++) {
             mstx.merge_signatures(Transaction.decode_partial(txs[i]))
         }
-        const signers = mstx.signers();
-        let flag = true;
+        const signers = mstx.signers()
+        let flag = true
         for (let key in signers) {
-            if (typeof signers[key].verified === "undefined" || !signers[key].verified) {
-                flag = false;
+            if (typeof signers[key].verified === 'undefined' || !signers[key].verified) {
+                flag = false
             }
             // const success = verified.every((verified) => verified === true)
         }
         expect(flag).toBe(true)
-        console.log("passed");
+        console.log('passed')
         //     self.assertTrue(all([s['verified'] for s in self.mstx.signers.values()]))
     })
 

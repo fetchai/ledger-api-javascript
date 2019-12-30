@@ -4,7 +4,7 @@ const {DEFAULT_PORT, LOCAL_HOST} = require('../utils/helpers')
 
 export default jest.fn((request) => {
 
-    const requests = [stake, stake_cooldown, collect_stake, deed, balance, balance_token, de_stake, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
+    const requests = [stake, create, stake_cooldown, collect_stake, deed, balance, balance_token, de_stake, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
     let req, res
     for (let i = 0; i < requests.length; i++) {
         [req, res] = requests[i].call()
@@ -14,43 +14,42 @@ export default jest.fn((request) => {
             return Promise.resolve(res)
         }
     }
-
 })
 
-// function transfer_contents() {
-//     return [
-//         JSON.parse(` `),
-//         JSON.parse('{"data": {"stake": 500}}')]
-// }
+function create() {
+    return [
+        JSON.parse('{"method":"get","url":"http://127.0.0.1:8000/api/status/tx/","request_headers":{"Content-Type":"application/json; charset=utf-8"}}'),
+        JSON.parse('{"status": 200, "data":{"status": "Executed", "exit_code": 2, "tx": "0x00", "charge": 77, "charge_rate": 33, "fee": 5}}')]
+}
 
 function stake() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/addStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoATKAC2ZldGNoLnRva2VuCGFkZFN0YWtldHsiYWRkcmVzcyI6IkdNS2pPdmk5TExwL3B4U29RS01Jb2hlcVJJT0lDeDd4UzAvZi9naXJsVzQvUzVJYzdETytmQ1dNL1hBbG9ybXBRbmNPV3hkMWk4eEpZYnZjZGFBbEhBPT0iLCJhbW91bnQiOjEwMDB97oZBnwF4rK4EGMKjOvi9LLp/pxSoQKMIoheqRIOICx7xS0/f/girlW4/S5Ic7DO+fCWM/XAlormpQncOWxd1i8xJYbvcdaAlHEA3UZ6Q4iklaWDRrkZxEvVWLqT0dfYCaGXYRjBX55XAjEswudIl/XRtak+2zTUNrw0NsKyAxCLf1/ayRhIQ+WTd"},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/addStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoATKAC2ZldGNoLnRva2VuCGFkZFN0YWtldHsiYWRkcmVzcyI6IkdNS2pPdmk5TExwL3B4U29RS01Jb2hlcVJJT0lDeDd4UzAvZi9naXJsVzQvUzVJYzdETytmQ1dNL1hBbG9ybXBRbmNPV3hkMWk4eEpZYnZjZGFBbEhBPT0iLCJhbW91bnQiOjEwMDB97oZBnwF4rK4EGMKjOvi9LLp/pxSoQKMIoheqRIOICx7xS0/f/girlW4/S5Ic7DO+fCWM/XAlormpQncOWxd1i8xJYbvcdaAlHEA3UZ6Q4iklaWDRrkZxEvVWLqT0dfYCaGXYRjBX55XAjEswudIl/XRtak+2zTUNrw0NsKyAxCLf1/ayRhIQ+WTd"},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
         JSON.parse('{"data": {"stake": 500}}')]
 }
 
 function collect_stake() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/collectStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoAcEBLIALZmV0Y2gudG9rZW4MY29sbGVjdFN0YWtlAO6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxACRV31mXnLHFceJxfpn1KFZBdnDYlPeAB/CaquVwb+Wkia81pLKF5nV/36Fm7+wJoIbrs13eLeAvko22Wx1v6Fg=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/collectStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoAcEBLIALZmV0Y2gudG9rZW4MY29sbGVjdFN0YWtlAO6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxACRV31mXnLHFceJxfpn1KFZBdnDYlPeAB/CaquVwb+Wkia81pLKF5nV/36Fm7+wJoIbrs13eLeAvko22Wx1v6Fg=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
         JSON.parse('{"data": {"stake": 500}}')]
 }
 
 
 function deed() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/deed","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoAcEnEIALZmV0Y2gudG9rZW4EZGVlZFN7InNpZ25lZXMiOnsiRlducXppdXp3OEV4UEpYVGU1SzlYdXIyWWIxWW1hRTRvWm5MS0NEQ0RVVXVKTHBoTCI6Mn0sInRocmVzaG9sZHMiOnt9fe6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxASsNGdihFfe5zJAVMQkiqsa7bc50H9eIvUzJJw/qxp8QxUkVzM9j+TP2XOB1NVHXnU6qykxbk1pP9dMVfIrqVAA=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/deed","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoAcEnEIALZmV0Y2gudG9rZW4EZGVlZFN7InNpZ25lZXMiOnsiRlducXppdXp3OEV4UEpYVGU1SzlYdXIyWWIxWW1hRTRvWm5MS0NEQ0RVVXVKTHBoTCI6Mn0sInRocmVzaG9sZHMiOnt9fe6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxASsNGdihFfe5zJAVMQkiqsa7bc50H9eIvUzJJw/qxp8QxUkVzM9j+TP2XOB1NVHXnU6qykxbk1pP9dMVfIrqVAA=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
         JSON.parse('{"status": 200, "data": {"txs":["68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516"] }}')]
 }
 
 function de_stake() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/deStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoARmAC2ZldGNoLnRva2VuB2RlU3Rha2V2eyJhZGRyZXNzIjoiR01Lak92aTlMTHAvcHhTb1FLTUlvaGVxUklPSUN4N3hTMC9mL2dpcmxXNC9TNUljN0RPK2ZDV00vWEFsb3JtcFFuY09XeGQxaTh4SllidmNkYUFsSEE9PSIsImFtb3VudCI6IjAxMmMife6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxAASw/L8APj4gv7Uz6NKHXGYsOp476agrw4mpGb/tUce9GT318HXMJirZnkk2iwUfzrNomzd+b5CP29LQAbl/1PA=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/deStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoARmAC2ZldGNoLnRva2VuB2RlU3Rha2V2eyJhZGRyZXNzIjoiR01Lak92aTlMTHAvcHhTb1FLTUlvaGVxUklPSUN4N3hTMC9mL2dpcmxXNC9TNUljN0RPK2ZDV00vWEFsb3JtcFFuY09XeGQxaTh4SllidmNkYUFsSEE9PSIsImFtb3VudCI6IjAxMmMife6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxAASw/L8APj4gv7Uz6NKHXGYsOp476agrw4mpGb/tUce9GT318HXMJirZnkk2iwUfzrNomzd+b5CP29LQAbl/1PA=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
         (balance_called >= 2) ? JSON.parse('{"data": {"balance": 500}}') : JSON.parse('{"data": {"stake": 500}}')]
 }
 
 function stake_cooldown() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/cooldownStake","data":{"address":"dcgBKQnx4i3ayLbqcqstt4kSHNfDC4Am9TgyhF4RimY1eNHTP"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/cooldownStake","data":{"address":"dcgBKQnx4i3ayLbqcqstt4kSHNfDC4Am9TgyhF4RimY1eNHTP"},"headers":{"Content-Type":"application/json; charset=utf-8"}}'),
         JSON.parse('{"data": {"cooldownStake": 500}}')]
 }
 
@@ -65,7 +64,7 @@ function balance() {
 
 function balance_token() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/balance","data":{"address":"dTSCNwHBPoDdESpxj6NQkPDvX3DN1DFKGsUPZNVWDVDrfur4z"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/balance","data":{"address":"dTSCNwHBPoDdESpxj6NQkPDvX3DN1DFKGsUPZNVWDVDrfur4z"},"headers":{"Content-Type":"application/json; charset=utf-8"}}'),
         JSON.parse('{"data": {"balance": 300}}')]
 }
 
@@ -129,7 +128,7 @@ function server_status() {
 
 function contract_wealth() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/transfer","data":{"ver":"1.2","data":"oWQAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUQjUTCsWqtELjn5qicRiVZpUikhLdLxq1txTp9r1YFRHBA+jBA+gBMu6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxAmK9I0scC/2iqo1iYr0MHSap5lvsSyqyLCZgoHJsTPWAgh6hvSqkVNBSswOIb0hPes9IexgByKgq9FO9axGD24Q=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/transfer","data":{"ver":"1.2","data":"oWQAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUQjUTCsWqtELjn5qicRiVZpUikhLdLxq1txTp9r1YFRHBA+jBA+gBMu6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxAmK9I0scC/2iqo1iYr0MHSap5lvsSyqyLCZgoHJsTPWAgh6hvSqkVNBSswOIb0hPes9IexgByKgq9FO9axGD24Q=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
         JSON.parse('{"status": 200, "data": {"txs":["be448a628ed7d333eaf497b7bf56722f1df661c67856b9cedf6d75180859964c"],"counts":{"received":1,"submitted":1}}}')]
 }
 
@@ -147,7 +146,7 @@ function contract_create() {
 
 function query_contract() {
     return [
-        JSON.parse(`{"method":"post","url":"http://127.0.0.1:8000/api/contract/25b6zQfoFcy7iVneBJtua7LrxTuiCzQA8F4GngJCZSpMKEfQpz/balance","data":{"address":"2FyD1Q6tJJDpoEUQTjf6Rt6Kbv45Q2ZGaqQgAzVunzSjMAN8AZ"},"headers":{"Content-Type":"application/json; charset=utf-8"}}`),
+        JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/25b6zQfoFcy7iVneBJtua7LrxTuiCzQA8F4GngJCZSpMKEfQpz/balance","data":{"address":"2FyD1Q6tJJDpoEUQTjf6Rt6Kbv45Q2ZGaqQgAzVunzSjMAN8AZ"},"headers":{"Content-Type":"application/json; charset=utf-8"}}'),
         JSON.parse('{"data":{"status":"success","result":1000000}}')]
 }
 

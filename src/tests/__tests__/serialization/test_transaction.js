@@ -267,7 +267,7 @@ function assertTxAreEqual(reference, other) {
     expect(reference).toBeInstanceOf(Transaction)
     expect(other).toBeInstanceOf(Transaction)
     expect(reference.from_address()).toMatchObject(other.from_address())
-    const reference_transfers = reference.transfers();
+    const reference_transfers = reference.transfers()
     const other_transfers = other.transfers()
 
     for (let i = 0; i < reference_transfers.length; i++) {

@@ -1,6 +1,6 @@
 import {Entity} from '../fetchai/ledger/crypto/entity'
 import {LedgerApi} from '../fetchai/ledger/api/init'
-import {ApiError, RunTimeError} from "../fetchai/ledger/errors";
+import {ApiError, RunTimeError} from '../fetchai/ledger/errors'
 
 const HOST = '127.0.0.1'
 const PORT = 8000
@@ -24,11 +24,11 @@ async function main() {
     let balance2 = await api.tokens.balance(identity2)
     console.log(`Balance 2 :  ${balance2.toString()}\n`)
 
-    console.log(`Submitting transfer ...\n`)
-     // transfers accept numbers or instances of BN
+    console.log('Submitting transfer ...\n')
+    // transfers accept numbers or instances of BN
     const tx2 = await api.tokens.transfer(identity1, identity2, 200, 20).catch((error) => {
-        console.log("error occured: " + error)
-         throw new Error();
+        console.log('error occured: ' + error)
+        throw new Error()
     })
 
     await api.sync([tx2]).catch(errors => {
@@ -36,7 +36,7 @@ async function main() {
         throw new Error()
     } )
 
-    console.log(`Transfer successful\n`)
+    console.log('Transfer successful\n')
 
     balance1 = await api.tokens.balance(identity1)
     console.log(`Balance 1: ${balance1.toString()}\n`)

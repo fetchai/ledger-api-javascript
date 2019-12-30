@@ -8,8 +8,8 @@ import {ServerApi} from './server'
 import {TokenApi} from './token'
 import {TransactionApi, TxStatus} from './tx'
 import {Bootstrap} from './bootstrap'
-// reduced for testing
-const DEFAULT_TIMEOUT = 12000
+
+const DEFAULT_TIMEOUT = 120000
 
 /**
  * This class for all ledger APIs.
@@ -56,7 +56,7 @@ export class LedgerApi {
      */
     async sync(txs, timeout = false, hold_state_sec = 0, extend_success_status = []) {
 
-          if (!Array.isArray(txs) || !txs.length) {
+        if (!Array.isArray(txs) || !txs.length) {
             throw new TypeError('Unknown argument type')
         }
 

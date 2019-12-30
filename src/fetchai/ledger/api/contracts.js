@@ -78,7 +78,7 @@ export class ContractsApi extends ApiEndpoint {
         assert(this.isJSON(data))
         const prefix = contract_owner.toString()
         const encoded = this._encode_json_payload(data)
-        return await this.post_json(query, encoded,  prefix)
+        return await this.post_json(query, encoded, prefix)
     }
 
     /**

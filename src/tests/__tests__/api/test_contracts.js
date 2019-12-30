@@ -32,6 +32,7 @@ describe(':ContractsApi', () => {
     test('test create', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
+        debugger
         const created = await contract.create(api, ENTITIES[0], 4000)
         expect(created).toHaveProperty('txs')
         expect(axios).toHaveBeenCalledTimes(2)

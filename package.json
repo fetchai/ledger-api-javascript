@@ -51,10 +51,12 @@
     "fastest-validator": "^0.6.12",
     "fs": "0.0.1-security",
     "jest-coverage-validator": "^0.6.9",
+    "mock-fs": "^4.10.4",
     "path": "^0.12.7",
     "secp256k1": "^3.7.1",
     "selenium-webdriver": "^4.0.0-alpha.5",
     "semver": "^6.3.0",
+    "sinon": "^8.0.2",
     "source-map-support": "^0.5.16",
     "wait-on": "^3.3.0",
     "winston": "^3.2.1"

@@ -7,7 +7,7 @@ import {Identity} from '../../fetchai/ledger/crypto/identity'
 export const LOCAL_HOST = '127.0.0.1'
 export const DEFAULT_PORT = 8000
 export const RAND_FP = '/path/to/file'
-export const PASSWORD = "Password!12345"
+export const PASSWORD = 'Password!12345'
 
 export const _PRIVATE_KEYS = [
     '1411d53f88e736eac7872430dbe5b55ac28c17a3e648c388e0bd1b161ab04427',
