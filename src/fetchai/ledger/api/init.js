@@ -96,7 +96,7 @@ export class LedgerApi {
                         failed.push(txs[i])
                         txs.splice(i, 1)
                         i--
-                        continue;
+                        continue
                     }
 
 
@@ -111,19 +111,19 @@ export class LedgerApi {
 
                     if (txs[i].successful() || extend_success_status.includes(txs[i].get_status())) {
                         let index = waiting.findIndex(item => {
-                            const x = Date.now() - item.time;
+                            const x = Date.now() - item.time
                             return x > hold_state_sec && item.tx_status.get_digest_hex() === txs[i].get_digest_hex()
                         })
 
                         if (index !== -1) {
                             // splice it out of the array if successful
                             txs.splice(i, 1)
-                            i--;
+                            i--
                         } else {
                             // check if it is currently waiting for hold time to elapse.
                             let index = waiting.findIndex(item => {
 
-                                let x = item.tx_status.get_digest_hex();
+                                let x = item.tx_status.get_digest_hex()
                                 return txs[i].get_digest_hex() === x
                             })
                             if (index === -1) {
@@ -147,17 +147,17 @@ export class LedgerApi {
     }
 
     async poll(txs) {
-        let tx_status;
-        const res = [];
+        let tx_status
+        const res = []
 
         for (let i = 0; i < txs.length; i++) {
             try {
                 if (txs[i] instanceof TxStatus) {
-                    tx_status = await this.tx.status(txs[i].get_digest_hex());
+                    tx_status = await this.tx.status(txs[i].get_digest_hex())
                 } else {
-                    tx_status = await this.tx.status(txs[i].txs[0]);
+                    tx_status = await this.tx.status(txs[i].txs[0])
                 }
-                res.push(tx_status);
+                res.push(tx_status)
             } catch (e) {
 
                 if (!(e instanceof ApiError)) {
@@ -167,7 +167,7 @@ export class LedgerApi {
                 }
             }
         }
-        return res;
+        return res
     }
 
 
@@ -182,8 +182,8 @@ export class LedgerApi {
         ) {
             throw new IncompatibleLedgerVersionError(`Ledger version running on server is not compatible with this API  \n
                                                  Server version: ${server_version} \nExpected version: ${__compatible__.join(
-                ','
-            )}`)
+    ','
+)}`)
         }
         return true
     }

@@ -2,7 +2,7 @@ import * as bs58 from 'bs58'
 import {ValidationError} from '../errors'
 import {createHash} from 'crypto'
 import {Identity} from './identity'
-import assert from "assert";
+import assert from 'assert'
 
 const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4
@@ -55,12 +55,12 @@ export class Address {
      * @returns {boolean}
      */
     static is_address(b58_address) {
-        if (typeof b58_address !== "string") return false;
+        if (typeof b58_address !== 'string') return false
 
         const bytes = bs58.decode(b58_address)
 
         if (Buffer.byteLength(bytes) !== DISPLAY_BYTE_LENGTH) {
-            return false;
+            return false
         }
         // split the identity into address and checksum
         const address_raw = bytes.slice(0, BYTE_LENGTH)
@@ -72,7 +72,7 @@ export class Address {
         if (!Buffer.compare(checksum, expected_checksum)) {
             return false
         }
-        return true;
+        return true
     }
 
     /**

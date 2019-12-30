@@ -6,7 +6,7 @@ import {BitVector} from '../bitvector'
 import {Contract} from '../contract'
 import {encode_transaction} from '../serialization/transaction'
 import {logger} from '../utils'
-import {ValidationError} from "../errors";
+import {ValidationError} from '../errors'
 
 /**
  * This class for all Tokens APIs.
@@ -58,7 +58,7 @@ export class ContractsApi extends ApiEndpoint {
         //     })
         // )
         // tx.add_signer(owner.public_key_hex())
-        const contractTxFactory = new ContractTxFactory(this.parent_api);
+        const contractTxFactory = new ContractTxFactory(this.parent_api)
         const tx = await contractTxFactory.create(owner, contract, fee, null, shard_mask)
         // const encoded_tx = encode_transaction(tx, [owner])
         // TODO: Is multisig contract creation possible?
@@ -130,7 +130,7 @@ export class ContractsApi extends ApiEndpoint {
         // tx.from_address(from_address)
         // tx.target_contract(contract_digest, contract_address, shard_mask)
         // tx.action(action)
-        const contractTxFactory = new ContractTxFactory(this.parent_api);
+        const contractTxFactory = new ContractTxFactory(this.parent_api)
         let tx = await contractTxFactory.action(contract_address, action, fee, from_address, args, signers, shard_mask)
         for (let i = 0; i < signers.length; i++) {
             tx.add_signer(signers[i].public_key_hex())
@@ -198,8 +198,8 @@ export class ContractsApi extends ApiEndpoint {
 export class ContractTxFactory extends TransactionFactory {
     constructor(api) {
         super('fetch.contract')
-        this.api = api;
-        this.prefix = 'fetch.contract';
+        this.api = api
+        this.prefix = 'fetch.contract'
     }
 
     //"""Replicate server interface for fetching number of lanes"""
@@ -218,12 +218,12 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
     async action(contract_address, action,
-                 fee, from_address, args,
-                 signers = null,
-                 shard_mask = null) {
+        fee, from_address, args,
+        signers = null,
+        shard_mask = null) {
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {
-            logger.info("Defaulting to wildcard shard mask as none supplied")
+            logger.info('Defaulting to wildcard shard mask as none supplied')
             shard_mask = new BitVector()
         }
 
@@ -239,8 +239,8 @@ export class ContractTxFactory extends TransactionFactory {
                 tx.add_signer(signer.public_key_hex())
             })
         } else {
-            debugger;
-            throw new ValidationError("TESTING ERROR TO REMOVE")
+            debugger
+            throw new ValidationError('TESTING ERROR TO REMOVE')
             tx.add_signer(from_address)
         }
         return tx
@@ -248,11 +248,11 @@ export class ContractTxFactory extends TransactionFactory {
 
 
     async create(owner, contract, fee, signers = null,
-                 shard_mask = null) {
+        shard_mask = null) {
 
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {
-            logger.info("Defaulting to wildcard shard mask as none supplied")
+            logger.info('Defaulting to wildcard shard mask as none supplied')
             shard_mask = new BitVector()
         }
 
@@ -262,7 +262,7 @@ export class ContractTxFactory extends TransactionFactory {
             'text': contract.encoded_source(),
             'nonce': contract.nonce(),
             'digest': contract.digest().toHex()
-        });
+        })
 
         tx.data(data)
         await this.set_validity_period(tx)

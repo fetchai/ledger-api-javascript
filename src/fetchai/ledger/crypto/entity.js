@@ -113,7 +113,7 @@ export class Entity extends Identity {
                 'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
             )
         }
-        const x = fs.readFileSync(fp, 'utf8');
+        const x = fs.readFileSync(fp, 'utf8')
         let obj = JSON.parse(x)
         return Entity.from_json_object(obj, password)
     }
