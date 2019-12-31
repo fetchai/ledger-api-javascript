@@ -1,11 +1,13 @@
 import {TRANSFER_CONTRACT, SIMPLE_CONTRACT, NO_ANNOTATIONS, MULTIPLE_INITS} from '../../../contracts/transfer'
 import {Parser} from '../../../fetchai/ledger/parser'
-import {AUCTION_CONTRACT, COMPLEX_USE_STATEMENTS_CONTRACT} from "../../../contracts";
+import {
+    AUCTION_CONTRACT,
+    COMPLEX_USE_STATEMENTS_CONTRACT,
+    INVALID_USE_PARAMETER_TYPE,
+    MISSING_PERSISTENT_STATEMENT
+} from "../../../contracts";
 import {Address} from "../../../fetchai/ledger/crypto/address";
-import {Entity} from "../../../fetchai/ledger/crypto/entity";
-
-const SINGLE_LINE_CONTRACT = 'const SIMPLE_CONTRACT =@init function init(owner: Address) endfunction @action function action1() endfunction @action function action2() endfunction @query function query1() endfunction @query function query2() endfunction'
-
+import {ValidationError} from "../../../fetchai/ledger/errors";
 
 describe(':Parser', () => {
 
@@ -77,31 +79,38 @@ describe(':Parser', () => {
        })
 
     test('test remove comments', () => {
-         const actual_inits = Parser.get_annotations(MULTIPLE_INITS)
-          expect(actual_inits['@init'].length).toBe(2);
-          expect(actual_inits['@init'][0]).toBe("setup");
-          expect(actual_inits['@init'][1]).toBe("alternative");
+       const source = Parser.remove_comments(TRANSFER_CONTRACT)
+       expect(source.length).toBe(613);
        })
 
-    test('test get rescource addresses', () => {
-debugger;
+    test('test get resource addresses', () => {
         const address1 = new Address("nLYsNsbFGDgcGJa3e7xn2V82fnpaGZVSuJUHCkeY9Cm6SfEyG")
         const address2 = new Address("8ixTnu8sHN9VyS51GhZyxxoTLexXdZes3WkmCFoR7ufBZWnQq")
        // think of a second one maybe with not getting persistenet statements when nested in functions
       const addresses = Parser.get_resource_addresses(COMPLEX_USE_STATEMENTS_CONTRACT, "transfer", [address1, address2, 200])
-
-        debugger;
+      expect(addresses.length).toBe(4);
+        console.log("addresses", addresses)
+      expect(addresses[0]).toBe("balance_state.this_string");
+      expect(addresses[1]).toBe("balance_state.8ixTnu8sHN9VyS51GhZyxxoTLexXdZes3WkmCFoR7ufBZWnQq");
+      expect(addresses[2]).toBe("balance_state.200");
+      expect(addresses[3]).toBe("test");
     })
 
-    test('test get annotations on file with no annotations', () => {
-       // think of a second one maybe with not getting persistenet statements when nested in functions
+        test('test throws resource addresses', () => {
+        const address1 = new Address("nLYsNsbFGDgcGJa3e7xn2V82fnpaGZVSuJUHCkeY9Cm6SfEyG")
+        const address2 = new Address("8ixTnu8sHN9VyS51GhZyxxoTLexXdZes3WkmCFoR7ufBZWnQq")
+            // function name not in contract
+              expect(() => {
+              Parser.get_resource_addresses(COMPLEX_USE_STATEMENTS_CONTRACT, "nonexistant_func", [address1, address2, 200])
+        }).toThrow(ValidationError)
+            // parameterized use statement does not have associated use statement
+            expect(() => {
+              Parser.get_resource_addresses(MISSING_PERSISTENT_STATEMENT, "transfer", [address1, address2, 200])
+        }).toThrow(ValidationError)
+            // invalid param type in use statement (must all correlate to address or string types)
+             expect(() => {
+              Parser.get_resource_addresses(INVALID_USE_PARAMETER_TYPE, "setup", [address1])
+        }).toThrow(ValidationError)
 
-       })
-
-           test('test get rescource addresses on function with no annotations'), () => {
-       // think of a second one maybe with not getting persistenet statements when nested in functions
-
-       })
-
-}
-)
+    })
+})

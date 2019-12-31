@@ -9,15 +9,19 @@ const USE_STATEMENT =  /use([\s\S]*?);/
 const USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME = /(?<=\use).+?(?=\[)/
 const BETWEEN_SQUARE_BRACKETS = /(?<=\[).+?(?=\])/
 const BETWEEN_ROUND_BRACKETS = /(?<=\().+?(?=\))/
-const COMMENT = /\/.*/
+const SINGLE_LINE_COMMENT = /\/\/.*/
+const MULTI_LINE_COMMENT = /\/\*([\s\S]*?)\*\//
+
 // from function (as a string) we extract the name
 // const FUNCTION_NAME = /(?<=\function).+?(?=\))/
 
 export class Parser {
 
     static remove_comments(source){
-         const regexp = RegExp(COMMENT,'g')
-         return source.replace(regexp, '')
+         const regexp = RegExp(SINGLE_LINE_COMMENT,'g')
+         const regexp2 = RegExp(MULTI_LINE_COMMENT,'g')
+         source = source.replace(regexp, '')
+         return source.replace(regexp2, '')
     }
 
     static get_functions(source) {
@@ -148,7 +152,7 @@ export class Parser {
             const valid_perisistent_statements = use_statements.filter((obj) => (obj.sharded === true)).every((obj) => (sharded_use_names.includes(obj.identifier)))
 
           if(!valid_perisistent_statements){
-            // so at least one of our parameterized use statements doesn't have an associated use statement
+            // at least one of our parameterized use statements doesn't have an associated use statement
             throw new ValidationError("All parameterized use statements must have an associated Persistent statement stating that they are sharded ")
            }
 
@@ -166,7 +170,6 @@ export class Parser {
                               for (let k = 0; k < func_params.length; k++) {
                                   if(use_statements[i].params[j] == func_params[k].identifier) {
                                       if(func_params[k].type !== "Address" && func_params[k].type !== "String") {
-                                          debugger;
                                            throw new ValidationError(`named function ${func_name} params referenced by use statements must be of type Address or String: found type ${func_params[k].type}`)
                                       }
 
