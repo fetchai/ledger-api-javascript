@@ -119,7 +119,7 @@ export class Entity extends Identity {
         return await Entity.from_json_object(obj, password)
     }
 
-   async prompt_dump(fp, password) {
+    async prompt_dump(fp, password) {
         // let password = readline.question('Please enter password ')
         if (!Entity.strong_password(password)) {
             throw new ValidationError(
@@ -136,9 +136,7 @@ export class Entity extends Identity {
     }
 
     async dump(fp, password) {
-        debugger;
         const json_object = await this.to_json_object(password)
-        debugger;
         fs.writeFileSync(fp, JSON.stringify(json_object))
     }
 

@@ -81,7 +81,6 @@ describe(':Entity', () => {
     test('test loads', async () => {
         const s = '{"key_length": 32, "init_vector": "/bfsgykBD4i6Mjkg5aAQfg==", "password_salt": "vnDS6A9WopD3TpzrMbLJKg==", "privateKey": "TObHSc42ev8idRQbd7Is+BSZG9aQk2o8plOff6t3+WM="}'
         const ref = Entity.from_hex('84cd8d1df47f2be283107cc177003e0b062ee35be50087a66268417629edf730')
-        debugger;
         const entity = await Entity.loads(s, PASSWORD)
         const private_key_hex = entity.private_key_hex()
         expect(ref.private_key_hex()).toEqual(private_key_hex)
@@ -100,7 +99,6 @@ describe(':Entity', () => {
         expect(writeFileSync.calledOnce).toBe(true)
         expect(writeFileSync.getCall(0).args[0]).toEqual('path/to/some.png')
         let json_obj =  JSON.parse(writeFileSync.getCall(0).args[1])
-        debugger;
         expect(json_obj.key_length).toEqual(32)
         expect(json_obj).toHaveProperty('init_vector')
         expect(json_obj).toHaveProperty('password_salt')
