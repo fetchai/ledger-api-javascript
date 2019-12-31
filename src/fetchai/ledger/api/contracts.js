@@ -31,7 +31,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} contract contract
      * @param {Object} [shard_mask=null] BitVector object
      */
-    async create(owner, fee, contract, signers = null, shard_mask = null) {
+    async create(owner, contract, fee, signers = null, shard_mask = null) {
         assert(contract instanceof Contract)
         const ENDPOINT = 'create'
         // Default to wildcard shard mask if none supplied

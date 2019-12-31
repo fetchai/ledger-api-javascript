@@ -17,7 +17,7 @@ import {
 } from './serialization'
 import * as integer from './serialization/integer'
 import {RunTimeError} from './errors'
-
+import {randomBytes} from 'crypto'
 
 function calc_digest(address_raw) {
     const hash_func = createHash('sha256')
@@ -41,7 +41,7 @@ export class Transaction {
         this._charge_rate = new BN(0)
         this._charge_limit = new BN(0)
         this._contract_address = ''
-        this._counter = new BN(Buffer.from('EE86419F0178ACAE', 'hex'))
+        this._counter = new BN(randomBytes(8))
         this._chain_code = ''
         this._shard_mask = new BitVector() // BitVector class instance
         this._action = ''

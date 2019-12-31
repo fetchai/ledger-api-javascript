@@ -14,6 +14,7 @@ async function main() {
     } catch (e) {
         throw new RunTimeError('The following error occurred checking the balance: ' + e)
     }
+
     // Querying a balance returns an instance of BigNumber (https://github.com/indutny/bn.js/)
     console.log('Balance: ' + balance.toString())
 }

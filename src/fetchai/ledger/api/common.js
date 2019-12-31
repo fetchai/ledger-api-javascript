@@ -134,14 +134,14 @@ export class ApiEndpoint {
         return tx
     }
 
+    /**
+     *Appends signatures to a transaction and submits it, returning the transaction digest
+     *
+     * @param tx    A pre-assembled transaction
+     * @param signatures    signers signatures
+     * @returns {Promise<*>}    The digest of the submitted transaction
+     */
     async submit_signed_tx(tx, signatures) {
-        // """
-        // Appends signatures to a transaction and submits it, returning the transaction digest
-        // :param tx: A pre-assembled transaction
-        // :param signatures: A dict of signers signatures
-        // :return: The digest of the submitted transaction
-        // :raises: ApiError on any failures
-        // """
         // Encode transaction and append signatures
         const encoded_tx = encode_multisig_transaction(tx, signatures)
         // Submit and return digest
@@ -157,9 +157,7 @@ export class ApiEndpoint {
 
         // query what the current block number is on the node
         const current_block = await this.current_block_number()
-
         tx.valid_until(new BN(current_block + validity_period))
-
         return tx.valid_until()
     }
 
@@ -252,8 +250,6 @@ export class TransactionFactory {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
-        console.log('this.prefix is : ' + prefix)
-
         tx.target_chain_code(prefix, mask)
         tx.action(action)
         return tx

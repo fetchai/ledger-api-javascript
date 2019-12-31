@@ -5,10 +5,11 @@ import {Deed} from '../../fetchai/ledger/crypto/deed'
 const HOST = '127.0.0.1'
 const PORT = 8000
 
-function print_errors(errors) {
+function sync_error(errors) {
     errors.forEach(tx =>
-        console.log(`The following transaction: "${tx.get_digest_hex()}" did not succeed. It exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
+        console.log(`\nThe following transaction: "${tx.get_digest_hex()}" did not succeed. \nIt exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
     )
+    throw new Error()
 }
 
 function print_signing_votes(board) {
@@ -18,8 +19,12 @@ function print_signing_votes(board) {
         str += ' + ' + board[i].voting_weight
         sum += board[i].voting_weight
     }
-    str += ' = ' + sum
-    console.log(str + '\n')
+
+    if(board.length > 1) {
+        str += ' = ' + sum
+    }
+
+    console.log('\n' + str)
 }
 
 async function main() {
@@ -53,21 +58,18 @@ async function main() {
 
     const other_identity = Entity.from_hex('e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8')
     balance = await api.tokens.balance(multi_sig_identity)
-    console.log('Balance after wealth:', balance.toString())
+    console.log('\nOriginal balance of multi_sig_identity: ', balance.toString())
 
     // Transfers can happen normally without a deed
-    console.log('Submitting pre-deed transfer with original signature...')
+    console.log('\nSubmitting pre-deed transfer with original signature...')
 
     tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
-    await api.sync([tx]).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
+    await api.sync([tx]).catch(errors => sync_error(errors))
 
     balance1 = await api.tokens.balance(multi_sig_identity)
-    console.log('Balance 1:', balance1.toString())
+    console.log('\nBalance 1:', balance1.toString())
     balance2 = await api.tokens.balance(other_identity)
-    console.log('Balance 2:', balance2.toString())
+    console.log('\nBalance 2:', balance2.toString())
 
     // Submit deed
     console.log('\nCreating deed...')
@@ -80,17 +82,14 @@ async function main() {
 
     tx = await api.tokens.deed(multi_sig_identity, deed)
 
-    await api.sync([tx], 20).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
+    await api.sync([tx], 20).catch(errors => sync_error(errors))
 
     // Original address can no longer validate transfers
     console.log('\nTransfer with original signature should fail...')
 
     tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
     await api.sync([tx]).catch(errors => {
-        console.log(`Transaction failed as expected. \n Transaction status: ${errors[0].get_status()}`)
+        console.log(`\nTransaction failed as expected. \nTransaction status: ${errors[0].get_status()}`)
     })
 
     // Sufficient voting power required to sign transfers
@@ -100,15 +99,12 @@ async function main() {
 
     tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
 
-    await api.sync([tx]).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
+    await api.sync([tx]).catch(errors => sync_error(errors))
 
     balance1 = await api.tokens.balance(multi_sig_identity)
-    console.log('Balance 1:', balance1.toString())
+    console.log('\nBalance 1:', balance1.toString())
     balance2 = await api.tokens.balance(other_identity)
-    console.log('Balance 2:', balance2.toString())
+    console.log('\nBalance 2:', balance2.toString())
 
     // Some entities may have more voting power
     console.log('\nSubmitting transfer with single signature with 2 votes...')
@@ -117,15 +113,12 @@ async function main() {
     signatories = board.slice(0, 3).map(obj => obj.member)
     txs = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
 
-    await api.sync([txs]).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
+    await api.sync([txs]).catch(errors => sync_error(errors))
 
-    balance1 = await api.tokens.balance(multi_sig_identity)
-    balance2 = await api.tokens.balance(other_identity)
-    console.log('Balance 1:', balance1)
-    console.log('Balance 2:', balance2)
+    balance = await api.tokens.balance(multi_sig_identity)
+    console.log('\nBalance 1:', balance.toString())
+    balance = await api.tokens.balance(other_identity)
+    console.log('\nBalance 2:', balance.toString())
 
     // Amend the deed
     console.log('\nAmending deed to increase transfer threshold to 3 votes...')
@@ -133,10 +126,7 @@ async function main() {
 
     signatories = board.map(obj => obj.member)
     txs = await api.tokens.deed(multi_sig_identity, deed, signatories)
-    await api.sync([txs]).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
+    await api.sync([txs]).catch(errors => sync_error(errors))
 
     // Single member no longer has enough voting power
     console.log('\nSingle member transfer with 2 votes should no longer succeed...')
@@ -144,7 +134,7 @@ async function main() {
 
     tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20, [board[0].member])
     await api.sync([tx]).catch(errors => {
-        console.log(`Transaction failed as expected. \n Transaction status: ${errors[0].get_status()}`)
+        console.log(`\nTransaction failed as expected. \nTransaction status: ${errors[0].get_status()}`)
     })
 
     // Correct number of signatory votes
@@ -154,15 +144,12 @@ async function main() {
     print_signing_votes(board.slice(1))
 
     txs = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
-    await api.sync([txs]).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
+    await api.sync([txs]).catch(errors => sync_error(errors))
 
     balance1 = await api.tokens.balance(multi_sig_identity)
-    console.log('Balance 1:', balance1.toString())
+    console.log('\nBalance 1:', balance1.toString())
     balance2 = await api.tokens.balance(other_identity)
-    console.log('Balance 2:', balance2.toString())
+    console.log('\nBalance 2:', balance2.toString())
 
     // Warning: if no amend threshold is set, future amendments are impossible
     console.log('\nAmending deed to remove threshold...')
@@ -173,10 +160,7 @@ async function main() {
     const allow_no_amend = true
     tx = await api.tokens.deed(multi_sig_identity, deed, signatories, allow_no_amend)
 
-    await api.sync([tx]).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
+    await api.sync([tx]).catch(errors => sync_error(errors))
 
     deed.set_amend_threshold(1)
     console.log('\nExpecting further amendment to fail...')
@@ -185,7 +169,7 @@ async function main() {
     tx = await api.tokens.deed(multi_sig_identity, deed, signatories)
 
     await api.sync([tx]).catch(errors =>
-        console.log(`Further amendment failed as expected. \n Transaction status: ${errors[0].get_status()}`)
+        console.log(`\nFurther amendment failed as expected. \n\nTransaction status: ${errors[0].get_status()}\n`)
     )
 }
 

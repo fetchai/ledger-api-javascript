@@ -36,7 +36,7 @@ export class Contract {
         this._owner = new Address(owner)
         this._nonce = nonce || randomBytes(8)
         this._address = new Address(calc_address(this._owner, this._nonce))
-        console.log('address is : ' + this._address)
+
         //TODO add etch parser
         //this._parser = new EtchParser(this._source)
         //TODO get rest of this constructor when we add etch parser
@@ -109,7 +109,7 @@ export class Contract {
             logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
             shard_mask = new BitVector()
         }
-        return Contract.api(api).create(owner, fee, this, signers, shard_mask)
+        return Contract.api(api).create(owner, this, fee, signers, shard_mask)
     }
 
     async query(api, name, data) {

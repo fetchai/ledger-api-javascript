@@ -76,7 +76,6 @@ export class Deed {
         for (var i = 0; i < this.signees.length; i++) {
             let address = new Address(this.signees[i].signee).toString()
             signees[address] = this.signees[i].voting_weight
-            console.log('signeesa adres' + signees[address])
         }
 
         const deed = {

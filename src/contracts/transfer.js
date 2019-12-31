@@ -68,4 +68,44 @@ function action1()
 endfunction
 `
 
-export {TRANSFER_CONTRACT, SIMPLE_CONTRACT, MULTIPLE_INITS, NO_INIT}
+const MUTLISIG_CONTRACT = `
+const CONTRACT_TEXT = 
+persistent sharded balance_state : UInt64;
+persistent supply_state : UInt64;
+@init
+function init(owner: Address)
+    use supply_state;
+    use balance_state[owner];
+    supply_state.set(92817u64);
+    balance_state.set(owner, 92817u64);
+endfunction
+@query
+function totalSupply(): UInt64
+    use supply_state;
+    return supply_state.get();
+endfunction
+@query
+function balanceOf(address: Address) : UInt64
+    use balance_state[address];
+    return balance_state.get(address, 0u64);
+endfunction
+@action
+function transfer(from: Address, to: Address, value: UInt64) : Int64
+    if(!from.signedTx())
+      return 0i64;
+    endif
+    use balance_state[from, to];
+    var from_balance = balance_state.get(from, 0u64);
+    var to_balance = balance_state.get(to, 0u64);
+    if(from_balance < value)
+      return 0i64;
+    endif
+    var u_from = from_balance - value;
+    var u_to = to_balance + value;
+    balance_state.set(from, u_from);
+    balance_state.set(to, u_to);
+    return 1i64;
+endfunction
+`
+
+export {TRANSFER_CONTRACT, SIMPLE_CONTRACT, MULTIPLE_INITS, NO_INIT, MUTLISIG_CONTRACT}

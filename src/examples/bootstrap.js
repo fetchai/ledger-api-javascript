@@ -13,8 +13,8 @@ async function main() {
 
     try {
         /**
-         * Get a list of the names of available servers on the Bootstrap network
-         * The Bootstrap network is a way on finding public nodes on the network to connect to.
+         * Get a list of the names of available servers on the Bootstrap network.
+         * The Bootstrap network is a way of finding public nodes on the network to connect to.
          */
         server_list = await Bootstrap.list_servers(ACTIVE)
     } catch (e) {
@@ -25,8 +25,7 @@ async function main() {
 
     try {
         /**
-        * From a named server we can then determine a host and port it can be connected to via,
-         * which is needed by our LedgerAPI class and interact with the ledger via this SDK.
+        * From a named server we can then determine the host and port by which it can be connected to.
          **/
         [host, port] = await Bootstrap.server_from_name(SERVER_NAME)
     } catch (e) {
@@ -36,11 +35,7 @@ async function main() {
 
 }
 
-/**
- * Log a list of the available servers.
- *
- * @param server_list
- */
+
 function log_servers(server_list) {
     const available_servers = server_list
         .map(a => a.name)

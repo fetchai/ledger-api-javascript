@@ -6,11 +6,18 @@ import {BN} from 'bn.js'
 const HOST = '127.0.0.1'
 const PORT = 8000
 
+function sync_error(errors) {
+    errors.forEach(tx =>
+        console.log(`\nThe following transaction: "${tx.get_digest_hex()}" did not succeed. 
+        \nIt exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
+    )
+    throw new Error()
+}
 
 async function main() {
     let txs, balance, stake, to_destake, cool_down
 
-    const private_key_hex = 'e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8'
+    const private_key_hex = '6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b'
     const entity = Entity.from_hex(private_key_hex)
     const address = new Address(entity)
     console.log('Address:', address)
@@ -19,22 +26,26 @@ async function main() {
     const api = new LedgerApi(HOST, PORT)
 
     balance = await api.tokens.balance(entity)
-    console.log('Balance:', balance)
-    txs = await api.tokens.stake(entity)
-    console.log('Stake..:', txs)
+    console.log('Balance:', balance.toString())
+    stake = await api.tokens.stake(entity)
+    console.log('Stake.. :', stake.toString())
 
     // submit and wait for the transfer to be complete
-    console.log('Submitting stake request...')
-    stake = await api.tokens.add_stake(entity, new BN(1000), new BN(50))
-    await api.sync([stake])
+
+    stake = await api.tokens.add_stake(entity, 1000, 50).catch((error) => {
+        console.log(error)
+        throw new Error()
+    })
+
+    await api.sync([stake]).catch(errors => sync_error(errors))
 
     setInterval(async () => {
         balance = await api.tokens.balance(entity)
-        console.log('Balance............:', balance)
+        console.log('Balance............:', balance.toString())
 
         stake = await api.tokens.stake(entity)
 
-        console.log('Stake..............:', stake)
+        console.log('Stake..............:', stake.toString())
         cool_down = await api.tokens.stake_cooldown(entity)
         console.log('Stake on cooldown..:', cool_down)
 

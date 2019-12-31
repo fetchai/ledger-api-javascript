@@ -8,10 +8,11 @@ import {Transaction} from '../../fetchai/ledger/transaction'
 const HOST = '127.0.0.1'
 const PORT = 8000
 
-function print_errors(errors) {
-    errors.forEach((tx) => {
-        console.log(`The following transaction: "${tx.get_digest_hex()}" did not succeed. It exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
-    })
+function sync_error(errors) {
+    errors.forEach(tx =>
+        console.log(`\nThe following transaction: "${tx.get_digest_hex()}" did not succeed. \nIt exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
+    )
+    throw new Error()
 }
 
 async function main() {
@@ -43,23 +44,26 @@ async function main() {
     const other_identity = Entity.from_hex('7da0e3fa62a916238decd4f54d43301c809595d66dd469f82f29e076752b155c')
 
 
-    console.log('Creating deed...\n')
+    console.log('\nCreating deed...\n')
     const deed = new Deed(multi_sig_identity)
     board.forEach(board => deed.set_signee(board.member, board.voting_weight))
     deed.set_amend_threshold(4)
     deed.set_threshold('TRANSFER', 3)
     // Submit deed
-    txs = await api.tokens.deed(multi_sig_identity, deed)
-    await api.sync([txs])
+    txs = await api.tokens.deed(multi_sig_identity, deed).catch((error) => {
+        console.log(error)
+        throw new Error()
+    })
+    await api.sync([txs]).catch(errors => sync_error(errors))
 
     // Display balance before
     console.log('Before remote-multisig transfer \n')
-
-    console.log('Balance 1:', await api.tokens.balance(multi_sig_identity).toString())
+    balance = await api.tokens.balance(multi_sig_identity)
+    console.log('Balance 1:', balance.toString())
     balance = await api.tokens.balance(other_identity)
-    console.log('Balance 2:', balance.toString())
+    console.log('\nBalance 2:', balance.toString())
     // Scatter/gather example
-    console.log('Generating transaction and distributing to signers...')
+    console.log('\nGenerating transaction and distributing to signers...\n')
     // Add intended signers to transaction
     tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
 
@@ -85,7 +89,7 @@ async function main() {
         signed_txs.push(itx.encode_partial())
     }
     // Gather and encode final transaction
-    console.log('Gathering and combining signed transactions...')
+    console.log('\nGathering and combining signed transactions...')
 
     let stxs = []
 
@@ -102,12 +106,12 @@ async function main() {
 
     console.log('\nAfter remote multisig-transfer')
     balance = await api.tokens.balance(multi_sig_identity)
-    console.log('Balance 1:', balance.toString())
+    console.log('\nBalance 1:', balance.toString())
     balance = await api.tokens.balance(other_identity)
-    console.log('Balance 2:', balance.toString())
+    console.log('\nBalance 2:', balance.toString())
 
     // Round robin example
-    console.log('Generating transaction and sending down the line of signers...\n')
+    console.log('\nGenerating transaction and sending down the line of signers...\n')
     // Add intended signers to transaction
     tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
     await api.tokens.set_validity_period(tx)
@@ -132,16 +136,17 @@ async function main() {
         // Signer re-encodes transaction and forwards to the next signer
         stx = itx.encode_partial()
     })
+
     // Gather and encode final transaction
-    console.log('Collecting final signed transaction...!')
+    console.log('\nCollecting final signed transaction...\n')
     itx = Transaction.decode_partial(stx)
     txs = await api.tokens.submit_signed_tx(itx, itx.signers())
-    await api.sync([txs]).catch(errors => print_errors(errors))
+    await api.sync([txs]).catch(errors => sync_error(errors))
     console.log('After remote multisig-transfer \n')
     balance = await api.tokens.balance(multi_sig_identity)
     console.log('Balance 1:', balance.toString())
     balance = await api.tokens.balance(other_identity)
-    console.log('Balance 2:', balance.toString())
+    console.log(`\nBalance 2: ${balance.toString()} \n`)
 }
 
 main()

@@ -4,64 +4,29 @@ import {ContractTxFactory} from '../../fetchai/ledger/api/contracts'
 import {Deed} from '../../fetchai/ledger/crypto/deed'
 import {Contract} from '../../fetchai/ledger'
 import {Address} from '../../fetchai/ledger/crypto'
+import {MUTLISIG_CONTRACT} from '../../contracts'
 
-const CONTRACT_TEXT = `
-persistent sharded balance_state : UInt64;
-persistent supply_state : UInt64;
-@init
-function init(owner: Address)
-    use supply_state;
-    use balance_state[owner];
-    supply_state.set(92817u64);
-    balance_state.set(owner, 92817u64);
-endfunction
-@query
-function totalSupply(): UInt64
-    use supply_state;
-    return supply_state.get();
-endfunction
-@query
-function balanceOf(address: Address) : UInt64
-    use balance_state[address];
-    return balance_state.get(address, 0u64);
-endfunction
-@action
-function transfer(from: Address, to: Address, value: UInt64) : Int64
-    if(!from.signedTx())
-      return 0i64;
-    endif
-    use balance_state[from, to];
-    var from_balance = balance_state.get(from, 0u64);
-    var to_balance = balance_state.get(to, 0u64);
-    if(from_balance < value)
-      return 0i64;
-    endif
-    var u_from = from_balance - value;
-    var u_to = to_balance + value;
-    balance_state.set(from, u_from);
-    balance_state.set(to, u_to);
-    return 1i64;
-endfunction
-`
+
 
 async function print_address_balances(api, contract, addresses) {
     let balance, query
     for (let i = 0; i < addresses.length; i++) {
-        balance = await api.tokens.balance(addresses[i]).toString()
+        balance = await api.tokens.balance(addresses[i])
         query = await contract.query(api, 'balanceOf', {address: addresses[i]})
-        console.log(`Address : ${addresses[i]}: ${balance} bFET ${query} TOK'.`)
+        console.log(`Address : ${addresses[i]}: ${balance.toString()} bFET ${query} TOK'.\n`)
     }
 }
 
-function print_errors(errors) {
-    errors.forEach((tx) => {
-        console.log(`The following transaction: "${tx.get_digest_hex()}" did not succeed. It exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
-    })
+function sync_error(errors) {
+    errors.forEach(tx =>
+        console.log(`\nThe following transaction: "${tx.get_digest_hex()}" did not succeed. \nIt exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
+    )
+    throw new Error()
 }
 
 
 async function main() {
-    let txs, tx
+    let txs, tx, nonce
 
     // We generate an identity from a known key, which contains funds.
     const multi_sig_identity = Entity.from_hex('e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8')
@@ -110,39 +75,31 @@ async function main() {
     deed.set_threshold('TRANSFER', 2)
 
     //Submit deed
-    txs = await api.tokens.deed(multi_sig_identity, deed)
+    txs = await api.tokens.deed(multi_sig_identity, deed).catch((error) => console.log(error))
 
-    await api.sync([txs]).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
+    await api.sync([txs]).catch(errors => sync_error(errors))
 
     // create the smart contract
-    console.log('\nSetting up smart contract')
+    console.log('\nSetting up smart contract\n')
 
-    const contract = new Contract(CONTRACT_TEXT, multi_sig_identity, Buffer.from('590953aea8a09c51', 'hex'))
+    // A nonce is an optional attribute for a contract.
+    nonce = Buffer.from('590953aea8a09c51', 'hex')
 
-    // TODO: Must be signed by single board member with sufficient votes
-
+    const contract = new Contract(MUTLISIG_CONTRACT, multi_sig_identity, nonce)
     tx = await contract.create(contract_factory, multi_sig_identity, 4000, [board[3].member])
     tx.sign(board[3].member)
-    console.log('starts')
     txs = await api.contracts.submit_signed_tx(tx, tx.signers())
-    console.log('ends')
-    await api.sync([txs]).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
+    await api.sync([txs]).catch(errors => sync_error(errors))
 
     // print the current status of all the tokens
-    console.log('-- BEFORE --')
+    console.log('\n-- BEFORE --\n')
     await print_address_balances(api, contract, [multi_sig_address, address2])
 
     // transfer from one to the other using our newly deployed contract
     const tok_transfer_amount = 200
     const fet_tx_fee = 160
 
-    console.log('Building contract call transaction...')
+    console.log('\nBuilding contract call transaction...')
     const signers = board.map(obj => obj.member)
 
     tx = await contract.action(contract_factory, 'transfer', fet_tx_fee, [multi_sig_address, address2, tok_transfer_amount], signers)
@@ -151,12 +108,8 @@ async function main() {
     })
     txs = await api.contracts.submit_signed_tx(tx, tx.signers())
 
-    await api.sync([txs]).catch(errors => {
-        print_errors(errors)
-        throw new Error()
-    })
-
-    console.log('-- AFTER --')
+    await api.sync([txs]).catch(errors => sync_error(errors))
+    console.log('\n-- AFTER --\n')
     await print_address_balances(api, contract, [multi_sig_address, address2])
 }
 

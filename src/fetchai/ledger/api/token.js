@@ -7,13 +7,12 @@ import {BN} from 'bn.js'
 import assert from 'assert'
 
 /**
- * if number is not Big Number instance converts to BN, or throws if int passed is too large or small throw.
+ * If number is not Big Number instance converts to BN, or throws if int passed is too large or small throw.
  *
  * @param num
  * @returns {BN}
  */
 const convert_number = (num) => {
-
     // currently only support BN.js or number
     if (typeof num !== 'number' && !BN.isBN(num)) {
         throw new ValidationError(`${num} is must be instance of BN.js or an Integer`)
@@ -74,10 +73,9 @@ export class TokenApi extends ApiEndpoint {
     }
 
     /**
-     *   :param address: The base58 encoded string containing the address of the node
-     :return: The balance value retried
-     :raises: ApiError on any failures
-     Query the stake for a given address from the remote node
+     *
+     * @param address
+     * @returns {Promise<BN|BN.props>}
      */
     async stake(address) {
         // convert the input to an address
@@ -112,7 +110,6 @@ export class TokenApi extends ApiEndpoint {
         // convert the input to an address
         address = new Address(address)
 
-        // format and make the request
         const request = {
             'address': address.toString()
         }
@@ -126,7 +123,7 @@ export class TokenApi extends ApiEndpoint {
         if (!('cooldownStake' in data)) {
             throw new ApiError('Malformed response from server')
         }
-        // return the result
+
         return data
     }
 
@@ -152,6 +149,7 @@ export class TokenApi extends ApiEndpoint {
 
     /**
      * Transfers FET from one account to another account.
+     *
      * @param {Object} entity Entity bytes of the private key of the source address.
      * @param {Object} to to bytes of the targeted address to send funds to.
      * @param {Number} amount amount of funds being transferred.
@@ -166,9 +164,6 @@ export class TokenApi extends ApiEndpoint {
 
         const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
         await this.set_validity_period(tx)
-
-        // encode and sign the transaction
-
         if (signatories == null) {
             signatories = [entity]
         }
@@ -289,8 +284,8 @@ export class TokenTxFactory extends TransactionFactory {
         }
 
         const encoded = JSON.stringify({
-            address: entity.public_key_base64(), //base64 encoded public key
-            amount: amount
+            address: entity.public_key_base64(),
+            amount: amount.toNumber()
         })
 
         tx.data(encoded)
@@ -312,7 +307,7 @@ export class TokenTxFactory extends TransactionFactory {
         // format the transaction payload
         tx.data(JSON.stringify({
             'address': entity.public_key_base64(),
-            'amount': amount
+            'amount': amount.toNumber()
         }))
 
         return tx

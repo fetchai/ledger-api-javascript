@@ -153,7 +153,6 @@ const encode_payload = payload => {
     }
 
     // write all the signers public keys
-
     payload._signers.forEach((v, k) => {
         buffer = identity.encode_identity(
             buffer,
@@ -163,16 +162,6 @@ const encode_payload = payload => {
             )
         )
     })
-
-    // for (let signer of Object.keys(payload._signers)) {
-    //     buffer = identity.encode_identity(
-    //         buffer,
-    //         Buffer.from(
-    //             signer,
-    //             'hex'
-    //         )
-    //     )
-    // }
     logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
     return buffer
 }
@@ -188,7 +177,6 @@ const encode_multisig_transaction = (payload, signatures) => {
     //for(let key in signers){
     signers.forEach((v, k) => {
         if (signatures.has(k) && typeof signatures.get(k).signature !== 'undefined') {
-            console.log('STEPPED')
             buffer = encode_bytearray(buffer, signatures.get(k).signature)
         }
     })
