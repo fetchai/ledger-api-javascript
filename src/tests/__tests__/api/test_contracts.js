@@ -2,7 +2,7 @@ import {DEFAULT_PORT, LOCAL_HOST} from '../../utils/helpers'
 import {ContractsApi} from '../../../fetchai/ledger/api/contracts'
 import {Address} from '../../../fetchai/ledger/crypto/address'
 import {Entity} from '../../../fetchai/ledger/crypto/entity'
-import {LedgerApi} from '../../../fetchai/ledger/api'
+import {LedgerApi, TransactionFactory} from '../../../fetchai/ledger/api'
 import {Contract} from '../../../fetchai/ledger/contract'
 import {TRANSFER_CONTRACT} from '../../../contracts'
 import axios from 'axios'
@@ -19,7 +19,7 @@ const [ENTITIES, ADDRESSES] = (() => {
 
 
 const NONCE = (() => {
-    Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')
+    return Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')
 })()
 
 
@@ -31,16 +31,13 @@ describe(':ContractsApi', () => {
 
     test('test create', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
-        const tx = await api.tokens.wealth(ENTITIES[0], 10000)
-        await api.sync([tx])
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
         const created = await contract.create(api, ENTITIES[0], 4000)
-
         expect(created).toHaveProperty('txs')
-        expect(axios).toHaveBeenCalledTimes(5)
+        expect(axios).toHaveBeenCalledTimes(2)
         const promise_sync = await api.sync(JSON.parse('[{"txs":["bbc6e88d647ab41923216cdaaba8cdd01f42e953c6583e59179d9b32f52f5777"],"counts":{"received":1,"submitted":1}}]'))
         await expect(promise_sync).toBe(true)
-        expect(axios).toHaveBeenCalledTimes(6)
+        expect(axios).toHaveBeenCalledTimes(4)
     })
 
     test('test query', async () => {
@@ -91,12 +88,11 @@ describe(':ContractsApi', () => {
     })
 
     test('test message pack encode', async () => {
-        const api = new ContractsApi(LOCAL_HOST, DEFAULT_PORT)
         const args = []
         args.push(new Address('2J8wzPaBFRc2CtdRLkhRG5488HfrpkET8a5aHArmL5dLqvm7ED'))
         args.push(new Address('2X5fnrS8gM92BcnLp8mUTpp8LYGQx9wxyRLo6zHokBAMHMrMgL'))
         args.push(200)
-        const actual = api._encode_msgpack_payload(args)
+        const actual = TransactionFactory.encode_msgpack_payload(args)
         // we compare as hex
         const actual_hex = Buffer.from(actual).toString('hex')
         const expected = Buffer.from('93c7204daa9b9ae48c1cc64c009e8055b38da18620edc70988b19f4c183ce82863f4122ac7204dc7ff5ef50909f23694849efb8f745483456ccf227885b6285a8c96dfe5e1524cccc8', 'hex')

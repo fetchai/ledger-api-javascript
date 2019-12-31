@@ -2,7 +2,7 @@ import * as  fs from 'fs'
 import assert from 'assert'
 import {Address} from './crypto/address'
 import {BitVector} from './bitvector'
-import {ContractsApi} from './api/contracts'
+import {ContractTxFactory} from './api/contracts'
 import {createHash, randomBytes} from 'crypto'
 import {default as atob} from 'atob'
 import {default as btoa} from 'btoa'
@@ -11,7 +11,7 @@ import {logger} from './utils'
 import {RunTimeError} from './errors'
 
 
-const _compute_digest = (source) => {
+const compute_digest = (source) => {
     const hash_func = createHash('sha256')
     hash_func.update(source)
     const digest = hash_func.digest()
@@ -32,10 +32,11 @@ export class Contract {
     constructor(source, owner, nonce = null) {
         assert(typeof source === 'string')
         this._source = source
-        this._digest = _compute_digest(source)
+        this._digest = compute_digest(source)
         this._owner = new Address(owner)
         this._nonce = nonce || randomBytes(8)
         this._address = new Address(calc_address(this._owner, this._nonce))
+        console.log('address is : ' + this._address)
         //TODO add etch parser
         //this._parser = new EtchParser(this._source)
         //TODO get rest of this constructor when we add etch parser
@@ -64,20 +65,20 @@ export class Contract {
     }
 
     dumps() {
-        return JSON.stringify(this._to_json_object())
+        return JSON.stringify(this.to_json_object())
     }
 
     dump(fp) {
-        fs.writeFileSync(fp, JSON.stringify(this._to_json_object()))
+        fs.writeFileSync(fp, JSON.stringify(this.to_json_object()))
     }
 
     static loads(s) {
-        return Contract._from_json_object(JSON.parse(s))
+        return Contract.from_json_object(JSON.parse(s))
     }
 
     static load(fp) {
         const obj = JSON.parse(fs.readFileSync(fp, 'utf8'))
-        return Contract._from_json_object(obj)
+        return Contract.from_json_object(obj)
     }
 
     nonce() {
@@ -92,7 +93,7 @@ export class Contract {
         return this._address
     }
 
-    async create(api, owner, fee) {
+    async create(api, owner, fee, signers = null) {
         this.owner(owner)
 
         if (this._init === null) {
@@ -108,7 +109,7 @@ export class Contract {
             logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
             shard_mask = new BitVector()
         }
-        return Contract._api(api).create(owner, fee, this, shard_mask)
+        return Contract.api(api).create(owner, fee, this, signers, shard_mask)
     }
 
     async query(api, name, data) {
@@ -120,7 +121,7 @@ export class Contract {
         // if(!this.queries.contains(name)){
         //     throw new RunTimeError(name + ' is not an valid query name. Valid options are: ' + this.queries.join(','))
         // }
-        const [success, response] = await Contract._api(api).query(this._digest, this._address, name, data)
+        const [success, response] = await Contract.api(api).query(this._address, name, data)
 
         if (!success) {
             if (response !== null && 'msg' in response) {
@@ -132,7 +133,7 @@ export class Contract {
         return response['result']
     }
 
-    async action(api, name, fee, signers, args) {
+    async action(api, name, fee, args, signers = null) {
         // verify if we are used undefined
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any actions. Did you deploy it?')
@@ -154,12 +155,15 @@ export class Contract {
             logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
             shard_mask = new BitVector()
         }
-        return Contract._api(api).action(this._digest, this._address, name, fee, this._owner, signers, args, shard_mask)
+
+        const from_address = (signers.length == 1) ? signers[0] : new Address(this._owner)
+
+        return Contract.api(api).action(this._address, name, fee, from_address, args, signers, shard_mask)
     }
 
 
-    static _api(ContractsApiLike) {
-        if (ContractsApiLike instanceof ContractsApi) {
+    static api(ContractsApiLike) {
+        if (ContractsApiLike instanceof ContractTxFactory) {
             return ContractsApiLike
         } else if (ContractsApiLike instanceof LedgerApi) {
             return ContractsApiLike.contracts
@@ -168,7 +172,7 @@ export class Contract {
         }
     }
 
-    static _from_json_object(obj) {
+    static from_json_object(obj) {
         assert(obj['version'] === 1)
         const source = atob(obj.source)
         const owner = obj['owner']
@@ -179,7 +183,7 @@ export class Contract {
             nonce)
     }
 
-    _to_json_object() {
+    to_json_object() {
         return {
             'version': 1,
             'owner': this._owner.toString(), // None if self._owner is None else str(self._owner),

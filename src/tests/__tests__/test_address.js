@@ -41,6 +41,13 @@ describe(':Address', () => {
         }).toThrow(ValidationError)
     })
 
+    test('test invalid length string on is_address', () => {
+        const invalid_string = Buffer.from('rand')
+        const bs58_encoded = bs58.encode(invalid_string)
+        const valid = Address.is_address(bs58_encoded)
+        expect(valid).toBe(false)
+    })
+
     test('test invalid length string', () => {
         const invalid_string = Buffer.from('rand')
         const bs58_encoded = bs58.encode(invalid_string)
@@ -53,6 +60,22 @@ describe(':Address', () => {
         expect(() => {
             new Address(99)
         }).toThrow(ValidationError)
+    })
+
+    // test is_address
+    test('test invalid type is_address', () => {
+        const valid = Address.is_address(99)
+        expect(valid).toBe(false)
+    })
+
+    test('test valid display string with is_address', () => {
+        const valid = Address.is_address('nLYsNsbFGDgcGJa3e7xn2V82fnpaGZVSuJUHCkeY9Cm6SfEyG')
+        expect(valid).toBe(true)
+    })
+
+    test('test invalid valid display string with is_address', () => {
+        const valid = Address.is_address('nLYssssNsbFGDgcGJa3e7xn2V82fnpaGZVSuJUHCkeY9Cm6SfEyG')
+        expect(valid).toBe(false)
     })
 
     test('test hex display', () => {
@@ -78,7 +101,6 @@ describe(':Address', () => {
         expect(() => {
             new Address(Buffer.from(bs58invalid))
         }).toThrow(ValidationError)
-
     })
 
     test('test hardcoded addresses', () => {

@@ -4,8 +4,8 @@ import {Address} from '../crypto/address'
 import {BN} from 'bn.js'
 import {ApiEndpoint} from './common'
 
-const SUCCESSFUL_TERMINAL_STATES = ('Executed', 'Submitted')
-const NON_TERMINAL_STATES = ('Unknown', 'Pending')
+const SUCCESSFUL_TERMINAL_STATES = ['Executed', 'Submitted']
+const NON_TERMINAL_STATES = ['Unknown', 'Pending']
 
 /*
 takes an array and turns it into an object, setting the to field and the amount field.
@@ -28,6 +28,14 @@ export class TxStatus {
         this.fee = new BN(fee)
     }
 
+    get_status() {
+        return this.status
+    }
+
+    get_exit_code() {
+        return this.exit_code
+    }
+
     successful() {
         return SUCCESSFUL_TERMINAL_STATES.includes(this.status)
     }
@@ -37,11 +45,16 @@ export class TxStatus {
             !SUCCESSFUL_TERMINAL_STATES.includes(this.status))
     }
 
-    digest_hex() {
+    non_terminal() {
+        return NON_TERMINAL_STATES.includes(this.status)
+    }
+
+
+    get_digest_hex() {
         return this.digest_hex
     }
 
-    digest_bytes() {
+    get_digest_bytes() {
         return this.digest_bytes
     }
 }
@@ -52,7 +65,6 @@ export class TxContents {
         action,
         chain_code,
         from_address,
-        contract_digest,
         contract_address,
         valid_from,
         valid_until,
@@ -67,7 +79,6 @@ export class TxContents {
         this.action = action
         this.chain_code = chain_code
         this.from_address = new Address(from_address)
-        this.contract_digest = (contract_digest) ? contract_digest : null
         this.contract_address = (contract_address) ? new Address(contract_address) : null
         this.valid_from = valid_from
         this.valid_until = valid_until
@@ -105,7 +116,6 @@ export class TxContents {
             data.action,
             data.chainCode,
             data.from,
-            data.contractDigest,
             data.contractAddress,
             data.validFrom,
             data.validUntil,

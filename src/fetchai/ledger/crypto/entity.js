@@ -103,50 +103,47 @@ export class Entity extends Identity {
         return new Entity(private_key_bytes)
     }
 
-    // static prompt_load(fp, password) {
-    //     if (!Entity._strong_password(password)) {
-    //         throw new ValidationError(
-    //             'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
-    //         )
-    //     }
-    //     return Entity.load(fp, password)
-    // }
-
-    static loads(s) {
-        const obj = JSON.parse(s)
-        return Entity.from_base64(obj.privateKey)
+    static async loads(s, password) {
+        let obj = JSON.parse(s)
+        return await Entity.from_json_object(obj, password)
     }
 
-    static load(fp, password) {
-        if (!Entity._strong_password(password)) {
+    static async load(fp, password) {
+        if (!Entity.strong_password(password)) {
             throw new ValidationError(
                 'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
             )
         }
-        let obj = JSON.parse(fs.readFileSync(fp, 'utf8'))
-        return Entity._from_json_object(obj, password)
+        const x = fs.readFileSync(fp, 'utf8')
+        let obj = JSON.parse(x)
+        return await Entity.from_json_object(obj, password)
     }
 
-    prompt_dump(fp, password) {
+   async prompt_dump(fp, password) {
         // let password = readline.question('Please enter password ')
-        if (!Entity._strong_password(password)) {
+        if (!Entity.strong_password(password)) {
             throw new ValidationError(
                 'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
             )
         }
-        return this.dump(fp, password)
+
+        return await this.dump(fp, password)
     }
 
-    dumps(password) {
-        return JSON.stringify(this._to_json_object(password))
+    async dumps(password) {
+        const json_object = await this.to_json_object(password)
+        return await JSON.stringify(json_object)
     }
 
-    dump(fp, password) {
-        return JSON.stringify(this._to_json_object(password), fp)
+    async dump(fp, password) {
+        debugger;
+        const json_object = await this.to_json_object(password)
+        debugger;
+        fs.writeFileSync(fp, JSON.stringify(json_object))
     }
 
-    async _to_json_object(password) {
-        let data = await this._encrypt(password, this.privKey)
+    async to_json_object(password) {
+        let data = await this.encrypt(password, this.privKey)
         return {
             key_length: data.key_length,
             init_vector: data.init_vector.toString('base64'),
@@ -155,8 +152,9 @@ export class Entity extends Identity {
         }
     }
 
-    static async _from_json_object(obj, password) {
-        const private_key = await Entity._decrypt(
+
+    static async from_json_object(obj, password) {
+        const private_key = await Entity.decrypt(
             password,
             Buffer.from(obj.password_salt, 'base64'),
             Buffer.from(obj.privateKey, 'base64'),
@@ -172,7 +170,7 @@ export class Entity extends Identity {
      * @returns encrypted data, length of original data, initialization vector for aes, password hashing salt
      * @ignore
      */
-    async _encrypt(password, data) {
+    async encrypt(password, data) {
         // Generate hash from password
         const salt = randomBytes(16)
 
@@ -204,7 +202,6 @@ export class Entity extends Identity {
             ])
             data = data.slice(16)
         }
-
         return {
             key_length: n,
             init_vector: iv,
@@ -223,7 +220,7 @@ export class Entity extends Identity {
      * @returns decrypted data as plaintext
      * @ignore
      */
-    static async _decrypt(password, salt, data, n, iv) {
+    static async decrypt(password, salt, data, n, iv) {
         const promisified_pbkdf2 = promisify(pbkdf2)
 
         let hashed_pass
@@ -256,35 +253,24 @@ export class Entity extends Identity {
      * @returns {Boolean} True if password is strong
      * @ignore
      */
-    static _strong_password(password) {
+    static strong_password(password) {
         if (password.length < 14) {
-            console.error(
-                'Please enter a password at least 14 characters long'
-            )
             return false
         }
 
         if (password.match('[a-z]+') === null) {
-            console.error(
-                'Password must contain at least one lower case character'
-            )
             return false
         }
 
         if (password.match('[A-Z]+') === null) {
-            console.error(
-                'Password must contain at least one upper case character'
-            )
             return false
         }
 
         if (password.match('[0-9]+') === null) {
-            console.error('Password must contain at least one number')
             return false
         }
 
         if (password.match('[@_!#$%^&*()<>?/\\|}{~:]') === null) {
-            console.error('Password must contain at least one symbol')
             return false
         }
         return true

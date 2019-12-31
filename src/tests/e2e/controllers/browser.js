@@ -13,7 +13,6 @@ const DEFAULT_TIMEOUT = 120000
 
 async function main() {
     await test_balance()
-    await test_wealth()
     await test_transfer()
     await test_server()
     await test_contract()
@@ -58,7 +57,6 @@ async function test_server() {
     const [uri, port] = await poll(driver, 'SERVER')
     Assert.assert(uri.includes('.fetch-ai.com') && port === 443)
     logger.info('test_server passed')
-
 }
 
 async function test_transfer() {
@@ -71,16 +69,6 @@ async function test_transfer() {
     const res2 = await poll(driver, 'BALANCE2')
     Assert.assert_equal(res2, 250)
     logger.info('test_transfer passed')
-}
-
-async function test_wealth() {
-    const driver = get_driver()
-    const script = get_script('wealth')
-    await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
-    await driver.executeScript(script)
-    const wealth = await poll(driver, 'WEALTH')
-    Assert.assert_equal(wealth, 1000)
-    logger.info('test_wealth passed')
 }
 
 

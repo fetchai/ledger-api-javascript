@@ -3,11 +3,16 @@ import {ApiError} from '../errors'
 import {BN} from 'bn.js'
 import {logger} from '../utils'
 import {Transaction} from '../transaction'
+import assert from 'assert'
+import {encode, ExtensionCodec} from '@msgpack/msgpack'
+import {Address} from '../crypto'
+import {BitVector} from '../bitvector'
+import {encode_multisig_transaction} from '../serialization/transaction'
 
 function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
     let canonical_name, url
 
-    if (endpoint === null) {
+    if (endpoint === null || endpoint === '') {
         url = `${protocol}://${host}:${port}/api/contract/submit`
     } else {
         if (prefix == null) {
@@ -27,7 +32,7 @@ function format_contract_url(host, port, prefix = null, endpoint = null, protoco
  * @class
  */
 export class ApiEndpoint {
-    constructor(host, port) {
+    constructor(host, port, api) {
         logger.info(
             `Creating new api endpoint object with host:${host} and port:${port}`
         )
@@ -43,7 +48,8 @@ export class ApiEndpoint {
         this.prefix = 'fetch/token'
         this._host = host
         this._port = port
-        this.default_block_validity_period = 100
+        this.DEFAULT_BLOCK_VALIDITY_PERIOD = 100
+        this.parent_api = api
     }
 
     protocol() {
@@ -67,11 +73,12 @@ export class ApiEndpoint {
      * @param  {data} data for request body.
      * @param  {prefix} prefix of the url.
      */
-    async _post_json(endpoint, data = {}, prefix = this.prefix) {
+    async post_json(endpoint, data = {}, prefix = this.prefix) {
         // format and make the request
         //  let url = `http://${this._host}:${this._port}/api/contract/${prefix}/${endpoint}`
         const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
         // define the request headers
+
         let request_headers = {
             'Content-Type': 'application/json; charset=utf-8'
         }
@@ -110,11 +117,11 @@ export class ApiEndpoint {
 
     async create_skeleton_tx(fee, validity_period = null) {
         if (!validity_period) {
-            validity_period = this.default_block_validity_period
+            validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
         }
 
         // query what the current block number is on the node
-        let current_block = await this._current_block_number()
+        let current_block = await this.current_block_number()
         if (current_block < 0) {
             throw new ApiError('Unable to query current block number')
         }
@@ -127,7 +134,36 @@ export class ApiEndpoint {
         return tx
     }
 
-    async _current_block_number() {
+    async submit_signed_tx(tx, signatures) {
+        // """
+        // Appends signatures to a transaction and submits it, returning the transaction digest
+        // :param tx: A pre-assembled transaction
+        // :param signatures: A dict of signers signatures
+        // :return: The digest of the submitted transaction
+        // :raises: ApiError on any failures
+        // """
+        // Encode transaction and append signatures
+        const encoded_tx = encode_multisig_transaction(tx, signatures)
+        // Submit and return digest
+        const res = await this.post_tx_json(encoded_tx, tx.action())
+        return res
+    }
+
+    // tx is transaction
+    async set_validity_period(tx, validity_period = null) {
+        if (!validity_period) {
+            validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
+        }
+
+        // query what the current block number is on the node
+        const current_block = await this.current_block_number()
+
+        tx.valid_until(new BN(current_block + validity_period))
+
+        return tx.valid_until()
+    }
+
+    async current_block_number() {
         let response = await this._get_json('status/chain', {size: 1})
         let block_number = -1
         if (response) {
@@ -162,7 +198,7 @@ export class ApiEndpoint {
         return null
     }
 
-    async _post_tx_json(tx_data, endpoint) {
+    async post_tx_json(tx_data, endpoint) {
         let request_headers = {
             'content-type': 'application/vnd+fetch.transaction+json'
         }
@@ -171,6 +207,8 @@ export class ApiEndpoint {
             ver: '1.2',
             data: tx_data.toString('base64')
         }
+
+
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
         // make the request
@@ -188,12 +226,52 @@ export class ApiEndpoint {
 
         if (200 <= resp.status < 300) {
             logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
-            return await resp.data
+            return resp.data
         }
         return null
     }
+}
 
-    _encode_json(obj) {
-        return Buffer.from(JSON.stringify(obj), 'ascii')
+export class TransactionFactory {
+    //python API_PREFIX = None
+
+    constructor() {
+
+    }
+
+
+    static create_skeleton_tx(fee) {
+        // build up the basic transaction information
+        const tx = new Transaction()
+        tx.charge_rate(new BN(1))
+        tx.charge_limit(new BN(fee))
+        return tx
+    }
+
+    static create_action_tx(fee, entity, action, prefix, shard_mask = null) {
+        const mask = (shard_mask === null) ? new BitVector() : shard_mask
+        const tx = TransactionFactory.create_skeleton_tx(fee)
+        tx.from_address(new Address(entity))
+        console.log('this.prefix is : ' + prefix)
+
+        tx.target_chain_code(prefix, mask)
+        tx.action(action)
+        return tx
+    }
+
+    static encode_msgpack_payload(args) {
+        assert(Array.isArray(args))
+        const extensionCodec = new ExtensionCodec()
+        extensionCodec.register({
+            type: 77,
+            encode: object => {
+                if (object instanceof Address) {
+                    return object.toBytes()
+                } else {
+                    return null
+                }
+            }
+        })
+        return encode(args, {extensionCodec})
     }
 }

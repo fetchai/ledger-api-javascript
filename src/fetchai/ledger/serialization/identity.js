@@ -9,7 +9,7 @@ const UNCOMPRESSED_SCEP256K1_PUBLIC_KEY_LEN = 64
 
 const encode_identity = (buffer, value) => {
     if (value instanceof Identity) {
-        return Buffer.concat([buffer, Buffer.from([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]), Identity.public_key_bytes])
+        return Buffer.concat([buffer, Buffer.from([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]), value.public_key()])
     } else {
         return Buffer.concat([buffer, Buffer.from([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]), value])
     }
@@ -27,7 +27,7 @@ const decode_identity = (buffer) => {
     const len = UNCOMPRESSED_SCEP256K1_PUBLIC_KEY_LEN + 1
     const ret = buffer.slice(1, len)
     buffer = buffer.slice(len)
-    return [ret, buffer]
+    return [new Identity(ret), buffer]
 }
 
 export {encode_identity, decode_identity}

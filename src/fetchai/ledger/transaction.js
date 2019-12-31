@@ -2,8 +2,29 @@ import {BitVector} from './bitvector'
 import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
 import {BN} from 'bn.js'
+import {logger} from './utils'
 import assert from 'assert'
-import {randomBytes} from 'crypto'
+import {createHash} from 'crypto'
+import * as identity from './serialization/identity'
+import * as bytearray from './serialization/bytearray'
+import {
+    decode_integer,
+    decode_payload,
+    decode_transaction,
+    encode_bytearray,
+    encode_identity,
+    encode_payload
+} from './serialization'
+import * as integer from './serialization/integer'
+import {RunTimeError} from './errors'
+
+
+function calc_digest(address_raw) {
+    const hash_func = createHash('sha256')
+    hash_func.update(address_raw)
+    const digest = hash_func.digest()
+    return digest
+}
 
 /**
  * This class for Transactions related operations
@@ -14,14 +35,13 @@ import {randomBytes} from 'crypto'
 export class Transaction {
     constructor() {
         this._from = ''
-        this._transfers = {}
+        this._transfers = []
         this._valid_from = new BN(0)
         this._valid_until = new BN(0)
         this._charge_rate = new BN(0)
         this._charge_limit = new BN(0)
-        this._contract_digest = ''
         this._contract_address = ''
-        this._counter = new BN(randomBytes(8))
+        this._counter = new BN(Buffer.from('EE86419F0178ACAE', 'hex'))
         this._chain_code = ''
         this._shard_mask = new BitVector() // BitVector class instance
         this._action = ''
@@ -29,7 +49,7 @@ export class Transaction {
             synergetic_data_submission: false
         }
         this._data = ''
-        this._signers = {}
+        this._signers = new Map()
     }
 
     // Get and Set from_address param
@@ -43,18 +63,6 @@ export class Transaction {
 
     transfers() {
         return this._transfers
-    }
-
-    /**
-     * NOT IN PYTHON
-     */
-    set_transfer(address, amount = new BN(0)) {
-        assert(BN.isBN(amount))
-
-        if (address instanceof Address) {
-            address = address.toHex()
-        }
-        return this._transfers[address] = amount
     }
 
     // Get and Set valid_from param
@@ -97,16 +105,12 @@ export class Transaction {
         return this._charge_limit
     }
 
-    // Get contract_digest param
-    contract_digest() {
-        return this._contract_digest
-    }
-
     // Get contract_address param
     contract_address() {
         return this._contract_address
     }
 
+    // getter and setter
     counter(counter = null) {
         if (counter === null) return this._counter
         assert(BN.isBN(counter))
@@ -142,6 +146,38 @@ export class Transaction {
         return this._data
     }
 
+    compare(other) {
+        const x = this.payload().toString('hex')
+        const y = other.payload().toString('hex')
+        if (x !== y) {
+
+            return false
+        } else {
+            return true
+        }
+    }
+
+    payload() {
+        const buffer = encode_payload(this)
+        // so to get running lets just do like hex or whatever since only used to compare but then actually get same as python and delete this comment at later stage.
+        return buffer
+    }
+
+    static from_payload(payload) {
+        let [tx, buffer] = decode_payload(payload)
+
+        return [tx, buffer]
+    }
+
+    static from_encoded(encoded_transaction) {
+        const [success, tx] = decode_transaction(encoded_transaction)
+        if (success) {
+            return tx
+        } else {
+            return null
+        }
+    }
+
     // Get signers param.
     signers() {
         return this._signers
@@ -150,30 +186,19 @@ export class Transaction {
     add_transfer(address, amount) {
         assert(BN.isBN(amount))
         assert(amount.gtn(new BN(0)))
-
         // if it is an identity we turn it into an address
-        if (address instanceof Identity) {
-            address = new Address(address)
-        }
-
-        if (address instanceof Address) {
-            address = address.toHex()
-        }
-
-        let current = (this._transfers[address]) ? this._transfers[address] : new BN(0)
-
-        this._transfers[address] = current.add(amount)
+        address = new Address(address)
+        address = address.toHex()
+        this._transfers.push({address: address, amount: new BN(amount)})
     }
 
-    target_contract(digest, address, mask) {
-        this._contract_digest = new Address(digest)
+    target_contract(address, mask) {
         this._contract_address = new Address(address)
         this._shard_mask = new BitVector(mask)
         this._chain_code = ''
     }
 
     target_chain_code(chain_code_id, mask) {
-        this._contract_digest = ''
         this._contract_address = ''
         this._shard_mask = new BitVector(mask)
         this._chain_code = String(chain_code_id)
@@ -189,8 +214,88 @@ export class Transaction {
     }
 
     add_signer(signer) {
-        if (!(signer in this._signers)) {
-            this._signers[signer] = '' // will be replaced with a signature in the future
+        if (!(this._signers.has(signer))) {
+            this._signers.set(signer, '') // will be replaced with a signature in the future
         }
+    }
+
+    sign(signer) {
+        if (this._signers.has(signer.public_key_hex())) {
+            const payload_digest = calc_digest(this.payload())
+            const sign_obj = signer.sign(payload_digest)
+            this._signers.set(signer.public_key_hex(), {
+                'signature': sign_obj.signature,
+                'verified': signer.verify(payload_digest, sign_obj.signature)
+            })
+        }
+    }
+
+    merge_signatures(tx2) {
+        if (this.compare(tx2)) {
+
+            const signers = tx2.signers()
+            // for (let key in signers) {
+            signers.forEach((v, k) => {
+                if (signers.has(k) && typeof signers.get(k).signature !== 'undefined') {
+                    const s = signers.get(k)
+                    this._signers.set(k, s)
+                }
+            })
+
+        } else {
+            console.log('Attempting to combine transactions with different payloads')
+            logger.info('Attempting to combine transactions with different payloads')
+            return null
+        }
+    }
+
+    encode_partial() {
+
+        let buffer = encode_payload(this)
+        let num_signed = 0
+
+        this._signers.forEach((v) => {
+            if (typeof v.signature !== 'undefined') num_signed++
+        })
+
+        buffer = integer.encode_integer(buffer, new BN(num_signed))
+        this._signers.forEach((v, k) => {
+            if (typeof v.signature !== 'undefined') {
+                let buff = Buffer.from(k, 'hex')
+                let test = new Identity(buff)
+                buffer = encode_identity(buffer, test)
+                buffer = encode_bytearray(buffer, v.signature)
+            }
+        })
+        return buffer
+    }
+
+    static decode_partial(buffer) {
+        let tx;
+        [tx, buffer] = decode_payload(buffer)
+        let num_sigs;
+        [num_sigs, buffer] = decode_integer(buffer)
+        const payload_digest = calc_digest(tx.payload())
+
+        for (let i = 0; i < num_sigs.toNumber(); i++) {
+            let signer;
+            [signer, buffer] = identity.decode_identity(buffer)
+            let signature;
+
+            [signature, buffer] = bytearray.decode_bytearray(buffer)
+            signature = Buffer.from(signature)
+
+            tx._signers.set(signer.public_key_hex(), {
+                'signature': signature,
+                'verified': signer.verify(payload_digest, signature)
+            })
+        }
+
+        tx.signers().forEach((v) => {
+            if (v.verified && !v.verified) {
+                throw new RunTimeError('Not all keys were able to sign successfully')
+            }
+        })
+        return tx
     }
 }
