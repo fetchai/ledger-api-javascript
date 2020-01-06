@@ -196,6 +196,14 @@ export class ApiEndpoint {
         return null
     }
 
+    /**
+     * Submits a transaction to the a ledger endpoint
+     *
+     * @param tx_data
+     * @param endpoint
+     * @returns {Promise<null|*>} Promise resolves to the hexadecimal digest of the submitted transaction
+     */
+
     async post_tx_json(tx_data, endpoint) {
         let request_headers = {
             'content-type': 'application/vnd+fetch.transaction+json'
@@ -223,20 +231,17 @@ export class ApiEndpoint {
         }
 
         if (200 <= resp.status < 300) {
+
+            //TODO WHY DOES ED CHECK in python that there is a hash, else there is no return.
+            //TODO confirm that is as intended.
             logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
-            return resp.data
+            return resp.data.txs[0]
         }
         return null
     }
 }
 
 export class TransactionFactory {
-    //python API_PREFIX = None
-
-    constructor() {
-
-    }
-
 
     static create_skeleton_tx(fee) {
         // build up the basic transaction information

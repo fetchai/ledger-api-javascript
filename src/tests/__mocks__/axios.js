@@ -24,13 +24,13 @@ function create() {
 function stake() {
     return [
         JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/addStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoATKAC2ZldGNoLnRva2VuCGFkZFN0YWtldHsiYWRkcmVzcyI6IkdNS2pPdmk5TExwL3B4U29RS01Jb2hlcVJJT0lDeDd4UzAvZi9naXJsVzQvUzVJYzdETytmQ1dNL1hBbG9ybXBRbmNPV3hkMWk4eEpZYnZjZGFBbEhBPT0iLCJhbW91bnQiOjEwMDB97oZBnwF4rK4EGMKjOvi9LLp/pxSoQKMIoheqRIOICx7xS0/f/girlW4/S5Ic7DO+fCWM/XAlormpQncOWxd1i8xJYbvcdaAlHEA3UZ6Q4iklaWDRrkZxEvVWLqT0dfYCaGXYRjBX55XAjEswudIl/XRtak+2zTUNrw0NsKyAxCLf1/ayRhIQ+WTd"},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
-        JSON.parse('{"data": {"stake": 500}}')]
+        JSON.parse('{"status": 200, "data": {"txs":["68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516"]}}')]
 }
 
 function collect_stake() {
     return [
         JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/collectStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoAcEBLIALZmV0Y2gudG9rZW4MY29sbGVjdFN0YWtlAO6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxACRV31mXnLHFceJxfpn1KFZBdnDYlPeAB/CaquVwb+Wkia81pLKF5nV/36Fm7+wJoIbrs13eLeAvko22Wx1v6Fg=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
-        JSON.parse('{"data": {"stake": 500}}')]
+        JSON.parse('{"status": 200, "data": {"txs":["68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516"]}}')]
 }
 
 
@@ -43,7 +43,7 @@ function deed() {
 function de_stake() {
     return [
         JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/deStake","data":{"ver":"1.2","data":"oWCAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUwQPoARmAC2ZldGNoLnRva2VuB2RlU3Rha2V2eyJhZGRyZXNzIjoiR01Lak92aTlMTHAvcHhTb1FLTUlvaGVxUklPSUN4N3hTMC9mL2dpcmxXNC9TNUljN0RPK2ZDV00vWEFsb3JtcFFuY09XeGQxaTh4SllidmNkYUFsSEE9PSIsImFtb3VudCI6IjAxMmMife6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxAASw/L8APj4gv7Uz6NKHXGYsOp476agrw4mpGb/tUce9GT318HXMJirZnkk2iwUfzrNomzd+b5CP29LQAbl/1PA=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),
-        (balance_called >= 2) ? JSON.parse('{"data": {"balance": 500}}') : JSON.parse('{"data": {"stake": 500}}')]
+        JSON.parse('{"status": 200, "data": {"txs":["68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516"]}}')]
 }
 
 function stake_cooldown() {

@@ -33,9 +33,9 @@ describe(':ContractsApi', () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
         const created = await contract.create(api, ENTITIES[0], 4000)
-        expect(created).toHaveProperty('txs')
+        expect(created).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')
         expect(axios).toHaveBeenCalledTimes(2)
-        const promise_sync = await api.sync(JSON.parse('[{"txs":["bbc6e88d647ab41923216cdaaba8cdd01f42e953c6583e59179d9b32f52f5777"],"counts":{"received":1,"submitted":1}}]'))
+        const promise_sync = await api.sync('bbc6e88d647ab41923216cdaaba8cdd01f42e953c6583e59179d9b32f52f5777')
         await expect(promise_sync).toBe(true)
         expect(axios).toHaveBeenCalledTimes(4)
     })
@@ -53,7 +53,7 @@ describe(':ContractsApi', () => {
         const fet_tx_fee = 160
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
         const action = await contract.action(api, 'transfer', fet_tx_fee, [ENTITIES[0]], [ADDRESSES[0], ADDRESSES[1], tok_transfer_amount])
-        expect(action).toHaveProperty('txs')
+        expect(action).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')
     })
 
     test('test _encode_json_payload', () => {

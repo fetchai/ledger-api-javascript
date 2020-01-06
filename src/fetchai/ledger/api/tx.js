@@ -9,6 +9,7 @@ const NON_TERMINAL_STATES = ['Unknown', 'Pending']
 
 /*
 takes an array and turns it into an object, setting the to field and the amount field.
+//TODO ASK ED IF THIS OK?, since we want insertion order, which plain objects don't.
  */
 const tx_array_to_object = (array) =>
     array.reduce((obj, item) => {
@@ -178,6 +179,6 @@ export class TransactionApi extends ApiEndpoint {
         if (200 !== resp.status) {
             throw new NetworkUnavailableError('Failed to get contents from txs hash')
         }
-        return resp.data
+        return TxContents.from_json(resp.data)
     }
 }

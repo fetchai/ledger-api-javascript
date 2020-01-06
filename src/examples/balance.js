@@ -10,7 +10,7 @@ async function main() {
     const api = new TokenApi(HOST, PORT)
 
     try {
-        balance = await api.balance('2H7Csuaom7BUrC5YcUgJUExGPnApL8vQ5Wr9yGyzGWpRNqgWiJ')
+        balance = await api.balance('27L4TKQ9Q32HmGTzA32V25xwSjvKoHEPCZG5cMJ41scGTqaSdW')
     } catch (e) {
         throw new RunTimeError('The following error occurred checking the balance: ' + e)
     }

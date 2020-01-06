@@ -54,7 +54,7 @@ export class LedgerApi {
      */
     async sync(txs, timeout = false, hold_state_sec = 0, extend_success_status = []) {
 
-        if (!Array.isArray(txs) || !txs.length) {
+        if (!Array.isArray(txs) && !txs.length) {
             throw new TypeError('Unknown argument type')
         }
 
@@ -153,7 +153,7 @@ export class LedgerApi {
                 if (txs[i] instanceof TxStatus) {
                     tx_status = await this.tx.status(txs[i].get_digest_hex())
                 } else {
-                    tx_status = await this.tx.status(txs[i].txs[0])
+                    tx_status = await this.tx.status(txs[i])
                 }
                 res.push(tx_status)
             } catch (e) {
