@@ -21,7 +21,7 @@ export class Address {
      * @param  {Object|Buffer|String} identity Address object or Buffer or String.
      * @throws {ValidationError} ValidationError on any failures.
      */
-    constructor(identity: string | Address | Identity | Buffer) {
+    constructor(identity: Address ) {
         if (identity instanceof Address) {
             this._address = identity._address
             this._display = identity._display
