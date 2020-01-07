@@ -18,7 +18,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} HOST Ledger host.
      * @param {String} PORT Ledger port.
      */
-    constructor(HOST, PORT, api) {
+    constructor(HOST, PORT, api?) {
         super(HOST, PORT, api)
         // tidy up before submitting
         this.prefix = 'fetch.contract'
@@ -141,6 +141,9 @@ export class ContractsApi extends ApiEndpoint {
 }
 
 export class ContractTxFactory extends TransactionFactory {
+	public api: any;
+	public prefix: any;
+
     constructor(api) {
         super('fetch.contract')
         this.api = api

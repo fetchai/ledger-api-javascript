@@ -17,6 +17,11 @@ const DEFAULT_TIMEOUT = 120000
  * @class
  */
 export class LedgerApi {
+	public tokens: any;
+	public contracts: any;
+	public tx: any;
+	public server: any;
+
     /**
      * @param  {Boolean} host ledger host.
      * @param  {Boolean} port ledger port.

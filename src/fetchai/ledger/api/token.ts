@@ -38,7 +38,7 @@ export class TokenApi extends ApiEndpoint {
      * @param {String} host ledger host
      * @param {Number} port ledger port
      */
-    constructor(host, port, api) {
+    constructor(host, port, api?) {
         logger.info(
             `Creating new Token api object with host:${host} and port:${port}`
         )
@@ -235,6 +235,7 @@ export class TokenApi extends ApiEndpoint {
 }
 
 export class TokenTxFactory extends TransactionFactory {
+	public prefix: any;
 
     constructor() {
         super('fetch.token')

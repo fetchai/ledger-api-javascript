@@ -8,6 +8,9 @@ import reverse from 'buffer-reverse'
  * @class
  */
 export class BitVector {
+	public _size: any;
+	public _byte_size: any;
+	public _buffer: any;
 //TODO add rest of the methods from the python
     constructor(size = null) {
         if (size instanceof BitVector) {
@@ -90,7 +93,7 @@ export class BitVector {
         return this._byte_size
     }
 
-    get(bit) {
+    get(bit?) {
         let byte_index = Math.floor(bit / 8)
         let bit_index = bit & 0x7
         return (this._buffer[byte_index] >> bit_index) & 0x1

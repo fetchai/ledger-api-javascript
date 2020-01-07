@@ -32,6 +32,13 @@ function format_contract_url(host, port, prefix = null, endpoint = null, protoco
  * @class
  */
 export class ApiEndpoint {
+	public _protocol: any;
+	public prefix: any;
+	public _host: any;
+	public _port: any;
+	public DEFAULT_BLOCK_VALIDITY_PERIOD: any;
+	public parent_api: any;
+
     constructor(host, port, api) {
         logger.info(
             `Creating new api endpoint object with host:${host} and port:${port}`

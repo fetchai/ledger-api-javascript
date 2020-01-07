@@ -9,6 +9,8 @@ import {default as btoa} from 'btoa'
  * @class
  */
 export class Identity {
+	public pub_key: any;
+
     /**
      * @param  {Object|Buffer} pub_key Identity object or Buffer
      * @throws {ValidationError} ValidationError if invalid public key or unable to load public key from input

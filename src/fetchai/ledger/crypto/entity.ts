@@ -13,11 +13,14 @@ import {promisify} from 'util'
  * @class
  */
 export class Entity extends Identity {
+	public pubKey: any;
+	public privKey: any;
+
     /**
      * @param  {Buffer} private_key_bytes construct or generate the private key if one is not specified.
      * @throws {ValidationError} ValidationError if unable to load private key from input.
      */
-    constructor(private_key_bytes) {
+    constructor(private_key_bytes?) {
         // construct or generate the private key if one is not specified
         if (private_key_bytes) {
             if (secp256k1.privateKeyVerify(private_key_bytes)) {

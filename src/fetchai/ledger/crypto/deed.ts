@@ -3,7 +3,12 @@ import {Address} from './address'
 import {InvalidDeedError} from '../errors/invalidDeedError'
 
 export class Deed {
-    constructor(address) {
+	public address: any;
+	public signees: any;
+	public thresholds: any;
+	public OPERATIONS: any;
+
+    constructor(address?) {
         this.address = address
         this.signees = []
         this.thresholds = {}

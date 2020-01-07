@@ -18,6 +18,13 @@ const tx_array_to_object = (array) =>
     }, {})
 
 export class TxStatus {
+	public digest_bytes: any;
+	public digest_hex: any;
+	public status: any;
+	public exit_code: any;
+	public charge: any;
+	public charge_rate: any;
+	public fee: any;
 
     constructor(digest, status, exit_code, charge, charge_rate, fee) {
         this.digest_bytes = digest
@@ -61,6 +68,19 @@ export class TxStatus {
 }
 
 export class TxContents {
+	public digest_bytes: any;
+	public digest_hex: any;
+	public action: any;
+	public chain_code: any;
+	public from_address: any;
+	public contract_address: any;
+	public valid_from: any;
+	public valid_until: any;
+	public charge: any;
+	public charge_limit: any;
+	public transfers: any;
+	public signatories: any;
+	public data: any;
 
     constructor(digest,
         action,

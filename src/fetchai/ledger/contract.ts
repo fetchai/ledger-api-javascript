@@ -30,6 +30,12 @@ const calc_address = (owner, nonce) => {
 }
 
 export class Contract {
+	public _source: any;
+	public _digest: any;
+	public _owner: any;
+	public _nonce: any;
+	public _address: any;
+	public _init: any;
 
     constructor(source, owner, nonce = null) {
         assert(typeof source === 'string')

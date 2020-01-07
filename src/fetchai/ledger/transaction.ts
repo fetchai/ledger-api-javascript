@@ -33,6 +33,21 @@ function calc_digest(address_raw) {
  * @class
  */
 export class Transaction {
+	public _from: any;
+	public _transfers: any;
+	public _valid_from: any;
+	public _valid_until: any;
+	public _charge_rate: any;
+	public _charge_limit: any;
+	public _contract_address: any;
+	public _counter: any;
+	public _chain_code: any;
+	public _shard_mask: any;
+	public _action: any;
+	public _metadata: any;
+	public _data: any;
+	public _signers: any;
+
     constructor() {
         this._from = ''
         this._transfers = []
