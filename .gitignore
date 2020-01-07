@@ -14,5 +14,4 @@ fetchai-ledger-api.js
 # Top Level Excludes
 app.js
 input1.json
-index.js
 *.key
