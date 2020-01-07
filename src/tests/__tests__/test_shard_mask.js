@@ -10,7 +10,7 @@ describe(':Test ShardMask', () => {
         const nonce = calc_digest('random').slice(0, 8)
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], nonce)
         const address = ShardMask.state_to_address('xyz', contract)
-        expect(address).toEqual('wUtQ9Bhg1pdLVcZJPuX5zC3WoLnKW8nX6iAVp45wDYn9v1vib.dcgBKQnx4i3ayLbqcqstt4kSHNfDC4Am9TgyhF4RimY1eNHTP.state.xyz')
+        expect(address).toEqual('2p192tJM2ySFt2P4pC7HL5YSKMgzsDxgRQzwVgoCZU6dsVF2UR.dcgBKQnx4i3ayLbqcqstt4kSHNfDC4Am9TgyhF4RimY1eNHTP.state.xyz')
     })
 
       test('test resource to shard', () => {
