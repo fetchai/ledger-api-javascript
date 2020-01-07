@@ -8,7 +8,9 @@ import {default as atob} from 'atob'
 import {default as btoa} from 'btoa'
 import {LedgerApi} from './api'
 import {logger} from './utils'
-import {RunTimeError} from './errors'
+import {RunTimeError, ValidationError} from './errors'
+import {Parser} from "./parser/parser";
+import {ShardMask} from "./serialization/shardmask";
 
 
 const compute_digest = (source) => {
@@ -36,11 +38,7 @@ export class Contract {
         this._owner = new Address(owner)
         this._nonce = nonce || randomBytes(8)
         this._address = new Address(calc_address(this._owner, this._nonce))
-
-        //TODO add etch parser
-        //this._parser = new EtchParser(this._source)
-        //TODO get rest of this constructor when we add etch parser
-    }
+           }
 
     name() {
         return this._digest.toBytes().toString('hex') + this._address.toHex()
@@ -118,9 +116,15 @@ export class Contract {
             throw new RunTimeError('Contract has no owner, unable to perform any queries. Did you deploy it?')
         }
 
-        // if(!this.queries.contains(name)){
-        //     throw new RunTimeError(name + ' is not an valid query name. Valid options are: ' + this.queries.join(','))
-        // }
+         const annotations = Parser.get_annotations(this._source)
+
+         if (typeof annotations['@query'] === 'undefined' || !annotations['@query'].includes(name)){
+               throw new ValidationError(
+                    `Contract does not contain function: ${name} with annotation @query`
+                )
+         }
+
+
         const [success, response] = await Contract.api(api).query(this._address, name, data)
 
         if (!success) {
@@ -139,25 +143,20 @@ export class Contract {
             throw new RunTimeError('Contract has no owner, unable to perform any actions. Did you deploy it?')
         }
 
-        // if(!name in this._actions){
-        //      throw new RunTimeError(`${name} is not an valid action name. Valid options are: ${this._actions.join(',')}`)
-        //  }
-        // (self, api: ContractsApiLike, name: str, fee: int, signers: List[Entity], *args):
-        let shard_mask
-        try {
-            // Generate resource addresses used by persistent globals
-            // const resource_addresses = [ShardMask.state_to_address(address, self) for address in
-            //                       self._parser.used_globals_to_addresses(name, list(args))]
-            // Generate shard mask from resource addresses
-            //   const shard_mask = ShardMask.resources_to_shard_mask(resource_addresses, api.server.num_lanes())
-            shard_mask = new BitVector()
-        } catch (e) {
-            logger.info('WARNING: Couldn\'t auto-detect used shards, using wildcard shard mask')
-            shard_mask = new BitVector()
-        }
+        const annotations = Parser.get_annotations(this._source)
 
-        const from_address = (signers.length == 1) ? signers[0] : new Address(this._owner)
+         if (typeof annotations['@action'] === 'undefined' || !annotations['@action'].includes(name)) {
+               throw new ValidationError(
+                    `Contract does not contain function: ${name} with annotation @action`
+                )
+         }
 
+        // now lets validate the args
+        const resource_addresses = Parser.get_resource_addresses(this._source, name, args)
+        const num_lanes = await api.server.num_lanes()
+        let shard_mask = ShardMask.resources_to_shard_mask(resource_addresses, num_lanes)
+         Address(signers[0]) if len(signers) == 1 else Address(self.owner),
+         const from_address = (signers.length === 1)? new Address(signers[0]) : new Address(this._owner)
         return Contract.api(api).action(this._address, name, fee, from_address, args, signers, shard_mask)
     }
 

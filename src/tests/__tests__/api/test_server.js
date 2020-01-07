@@ -12,7 +12,7 @@ describe(':ServerApi', () => {
         const api = new ServerApi(LOCAL_HOST, DEFAULT_PORT)
         const num_lanes = await api.num_lanes()
         expect(axios).toHaveBeenCalledTimes(1)
-        await expect(num_lanes).toBe(3)
+        await expect(num_lanes).toBe(4)
     })
 
     test('test version', async () => {

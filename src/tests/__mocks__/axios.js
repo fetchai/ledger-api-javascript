@@ -121,8 +121,14 @@ function list_servers_false() {
 function server_status() {
     return [
         JSON.parse(`{"method":"get","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/status"}`),
-        JSON.parse('{"data": {"lanes": 3, "version": "0.9.0"}}')
+        JSON.parse('{"data": {"lanes": 4, "version": "0.9.0"}}')
     ]
+}
+
+function wealth() {
+    return [
+        JSON.parse(`{"method":"post","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/contract/fetch/token/wealth","data":{"ver":"1.2","data":"oSCAl6OJh12f8ttl9GTNglv4vlnTzB5rQs3FLhwEdq4yDE1pAQGAC2ZldGNoLnRva2VuBndlYWx0aCp7ImFtb3VudCI6IDEwMDAgInRpbWVzdGFtcCI6MTU3MjgxODU2OTIzMX0EKjivzRm2uTkgcwV8jd4qxY0Spny6uXc374AsTOB+QDccgXdgm7l+zN0KtN93+drXnQgNZGYI894K/w1INoA6/EAgUYTmrx+5iMM96EKfeIrU8jE29ATRVdHTW5KTho56BnScJOPDui3TBOck5xKjccziTyxRFSg9DxzZ5Pxc8SiG"},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
+        JSON.parse('{"status": 200, "data": {"txs":["be448a628ed7d406eaf497b7bf56722f1df661c67856b9cedf6d75180859964c"],"counts":{"received":1,"submitted":1}}}')]
 }
 
 function contract_wealth() {
@@ -156,7 +162,6 @@ function status() {
         JSON.parse('{"status": 200, "data":{"status": "Executed", "exit_code": 2, "tx": "0x00", "charge": 77, "charge_rate": 33, "fee": 5}}')
     ]
 }
-
 
 function status_chain() {
     return [

@@ -1,5 +1,6 @@
 export * from './api'
 export * from './utils'
+export * from './parser'
 export * from './errors'
 export * from './bitvector'
 export * from './transaction'
