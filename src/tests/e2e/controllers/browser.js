@@ -12,7 +12,7 @@ const TEST = '/src/tests/e2e/vanilla.js'
 const DEFAULT_TIMEOUT = 120000
 
 async function main() {
-        await test_password_encryption()
+    await test_password_encryption()
     await test_balance()
     await test_transfer()
     await test_server()
@@ -27,7 +27,7 @@ main()
 
 
 async function test_password_encryption(){
-     const driver = get_driver()
+    const driver = get_driver()
     const script = get_script('password_encryption')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
     await driver.executeScript(script)

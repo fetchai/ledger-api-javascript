@@ -125,12 +125,6 @@ function server_status() {
     ]
 }
 
-function wealth() {
-    return [
-        JSON.parse(`{"method":"post","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/contract/fetch/token/wealth","data":{"ver":"1.2","data":"oSCAl6OJh12f8ttl9GTNglv4vlnTzB5rQs3FLhwEdq4yDE1pAQGAC2ZldGNoLnRva2VuBndlYWx0aCp7ImFtb3VudCI6IDEwMDAgInRpbWVzdGFtcCI6MTU3MjgxODU2OTIzMX0EKjivzRm2uTkgcwV8jd4qxY0Spny6uXc374AsTOB+QDccgXdgm7l+zN0KtN93+drXnQgNZGYI894K/w1INoA6/EAgUYTmrx+5iMM96EKfeIrU8jE29ATRVdHTW5KTho56BnScJOPDui3TBOck5xKjccziTyxRFSg9DxzZ5Pxc8SiG"},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}`),
-        JSON.parse('{"status": 200, "data": {"txs":["be448a628ed7d406eaf497b7bf56722f1df661c67856b9cedf6d75180859964c"],"counts":{"received":1,"submitted":1}}}')]
-}
-
 function contract_wealth() {
     return [
         JSON.parse('{"method":"post","url":"http://127.0.0.1:8000/api/contract/fetch/token/transfer","data":{"ver":"1.2","data":"oWQAAFMjmN2IPRmQ99rT/ealOlM0evwmgKBHSPfxWtA8rcTUQjUTCsWqtELjn5qicRiVZpUikhLdLxq1txTp9r1YFRHBA+jBA+gBMu6GQZ8BeKyuBBjCozr4vSy6f6cUqECjCKIXqkSDiAse8UtP3/4Iq5VuP0uSHOwzvnwljP1wJaK5qUJ3DlsXdYvMSWG73HWgJRxAmK9I0scC/2iqo1iYr0MHSap5lvsSyqyLCZgoHJsTPWAgh6hvSqkVNBSswOIb0hPes9IexgByKgq9FO9axGD24Q=="},"headers":{"content-type":"application/vnd+fetch.transaction+json"}}'),

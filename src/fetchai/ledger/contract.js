@@ -9,8 +9,8 @@ import {default as btoa} from 'btoa'
 import {LedgerApi} from './api'
 import {logger} from './utils'
 import {RunTimeError, ValidationError} from './errors'
-import {Parser} from "./parser/parser";
-import {ShardMask} from "./serialization/shardmask";
+import {Parser} from './parser/parser'
+import {ShardMask} from './serialization/shardmask'
 
 
 const compute_digest = (source) => {
@@ -38,7 +38,7 @@ export class Contract {
         this._owner = new Address(owner)
         this._nonce = nonce || randomBytes(8)
         this._address = new Address(calc_address(this._owner, this._nonce))
-           }
+    }
 
     name() {
         return this._digest.toBytes().toString('hex') + this._address.toHex()
@@ -116,13 +116,13 @@ export class Contract {
             throw new RunTimeError('Contract has no owner, unable to perform any queries. Did you deploy it?')
         }
 
-         const annotations = Parser.get_annotations(this._source)
+        const annotations = Parser.get_annotations(this._source)
 
-         if (typeof annotations['@query'] === 'undefined' || !annotations['@query'].includes(name)){
-               throw new ValidationError(
-                    `Contract does not contain function: ${name} with annotation @query`
-                )
-         }
+        if (typeof annotations['@query'] === 'undefined' || !annotations['@query'].includes(name)){
+            throw new ValidationError(
+                `Contract does not contain function: ${name} with annotation @query`
+            )
+        }
 
 
         const [success, response] = await Contract.api(api).query(this._address, name, data)
@@ -145,11 +145,11 @@ export class Contract {
 
         const annotations = Parser.get_annotations(this._source)
 
-         if (typeof annotations['@action'] === 'undefined' || !annotations['@action'].includes(name)) {
-               throw new ValidationError(
-                    `Contract does not contain function: ${name} with annotation @action`
-                )
-         }
+        if (typeof annotations['@action'] === 'undefined' || !annotations['@action'].includes(name)) {
+            throw new ValidationError(
+                `Contract does not contain function: ${name} with annotation @action`
+            )
+        }
 
         // now lets validate the args
         const resource_addresses = Parser.get_resource_addresses(this._source, name, args)

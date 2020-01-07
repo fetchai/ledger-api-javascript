@@ -182,31 +182,31 @@ export class Entity extends Identity {
         // Random initialization vector
         const iv = randomBytes(16)
 
-             // Encrypt data using AES
-             // https://www.npmjs.com/package/aes-js#cbc---cipher-block-chaining-recommended
-             const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv)
+        // Encrypt data using AES
+        // https://www.npmjs.com/package/aes-js#cbc---cipher-block-chaining-recommended
+        const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv)
 
-             // Pad data to multiple of 16
-             const n = data.length
-             if (n % 16 != 0) {
-                 data += Buffer.alloc(0) * (16 - (n % 16))
-             }
+        // Pad data to multiple of 16
+        const n = data.length
+        if (n % 16 != 0) {
+            data += Buffer.alloc(0) * (16 - (n % 16))
+        }
 
-             let encrypted = Buffer.alloc(0)
-             while (data.length) {
-                 encrypted = Buffer.concat([
-                     encrypted,
-                     Buffer.from(aes.encrypt(data.slice(0, 16)))
-                 ])
-                 data = data.slice(16)
-             }
+        let encrypted = Buffer.alloc(0)
+        while (data.length) {
+            encrypted = Buffer.concat([
+                encrypted,
+                Buffer.from(aes.encrypt(data.slice(0, 16)))
+            ])
+            data = data.slice(16)
+        }
 
-             return {
-                 key_length: n,
-                 init_vector: iv,
-                 password_salt: salt,
-                 privateKey: encrypted
-               }
+        return {
+            key_length: n,
+            init_vector: iv,
+            password_salt: salt,
+            privateKey: encrypted
+        }
     }
 
     /**
