@@ -1,7 +1,7 @@
 import {Transaction} from '../../../fetchai/ledger/transaction'
 import {BitVector} from '../../../fetchai/ledger/bitvector'
 import {Identity} from '../../../fetchai/ledger/crypto/identity'
-import {decode_transaction, encode_transaction} from '../../../fetchai/ledger/serialization/transaction.js'
+import {decode_transaction, encode_transaction} from '../../../fetchai/ledger/serialization/transaction'
 import * as bytearray from '../../../fetchai/ledger/serialization/bytearray'
 import {createHash} from 'crypto'
 import {ValidationError} from '../../../fetchai/ledger/errors'

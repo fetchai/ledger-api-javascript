@@ -1,4 +1,4 @@
-import {Identity} from '../crypto/identity.js'
+import {Identity} from '../crypto/identity'
 import {ValidationError} from '../errors'
 // *******************************
 // ********** Constants **********

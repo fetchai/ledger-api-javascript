@@ -8,8 +8,8 @@ import {MULTIPLE_INITS, SIMPLE_CONTRACT} from '../../contracts/transfer'
 
 const calc_address = (owner, nonce) => {
     const hash_func = createHash('sha256')
-    hash_func.update(owner.toBytes(), 'utf')
-    hash_func.update(nonce, 'utf')
+    hash_func.update(owner.toBytes(), 'utf8')
+    hash_func.update(nonce, 'utf8')
     return hash_func.digest()
 }
 

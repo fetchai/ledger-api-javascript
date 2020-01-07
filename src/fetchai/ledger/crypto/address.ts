@@ -14,14 +14,14 @@ const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
  * @class
  */
 export class Address {
-	public _address: any;
-	public _display: any;
+	private _address: any;
+	private _display: any;
 
-    /**
+     /**
      * @param  {Object|Buffer|String} identity Address object or Buffer or String.
      * @throws {ValidationError} ValidationError on any failures.
      */
-    constructor(identity) {
+    constructor(identity: string | Address | Identity | Buffer) {
         if (identity instanceof Address) {
             this._address = identity._address
             this._display = identity._display
@@ -56,7 +56,7 @@ export class Address {
      * @param b58_address
      * @returns {boolean}
      */
-    static is_address(b58_address) {
+    static is_address(b58_address: string): boolean {
         if (typeof b58_address !== 'string') return false
 
         const bytes = bs58.decode(b58_address)
@@ -80,14 +80,14 @@ export class Address {
     /**
      * Get address in string
      */
-    toString() {
+    toString(): string {
         return this._display
     }
 
     /**
      * Get address in bytes
      */
-    toBytes() {
+    toBytes(): Uint8Array | Buffer {
         return this._address
     }
 
@@ -95,29 +95,29 @@ export class Address {
      * Check equality of two address
      * @param  {bytes} other Address in bytes
      */
-    equals(other) {
+    equals(other: Address) {
         return Buffer.compare(this.toBytes(), other.toBytes())
     }
 
     /**
      * Get address in hex
      */
-    toHex() {
+    toHex() : string {
         return this._address.toString('hex')
     }
 
-    static digest(address_raw) {
+    static digest(address_raw: string) {
         const hash_func = createHash('sha256')
-        hash_func.update(address_raw, 'utf')
+        hash_func.update(address_raw, 'utf8')
         return Buffer.from(hash_func.digest())
     }
 
-    static calculate_checksum(address_raw) {
+    static calculate_checksum(address_raw: string) {
         const digest = Address.digest(address_raw)
         return digest.slice(0, BYTE_LENGTH)
     }
 
-    calculate_display(address_raw) {
+    calculate_display(address_raw: string) {
         const digest = Address.digest(address_raw)
         const bytes = digest.slice(0, CHECKSUM_SIZE)
         const full = Buffer.concat([address_raw, bytes])

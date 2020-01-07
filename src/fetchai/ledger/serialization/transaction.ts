@@ -36,7 +36,7 @@ const log2 = value => {
 
 const _calc_digest_utf = (address_raw) => {
     const hash_func = createHash('sha256')
-    hash_func.update(address_raw, 'utf')
+    hash_func.update(address_raw, 'utf8')
     return hash_func.digest()
 }
 
