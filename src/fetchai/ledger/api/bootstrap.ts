@@ -3,9 +3,17 @@ import {IncompatibleLedgerVersionError, NetworkUnavailableError, RunTimeError} f
 import * as semver from 'semver'
 import {__version__} from '../init'
 
+interface ServerListItem {
+     readonly name: string,
+      readonly  versions: string,
+    readonly patch: string,
+    readonly build: string,
+    readonly prerelease: string,
+}
+
 export class Bootstrap {
 
-    static async list_servers(active = true) {
+    static async list_servers(active: boolean = true):  Promise<Array<ServerListItem>> {
         //Gets list of (active) servers from bootstrap network
         const params = (active) ? {'active': 1} : {}
 
@@ -27,7 +35,7 @@ export class Bootstrap {
         return resp.data
     }
 
-    static is_server_valid(server_list, network) {
+    static is_server_valid(server_list: Array<ServerListItem>, network: string): boolean {
 
         const available_servers = server_list.map(a => a.name)
         // Check requested server is on list
@@ -47,6 +55,7 @@ export class Bootstrap {
 
         if (server_details['versions'] !== '*') {
             let version_constraints = server_details['versions'].split(',')
+            //todo are these noew needed with the interface
             if (typeof server_details['prerelease'] !== 'undefined') invalid_flag = true
             if (typeof server_details['build'] !== 'undefined') invalid_flag = true
             if (typeof server_details['patch'] !== 'undefined' && server_details['patch'] !== 0) invalid_flag = true
@@ -60,7 +69,7 @@ export class Bootstrap {
         return true
     }
 
-    static async get_ledger_address(network) {
+    static async get_ledger_address(network: string) : Promise<string> {
         // Request server endpoints
         const params = {'network': network}
 
@@ -90,7 +99,7 @@ export class Bootstrap {
      *Splits a url into a protocol, host name and port
      * @param address
      */
-    static split_address(address) {
+    static split_address(address: string): Array<string> {
         let protocol, port
 
         if (address.includes('://')) {
@@ -112,7 +121,7 @@ export class Bootstrap {
      * Queries bootstrap for the requested network and returns connection details
      * @param network
      */
-    static async server_from_name(network) {
+    static async server_from_name(network: string): Promise<Array<string>> {
         //Get list of active servers
         const server_list = await Bootstrap.list_servers(true)
         // Check requested network exists and supports our ledger version

@@ -6,7 +6,7 @@ export default jest.fn((request) => {
     const requests = [stake, create, stake_cooldown, collect_stake, deed, balance, balance_token, de_stake, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
     let req, res
     for (let i = 0; i < requests.length; i++) {
-        [req, res] = requests[i].call()
+        [req, res] = requests[i].call(this)
         if (equals(request, req)) {
             if (requests[i].name === 'balance') balance_called++
             // kinda hacky but if balance called 3 times we return bigger value

@@ -2,17 +2,25 @@ import {ValidationError} from '../errors'
 import {Address} from './address'
 import {InvalidDeedError} from '../errors/invalidDeedError'
 
+
+
+    export enum OPERATIONS
+    {
+        AMEND = "amend",
+        TRANSFER = "transfer",
+        EXECUTE = "execute",
+        STAKE = "stake"
+    }
+
 export class Deed {
 	public address: any;
 	public signees: any;
 	public thresholds: any;
-	public OPERATIONS: any;
 
     constructor(address?) {
         this.address = address
         this.signees = []
         this.thresholds = {}
-        this.OPERATIONS = {'AMEND': 1, 'TRANSFER': 2, 'EXECUTE': 3, 'STAKE': 4}
     }
 
     set_signee(signee, voting_weight) {
@@ -20,7 +28,6 @@ export class Deed {
     }
 
     remove_signee(signee) {
-
         for (let i = 0; i < this.signees.length; i++) {
             if (this.signees[i].signee.public_key_hex() === signee.public_key_hex()) {
                 this.signees.splice(i, 1)
@@ -106,9 +113,9 @@ export class Deed {
     }
 
     valid_operation(operation) {
-        if (typeof this.OPERATIONS[operation] === 'undefined') {
+        if (!Object.values(OPERATIONS).includes(operation)) {
             let str = ''
-            for (let op in this.OPERATIONS) {
+            for (let op in OPERATIONS) {
                 str += op + ', '
             }
             str.substring(0, str.length - 2)
@@ -117,3 +124,7 @@ export class Deed {
     }
 
 }
+
+
+    // return to add the thresholds interface, and delete this comment when done. https://github.com/Microsoft/TypeScript/issues/7803
+

@@ -1,7 +1,7 @@
 import {Base} from './base'
 
 export class InvalidDeedError extends Base {
-	public errors: any;
+	public errors: string;
 
     constructor(errors) {
         super('Invalid Deed Error')

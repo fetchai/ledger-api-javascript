@@ -18,10 +18,10 @@ const tx_array_to_object = (array) =>
     }, {})
 
 export class TxStatus {
-	public digest_bytes: any;
-	public digest_hex: any;
-	public status: any;
-	public exit_code: any;
+	public digest_bytes: Buffer | Uint8Array;
+	public digest_hex: string;
+	public status: string;
+	public exit_code: string;
 	public charge: any;
 	public charge_rate: any;
 	public fee: any;
@@ -69,7 +69,7 @@ export class TxStatus {
 
 export class TxContents {
 	public digest_bytes: any;
-	public digest_hex: any;
+	public digest_hex: string;
 	public action: any;
 	public chain_code: any;
 	public from_address: any;
@@ -162,8 +162,7 @@ export class TransactionApi extends ApiEndpoint {
         try {
             resp = await axios({
                 method: 'get',
-                url: url,
-                request_headers
+                url: url
             })
         } catch (error) {
             throw new ApiError('Malformed response from server')
@@ -176,7 +175,6 @@ export class TransactionApi extends ApiEndpoint {
         return new TxStatus(
             Buffer.from(resp.data.tx, 'hex'),
             resp.data.status,
-            resp.data.tx,
             resp.data.exit_code,
             resp.data.charge,
             resp.data.charge_rate,

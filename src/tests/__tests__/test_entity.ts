@@ -22,7 +22,6 @@ describe(':Entity', () => {
 
     let writeFileSync
 
-
     beforeEach(() => {
         writeFileSync = sinon.stub(fs, 'writeFileSync').returns({})
     })
@@ -97,7 +96,9 @@ describe(':Entity', () => {
 
     test('test prompt dumps', async () => {
         const entity = Entity.from_hex('84cd8d1df47f2be283107cc177003e0b062ee35be50087a66268417629edf730')
+         debugger;
         await entity.prompt_dump('path/to/some.png', PASSWORD)
+        debugger;
         expect(writeFileSync.calledOnce).toBe(true)
         expect(writeFileSync.getCall(0).args[0]).toEqual('path/to/some.png')
         let json_obj =  JSON.parse(writeFileSync.getCall(0).args[1])

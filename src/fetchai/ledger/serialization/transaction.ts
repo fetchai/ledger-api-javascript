@@ -161,7 +161,6 @@ const encode_payload = payload => {
             )
         )
     })
-    logger.info(`\n encoded payload: ${buffer.toString('hex')} \n`)
     return buffer
 }
 
@@ -210,7 +209,6 @@ const encode_transaction = (payload, signers) => {
         throw new ValidationError('Missing signer signing set')
     }
 
-    logger.info(`\n encoded transaction: ${buffer.toString('hex')} \n`)
     // return the encoded transaction
     return buffer
 }

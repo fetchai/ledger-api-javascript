@@ -14,14 +14,14 @@ const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
  * @class
  */
 export class Address {
-	private _address: any;
-	private _display: any;
+	private _address: Buffer | Uint8Array;
+	private _display: string;
 
      /**
      * @param  {Object|Buffer|String} identity Address object or Buffer or String.
      * @throws {ValidationError} ValidationError on any failures.
      */
-    constructor(identity: Address ) {
+    constructor(identity: string | Address | Identity | Uint8Array) {
         if (identity instanceof Address) {
             this._address = identity._address
             this._display = identity._display
@@ -92,10 +92,11 @@ export class Address {
     }
 
     /**
+     * //todo convert return type to boolean
      * Check equality of two address
      * @param  {bytes} other Address in bytes
      */
-    equals(other: Address) {
+    equals(other: Address) : number {
         return Buffer.compare(this.toBytes(), other.toBytes())
     }
 
@@ -106,18 +107,18 @@ export class Address {
         return this._address.toString('hex')
     }
 
-    static digest(address_raw: string) {
+    static digest(address_raw: any) : Uint8Array {
         const hash_func = createHash('sha256')
         hash_func.update(address_raw, 'utf8')
         return Buffer.from(hash_func.digest())
     }
 
-    static calculate_checksum(address_raw: string) {
+    static calculate_checksum(address_raw: any) : Uint8Array {
         const digest = Address.digest(address_raw)
         return digest.slice(0, BYTE_LENGTH)
     }
 
-    calculate_display(address_raw: string) {
+    calculate_display(address_raw: Uint8Array) :string {
         const digest = Address.digest(address_raw)
         const bytes = digest.slice(0, CHECKSUM_SIZE)
         const full = Buffer.concat([address_raw, bytes])

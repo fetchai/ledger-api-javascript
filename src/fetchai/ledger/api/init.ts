@@ -6,9 +6,8 @@ import {IncompatibleLedgerVersionError, ValidationError} from '../errors'
 import {ServerApi} from './server'
 import {TokenApi} from './token'
 import {TransactionApi, TxStatus} from './tx'
-import {Bootstrap} from './bootstrap'
 
-const DEFAULT_TIMEOUT = 120000
+const DEFAULT_TIMEOUT = 120
 
 /**
  * This class for all ledger APIs.
@@ -27,19 +26,7 @@ export class LedgerApi {
      * @param  {Boolean} port ledger port.
      * @param  {Boolean} network server name.
      */
-    constructor(host = false, port = false, network = false) {
-        if (network) {
-            if (host !== false || port !== false) {
-                throw new ValidationError(
-                    'Specify either a server name, or a host & port'
-                )
-            }
-            [host, port] = Bootstrap.server_from_name(network)
-        } else if (host === false || port === false) {
-            throw new ValidationError(
-                'Must specify either a server name, or a host & port'
-            )
-        }
+    constructor(host, port) {
         this.tokens = new TokenApi(host, port, this)
         this.contracts = new ContractsApi(host, port, this)
         this.tx = new TransactionApi(host, port, this)
@@ -57,7 +44,7 @@ export class LedgerApi {
      * @param  {Boolean} [timeout=false] units seconds.
      * @returns {Promise} return asyncTimerPromise.
      */
-    async sync(txs, timeout = false, hold_state_sec = 0, extend_success_status = []) {
+    async sync(txs, timeout = DEFAULT_TIMEOUT, hold_state_sec = 0, extend_success_status = []) {
 
         if (!Array.isArray(txs) && !txs.length) {
             throw new TypeError('Unknown argument type')
@@ -66,8 +53,7 @@ export class LedgerApi {
         if (!Array.isArray(txs)) {
             txs = [txs]
         }
-        const limit = timeout === false ? DEFAULT_TIMEOUT : timeout * 1000
-
+        let limit = timeout*1000
 
         const failed = []
         // successful transactions are out in this waiting array, and then if they remain successful
@@ -105,7 +91,7 @@ export class LedgerApi {
 
                     if (txs[i].non_terminal()) {
                         // if a transaction reverts its status to a non-terminal state within hold time then revert.
-                        let index = waiting.findIndex(item => (Date.now - item.time) < hold_state_sec && item.tx_status.get_digest_hex() === txs[i].get_digest_hex())
+                        let index = waiting.findIndex(item => (Date.now() - item.time) < hold_state_sec && item.tx_status.get_digest_hex() === txs[i].get_digest_hex())
 
                         if (index !== -1) {
                             waiting.splice(index, 1)
@@ -175,8 +161,8 @@ export class LedgerApi {
 
 
     static async from_network_name(host, port) {
-        const server = new ServerApi(host, port)
-        const server_version = await server.version()
+        const api = new LedgerApi(host, port)
+        const server_version = await api.server.version()
         if (
             !semver.satisfies(
                 semver.coerce(server_version),

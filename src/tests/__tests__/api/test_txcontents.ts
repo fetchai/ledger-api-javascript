@@ -2,14 +2,13 @@ import {ADDRESSES, DEFAULT_PORT, ENTITIES, LOCAL_HOST} from '../../utils/helpers
 import {TransactionApi, TxContents} from '../../../fetchai/ledger/api/tx'
 import {Address} from '../../../fetchai/ledger/crypto/address'
 import {BN} from 'bn.js'
-import {TokenApi} from '../../../fetchai/ledger/api'
+import {LedgerApi, TokenApi} from '../../../fetchai/ledger/api'
 
 describe(':TXContentsTest', () => {
     test('test contents', async () => {
-        const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
-        const transfer = await api.transfer(ENTITIES[0], ENTITIES[1], 1000, 50)
-        const TApi = new TransactionApi(LOCAL_HOST, DEFAULT_PORT)
-        const json = await TApi.contents(transfer)
+        const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
+        const transfer = await api.tokens.transfer(ENTITIES[0], ENTITIES[1], 1000, 50)
+        const json = await api.tx.contents(transfer)
         expect(json.digest_hex).toBe('123456')
         expect(json.digest_bytes.toString('hex')).toBe(Buffer.from('123456', 'hex').toString('hex'))
         expect(json.action).toBe('transfer')

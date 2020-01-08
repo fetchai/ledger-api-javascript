@@ -12,25 +12,37 @@ const BETWEEN_ROUND_BRACKETS = /(?<=\().+?(?=\))/
 const SINGLE_LINE_COMMENT = /\/\/.*/
 const MULTI_LINE_COMMENT = /\/\*([\s\S]*?)\*\//
 
-// from function (as a string) we extract the name
-// const FUNCTION_NAME = /(?<=\function).+?(?=\))/
+
+interface FuncInfo {
+     readonly identifier: string,
+      readonly type: string
+}
+//todo check if usestatementinfo is
+interface UseStatementInfo {
+     readonly sharded: boolean,
+      readonly identifier: string,
+    readonly params?: Array<string>
+}
+
 
 export class Parser {
 
-    static remove_comments(source){
+    static remove_comments(source: string) {
         const regexp = RegExp(SINGLE_LINE_COMMENT,'g')
         const regexp2 = RegExp(MULTI_LINE_COMMENT,'g')
         source = source.replace(regexp, '')
         return source.replace(regexp2, '')
     }
 
-    static get_functions(source) {
+    static get_functions(source: string) : Array<string> {
         source = Parser.remove_comments(source)
         const regexp = RegExp(FUNC,'g')
-        return [...source.matchAll(regexp)].map((arr) => arr[0])
+      const temp =   [...source.matchAll(regexp)]
+        const temp2 = temp.map((arr) => arr[0])
+        return temp2
     }
 
-    static get_sharded_use_names(source) {
+    static get_sharded_use_names(source: string) : Array<string> {
         const sharded_len = 'sharded'.length
         source = Parser.remove_comments(source)
         const regexp_func = RegExp(FUNC,'g')
@@ -52,7 +64,7 @@ export class Parser {
         return sharded_funcs
     }
 
-    static get_annotations(source) {
+    static get_annotations(source: string) : Record<string, string> {
         source = Parser.remove_comments(source)
         const regexp = RegExp(FUNC_NAME_WITH_ANNOTATION,'g')
         let array = [...source.matchAll(regexp)]
@@ -71,7 +83,7 @@ export class Parser {
         return annotations
     }
 
-    static get_func_params(func_source) {
+    static get_func_params(func_source: string) : Array<FuncInfo> {
         let func_params = BETWEEN_ROUND_BRACKETS.exec(func_source)
         let ret = []
         // we start by coding only for funcs with params
@@ -88,7 +100,7 @@ export class Parser {
         return ret
     }
 
-    static parse_use_statements(source){
+    static parse_use_statements(source: string) : Array<UseStatementInfo> {
         const regexp = RegExp(USE_STATEMENT,'g')
         let use_statements = [...source.matchAll(regexp)]
 
@@ -99,11 +111,11 @@ export class Parser {
         for (let i = 0; i < use_statements.length; i++) {
             // if it has square brackets this should match, else it is a use without
             let use_name = USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME.exec(use_statements[i])
-            let obj = {}
+            let obj = <any>{}
             // if null then use statement has no params, so we deal with it differently.
             if(use_name === null) {
                 let non_paramaterized_use_name = /(?<=use)([\s\S]*?)(?=;)/
-                let identifier = non_paramaterized_use_name.exec(use_statements[i])
+                let identifier = non_paramaterized_use_name.exec(use_statements[i] as string)
 
                 obj.sharded = false
                 obj.identifier = identifier[0].trim()
@@ -121,8 +133,7 @@ export class Parser {
     }
 
 
-    static get_resource_addresses(source, func_name, ordered_args) {
-        // const funcs = Parser.get_functions(source)
+    static get_resource_addresses(source: string, func_name: string, ordered_args: Array<any>) {
 
         const sharded_use_names = Parser.get_sharded_use_names(source)
         // we get all functions including bodies

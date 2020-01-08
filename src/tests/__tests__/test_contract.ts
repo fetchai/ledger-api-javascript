@@ -69,7 +69,7 @@ describe(':Test Contract', () => {
         const nonce = calc_digest('random').slice(0, 8)
         const orig = new Contract(SIMPLE_CONTRACT, owner, nonce)
         const encoded = orig.dump(RAND_FP)
-        const recreation = Contract.load(encoded)
+        const recreation = Contract.load(RAND_FP)
         expect(recreation).toBeInstanceOf(Contract)
         expect(orig.owner()).toMatchObject(recreation.owner())
         expect(orig.digest()).toMatchObject(recreation.digest())

@@ -16,10 +16,6 @@ let logger = createLogger({
 // default: silent all logging levels
 logger.transports.forEach(t => (t.silent = false))
 
-logger = {}
-logger.info = () => {
-}
-
 // allows other application to set its logger
 const setLogger = _logger => {
     logger = _logger

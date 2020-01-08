@@ -1,10 +1,18 @@
-import { randomBytes, pbkdf2 } from 'crypto'
+import {randomBytes, pbkdf2, SignPrivateKeyInput, KeyLike} from 'crypto'
 import * as secp256k1 from 'secp256k1'
 import {RunTimeError, ValidationError} from '../errors'
 import {Identity} from './identity'
 import fs from 'fs'
 import * as aesjs from 'aes-js'
 import {promisify} from 'util'
+import assert from 'assert'
+
+interface SerializedPrivateKey {
+     readonly key_length: number,
+      readonly      init_vector: string,
+       readonly     password_salt: string,
+       readonly     privateKey: string
+}
 
 /**
  * An entity is a full private/public key pair.
@@ -13,14 +21,14 @@ import {promisify} from 'util'
  * @class
  */
 export class Entity extends Identity {
-	public pubKey: any;
-	public privKey: any;
+	public pubKey: Buffer | Uint8Array;
+	public privKey: Buffer | Uint8Array;
 
     /**
      * @param  {Buffer} private_key_bytes construct or generate the private key if one is not specified.
      * @throws {ValidationError} ValidationError if unable to load private key from input.
      */
-    constructor(private_key_bytes?) {
+    constructor(private_key_bytes?: Buffer | Uint8Array) {
         // construct or generate the private key if one is not specified
         if (private_key_bytes) {
             if (secp256k1.privateKeyVerify(private_key_bytes)) {
@@ -61,21 +69,21 @@ export class Entity extends Identity {
     /**
      * Get the private key.
      */
-    private_key() {
+    private_key() : Buffer | Uint8Array{
         return this.privKey
     }
 
     /**
      * Get the private key hex.
      */
-    private_key_hex() {
+    private_key_hex() : string {
         return this.privKey.toString('hex')
     }
 
     /**
      * Get the public key hex.
      */
-    public_key_hex() {
+    public_key_hex() : string {
         return this.pubKey.toString('hex')
     }
 
@@ -84,7 +92,7 @@ export class Entity extends Identity {
      * @param  {String} extMsgHash Message hash
      * @returns signature obj
      */
-    sign(extMsgHash) {
+    sign(extMsgHash: SignPrivateKeyInput | KeyLike) : any {
         return secp256k1.sign(extMsgHash, this.privKey)
     }
 
@@ -92,26 +100,26 @@ export class Entity extends Identity {
      * Get the signature hex
      * @param  {Object} sigObj signature obj
      */
-    signature_hex(sigObj) {
+    signature_hex(sigObj) : string {
         return sigObj.signature.toString('hex')
     }
 
-    static from_base64(private_key_base64) {
+    static from_base64(private_key_base64) : Entity {
         const private_key_bytes = Buffer.from(private_key_base64, 'base64')
         return new Entity(private_key_bytes)
     }
 
-    static from_hex(private_key_hex) {
+    static from_hex(private_key_hex) : Entity {
         const private_key_bytes = Buffer.from(private_key_hex, 'hex')
         return new Entity(private_key_bytes)
     }
 
-    static async loads(s, password) {
+    static async loads(s, password) : Promise<Entity> {
         let obj = JSON.parse(s)
         return await Entity.from_json_object(obj, password)
     }
 
-    static async load(fp, password) {
+    static async load(fp: string, password: string) : Promise<Entity> {
         if (!Entity.strong_password(password)) {
             throw new ValidationError(
                 'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
@@ -122,7 +130,7 @@ export class Entity extends Identity {
         return await Entity.from_json_object(obj, password)
     }
 
-    async prompt_dump(fp, password) {
+    async prompt_dump(fp: string, password: string) {
         // let password = readline.question('Please enter password ')
         if (!Entity.strong_password(password)) {
             throw new ValidationError(
@@ -133,28 +141,22 @@ export class Entity extends Identity {
         return await this.dump(fp, password)
     }
 
-    async dumps(password) {
-        const json_object = await this.to_json_object(password)
-        return await JSON.stringify(json_object)
+    async dumps(password) : Promise<String> {
+        return JSON.stringify(this.to_json_object(password))
     }
 
-    async dump(fp, password) {
+    async dump(fp, password) : Promise<void> {
         const json_object = await this.to_json_object(password)
         fs.writeFileSync(fp, JSON.stringify(json_object))
     }
 
-    async to_json_object(password) {
-        let data = await this.encrypt(password, this.privKey)
-        return {
-            key_length: data.key_length,
-            init_vector: data.init_vector.toString('base64'),
-            password_salt: data.password_salt.toString('base64'),
-            privateKey: data.privateKey.toString('base64')
-        }
+    async to_json_object(password: string) : Promise<SerializedPrivateKey> {
+        debugger;
+        return this.encrypt(password, this.privKey)
     }
 
 
-    static async from_json_object(obj, password) {
+    static async from_json_object(obj: SerializedPrivateKey, password: string) : Promise<Entity> {
         const private_key = await Entity.decrypt(
             password,
             Buffer.from(obj.password_salt, 'base64'),
@@ -171,7 +173,8 @@ export class Entity extends Identity {
      * @returns encrypted data, length of original data, initialization vector for aes, password hashing salt
      * @ignore
      */
-    async encrypt(password, data) {
+    async encrypt(password: string, data: Buffer | Uint8Array) : Promise<SerializedPrivateKey> {
+        const DIGEST_BYTE_LENGTH = 32
         // Generate hash from password
         const salt = randomBytes(16)
 
@@ -189,11 +192,7 @@ export class Entity extends Identity {
         // https://www.npmjs.com/package/aes-js#cbc---cipher-block-chaining-recommended
         const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv)
 
-        // Pad data to multiple of 16
-        const n = data.length
-        if (n % 16 != 0) {
-            data += Buffer.alloc(0) * (16 - (n % 16))
-        }
+        assert(data.length === DIGEST_BYTE_LENGTH)
 
         let encrypted = Buffer.alloc(0)
         while (data.length) {
@@ -203,12 +202,12 @@ export class Entity extends Identity {
             ])
             data = data.slice(16)
         }
-
+debugger;
         return {
-            key_length: n,
-            init_vector: iv,
-            password_salt: salt,
-            privateKey: encrypted
+            key_length: DIGEST_BYTE_LENGTH,
+            init_vector: iv.toString('base64'),
+            password_salt: salt.toString('base64'),
+            privateKey: encrypted.toString('base64'),
         }
     }
 
@@ -222,12 +221,12 @@ export class Entity extends Identity {
      * @returns decrypted data as plaintext
      * @ignore
      */
-    static async decrypt(password, salt, data, n, iv) {
+    static async decrypt(password: string, salt: Buffer | Uint8Array, data: Buffer | Uint8Array, n: number, iv: Buffer | Uint8Array) {
         const promisified_pbkdf2 = promisify(pbkdf2)
 
         let hashed_pass
         try {
-            hashed_pass = await promisified_pbkdf2(password, new Buffer(salt, 'hex'), 2000000, 32, 'sha256')
+            hashed_pass = await promisified_pbkdf2(password, salt, 2000000, 32, 'sha256')
         } catch (err) {
             throw new RunTimeError('Decryption failed')
         }
@@ -255,7 +254,7 @@ export class Entity extends Identity {
      * @returns {Boolean} True if password is strong
      * @ignore
      */
-    static strong_password(password) {
+    static strong_password(password: string) {
         if (password.length < 14) {
             return false
         }
@@ -278,3 +277,5 @@ export class Entity extends Identity {
         return true
     }
 }
+
+

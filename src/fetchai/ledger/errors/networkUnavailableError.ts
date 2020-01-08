@@ -1,7 +1,7 @@
 import {Base} from './base'
 
 export class NetworkUnavailableError extends Base {
-	public errors: any;
+	public errors: string;
 
     constructor(errors) {
         super('Network unavailable error')

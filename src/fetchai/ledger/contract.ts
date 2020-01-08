@@ -11,9 +11,16 @@ import {logger} from './utils'
 import {RunTimeError, ValidationError} from './errors'
 import {Parser} from './parser/parser'
 import {ShardMask} from './serialization/shardmask'
+import {Identity} from "./crypto";
 
+interface ContractJSONSerialized {
+      readonly version: number,
+      readonly owner: string,
+      readonly source: string,
+      readonly nonce: string,
+}
 
-const compute_digest = (source) => {
+const compute_digest = (source) : Address => {
     const hash_func = createHash('sha256')
     hash_func.update(source)
     const digest = hash_func.digest()
@@ -30,14 +37,14 @@ const calc_address = (owner, nonce) => {
 }
 
 export class Contract {
-	public _source: any;
-	public _digest: any;
-	public _owner: any;
-	public _nonce: any;
-	public _address: any;
+	public _address: Address;
+	public _digest: Address;
 	public _init: any;
+	public _nonce: Buffer;
+	public _owner: Address;
+	public _source: string;
 
-    constructor(source, owner, nonce = null) {
+    constructor(source : string, owner: Identity | Address | string, nonce: Buffer = null) {
         assert(typeof source === 'string')
         this._source = source
         this._digest = compute_digest(source)
@@ -46,66 +53,67 @@ export class Contract {
         this._address = new Address(calc_address(this._owner, this._nonce))
     }
 
-    name() {
+    name() : string {
         return this._digest.toBytes().toString('hex') + this._address.toHex()
     }
 
-    encoded_source() {
+    encoded_source() : string {
         return btoa(this._source)
     }
 
     // combined getter/setter mimicking the python.
-    owner(owner = null) {
+    owner(owner = null) : Address {
         if (owner !== null) this._owner = new Address(owner)
         return this._owner
     }
 
-    digest() {
+    digest() : Address {
         return this._digest
     }
 
-    source() {
+    source() : string {
         return this._source
     }
 
-    dumps() {
+    dumps() : string {
         return JSON.stringify(this.to_json_object())
     }
 
-    dump(fp) {
+    dump(fp: string ) : void {
         fs.writeFileSync(fp, JSON.stringify(this.to_json_object()))
     }
 
-    static loads(s) {
+    static loads(s: string ) : Contract {
         return Contract.from_json_object(JSON.parse(s))
     }
 
-    static load(fp) {
+    static load(fp: string) : Contract {
         const obj = JSON.parse(fs.readFileSync(fp, 'utf8'))
         return Contract.from_json_object(obj)
     }
 
-    nonce() {
+    nonce() : string {
         return btoa(this._nonce)
     }
 
-    nonce_bytes() {
+    nonce_bytes() : Buffer {
         return this._nonce
     }
 
-    address() {
+    address() : Address {
         return this._address
     }
 
-    async create(api, owner, fee, signers = null) {
+    async create(api: LedgerApi, owner, fee, signers = null) : Promise<string> {
         this.owner(owner)
-
+         //todo THIS LOOKS LIKE BUG, look at later. It can never == null so unreachable at present.
         if (this._init === null) {
             throw new RunTimeError('Contract has no initialisation function')
         }
 
         let shard_mask
         try {
+
             //TODO modify hen added etch parser
             // temp we put empty shard mask.
             shard_mask = new BitVector()
@@ -116,7 +124,7 @@ export class Contract {
         return Contract.api(api).create(owner, this, fee, signers, shard_mask)
     }
 
-    async query(api, name, data) {
+    async query(api: LedgerApi, name, data) {
 
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any queries. Did you deploy it?')
@@ -143,7 +151,7 @@ export class Contract {
         return response['result']
     }
 
-    async action(api, name, fee, args, signers = null) {
+    async action(api: LedgerApi, name, fee, args, signers = null) {
         // verify if we are used undefined
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any actions. Did you deploy it?')
@@ -172,11 +180,11 @@ export class Contract {
         } else if (ContractsApiLike instanceof LedgerApi) {
             return ContractsApiLike.contracts
         } else {
-            assert(false)
+            throw new ValidationError("")
         }
     }
 
-    static from_json_object(obj) {
+    static from_json_object(obj: ContractJSONSerialized) : Contract {
         assert(obj['version'] === 1)
         const source = atob(obj.source)
         const owner = obj['owner']
@@ -187,7 +195,7 @@ export class Contract {
             nonce)
     }
 
-    to_json_object() {
+    to_json_object() : ContractJSONSerialized {
         return {
             'version': 1,
             'owner': this._owner.toString(), // None if self._owner is None else str(self._owner),

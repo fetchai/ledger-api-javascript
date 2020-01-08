@@ -19,11 +19,19 @@ import * as integer from './serialization/integer'
 import {RunTimeError} from './errors'
 import {randomBytes} from 'crypto'
 
-function calc_digest(address_raw) {
+interface TransferItem {
+     readonly address: string,
+     readonly amount: BN
+}
+
+
+
+
+
+function calc_digest(address_raw) : Buffer {
     const hash_func = createHash('sha256')
     hash_func.update(address_raw)
-    const digest = hash_func.digest()
-    return digest
+    return hash_func.digest()
 }
 
 /**
@@ -33,16 +41,17 @@ function calc_digest(address_raw) {
  * @class
  */
 export class Transaction {
-	public _from: any;
-	public _transfers: any;
-	public _valid_from: any;
-	public _valid_until: any;
-	public _charge_rate: any;
-	public _charge_limit: any;
-	public _contract_address: any;
-	public _counter: any;
-	public _chain_code: any;
-	public _shard_mask: any;
+    //todo
+	public _from: string | Address;
+	public _transfers: Array<TransferItem>;
+	public _valid_from: BN;
+	public _valid_until: BN;
+	public _charge_rate: BN;
+	public _charge_limit: BN;
+	public _contract_address: string | Address;
+	public _counter: BN;
+	public _chain_code: string | Address;
+	public _shard_mask: BitVector;
 	public _action: any;
 	public _metadata: any;
 	public _data: any;
@@ -58,7 +67,7 @@ export class Transaction {
         this._contract_address = ''
         this._counter = new BN(randomBytes(8))
         this._chain_code = ''
-        this._shard_mask = new BitVector() // BitVector class instance
+        this._shard_mask = new BitVector()
         this._action = ''
         this._metadata = {
             synergetic_data_submission: false
@@ -68,7 +77,7 @@ export class Transaction {
     }
 
     // Get and Set from_address param
-    from_address(address = '') {
+    from_address(address) {
         if (address) {
             this._from = new Address(address)
             return this._from
@@ -76,12 +85,12 @@ export class Transaction {
         return this._from
     }
 
-    transfers() {
+    transfers() : Array<TransferItem> {
         return this._transfers
     }
 
     // Get and Set valid_from param
-    valid_from(block_number = null) {
+    valid_from(block_number: BN | null = null) : BN {
         if (block_number) {
             assert(BN.isBN(block_number))
             this._valid_from = block_number
@@ -91,7 +100,7 @@ export class Transaction {
     }
 
     // Get and Set valid_until param
-    valid_until(block_number = null) {
+    valid_until(block_number: BN | null = null) : BN {
         if (block_number) {
             assert(BN.isBN(block_number))
             this._valid_until = block_number
@@ -101,7 +110,7 @@ export class Transaction {
     }
 
     // Get and Set charge_rate param
-    charge_rate(charge = null) {
+    charge_rate(charge: BN | null = null) : BN {
         if (charge) {
             assert(BN.isBN(charge))
             this._charge_rate = charge
@@ -111,7 +120,7 @@ export class Transaction {
     }
 
     // Get and Set charge_limit param
-    charge_limit(limit = null) {
+    charge_limit(limit: BN | null = null) : BN {
         if (limit) {
             assert(BN.isBN(limit))
             this._charge_limit = limit
@@ -153,7 +162,7 @@ export class Transaction {
     }
 
     // Get and Set data param. Note: data in bytes
-    data(data = '') {
+    data(data = null) {
         if (data) {
             this._data = data
             return this._data
@@ -165,7 +174,6 @@ export class Transaction {
         const x = this.payload().toString('hex')
         const y = other.payload().toString('hex')
         if (x !== y) {
-
             return false
         } else {
             return true
@@ -207,7 +215,7 @@ export class Transaction {
         this._transfers.push({address: address, amount: new BN(amount)})
     }
 
-    target_contract(address, mask) {
+    target_contract(address: string | Address , mask) {
         this._contract_address = new Address(address)
         this._shard_mask = new BitVector(mask)
         this._chain_code = ''

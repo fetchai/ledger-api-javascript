@@ -1,7 +1,7 @@
 import {Base} from './base'
 
 export class NotImplementedError extends Base {
-	public errors: any;
+	public errors: string;
 
     constructor(errors) {
         super('This function has not been implemented')

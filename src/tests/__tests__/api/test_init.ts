@@ -6,7 +6,7 @@ import {DEFAULT_PORT, LOCAL_HOST} from '../../utils/helpers'
 
 describe(':LedgerApi', () => {
     afterEach(() => {
-        axios.mockClear()
+       // axios.mockClear()
     })
 
     test('test server version', async () => {

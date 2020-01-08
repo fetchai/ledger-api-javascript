@@ -25,7 +25,7 @@ const NONCE = (() => {
 describe(':ContractsApi', () => {
 
     afterEach(() => {
-        axios.mockClear()
+       // axios.mockClear()
     })
 
     test('test create', async () => {

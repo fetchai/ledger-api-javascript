@@ -58,13 +58,13 @@ describe(':Address', () => {
 
     test('test invalid type', () => {
         expect(() => {
-            new Address(99)
+            new Address("99")
         }).toThrow(ValidationError)
     })
 
     // test is_address
     test('test invalid type is_address', () => {
-        const valid = Address.is_address(99)
+        const valid = Address.is_address("99")
         expect(valid).toBe(false)
     })
 

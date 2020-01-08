@@ -39,9 +39,6 @@ export class TokenApi extends ApiEndpoint {
      * @param {Number} port ledger port
      */
     constructor(host, port, api?) {
-        logger.info(
-            `Creating new Token api object with host:${host} and port:${port}`
-        )
         super(host, port, api)
         this.prefix = 'fetch.token'
     }
@@ -55,14 +52,12 @@ export class TokenApi extends ApiEndpoint {
      * @throws {ApiError} ApiError on any failures.
      */
     async balance(address) {
-        logger.info(`request for check balance of address: ${address}`)
         // convert the input to an address
         address = new Address(address)
         // format and make the request
         let request = {address: address.toString()}
 
         let [, data] = await super.post_json('balance', request, this.prefix)
-        logger.info(`Balance of ${address} is ${data.balance}`)
 
         if (!('balance' in data)) {
             throw new ApiError('Malformed response from server (no balance)')
@@ -106,7 +101,7 @@ export class TokenApi extends ApiEndpoint {
      * @param address  The base58 encoded string containing the address of the node
      * @returns {Promise<void>}
      */
-    async stake_cooldown(address) {
+    async stake_cooldown(address) : Promise<any> {
         // convert the input to an address
         address = new Address(address)
 
@@ -238,7 +233,7 @@ export class TokenTxFactory extends TransactionFactory {
 	public prefix: any;
 
     constructor() {
-        super('fetch.token')
+        super()
         this.prefix = 'fetch.token'
     }
 

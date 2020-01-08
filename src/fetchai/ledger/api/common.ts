@@ -5,11 +5,13 @@ import {logger} from '../utils'
 import {Transaction} from '../transaction'
 import assert from 'assert'
 import {encode, ExtensionCodec} from '@msgpack/msgpack'
-import {Address} from '../crypto'
+import {Address, Entity} from '../crypto'
 import {BitVector} from '../bitvector'
 import {encode_multisig_transaction} from '../serialization/transaction'
+import {LedgerApi} from "./init";
+type Tuple = [boolean, Object];
 
-function format_contract_url(host, port, prefix = null, endpoint = null, protocol = 'http') {
+function format_contract_url(host: string, port: string, prefix: string | null = null, endpoint: string | null = null, protocol: string = 'http') {
     let canonical_name, url
 
     if (endpoint === null || endpoint === '') {
@@ -32,17 +34,14 @@ function format_contract_url(host, port, prefix = null, endpoint = null, protoco
  * @class
  */
 export class ApiEndpoint {
-	public _protocol: any;
-	public prefix: any;
-	public _host: any;
-	public _port: any;
-	public DEFAULT_BLOCK_VALIDITY_PERIOD: any;
-	public parent_api: any;
+	public _protocol: string;
+	public prefix: string;
+	public _host: string;
+	public _port: string;
+	public readonly DEFAULT_BLOCK_VALIDITY_PERIOD= 100
+	public parent_api: LedgerApi;
 
-    constructor(host, port, api) {
-        logger.info(
-            `Creating new api endpoint object with host:${host} and port:${port}`
-        )
+    constructor(host: string, port: string, api: LedgerApi) {
 
         let protocol
         if (host.includes('://')) {
@@ -55,19 +54,18 @@ export class ApiEndpoint {
         this.prefix = 'fetch/token'
         this._host = host
         this._port = port
-        this.DEFAULT_BLOCK_VALIDITY_PERIOD = 100
         this.parent_api = api
     }
 
-    protocol() {
+    protocol() : string {
         return this._protocol
     }
 
-    host() {
+    host() : string {
         return this._host
     }
 
-    port() {
+    port(): string {
         return this._port
     }
 
@@ -80,7 +78,8 @@ export class ApiEndpoint {
      * @param  {data} data for request body.
      * @param  {prefix} prefix of the url.
      */
-    async post_json(endpoint, data = {}, prefix = this.prefix) {
+    async post_json(endpoint, data = {}, prefix = this.prefix) : Promise<Tuple>{
+
         // format and make the request
         //  let url = `http://${this._host}:${this._port}/api/contract/${prefix}/${endpoint}`
         const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
@@ -104,7 +103,7 @@ export class ApiEndpoint {
         }
 
         // check the status code
-        if (200 <= resp.status < 300) {
+        if (200 <= resp.status && resp.status < 300) {
             return [true, resp.data]
         }
 
@@ -122,7 +121,7 @@ export class ApiEndpoint {
         return [false, resp.data]
     }
 
-    async create_skeleton_tx(fee, validity_period = null) {
+    async create_skeleton_tx(fee: number, validity_period = null) : Promise<Transaction> {
         if (!validity_period) {
             validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
         }
@@ -148,12 +147,11 @@ export class ApiEndpoint {
      * @param signatures    signers signatures
      * @returns {Promise<*>}    The digest of the submitted transaction
      */
-    async submit_signed_tx(tx, signatures) {
+    async submit_signed_tx(tx: Transaction, signatures) {
         // Encode transaction and append signatures
         const encoded_tx = encode_multisig_transaction(tx, signatures)
         // Submit and return digest
-        const res = await this.post_tx_json(encoded_tx, tx.action())
-        return res
+        return this.post_tx_json(encoded_tx, tx.action())
     }
 
     // tx is transaction
@@ -197,7 +195,7 @@ export class ApiEndpoint {
             throw new ApiError('Malformed response from server')
         }
 
-        if (200 <= resp.status < 300) {
+        if (200 <= resp.status && resp.status < 300) {
             return resp
         }
         return null
@@ -225,7 +223,7 @@ export class ApiEndpoint {
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
         // make the request
-        let resp
+        let resp: any;
         try {
             resp = await axios({
                 method: 'post',
@@ -237,7 +235,7 @@ export class ApiEndpoint {
             throw new ApiError('Malformed response from server')
         }
 
-        if (200 <= resp.status < 300) {
+        if (200 <= resp.status && resp.status < 300) {
 
             //TODO WHY DOES ED CHECK in python that there is a hash, else there is no return.
             //TODO confirm that is as intended.
@@ -250,7 +248,7 @@ export class ApiEndpoint {
 
 export class TransactionFactory {
 
-    static create_skeleton_tx(fee) {
+    static create_skeleton_tx(fee :  BN | number) : Transaction {
         // build up the basic transaction information
         const tx = new Transaction()
         tx.charge_rate(new BN(1))
@@ -258,7 +256,7 @@ export class TransactionFactory {
         return tx
     }
 
-    static create_action_tx(fee, entity, action, prefix, shard_mask = null) {
+    static create_action_tx(fee: BN | number, entity: Entity, action: string, prefix: string, shard_mask = null) {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
@@ -267,7 +265,7 @@ export class TransactionFactory {
         return tx
     }
 
-    static encode_msgpack_payload(args) {
+    static encode_msgpack_payload(args: Array<Address | string | number>) : Uint8Array {
         assert(Array.isArray(args))
         const extensionCodec = new ExtensionCodec()
         extensionCodec.register({
@@ -278,7 +276,8 @@ export class TransactionFactory {
                 } else {
                     return null
                 }
-            }
+            },
+            decode: ()=>{}
         })
         return encode(args, {extensionCodec})
     }

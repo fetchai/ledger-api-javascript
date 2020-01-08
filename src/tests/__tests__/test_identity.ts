@@ -26,7 +26,7 @@ describe(':Identity', () => {
 
     test('test invalid construction', () => {
         expect(() => {
-            new Identity('')
+            new Identity(Buffer.from(''))
         }).toThrow(ValidationError)
     })
 

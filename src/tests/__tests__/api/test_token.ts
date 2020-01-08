@@ -14,12 +14,11 @@ describe(':TokenApi', () => {
 
     test('test stake cooldown', async () => {
         const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
-        const stake = await api.stake_cooldown(ENTITIES[0], new BN(1000), new BN(50))
+        const stake = await api.stake_cooldown(ENTITIES[0])
         expect(stake.cooldownStake).toBe(500)
     })
 
     test('test deed', async () => {
-
         const deed = new Deed()
         deed.set_signee(ENTITIES[2], 2)
         const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)

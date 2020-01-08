@@ -1,6 +1,7 @@
-import {RunTimeError, ValidationError} from '../errors'
+import {RunTimeError} from '../errors'
 import {BN} from 'bn.js'
 
+type Tuple = [BN, Buffer];
 
 const LOGS = []
 LOGS.push(new BN(256))
@@ -15,7 +16,7 @@ LOGS.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')))
  *
  * @param  {value} calculate log2 num bytes as BN.js object
  */
-const _calculate_log2_num_bytes = value => {
+const _calculate_log2_num_bytes = (value: BN) : number =>  {
 
     for (let i = 0; i < LOGS.length; i++) {
         if (value.cmp(LOGS[i]) === -1) return i
@@ -31,11 +32,7 @@ const _calculate_log2_num_bytes = value => {
  * @param  {buffer} Bytes data
  * @param  {value} The value to be encoded as a BN.js object
  */
-const encode_integer = (buffer, value) => {
-
-    if (!BN.isBN(value)) {
-        throw new ValidationError('value to encode must be BN.js object')
-    }
+const encode_integer = (buffer: Buffer, value: BN) : Buffer => {
 
     const is_signed = value.isNeg()
     const abs_value = value.abs()
@@ -60,12 +57,7 @@ const encode_integer = (buffer, value) => {
     }
 }
 
-
-const decode_integer = (buffer) => {
-
-    if (buffer.length === 0) {
-        throw new ValidationError('Incorrect value being decoded')
-    }
+const decode_integer = (buffer: Buffer) : Tuple =>  {
 
     const header = buffer.slice(0, 1)
     buffer = buffer.slice(1)

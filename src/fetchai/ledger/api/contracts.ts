@@ -39,7 +39,7 @@ export class ContractsApi extends ApiEndpoint {
         signers = (signers !== null) ? signers : [owner]
         const encoded_tx = encode_transaction(tx, signers)
         contract.owner(owner)
-        return await this.post_tx_json(encoded_tx, ENDPOINT)
+        return await this.post_tx_json(encoded_tx)
     }
 
     /**
@@ -83,7 +83,7 @@ export class ContractsApi extends ApiEndpoint {
         await this.set_validity_period(tx)
 
         const encoded_tx = encode_transaction(tx, signers)
-        return await this.post_tx_json(encoded_tx, null)
+        return await this.post_tx_json(encoded_tx)
     }
 
 
@@ -145,7 +145,7 @@ export class ContractTxFactory extends TransactionFactory {
 	public prefix: any;
 
     constructor(api) {
-        super('fetch.contract')
+        super()
         this.api = api
         this.prefix = 'fetch.contract'
     }
@@ -175,7 +175,6 @@ export class ContractTxFactory extends TransactionFactory {
         shard_mask = null) {
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {
-            logger.info('Defaulting to wildcard shard mask as none supplied')
             shard_mask = new BitVector()
         }
 
