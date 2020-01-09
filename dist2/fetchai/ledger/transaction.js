@@ -42,8 +42,7 @@ var crypto_2 = require("crypto");
 function calc_digest(address_raw) {
     var hash_func = crypto_1.createHash('sha256');
     hash_func.update(address_raw);
-    var digest = hash_func.digest();
-    return digest;
+    return hash_func.digest();
 }
 /**
  * This class for Transactions related operations
@@ -53,6 +52,7 @@ function calc_digest(address_raw) {
  */
 var Transaction = /** @class */ (function () {
     function Transaction() {
+        //todo
         this._from = '';
         this._transfers = [];
         this._valid_from = new bn_js_1.BN(0);
@@ -62,17 +62,17 @@ var Transaction = /** @class */ (function () {
         this._contract_address = '';
         this._counter = new bn_js_1.BN(crypto_2.randomBytes(8));
         this._chain_code = '';
-        this._shard_mask = new bitvector_1.BitVector(); // BitVector class instance
-        this._action = '';
+        this._shard_mask = new bitvector_1.BitVector();
+        this._action = ENDPOINT.NONE;
+        //TODO ask Ed  what kind of stuff will go here
         this._metadata = {
             synergetic_data_submission: false
         };
         this._data = '';
-        this._signers = new Map();
     }
     // Get and Set from_address param
     Transaction.prototype.from_address = function (address) {
-        if (address) {
+        if (address !== null) {
             this._from = new address_1.Address(address);
             return this._from;
         }
@@ -139,10 +139,8 @@ var Transaction = /** @class */ (function () {
     };
     // Get and Set action param
     Transaction.prototype.action = function (action) {
-        if (action === void 0) { action = ''; }
-        if (action) {
-            this._action = String(action);
-            return this._action;
+        if (action !== null) {
+            this._action = action;
         }
         return this._action;
     };
@@ -152,10 +150,8 @@ var Transaction = /** @class */ (function () {
     };
     // Get and Set data param. Note: data in bytes
     Transaction.prototype.data = function (data) {
-        if (data === void 0) { data = null; }
-        if (data) {
+        if (data !== null) {
             this._data = data;
-            return this._data;
         }
         return this._data;
     };
@@ -192,12 +188,10 @@ var Transaction = /** @class */ (function () {
         return this._signers;
     };
     Transaction.prototype.add_transfer = function (address, amount) {
-        assert_1.default(bn_js_1.BN.isBN(amount));
         assert_1.default(amount.gtn(new bn_js_1.BN(0)));
         // if it is an identity we turn it into an address
         address = new address_1.Address(address);
-        address = address.toHex();
-        this._transfers.push({ address: address, amount: new bn_js_1.BN(amount) });
+        this._transfers.push({ address: address.toHex(), amount: new bn_js_1.BN(amount) });
     };
     Transaction.prototype.target_contract = function (address, mask) {
         this._contract_address = new address_1.Address(address);
@@ -233,6 +227,7 @@ var Transaction = /** @class */ (function () {
             });
         }
     };
+    //todo SHOULD METHOD REALLY RETURN VOID OR NULL
     Transaction.prototype.merge_signatures = function (tx2) {
         var _this = this;
         if (this.compare(tx2)) {

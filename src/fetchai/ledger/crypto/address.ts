@@ -2,6 +2,7 @@ import * as bs58 from 'bs58'
 import {ValidationError} from '../errors'
 import {createHash} from 'crypto'
 import {Identity} from './identity'
+import {StringFormatOptions} from "../../../../index";
 
 const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4
@@ -14,15 +15,25 @@ const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
  * @class
  */
 export class Address {
-	private _address: Buffer | Uint8Array;
+	private _address: Buffer;
 	private _display: string;
 
      /**
      * @param  {Object|Buffer|String} identity Address object or Buffer or String.
      * @throws {ValidationError} ValidationError on any failures.
      */
-    constructor(identity: string | Address | Identity | Uint8Array) {
-        if (identity instanceof Address) {
+    constructor(identity: AddressLike) {
+
+      if (typeof identity === 'string') {
+            if (!Address.is_address(identity)) {
+                throw new ValidationError('Invalid Address')
+            }
+
+            this._address = bs58.decode(identity).slice(0, BYTE_LENGTH)
+            this._display = identity
+        }
+
+       else if (identity instanceof Address) {
             this._address = identity._address
             this._display = identity._display
         } else if (identity instanceof Identity) {
@@ -37,14 +48,7 @@ export class Address {
 
             this._address = identity
             this._display = this.calculate_display(this._address)
-        } else if (typeof identity === 'string') {
-            if (!Address.is_address(identity)) {
-                throw new ValidationError('Invalid Address')
-            }
-
-            this._address = bs58.decode(identity).slice(0, BYTE_LENGTH)
-            this._display = identity
-        } else {
+        }  else {
             throw new ValidationError('Failed to build identity from input')
         }
     }
@@ -58,7 +62,6 @@ export class Address {
      */
     static is_address(b58_address: string): boolean {
         if (typeof b58_address !== 'string') return false
-
         const bytes = bs58.decode(b58_address)
 
         if (Buffer.byteLength(bytes) !== DISPLAY_BYTE_LENGTH) {
@@ -87,7 +90,7 @@ export class Address {
     /**
      * Get address in bytes
      */
-    toBytes(): Uint8Array | Buffer {
+    toBytes(): Buffer {
         return this._address
     }
 
@@ -107,7 +110,7 @@ export class Address {
         return this._address.toString('hex')
     }
 
-    static digest(address_raw: any) : Uint8Array {
+    static digest(address_raw: any) : Buffer {
         const hash_func = createHash('sha256')
         hash_func.update(address_raw, 'utf8')
         return Buffer.from(hash_func.digest())

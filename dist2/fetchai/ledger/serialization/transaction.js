@@ -45,10 +45,13 @@ var MAGIC = 0xa1;
 // a reserved byte.
 var RESERVED = 0x00;
 var VERSION = 3;
-var NO_CONTRACT = 0;
-var SMART_CONTRACT = 1;
-var CHAIN_CODE = 2;
-var SYNERGETIC = 3;
+var CONTRACT_MODE;
+(function (CONTRACT_MODE) {
+    CONTRACT_MODE[CONTRACT_MODE["NO_CONTRACT"] = 0] = "NO_CONTRACT";
+    CONTRACT_MODE[CONTRACT_MODE["SMART_CONTRACT"] = 1] = "SMART_CONTRACT";
+    CONTRACT_MODE[CONTRACT_MODE["CHAIN_CODE"] = 2] = "CHAIN_CODE";
+    CONTRACT_MODE[CONTRACT_MODE["SYNERGETIC"] = 3] = "SYNERGETIC";
+})(CONTRACT_MODE || (CONTRACT_MODE = {}));
 var EXPECTED_SERIAL_SIGNATURE_LENGTH = 65;
 var log2 = function (value) {
     var count = 0;
@@ -65,16 +68,16 @@ var _calc_digest_utf = function (address_raw) {
 };
 var map_contract_mode = function (payload) {
     if (payload.synergetic_data_submission()) {
-        return SYNERGETIC;
+        return CONTRACT_MODE.SYNERGETIC;
     }
     if (payload.action()) {
         if (payload.chain_code()) {
-            return CHAIN_CODE;
+            return CONTRACT_MODE.CHAIN_CODE;
         }
-        return SMART_CONTRACT;
+        return CONTRACT_MODE.SMART_CONTRACT;
     }
     else {
-        return NO_CONTRACT;
+        return CONTRACT_MODE.NO_CONTRACT;
     }
 };
 var encode_payload = function (payload) {
@@ -109,7 +112,7 @@ var encode_payload = function (payload) {
     buffer = integer.encode_integer(buffer, payload.valid_until());
     buffer = integer.encode_integer(buffer, payload.charge_rate());
     buffer = integer.encode_integer(buffer, payload.charge_limit());
-    if (NO_CONTRACT !== contract_mode) {
+    if (CONTRACT_MODE.NO_CONTRACT !== contract_mode) {
         var shard_mask = payload.shard_mask();
         var shard_mask_length = shard_mask.__len__();
         if (shard_mask_length <= 1) {
@@ -136,10 +139,10 @@ var encode_payload = function (payload) {
                 buffer = Buffer.concat([buffer, shard_mask_bytes]);
             }
         }
-        if (SMART_CONTRACT === contract_mode || SYNERGETIC === contract_mode) {
+        if (CONTRACT_MODE.SMART_CONTRACT === contract_mode || CONTRACT_MODE.SYNERGETIC === contract_mode) {
             buffer = address.encode_address(buffer, payload.contract_address());
         }
-        else if (CHAIN_CODE === contract_mode) {
+        else if (CONTRACT_MODE.CHAIN_CODE === contract_mode) {
             var encoded_chain_code = Buffer.from(payload.chain_code(), 'ascii');
             buffer = bytearray.encode_bytearray(buffer, encoded_chain_code);
         }
@@ -235,7 +238,7 @@ var decode_payload = function (buffer) {
     buffer = buffer.slice(1);
     var tx = new transaction_1.Transaction();
     // Set synergetic contract type
-    tx.synergetic_data_submission(contract_type == SYNERGETIC);
+    tx.synergetic_data_submission(contract_type == CONTRACT_MODE.SYNERGETIC);
     // decode the address from the buffer
     var address_decoded;
     _a = __read(address.decode_address(buffer), 2), address_decoded = _a[0], buffer = _a[1];
@@ -269,7 +272,7 @@ var decode_payload = function (buffer) {
     //  assert not charge_unit_flag, "Currently the charge unit field is not supported"
     _h = __read(integer.decode_integer(buffer), 2), charge_limit = _h[0], buffer = _h[1];
     tx.charge_limit(charge_limit);
-    if (contract_type != NO_CONTRACT) {
+    if (contract_type != CONTRACT_MODE.NO_CONTRACT) {
         var contract_header = buffer.slice(0, 1);
         buffer = buffer.slice(1);
         var contract_header_int = contract_header.readUIntBE(0, 1);
@@ -300,12 +303,12 @@ var decode_payload = function (buffer) {
                 buffer = buffer.slice(byte_length);
             }
         }
-        if (contract_type == SMART_CONTRACT || contract_type == SYNERGETIC) {
+        if (contract_type === CONTRACT_MODE.SMART_CONTRACT || contract_type === CONTRACT_MODE.SYNERGETIC) {
             var contract_address = void 0;
             _j = __read(address.decode_address(buffer), 2), contract_address = _j[0], buffer = _j[1];
             tx.target_contract(contract_address, shard_mask);
         }
-        else if (contract_type == CHAIN_CODE) {
+        else if (contract_type === CONTRACT_MODE.CHAIN_CODE) {
             var encoded_chain_code_name = void 0;
             _k = __read(bytearray.decode_bytearray(buffer), 2), encoded_chain_code_name = _k[0], buffer = _k[1];
             tx.target_chain_code(encoded_chain_code_name.toString(), shard_mask);

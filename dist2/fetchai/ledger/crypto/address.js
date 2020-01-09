@@ -26,7 +26,14 @@ var Address = /** @class */ (function () {
     * @throws {ValidationError} ValidationError on any failures.
     */
     function Address(identity) {
-        if (identity instanceof Address) {
+        if (typeof identity === 'string') {
+            if (!Address.is_address(identity)) {
+                throw new errors_1.ValidationError('Invalid Address');
+            }
+            this._address = bs58.decode(identity).slice(0, BYTE_LENGTH);
+            this._display = identity;
+        }
+        else if (identity instanceof Address) {
             this._address = identity._address;
             this._display = identity._display;
         }
@@ -42,13 +49,6 @@ var Address = /** @class */ (function () {
             }
             this._address = identity;
             this._display = this.calculate_display(this._address);
-        }
-        else if (typeof identity === 'string') {
-            if (!Address.is_address(identity)) {
-                throw new errors_1.ValidationError('Invalid Address');
-            }
-            this._address = bs58.decode(identity).slice(0, BYTE_LENGTH);
-            this._display = identity;
         }
         else {
             throw new errors_1.ValidationError('Failed to build identity from input');

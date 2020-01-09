@@ -125,7 +125,7 @@ export class TxContents {
      *Creates a TxContents from a json string or an object
      */
 
-    static from_json(data) {
+    static from_json(data) : TxContents {
         if (typeof data === 'string') {
             data = JSON.parse(data)
         }

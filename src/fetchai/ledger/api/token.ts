@@ -133,13 +133,12 @@ export class TokenApi extends ApiEndpoint {
      */
     async deed(entity, deed, signatories = null, allow_no_amend = false) {
 
-        const ENDPOINT = 'deed'
         const tx = await TokenTxFactory.deed(entity, deed, signatories, allow_no_amend)
         await super.set_validity_period(tx)
 
         signatories = (signatories === null) ? [entity] : signatories
         const encoded_tx = encode_transaction(tx, signatories)
-        return await super.post_tx_json(encoded_tx, ENDPOINT)
+        return await super.post_tx_json(encoded_tx, ENDPOINT.DEED)
     }
 
     /**
@@ -155,8 +154,6 @@ export class TokenApi extends ApiEndpoint {
     async transfer(entity, to, amount, fee, signatories = null) {
         amount = convert_number(amount)
         fee = convert_number(fee)
-        const ENDPOINT = 'transfer'
-
         const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
         await this.set_validity_period(tx)
         if (signatories == null) {
@@ -164,7 +161,7 @@ export class TokenApi extends ApiEndpoint {
         }
         const encoded_tx = encode_transaction(tx, signatories)
         //submit the transaction
-        return await this.post_tx_json(encoded_tx, ENDPOINT)
+        return await this.post_tx_json(encoded_tx, ENDPOINT.TRANSFER)
     }
 
     /**
@@ -177,13 +174,12 @@ export class TokenApi extends ApiEndpoint {
     async add_stake(entity, amount, fee) {
         amount = convert_number(amount)
         fee = convert_number(fee)
-        const ENDPOINT = 'addStake'
         const tx = await TokenTxFactory.add_stake(entity, amount, fee)
         await super.set_validity_period(tx)
         // encode and sign the transaction
         const encoded_tx = encode_transaction(tx, [entity])
         // submit the transaction
-        return await super.post_tx_json(encoded_tx, ENDPOINT)
+        return await super.post_tx_json(encoded_tx, ENDPOINT.ADDSTAKE)
     }
 
     /**
@@ -197,16 +193,12 @@ export class TokenApi extends ApiEndpoint {
     async de_stake(entity, amount, fee) {
         fee = convert_number(fee)
         amount = convert_number(amount)
-        const ENDPOINT = 'deStake'
-
         const tx = TokenTxFactory.de_stake(entity, amount, fee)
         await super.set_validity_period(tx)
-
         // encode and sign the transaction
         const encoded_tx = encode_transaction(tx, [entity])
-
         // submit the transaction
-        return await super.post_tx_json(encoded_tx, ENDPOINT)
+        return await super.post_tx_json(encoded_tx, ENDPOINT.DESTAKE)
     }
 
     /**
@@ -218,13 +210,12 @@ export class TokenApi extends ApiEndpoint {
      */
     async collect_stake(entity, fee) {
         fee = convert_number(fee)
-        const ENDPOINT = 'collectStake'
         const tx = TokenTxFactory.collect_stake(entity, fee)
         await super.set_validity_period(tx)
         // encode and sign the transaction
         const encoded_tx = encode_transaction(tx, [entity])
         // submit the transaction
-        return await super.post_tx_json(encoded_tx, ENDPOINT)
+        return await super.post_tx_json(encoded_tx, ENDPOINT.COLLECTSTAKE)
     }
 
 }
@@ -238,7 +229,7 @@ export class TokenTxFactory extends TransactionFactory {
     }
 
     static deed(entity, deed, signatories = null, allow_no_amend = false) {
-        const tx = TransactionFactory.create_action_tx(10000, entity, 'deed', 'fetch.token')
+        const tx = TransactionFactory.create_action_tx(10000, entity, ENDPOINT.DEED, 'fetch.token')
 
         if (signatories !== null) {
 
@@ -271,7 +262,7 @@ export class TokenTxFactory extends TransactionFactory {
         fee = convert_number(fee)
         amount = convert_number(amount)
 
-        const tx = TransactionFactory.create_action_tx(fee, entity, 'addStake', 'fetch.token')
+        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.ADDSTAKE, 'fetch.token')
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
@@ -292,7 +283,7 @@ export class TokenTxFactory extends TransactionFactory {
         assert(BN.isBN(amount))
         assert(BN.isBN(fee))
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, entity, 'deStake', 'fetch.token')
+        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.DESTAKE, 'fetch.token')
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
@@ -312,7 +303,7 @@ export class TokenTxFactory extends TransactionFactory {
     static collect_stake(entity, fee, signatories = null) {
         assert(BN.isBN(fee))
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, entity, 'collectStake', 'fetch.token')
+        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.COLLECTSTAKE, 'fetch.token')
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))

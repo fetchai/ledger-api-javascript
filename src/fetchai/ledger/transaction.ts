@@ -18,15 +18,23 @@ import {
 import * as integer from './serialization/integer'
 import {RunTimeError} from './errors'
 import {randomBytes} from 'crypto'
+import {Entity} from "./crypto";
+
+type PayloadTuple = [Transaction, Buffer]
 
 interface TransferItem {
      readonly address: string,
      readonly amount: BN
 }
 
+interface SignatureData {
+     readonly signature: NodeJS.ArrayBufferView,
+     readonly verified: boolean,
+}
 
-
-
+interface Metadata {
+     synergetic_data_submission: boolean
+}
 
 function calc_digest(address_raw) : Buffer {
     const hash_func = createHash('sha256')
@@ -42,43 +50,28 @@ function calc_digest(address_raw) : Buffer {
  */
 export class Transaction {
     //todo
-	public _from: string | Address;
-	public _transfers: Array<TransferItem>;
-	public _valid_from: BN;
-	public _valid_until: BN;
-	public _charge_rate: BN;
-	public _charge_limit: BN;
-	public _contract_address: string | Address;
-	public _counter: BN;
-	public _chain_code: string | Address;
-	public _shard_mask: BitVector;
-	public _action: any;
-	public _metadata: any;
-	public _data: any;
-	public _signers: any;
-
-    constructor() {
-        this._from = ''
-        this._transfers = []
-        this._valid_from = new BN(0)
-        this._valid_until = new BN(0)
-        this._charge_rate = new BN(0)
-        this._charge_limit = new BN(0)
-        this._contract_address = ''
-        this._counter = new BN(randomBytes(8))
-        this._chain_code = ''
-        this._shard_mask = new BitVector()
-        this._action = ''
-        this._metadata = {
+	public _from: string | Address = '';
+	public _transfers: Array<TransferItem> = [];
+	public _valid_from: BN = new BN(0);
+	public _valid_until: BN = new BN(0);
+	public _charge_rate: BN = new BN(0);
+	public _charge_limit: BN = new BN(0);
+	public _contract_address: string | Address= '';
+	public _counter: BN = new BN(randomBytes(8));
+	public _chain_code: string = '';
+	public _shard_mask: BitVector  = new BitVector()
+	public _action: ENDPOINT = ENDPOINT.NONE;
+	//TODO ask Ed  what kind of stuff will go here
+	public _metadata: any = {
             synergetic_data_submission: false
         }
-        this._data = ''
-        this._signers = new Map()
-    }
+	public _data: string = '';
+	public _signers: Map<string, SignatureData | string>;
+
 
     // Get and Set from_address param
-    from_address(address) {
-        if (address) {
+    from_address(address?: AddressLike) : Address | string {
+        if (address !== null) {
             this._from = new Address(address)
             return this._from
         }
@@ -130,12 +123,12 @@ export class Transaction {
     }
 
     // Get contract_address param
-    contract_address() {
+    contract_address() : string | Address {
         return this._contract_address
     }
 
     // getter and setter
-    counter(counter = null) {
+    counter(counter: BN | null = null) : BN {
         if (counter === null) return this._counter
         assert(BN.isBN(counter))
         this._counter = counter
@@ -143,34 +136,32 @@ export class Transaction {
     }
 
     // Get chain_code param
-    chain_code() {
+    chain_code() : string {
         return this._chain_code
     }
 
     // Get and Set action param
-    action(action = '') {
-        if (action) {
-            this._action = String(action)
-            return this._action
+    action(action? : ENDPOINT) : ENDPOINT {
+        if (action !== null) {
+            this._action = action
         }
         return this._action
     }
 
     // Get shard_mask param
-    shard_mask() {
+    shard_mask() : BitVector {
         return this._shard_mask
     }
 
     // Get and Set data param. Note: data in bytes
-    data(data = null) {
-        if (data) {
+    data(data?) : string {
+        if (data !== null) {
             this._data = data
-            return this._data
         }
         return this._data
     }
 
-    compare(other) {
+    compare(other: Transaction) : boolean {
         const x = this.payload().toString('hex')
         const y = other.payload().toString('hex')
         if (x !== y) {
@@ -180,19 +171,19 @@ export class Transaction {
         }
     }
 
-    payload() {
+    payload(): Buffer {
         const buffer = encode_payload(this)
         // so to get running lets just do like hex or whatever since only used to compare but then actually get same as python and delete this comment at later stage.
         return buffer
     }
 
-    static from_payload(payload) {
+    static from_payload(payload) : PayloadTuple {
         let [tx, buffer] = decode_payload(payload)
 
         return [tx, buffer]
     }
 
-    static from_encoded(encoded_transaction) {
+    static from_encoded(encoded_transaction) : Transaction | null {
         const [success, tx] = decode_transaction(encoded_transaction)
         if (success) {
             return tx
@@ -202,20 +193,18 @@ export class Transaction {
     }
 
     // Get signers param.
-    signers() {
+    signers() : Map<string, SignatureData | string> {
         return this._signers
     }
 
-    add_transfer(address, amount) {
-        assert(BN.isBN(amount))
+    add_transfer(address: AddressLike, amount: BN) : void {
         assert(amount.gtn(new BN(0)))
         // if it is an identity we turn it into an address
         address = new Address(address)
-        address = address.toHex()
-        this._transfers.push({address: address, amount: new BN(amount)})
+        this._transfers.push({address: address.toHex(), amount: new BN(amount)})
     }
 
-    target_contract(address: string | Address , mask) {
+    target_contract(address: AddressLike , mask: BitVector | number) {
         this._contract_address = new Address(address)
         this._shard_mask = new BitVector(mask)
         this._chain_code = ''
@@ -228,7 +217,7 @@ export class Transaction {
     }
 
     // Get and Set synergetic_data_submission param
-    synergetic_data_submission(is_submission = false) {
+    synergetic_data_submission(is_submission: boolean = false) : boolean {
         if (is_submission) {
             this._metadata['synergetic_data_submission'] = is_submission
             return this._metadata['synergetic_data_submission']
@@ -236,13 +225,13 @@ export class Transaction {
         return this._metadata['synergetic_data_submission']
     }
 
-    add_signer(signer) {
+    add_signer(signer: string) : void {
         if (!(this._signers.has(signer))) {
             this._signers.set(signer, '') // will be replaced with a signature in the future
         }
     }
 
-    sign(signer) {
+    sign(signer: Entity) : void {
         if (this._signers.has(signer.public_key_hex())) {
             const payload_digest = calc_digest(this.payload())
             const sign_obj = signer.sign(payload_digest)
@@ -252,8 +241,8 @@ export class Transaction {
             })
         }
     }
-
-    merge_signatures(tx2) {
+   //todo SHOULD METHOD REALLY RETURN VOID OR NULL
+    merge_signatures(tx2: Transaction) : void | null {
         if (this.compare(tx2)) {
 
             const signers = tx2.signers()
@@ -272,7 +261,7 @@ export class Transaction {
         }
     }
 
-    encode_partial() {
+    encode_partial() : Buffer {
 
         let buffer = encode_payload(this)
         let num_signed = 0
@@ -293,7 +282,7 @@ export class Transaction {
         return buffer
     }
 
-    static decode_partial(buffer) {
+    static decode_partial(buffer) : Transaction {
         let tx;
         [tx, buffer] = decode_payload(buffer)
         let num_sigs;

@@ -205,7 +205,7 @@ export class ContractTxFactory extends TransactionFactory {
         }
 
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, owner, 'create', 'fetch.contract', shard_mask)
+        const tx = TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, 'fetch.contract', shard_mask)
         const data = JSON.stringify({
             'text': contract.encoded_source(),
             'nonce': contract.nonce(),

@@ -11,7 +11,7 @@ import {encode_multisig_transaction} from '../serialization/transaction'
 import {LedgerApi} from "./init";
 type Tuple = [boolean, Object];
 
-function format_contract_url(host: string, port: string, prefix: string | null = null, endpoint: string | null = null, protocol: string = 'http') {
+function format_contract_url(host: string, port: string, prefix: string | null = null, endpoint: ENDPOINT | null = null, protocol: string = 'http') : string {
     let canonical_name, url
 
     if (endpoint === null || endpoint === '') {
@@ -38,7 +38,7 @@ export class ApiEndpoint {
 	public prefix: string;
 	public _host: string;
 	public _port: string;
-	public readonly DEFAULT_BLOCK_VALIDITY_PERIOD= 100
+	public readonly DEFAULT_BLOCK_VALIDITY_PERIOD = 100
 	public parent_api: LedgerApi;
 
     constructor(host: string, port: string, api: LedgerApi) {
@@ -78,10 +78,9 @@ export class ApiEndpoint {
      * @param  {data} data for request body.
      * @param  {prefix} prefix of the url.
      */
-    async post_json(endpoint, data = {}, prefix = this.prefix) : Promise<Tuple>{
+    async post_json(endpoint : ENDPOINT, data = {}, prefix = this.prefix) : Promise<Tuple>{
 
         // format and make the request
-        //  let url = `http://${this._host}:${this._port}/api/contract/${prefix}/${endpoint}`
         const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
         // define the request headers
 
@@ -166,7 +165,7 @@ export class ApiEndpoint {
         return tx.valid_until()
     }
 
-    async current_block_number() {
+    async current_block_number() : Promise<number> {
         let response = await this._get_json('status/chain', {size: 1})
         let block_number = -1
         if (response) {
@@ -175,7 +174,7 @@ export class ApiEndpoint {
         return block_number
     }
 
-    async _get_json(path, data) {
+    async _get_json(path: string, data: any) {
         let url = `http://${this._host}:${this._port}/api/${path}`
 
         // define the request headers
@@ -209,7 +208,7 @@ export class ApiEndpoint {
      * @returns {Promise<null|*>} Promise resolves to the hexadecimal digest of the submitted transaction
      */
 
-    async post_tx_json(tx_data, endpoint) {
+    async post_tx_json(tx_data: Buffer, endpoint: ENDPOINT) : Promise<any | null> {
         let request_headers = {
             'content-type': 'application/vnd+fetch.transaction+json'
         }
@@ -256,7 +255,7 @@ export class TransactionFactory {
         return tx
     }
 
-    static create_action_tx(fee: BN | number, entity: Entity, action: string, prefix: string, shard_mask = null) {
+    static create_action_tx(fee: BN | number, entity: Entity, action: ENDPOINT, prefix: string, shard_mask = null) : Transaction  {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))
