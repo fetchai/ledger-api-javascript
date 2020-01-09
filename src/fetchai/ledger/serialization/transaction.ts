@@ -10,7 +10,7 @@ import {Identity} from '../crypto/identity'
 import {Transaction} from '../transaction'
 import {BN} from 'bn.js'
 import {encode_bytearray} from './bytearray'
-import {Address} from "../crypto";
+import {Entity} from "../crypto/entity";
 // *******************************
 // ********** Constants **********
 // *******************************
@@ -38,9 +38,9 @@ const log2 = (value: number) : number => {
     return count
 }
 
-const _calc_digest_utf = (address_raw: string) : Buffer => {
+const _calc_digest_utf = (address_raw: Buffer) : Buffer => {
     const hash_func = createHash('sha256')
-    hash_func.update(address_raw, 'utf8')
+    hash_func.update(address_raw)
     return hash_func.digest()
 }
 
@@ -156,7 +156,7 @@ const encode_payload = ( payload: Transaction) : Buffer => {
     }
 
     // write all the signers public keys
-    payload._signers.forEach((v, k) => {
+    payload._signers.forEach((v: any, k: string) => {
         buffer = identity.encode_identity(
             buffer,
             Buffer.from(
@@ -168,7 +168,7 @@ const encode_payload = ( payload: Transaction) : Buffer => {
     return buffer
 }
 
-const encode_multisig_transaction = (payload: Transaction, signatures) : Buffer => {
+const encode_multisig_transaction = (payload: Transaction, signatures: any) : Buffer => {
     // assert isinstance(payload, bytes) or isinstance(payload, transaction.Transaction)
     //assert((payload instance bytes) or isinstance(payload, transaction.Transaction)
     // encode the contents of the transaction
@@ -186,7 +186,7 @@ const encode_multisig_transaction = (payload: Transaction, signatures) : Buffer 
     return buffer
 }
 
-const encode_transaction = (payload: Transaction, signers ) : Buffer => {
+const encode_transaction = (payload: Transaction, signers : Array<Entity>) : Buffer => {
     // encode the contents of the transaction
     let buffer = encode_payload(payload)
     // extract the payload buffer
@@ -374,15 +374,15 @@ type DECODE_TUPLE = [boolean, Transaction]
 
 const decode_transaction = (buffer: Buffer ) : DECODE_TUPLE => {
     const input_buffer = buffer
-    let tx;
+    let tx: Transaction;
     [tx, buffer] = decode_payload(buffer)
     const num_signatures = tx.signers().size
     const signatures_serial_length = EXPECTED_SERIAL_SIGNATURE_LENGTH * num_signatures
     const expected_payload_end = Buffer.byteLength(input_buffer) - signatures_serial_length
     const payload_bytes = input_buffer.slice(0, expected_payload_end)
-    const verified = []
+    const verified: Array<boolean> = []
 
-    tx.signers().forEach((v, k) => {
+    tx.signers().forEach((v: any, k: string) => {
         let identity, signature;
         [signature, buffer] = bytearray.decode_bytearray(buffer)
         identity = Identity.from_hex(k)

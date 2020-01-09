@@ -115,7 +115,7 @@ export class Parser {
             // if null then use statement has no params, so we deal with it differently.
             if(use_name === null) {
                 let non_paramaterized_use_name = /(?<=use)([\s\S]*?)(?=;)/
-                let identifier = non_paramaterized_use_name.exec(use_statements[i] as string)
+                let identifier = non_paramaterized_use_name.exec(use_statements[i])
 
                 obj.sharded = false
                 obj.identifier = identifier[0].trim()

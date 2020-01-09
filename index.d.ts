@@ -14,36 +14,53 @@
  */
 
 import {Address, Identity} from "./src/fetchai/ledger/crypto";
+import {BN} from 'bn.js'
 
 declare global {
 
     // types which can be accepted by Address constructor
-type AddressLike = string | Address | Identity | Buffer;
+    type AddressLike = string | Address | Identity | Buffer;
+// allowed numeric datatypes for public API of SDK, which are then converted into BN instances for sending to ledger.
+type AllowedInputType = number | BN;
 
-enum PREFIX {
-     CONTRACT = "fetch.contract",
-    TOKEN = "fetch.token",
-}
-
-enum ENDPOINT {
-    NONE = "",
-    BALANCE = "balance",
-    STAKE = "stake",
-    COOLDOWNSTAKE = "cooldownStake",
-    ADDSTAKE = "addStake",
-    COLLECTSTAKE = "collectStake",
-    DESTAKE = "destake",
-    DEED = "deed",
-    CREATE = "create",
-    TRANSFER = "transfer"
-}
-
-    /*~ Here, declare things that go in the global namespace, or augment
-     *~ existing declarations in the global namespace
-     */
-    interface String {
-        fancyFormat(opts: StringFormatOptions): string;
+    enum PREFIX {
+        CONTRACT = "fetch.contract",
+        TOKEN = "fetch.token",
     }
+
+    //Non-exhaustive list of common endpoints: additional custom endpoints may also exist
+    enum ENDPOINT {
+        NONE = "",
+        BALANCE = "balance",
+        STAKE = "stake",
+        COOLDOWNSTAKE = "cooldownStake",
+        ADDSTAKE = "addStake",
+        COLLECTSTAKE = "collectStake",
+        DESTAKE = "destake",
+        DEED = "deed",
+        CREATE = "create",
+        TRANSFER = "transfer"
+    }
+
+    interface String {
+        /**
+         * Imported the type from es2020, and it seems to be wrong, different to actual, so i overwrote it here as it returns string not signatutre matchAll(regexp: RegExp): IterableIterator<RegExpMatchArray>
+         */
+        matchAll(regexp: RegExp): any
+    }
+
+// rename this. The datastructure required to work with our messagepack encode.
+    interface JSONEncodable {
+    [index: number]: Address | string | number | JSONEncodable;
+}
+interface MessagePackable {
+       [index: number]: Address | string | number;
+}
+
+interface ContractionActionArgs {
+       [index: number]: Address | string;
+}
+
 }
 
 /*~ If your module exports types or values, write them as usual */

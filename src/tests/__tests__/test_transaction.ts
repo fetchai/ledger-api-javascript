@@ -171,7 +171,7 @@ describe(':Test Transaction', () => {
 
     test('Test test merge tx signatures', async () => {
         const multi_sig_identity = new Entity()
-        const multi_sig_board = []
+        const multi_sig_board : Entity[] = []
         for (let i = 0; i < 4; i++) {
             multi_sig_board.push(new Entity())
         }

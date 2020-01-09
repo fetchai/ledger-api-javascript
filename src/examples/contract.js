@@ -16,6 +16,7 @@ async function print_address_balances(api, contract, addresses) {
     for (let i = 0; i < addresses.length; i++) {
         // Querying a balance returns an instance of BigNumber (https://github.com/indutny/bn.js/)
         balance = await api.tokens.balance(addresses[i])
+        // todo confirm
         query = await contract.query(api, 'balance', {address: addresses[i]})
         console.log(`Address : ${addresses[i]}: ${balance.toString()} bFET ${query} TOK'.`)
     }

@@ -1,7 +1,7 @@
 import * as integer from './integer'
 import {BN} from 'bn.js'
 
-type Tuple = [Buffer, Buffer];
+type Tuple = [number, Buffer];
 
 const encode_bytearray = (buffer: Buffer, value: Buffer) : Buffer => {
     // value in bytes (ascii encoded)

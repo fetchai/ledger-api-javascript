@@ -3,7 +3,7 @@ import {BN} from 'bn.js'
 
 type Tuple = [BN, Buffer];
 
-const LOGS = []
+const LOGS: Array<BN> = []
 LOGS.push(new BN(256))
 LOGS.push(new BN(65536))
 LOGS.push(new BN(4294967296))

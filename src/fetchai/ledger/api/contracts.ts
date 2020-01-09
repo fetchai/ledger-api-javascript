@@ -5,6 +5,10 @@ import {BitVector} from '../bitvector'
 import {Contract} from '../contract'
 import {encode_transaction} from '../serialization/transaction'
 import {logger} from '../utils'
+import {LedgerApi} from "./init";
+import {Entity} from "../crypto/entity";
+import {BN} from 'bn.js'
+
 
 /**
  * This class for all Tokens APIs.
@@ -18,10 +22,10 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} HOST Ledger host.
      * @param {String} PORT Ledger port.
      */
-    constructor(HOST, PORT, api?) {
-        super(HOST, PORT, api)
+    constructor(host: string, port: number, api?: LedgerApi) {
+        super(host, port, api)
         // tidy up before submitting
-        this.prefix = 'fetch.contract'
+        this.prefix =  PREFIX.CONTRACT
     }
 
     /**
@@ -31,7 +35,8 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} contract contract
      * @param {Object} [shard_mask=null] BitVector object
      */
-    async create(owner, contract, fee, signers = null, shard_mask = null) {
+    async create(owner: Entity, contract: Contract, fee: AllowedInputType, signers = null, shard_mask = null) {
+        fee =
         assert(contract instanceof Contract)
         const ENDPOINT = 'create'
         const contractTxFactory = new ContractTxFactory(this.parent_api)
@@ -87,7 +92,7 @@ export class ContractsApi extends ApiEndpoint {
     }
 
 
-    _encode_json_payload(data) {
+    _encode_json_payload(data: JSONEncodable) {
         assert(typeof data === 'object' && data !== null)
         const params = {}
 
@@ -114,7 +119,7 @@ export class ContractsApi extends ApiEndpoint {
         return params
     }
 
-    static _is_primitive(test) {
+    static _is_primitive(test: string | number) {
         return test !== Object(test)
     }
 
@@ -133,7 +138,7 @@ export class ContractsApi extends ApiEndpoint {
     }
 
 
-    async post_tx_json(tx_data) {
+    async post_tx_json(tx_data: Buffer) : Promise<any | null>{
         return super.post_tx_json(tx_data, null)
     }
 
@@ -142,12 +147,12 @@ export class ContractsApi extends ApiEndpoint {
 
 export class ContractTxFactory extends TransactionFactory {
 	public api: any;
-	public prefix: any;
+	public prefix: PREFIX;
 
-    constructor(api) {
+    constructor(api: LedgerApi) {
         super()
         this.api = api
-        this.prefix = 'fetch.contract'
+        this.prefix = PREFIX.CONTRACT
     }
 
     /**
@@ -165,21 +170,21 @@ export class ContractTxFactory extends TransactionFactory {
      * @param tx
      * @param validity_period
      */
-    async set_validity_period(tx, validity_period = null) {
+    async set_validity_period(tx: TransactionFactory, validity_period: number | null = null) : Promise<BN> {
         await this.api.server.set_validity_period(tx, validity_period)
     }
 
-    async action(contract_address, action,
-        fee, from_address, args,
-        signers = null,
-        shard_mask = null) {
+    async action(contract_address: Address, action: string,
+        fee, from_address, args: MessagePackable,
+        signers : Array<Entity> | null = null,
+        shard_mask: BitVector | null = null) {
         // Default to wildcard shard mask if none supplied
         if (shard_mask === null) {
             shard_mask = new BitVector()
         }
 
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, from_address, action, 'fetch.contract', shard_mask)
+        const tx = TransactionFactory.create_action_tx(fee, from_address, action, PREFIX.CONTRACT, shard_mask)
         tx.target_contract(contract_address, shard_mask)
         tx.data(TransactionFactory.encode_msgpack_payload(args))
         await this.set_validity_period(tx)
@@ -195,7 +200,7 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
 
-    async create(owner, contract, fee, signers = null,
+    async create(owner: Entity, contract: Contract, fee: BN, signers = null,
         shard_mask = null) {
 
         // Default to wildcard shard mask if none supplied

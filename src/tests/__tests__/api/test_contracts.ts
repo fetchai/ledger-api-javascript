@@ -8,10 +8,10 @@ import {TRANSFER_CONTRACT} from '../../../contracts'
 import axios from 'axios'
 
 const [ENTITIES, ADDRESSES] = (() => {
-    const ENTITIES = []
+    const ENTITIES : Entity[] = []
     ENTITIES.push(new Entity(Buffer.from('19c59b0a4890383eea59539173bfca5dc78e5e99037f4ad65c93d5b777b8720e', 'hex')))
     ENTITIES.push(new Entity(Buffer.from('e1b74f6357dbdd0e03ad26afaab04071964ef1c9a0f0abf10edb060e06c890a0', 'hex')))
-    const ADDRESSES = []
+    const ADDRESSES : Address[] = []
     ADDRESSES.push(new Address(ENTITIES[0]))
     ADDRESSES.push(new Address(ENTITIES[1]))
     return [ENTITIES, ADDRESSES]

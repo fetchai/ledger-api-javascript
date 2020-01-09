@@ -11,7 +11,7 @@ import {encode_multisig_transaction} from '../serialization/transaction'
 import {LedgerApi} from "./init";
 type Tuple = [boolean, Object];
 
-function format_contract_url(host: string, port: string, prefix: string | null = null, endpoint: ENDPOINT | null = null, protocol: string = 'http') : string {
+function format_contract_url(host: string, port: number, prefix: string | null = null, endpoint: string | null = null, protocol: string = 'http') : string {
     let canonical_name, url
 
     if (endpoint === null || endpoint === '') {
@@ -35,13 +35,13 @@ function format_contract_url(host: string, port: string, prefix: string | null =
  */
 export class ApiEndpoint {
 	public _protocol: string;
-	public prefix: string;
+	public prefix: PREFIX;
 	public _host: string;
-	public _port: string;
+	public _port: number;
 	public readonly DEFAULT_BLOCK_VALIDITY_PERIOD = 100
 	public parent_api: LedgerApi;
 
-    constructor(host: string, port: string, api: LedgerApi) {
+    constructor(host: string, port: number, api: LedgerApi) {
 
         let protocol
         if (host.includes('://')) {
@@ -51,7 +51,7 @@ export class ApiEndpoint {
         }
 
         this._protocol = protocol
-        this.prefix = 'fetch/token'
+        this.prefix = PREFIX.TOKEN
         this._host = host
         this._port = port
         this.parent_api = api
@@ -65,7 +65,7 @@ export class ApiEndpoint {
         return this._host
     }
 
-    port(): string {
+    port(): number {
         return this._port
     }
 
@@ -78,7 +78,7 @@ export class ApiEndpoint {
      * @param  {data} data for request body.
      * @param  {prefix} prefix of the url.
      */
-    async post_json(endpoint : ENDPOINT, data = {}, prefix = this.prefix) : Promise<Tuple>{
+    async post_json(endpoint : string, data = {}, prefix = this.prefix) : Promise<Tuple>{
 
         // format and make the request
         const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
@@ -154,7 +154,7 @@ export class ApiEndpoint {
     }
 
     // tx is transaction
-    async set_validity_period(tx, validity_period = null) {
+    async set_validity_period(tx: Transaction, validity_period: number | null = null) : Promise<BN> {
         if (!validity_period) {
             validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
         }
@@ -208,7 +208,7 @@ export class ApiEndpoint {
      * @returns {Promise<null|*>} Promise resolves to the hexadecimal digest of the submitted transaction
      */
 
-    async post_tx_json(tx_data: Buffer, endpoint: ENDPOINT) : Promise<any | null> {
+    async post_tx_json(tx_data: Buffer, endpoint: string) : Promise<any | null> {
         let request_headers = {
             'content-type': 'application/vnd+fetch.transaction+json'
         }
@@ -255,7 +255,7 @@ export class TransactionFactory {
         return tx
     }
 
-    static create_action_tx(fee: BN | number, entity: Entity, action: ENDPOINT, prefix: string, shard_mask = null) : Transaction  {
+    static create_action_tx(fee: BN | number, entity: Entity, action: string, prefix: string, shard_mask = null) : Transaction  {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(entity))

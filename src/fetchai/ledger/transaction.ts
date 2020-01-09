@@ -60,14 +60,13 @@ export class Transaction {
 	public _counter: BN = new BN(randomBytes(8));
 	public _chain_code: string = '';
 	public _shard_mask: BitVector  = new BitVector()
-	public _action: ENDPOINT = ENDPOINT.NONE;
-	//TODO ask Ed  what kind of stuff will go here
+	public _action: string;
 	public _metadata: any = {
             synergetic_data_submission: false
         }
 	public _data: string = '';
-	public _signers: Map<string, string | SignatureData>;
-
+	//public _signers: Map<string, string | SignatureData>;
+    public _signers: any;
 
     // Get and Set from_address param
     from_address(address?: AddressLike) : Address | string {
@@ -141,7 +140,7 @@ export class Transaction {
     }
 
     // Get and Set action param
-    action(action? : ENDPOINT) : ENDPOINT {
+    action(action? : string) : string {
         if (action !== null) {
             this._action = action
         }
@@ -189,7 +188,7 @@ export class Transaction {
     }
 
     // Get signers param.
-    signers() : Map<string, SignatureData | string> {
+    signers() : any {
         return this._signers
     }
 
@@ -244,7 +243,7 @@ export class Transaction {
             const signers = tx2.signers()
             // for (let key in signers) {
             signers.forEach((v, k) => {
-                if (signers.has(k) && typeof signers.get(k).signature3 !== 'undefined') {
+                if (signers.has(k) && typeof signers.get(k).signature !== 'undefined') {
                     const s = signers.get(k)
                     this._signers.set(k, s)
                 }

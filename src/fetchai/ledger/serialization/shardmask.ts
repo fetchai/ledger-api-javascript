@@ -17,7 +17,7 @@ export class ShardMask {
 
     static state_to_address(state: string, contract: Contract) : string {
         assert(contract.owner())
-        return `${contract.digest().toString('hex')}.${contract.owner()}.state.${state}`
+        return `${contract.digest().toHex()}.${contract.owner()}.state.${state}`
     }
 
     static resources_to_shard_mask(resource_addresses: Array<string>, num_lanes: number) : BitVector {

@@ -18,7 +18,9 @@ export const _PRIVATE_KEYS = [
 ]
 
 export const [ENTITIES, IDENTITIES, ADDRESSES] = (() => {
-    const ENTITIES = [], IDENTITIES = [], ADDRESSES = []
+    const ENTITIES : Array<Entity> = [];
+        const IDENTITIES : Array<Identity> = [];
+        const ADDRESSES: Array<Address> = [];
 
     for (let i = 0; i < _PRIVATE_KEYS.length; i++) {
         ENTITIES.push(Entity.from_hex(_PRIVATE_KEYS[i]))

@@ -2,7 +2,7 @@ import * as  fs from 'fs'
 import assert from 'assert'
 import {Address} from './crypto/address'
 import {BitVector} from './bitvector'
-import {ContractTxFactory} from './api/contracts'
+import {ContractsApi, ContractTxFactory} from './api/contracts'
 import {createHash, randomBytes} from 'crypto'
 import {default as atob} from 'atob'
 import {default as btoa} from 'btoa'
@@ -11,7 +11,8 @@ import {logger} from './utils'
 import {RunTimeError, ValidationError} from './errors'
 import {Parser} from './parser/parser'
 import {ShardMask} from './serialization/shardmask'
-import {Identity} from "./crypto";
+import {Entity} from "./crypto/entity";
+import {ServerApi} from "./api/server";
 
 interface ContractJSONSerialized {
       readonly version: number,
@@ -22,7 +23,7 @@ interface ContractJSONSerialized {
 
 type ContractsApiLike = ContractTxFactory | LedgerApi
 
-const compute_digest = (source) : Address => {
+const compute_digest = (source: string) : Address => {
     const hash_func = createHash('sha256')
     hash_func.update(source)
     const digest = hash_func.digest()
@@ -30,7 +31,7 @@ const compute_digest = (source) : Address => {
 }
 
 
-const calc_address = (owner, nonce) => {
+const calc_address = (owner: Address, nonce: Buffer) => {
     assert(owner instanceof Address)
     const hash_func = createHash('sha256')
     hash_func.update(owner.toBytes())
@@ -46,7 +47,7 @@ export class Contract {
 	public _owner: Address;
 	public _source: string;
 
-    constructor(source : string, owner: Identity | Address | string, nonce: Buffer = null) {
+    constructor(source : string, owner: AddressLike, nonce: Buffer | null = null) {
         assert(typeof source === 'string')
         this._source = source
         this._digest = compute_digest(source)
@@ -106,7 +107,7 @@ export class Contract {
         return this._address
     }
 
-    async create(api: ContractsApiLike, owner, fee, signers = null) : Promise<string> {
+    async create(api: ContractsApiLike, owner: AddressLike, fee: AllowedInputType, signers: Array<Entity> | null = null) : Promise<string> {
         this.owner(owner)
          //todo THIS LOOKS LIKE BUG, look at later. It can never == null so unreachable at present.
         if (this._init === null) {
@@ -115,7 +116,7 @@ export class Contract {
 
         let shard_mask
         try {
-
+           //todo todo todo todo todo
             //TODO modify hen added etch parser
             // temp we put empty shard mask.
             shard_mask = new BitVector()
@@ -126,7 +127,7 @@ export class Contract {
         return Contract.api(api).create(owner, this, fee, signers, shard_mask)
     }
 
-    async query(api: ContractsApiLike, name, data) {
+    async query(api: ContractsApiLike, name: string, data: JSONEncodable) : Promise<any> {
 
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any queries. Did you deploy it?')
@@ -140,8 +141,7 @@ export class Contract {
             )
         }
 
-
-        const [success, response] = await Contract.api(api).query(this._address, name, data)
+        const [success, response] = await (Contract.api(api) as ContractsApi).query(this._address, name, data)
 
         if (!success) {
             if (response !== null && 'msg' in response) {
@@ -153,7 +153,7 @@ export class Contract {
         return response['result']
     }
 
-    async action(api: ContractsApiLike, name, fee, args, signers = null) {
+    async action(api: ContractsApiLike, name: string, fee: AllowedInputType, args: Array<Address | string> , signers : Array<Entity> | null = null) {
         // verify if we are used undefined
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any actions. Did you deploy it?')
@@ -169,7 +169,7 @@ export class Contract {
 
         // now lets validate the args
         const resource_addresses = Parser.get_resource_addresses(this._source, name, args)
-        const num_lanes = await api.server.num_lanes()
+        const num_lanes = await (api.server as ServerApi).num_lanes()
         let shard_mask = ShardMask.resources_to_shard_mask(resource_addresses, num_lanes)
         const from_address = (signers.length === 1)? new Address(signers[0]) : new Address(this._owner)
         return Contract.api(api).action(this._address, name, fee, from_address, args, signers, shard_mask)
@@ -194,7 +194,7 @@ export class Contract {
         return new Contract(
             source,
             owner,
-            nonce)
+            Buffer.from(nonce, 'base64'))
     }
 
     to_json_object() : ContractJSONSerialized {
