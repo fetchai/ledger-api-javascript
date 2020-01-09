@@ -4,8 +4,15 @@ import {Address} from '../crypto/address'
 import {BN} from 'bn.js'
 import {ApiEndpoint} from './common'
 
-const SUCCESSFUL_TERMINAL_STATES = ['Executed', 'Submitted']
-const NON_TERMINAL_STATES = ['Unknown', 'Pending']
+enum NON_TERMINAL_STATES {
+   UNKNOWN = 'Unknown',
+ PENDING = 'Pending'
+}
+
+enum SUCCESSFUL_TERMINAL_STATES {
+   EXECUTED = 'Executed',
+   SUBMITTED ='Submitted'
+}
 
 /*
 takes an array and turns it into an object, setting the to field and the amount field.
@@ -18,15 +25,15 @@ const tx_array_to_object = (array) =>
     }, {})
 
 export class TxStatus {
-	public digest_bytes: Buffer | Uint8Array;
+	public digest_bytes: Buffer;
 	public digest_hex: string;
 	public status: string;
 	public exit_code: string;
-	public charge: any;
-	public charge_rate: any;
-	public fee: any;
+	public charge: BN;
+	public charge_rate: BN;
+	public fee: BN;
 
-    constructor(digest, status, exit_code, charge, charge_rate, fee) {
+    constructor(digest: Buffer, status: string, exit_code: string, charge: number, charge_rate: number, fee: number) {
         this.digest_bytes = digest
         this.digest_hex = this.digest_bytes.toString('hex')
         this.status = status
@@ -36,7 +43,7 @@ export class TxStatus {
         this.fee = new BN(fee)
     }
 
-    get_status() {
+    get_status() : string {
         return this.status
     }
 
@@ -44,25 +51,25 @@ export class TxStatus {
         return this.exit_code
     }
 
-    successful() {
-        return SUCCESSFUL_TERMINAL_STATES.includes(this.status)
+    successful() : boolean {
+        return (<any>Object).values(SUCCESSFUL_TERMINAL_STATES).includes(this.status)
     }
 
-    failed() {
-        return (!NON_TERMINAL_STATES.includes(this.status) &&
-            !SUCCESSFUL_TERMINAL_STATES.includes(this.status))
+    failed() : boolean {
+        return (!(<any>Object).values(NON_TERMINAL_STATES).includes(this.status) &&
+                !(<any>Object).values(SUCCESSFUL_TERMINAL_STATES).includes(this.status))
     }
 
-    non_terminal() {
-        return NON_TERMINAL_STATES.includes(this.status)
+    non_terminal() : boolean {
+        return (<any>Object).values(NON_TERMINAL_STATES).includes(this.status)
     }
 
 
-    get_digest_hex() {
+    get_digest_hex() : string {
         return this.digest_hex
     }
 
-    get_digest_bytes() {
+    get_digest_bytes() : Buffer {
         return this.digest_bytes
     }
 }
@@ -72,12 +79,12 @@ export class TxContents {
 	public digest_hex: string;
 	public action: any;
 	public chain_code: any;
-	public from_address: any;
-	public contract_address: any;
-	public valid_from: any;
-	public valid_until: any;
-	public charge: any;
-	public charge_limit: any;
+	public from_address: Address;
+	public contract_address: Address | null;
+	public valid_from: BN;
+	public valid_until: BN;
+	public charge: BN;
+	public charge_limit: BN;
 	public transfers: any;
 	public signatories: any;
 	public data: any;
@@ -113,19 +120,16 @@ export class TxContents {
     /**
      *  Returns the amount of FET transferred to an address by this transaction, if any
      */
-    transfers_to(address) {
-        if (address instanceof Address) {
-            address = address.toHex()
-        }
-        if (this.transfers[address]) return this.transfers[address]
-        return new BN(0)
+    transfers_to(address: AddressLike) {
+        const hex = new Address(address).toHex()
+        return (this.transfers[hex]) ? this.transfers[hex] : new BN(0)
     }
 
     /**
      *Creates a TxContents from a json string or an object
      */
 
-    static from_json(data) : TxContents {
+    static from_json(data: any) : TxContents {
         if (typeof data === 'string') {
             data = JSON.parse(data)
         }
@@ -151,7 +155,7 @@ export class TxContents {
 
 export class TransactionApi extends ApiEndpoint {
 
-    async status(tx_digest) {
+    async status(tx_digest: string) : Promise<TxStatus> {
 
         let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/${tx_digest}`
         let request_headers = {
@@ -182,7 +186,7 @@ export class TransactionApi extends ApiEndpoint {
     }
 
 
-    async contents(tx_digest) {
+    async contents(tx_digest: string) : Promise<TxContents> {
         let url = `${this.protocol()}://${this.host()}:${this.port()}/api/tx/${tx_digest}`
         let resp
         try {

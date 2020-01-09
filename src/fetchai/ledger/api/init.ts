@@ -2,12 +2,17 @@ import * as semver from 'semver'
 import {__compatible__} from '../init'
 import {ApiError} from '../errors/apiError'
 import {ContractsApi} from './contracts'
-import {IncompatibleLedgerVersionError, ValidationError} from '../errors'
+import {IncompatibleLedgerVersionError} from '../errors'
 import {ServerApi} from './server'
 import {TokenApi} from './token'
 import {TransactionApi, TxStatus} from './tx'
 
 const DEFAULT_TIMEOUT = 120
+
+interface WaitingTransactionItem {
+     time: number,
+      tx_status: TxStatus,
+}
 
 /**
  * This class for all ledger APIs.
@@ -16,10 +21,10 @@ const DEFAULT_TIMEOUT = 120
  * @class
  */
 export class LedgerApi {
-	public tokens: any;
-	public contracts: any;
-	public tx: any;
-	public server: any;
+	public tokens: TokenApi;
+	public contracts: ContractsApi;
+	public tx: TransactionApi;
+	public server: ServerApi;
 
     /**
      * @param  {Boolean} host ledger host.
@@ -44,9 +49,9 @@ export class LedgerApi {
      * @param  {Boolean} [timeout=false] units seconds.
      * @returns {Promise} return asyncTimerPromise.
      */
-    async sync(txs, timeout = DEFAULT_TIMEOUT, hold_state_sec = 0, extend_success_status = []) {
+    async sync(txs: Array<TxStatus | string> | string, timeout: number = DEFAULT_TIMEOUT, hold_state_sec: number = 0, extend_success_status: Array<string> = []) {
 
-        if (!Array.isArray(txs) && !txs.length) {
+        if (!Array.isArray(txs) && typeof txs !== "string") {
             throw new TypeError('Unknown argument type')
         }
 
@@ -55,11 +60,11 @@ export class LedgerApi {
         }
         let limit = timeout*1000
 
-        const failed = []
+        const failed : Array<TxStatus> = []
         // successful transactions are out in this waiting array, and then if they remain successful
         // for a time period equal to hold_state_sec they are removed and considered successful. This is
         // because certain transactions can change from successful to not, so we revert if this occurs.
-        const waiting = []
+        const waiting : Array<WaitingTransactionItem> = []
 
         const asyncTimerPromise = new Promise((resolve, reject) => {
 
@@ -76,32 +81,33 @@ export class LedgerApi {
                     }
                 }
                 // we poll all of the digests.
-                txs = await this.poll(txs)
+
+                    txs = await this.poll(txs as Array<TxStatus | string>)
 
                 for (let i = 0; i < txs.length; i++) {
 
                     // if failed we push into array of failed and go to next one.
-                    if (txs[i].failed()) {
-                        failed.push(txs[i])
+                    if ((txs[i] as TxStatus).failed()) {
+                        failed.push(txs[i] as TxStatus)
                         txs.splice(i, 1)
                         i--
                         continue
                     }
 
 
-                    if (txs[i].non_terminal()) {
+                    if ((txs[i] as TxStatus).non_terminal()) {
                         // if a transaction reverts its status to a non-terminal state within hold time then revert.
-                        let index = waiting.findIndex(item => (Date.now() - item.time) < hold_state_sec && item.tx_status.get_digest_hex() === txs[i].get_digest_hex())
+                        let index = waiting.findIndex(item => (Date.now() - item.time) < hold_state_sec && item.tx_status.get_digest_hex() === (txs[i] as TxStatus).get_digest_hex())
 
                         if (index !== -1) {
                             waiting.splice(index, 1)
                         }
                     }
 
-                    if (txs[i].successful() || extend_success_status.includes(txs[i].get_status())) {
+                    if ((txs[i] as TxStatus).successful() || extend_success_status.includes((txs[i]as TxStatus).get_status())) {
                         let index = waiting.findIndex(item => {
                             const x = Date.now() - item.time
-                            return x > hold_state_sec && item.tx_status.get_digest_hex() === txs[i].get_digest_hex()
+                            return x > hold_state_sec && item.tx_status.get_digest_hex() === (txs[i] as TxStatus).get_digest_hex()
                         })
 
                         if (index !== -1) {
@@ -110,14 +116,9 @@ export class LedgerApi {
                             i--
                         } else {
                             // check if it is currently waiting for hold time to elapse.
-                            let index = waiting.findIndex(item => {
+                            let index = waiting.findIndex(item => ((txs[i] as TxStatus).get_digest_hex() === item.tx_status.get_digest_hex()))
+                            if (index === -1) waiting.push({time: Date.now(), tx_status: txs[i] as TxStatus})
 
-                                let x = item.tx_status.get_digest_hex()
-                                return txs[i].get_digest_hex() === x
-                            })
-                            if (index === -1) {
-                                waiting.push({time: Date.now(), tx_status: txs[i]})
-                            }
                         }
                     }
 
@@ -128,27 +129,27 @@ export class LedgerApi {
                 if (elapsed_time >= limit) {
                     clearInterval(loop)
                     // and return all those which still have not.
-                    return reject(failed.concat(txs))
+                    return reject(failed.concat(txs as Array<TxStatus>))
                 }
             }, 100)
         })
         return asyncTimerPromise
     }
 
-    async poll(txs) {
+
+    async poll(txs: Array<string | TxStatus> ) : Promise<Array<TxStatus>> {
         let tx_status
         const res = []
 
         for (let i = 0; i < txs.length; i++) {
             try {
                 if (txs[i] instanceof TxStatus) {
-                    tx_status = await this.tx.status(txs[i].get_digest_hex())
+                    tx_status = await this.tx.status((txs[i] as TxStatus).get_digest_hex())
                 } else {
-                    tx_status = await this.tx.status(txs[i])
+                    tx_status = await this.tx.status(txs[i] as string)
                 }
                 res.push(tx_status)
             } catch (e) {
-
                 if (!(e instanceof ApiError)) {
                     // if wedon't fail whole thing then we must push it into it to keep arrays same length.
                     // this needs looking at and asking eds opinion for future direction.
@@ -160,7 +161,7 @@ export class LedgerApi {
     }
 
 
-    static async from_network_name(host, port) {
+    static async from_network_name(host: string, port: number) {
         const api = new LedgerApi(host, port)
         const server_version = await api.server.version()
         if (

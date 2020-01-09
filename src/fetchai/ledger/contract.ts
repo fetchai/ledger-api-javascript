@@ -20,6 +20,8 @@ interface ContractJSONSerialized {
       readonly nonce: string,
 }
 
+type ContractsApiLike = ContractTxFactory | LedgerApi
+
 const compute_digest = (source) : Address => {
     const hash_func = createHash('sha256')
     hash_func.update(source)
@@ -104,7 +106,7 @@ export class Contract {
         return this._address
     }
 
-    async create(api: LedgerApi, owner, fee, signers = null) : Promise<string> {
+    async create(api: ContractsApiLike, owner, fee, signers = null) : Promise<string> {
         this.owner(owner)
          //todo THIS LOOKS LIKE BUG, look at later. It can never == null so unreachable at present.
         if (this._init === null) {
@@ -124,7 +126,7 @@ export class Contract {
         return Contract.api(api).create(owner, this, fee, signers, shard_mask)
     }
 
-    async query(api: LedgerApi, name, data) {
+    async query(api: ContractsApiLike, name, data) {
 
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any queries. Did you deploy it?')
@@ -151,7 +153,7 @@ export class Contract {
         return response['result']
     }
 
-    async action(api: LedgerApi, name, fee, args, signers = null) {
+    async action(api: ContractsApiLike, name, fee, args, signers = null) {
         // verify if we are used undefined
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any actions. Did you deploy it?')
@@ -174,7 +176,7 @@ export class Contract {
     }
 
 
-    static api(ContractsApiLike) {
+    static api(ContractsApiLike: ContractsApiLike) {
         if (ContractsApiLike instanceof ContractTxFactory) {
             return ContractsApiLike
         } else if (ContractsApiLike instanceof LedgerApi) {

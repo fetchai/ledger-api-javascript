@@ -21,13 +21,13 @@ export class ServerApi extends ApiEndpoint {
         return response.data
     }
 
-    async num_lanes() {
+    async num_lanes() : Promise<number> {
         // Queries the ledger for the number of lanes currently active
         const status = await this.status()
         return status.lanes
     }
 
-    async version() {
+    async version() : Promise<string> {
         const status = await this.status()
         return status.version
     }

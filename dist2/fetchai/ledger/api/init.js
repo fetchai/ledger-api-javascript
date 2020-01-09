@@ -89,7 +89,7 @@ var LedgerApi = /** @class */ (function () {
             var limit, failed, waiting, asyncTimerPromise;
             var _this = this;
             return __generator(this, function (_a) {
-                if (!Array.isArray(txs) && !txs.length) {
+                if (!Array.isArray(txs) && typeof txs !== "string") {
                     throw new TypeError('Unknown argument type');
                 }
                 if (!Array.isArray(txs)) {
@@ -145,13 +145,9 @@ var LedgerApi = /** @class */ (function () {
                                             }
                                             else {
                                                 // check if it is currently waiting for hold time to elapse.
-                                                var index_1 = waiting.findIndex(function (item) {
-                                                    var x = item.tx_status.get_digest_hex();
-                                                    return txs[i].get_digest_hex() === x;
-                                                });
-                                                if (index_1 === -1) {
+                                                var index_1 = waiting.findIndex(function (item) { return (txs[i].get_digest_hex() === item.tx_status.get_digest_hex()); });
+                                                if (index_1 === -1)
                                                     waiting.push({ time: Date.now(), tx_status: txs[i] });
-                                                }
                                             }
                                         }
                                         out_i_1 = i;

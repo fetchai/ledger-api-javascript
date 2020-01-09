@@ -223,12 +223,10 @@ var TokenApi = /** @class */ (function (_super) {
         if (signatories === void 0) { signatories = null; }
         if (allow_no_amend === void 0) { allow_no_amend = false; }
         return __awaiter(this, void 0, void 0, function () {
-            var ENDPOINT, tx, encoded_tx;
+            var tx, encoded_tx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        ENDPOINT = 'deed';
-                        return [4 /*yield*/, TokenTxFactory.deed(entity, deed, signatories, allow_no_amend)];
+                    case 0: return [4 /*yield*/, TokenTxFactory.deed(entity, deed, signatories, allow_no_amend)];
                     case 1:
                         tx = _a.sent();
                         return [4 /*yield*/, _super.prototype.set_validity_period.call(this, tx)];
@@ -236,7 +234,7 @@ var TokenApi = /** @class */ (function (_super) {
                         _a.sent();
                         signatories = (signatories === null) ? [entity] : signatories;
                         encoded_tx = transaction_1.encode_transaction(tx, signatories);
-                        return [4 /*yield*/, _super.prototype.post_tx_json.call(this, encoded_tx, ENDPOINT)];
+                        return [4 /*yield*/, _super.prototype.post_tx_json.call(this, encoded_tx, ENDPOINT.DEED)];
                     case 3: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -255,13 +253,12 @@ var TokenApi = /** @class */ (function (_super) {
     TokenApi.prototype.transfer = function (entity, to, amount, fee, signatories) {
         if (signatories === void 0) { signatories = null; }
         return __awaiter(this, void 0, void 0, function () {
-            var ENDPOINT, tx, encoded_tx;
+            var tx, encoded_tx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         amount = convert_number(amount);
                         fee = convert_number(fee);
-                        ENDPOINT = 'transfer';
                         tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories);
                         return [4 /*yield*/, this.set_validity_period(tx)];
                     case 1:
@@ -270,7 +267,7 @@ var TokenApi = /** @class */ (function (_super) {
                             signatories = [entity];
                         }
                         encoded_tx = transaction_1.encode_transaction(tx, signatories);
-                        return [4 /*yield*/, this.post_tx_json(encoded_tx, ENDPOINT)];
+                        return [4 /*yield*/, this.post_tx_json(encoded_tx, ENDPOINT.TRANSFER)];
                     case 2: 
                     //submit the transaction
                     return [2 /*return*/, _a.sent()];
@@ -287,13 +284,12 @@ var TokenApi = /** @class */ (function (_super) {
      */
     TokenApi.prototype.add_stake = function (entity, amount, fee) {
         return __awaiter(this, void 0, void 0, function () {
-            var ENDPOINT, tx, encoded_tx;
+            var tx, encoded_tx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         amount = convert_number(amount);
                         fee = convert_number(fee);
-                        ENDPOINT = 'addStake';
                         return [4 /*yield*/, TokenTxFactory.add_stake(entity, amount, fee)];
                     case 1:
                         tx = _a.sent();
@@ -303,7 +299,7 @@ var TokenApi = /** @class */ (function (_super) {
                     case 2:
                         _a.sent();
                         encoded_tx = transaction_1.encode_transaction(tx, [entity]);
-                        return [4 /*yield*/, _super.prototype.post_tx_json.call(this, encoded_tx, ENDPOINT)];
+                        return [4 /*yield*/, _super.prototype.post_tx_json.call(this, encoded_tx, ENDPOINT.ADDSTAKE)];
                     case 3: 
                     // submit the transaction
                     return [2 /*return*/, _a.sent()];
@@ -321,13 +317,12 @@ var TokenApi = /** @class */ (function (_super) {
      */
     TokenApi.prototype.de_stake = function (entity, amount, fee) {
         return __awaiter(this, void 0, void 0, function () {
-            var ENDPOINT, tx, encoded_tx;
+            var tx, encoded_tx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         fee = convert_number(fee);
                         amount = convert_number(amount);
-                        ENDPOINT = 'deStake';
                         tx = TokenTxFactory.de_stake(entity, amount, fee);
                         return [4 /*yield*/, _super.prototype.set_validity_period.call(this, tx)
                             // encode and sign the transaction
@@ -335,7 +330,7 @@ var TokenApi = /** @class */ (function (_super) {
                     case 1:
                         _a.sent();
                         encoded_tx = transaction_1.encode_transaction(tx, [entity]);
-                        return [4 /*yield*/, _super.prototype.post_tx_json.call(this, encoded_tx, ENDPOINT)];
+                        return [4 /*yield*/, _super.prototype.post_tx_json.call(this, encoded_tx, ENDPOINT.DESTAKE)];
                     case 2: 
                     // submit the transaction
                     return [2 /*return*/, _a.sent()];
@@ -352,12 +347,11 @@ var TokenApi = /** @class */ (function (_super) {
      */
     TokenApi.prototype.collect_stake = function (entity, fee) {
         return __awaiter(this, void 0, void 0, function () {
-            var ENDPOINT, tx, encoded_tx;
+            var tx, encoded_tx;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         fee = convert_number(fee);
-                        ENDPOINT = 'collectStake';
                         tx = TokenTxFactory.collect_stake(entity, fee);
                         return [4 /*yield*/, _super.prototype.set_validity_period.call(this, tx)
                             // encode and sign the transaction
@@ -365,7 +359,7 @@ var TokenApi = /** @class */ (function (_super) {
                     case 1:
                         _a.sent();
                         encoded_tx = transaction_1.encode_transaction(tx, [entity]);
-                        return [4 /*yield*/, _super.prototype.post_tx_json.call(this, encoded_tx, ENDPOINT)];
+                        return [4 /*yield*/, _super.prototype.post_tx_json.call(this, encoded_tx, ENDPOINT.COLLECTSTAKE)];
                     case 2: 
                     // submit the transaction
                     return [2 /*return*/, _a.sent()];
@@ -386,7 +380,7 @@ var TokenTxFactory = /** @class */ (function (_super) {
     TokenTxFactory.deed = function (entity, deed, signatories, allow_no_amend) {
         if (signatories === void 0) { signatories = null; }
         if (allow_no_amend === void 0) { allow_no_amend = false; }
-        var tx = common_1.TransactionFactory.create_action_tx(10000, entity, 'deed', 'fetch.token');
+        var tx = common_1.TransactionFactory.create_action_tx(10000, entity, ENDPOINT.DEED, 'fetch.token');
         if (signatories !== null) {
             signatories.forEach(function (sig) { return tx.add_signer(sig.public_key_hex()); });
         }
@@ -418,7 +412,7 @@ var TokenTxFactory = /** @class */ (function (_super) {
         // build up the basic transaction information
         fee = convert_number(fee);
         amount = convert_number(amount);
-        var tx = common_1.TransactionFactory.create_action_tx(fee, entity, 'addStake', 'fetch.token');
+        var tx = common_1.TransactionFactory.create_action_tx(fee, entity, ENDPOINT.ADDSTAKE, 'fetch.token');
         if (signatories !== null) {
             signatories.forEach(function (ent) { return tx.add_signer(ent.public_key_hex()); });
         }
@@ -437,7 +431,7 @@ var TokenTxFactory = /** @class */ (function (_super) {
         assert_1.default(bn_js_1.BN.isBN(amount));
         assert_1.default(bn_js_1.BN.isBN(fee));
         // build up the basic transaction information
-        var tx = common_1.TransactionFactory.create_action_tx(fee, entity, 'deStake', 'fetch.token');
+        var tx = common_1.TransactionFactory.create_action_tx(fee, entity, ENDPOINT.DESTAKE, 'fetch.token');
         if (signatories !== null) {
             signatories.forEach(function (ent) { return tx.add_signer(ent.public_key_hex()); });
         }
@@ -455,7 +449,7 @@ var TokenTxFactory = /** @class */ (function (_super) {
         if (signatories === void 0) { signatories = null; }
         assert_1.default(bn_js_1.BN.isBN(fee));
         // build up the basic transaction information
-        var tx = common_1.TransactionFactory.create_action_tx(fee, entity, 'collectStake', 'fetch.token');
+        var tx = common_1.TransactionFactory.create_action_tx(fee, entity, ENDPOINT.COLLECTSTAKE, 'fetch.token');
         if (signatories !== null) {
             signatories.forEach(function (ent) { return tx.add_signer(ent.public_key_hex()); });
         }

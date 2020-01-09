@@ -158,12 +158,7 @@ var Transaction = /** @class */ (function () {
     Transaction.prototype.compare = function (other) {
         var x = this.payload().toString('hex');
         var y = other.payload().toString('hex');
-        if (x !== y) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return x === y;
     };
     Transaction.prototype.payload = function () {
         var buffer = serialization_1.encode_payload(this);
@@ -222,8 +217,8 @@ var Transaction = /** @class */ (function () {
             var payload_digest = calc_digest(this.payload());
             var sign_obj = signer.sign(payload_digest);
             this._signers.set(signer.public_key_hex(), {
-                'signature': sign_obj.signature,
-                'verified': signer.verify(payload_digest, sign_obj.signature)
+                signature: sign_obj.signature,
+                verified: signer.verify(payload_digest, sign_obj.signature)
             });
         }
     };
@@ -234,7 +229,7 @@ var Transaction = /** @class */ (function () {
             var signers_1 = tx2.signers();
             // for (let key in signers) {
             signers_1.forEach(function (v, k) {
-                if (signers_1.has(k) && typeof signers_1.get(k).signature !== 'undefined') {
+                if (signers_1.has(k) && typeof signers_1.get(k).signature3 !== 'undefined') {
                     var s = signers_1.get(k);
                     _this._signers.set(k, s);
                 }

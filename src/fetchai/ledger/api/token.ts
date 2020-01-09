@@ -57,7 +57,7 @@ export class TokenApi extends ApiEndpoint {
         // format and make the request
         let request = {address: address.toString()}
 
-        let [, data] = await super.post_json('balance', request, this.prefix)
+        let [, data] = await super.post_json(ENDPOINT.BALANCE, request, this.prefix)
 
         if (!('balance' in data)) {
             throw new ApiError('Malformed response from server (no balance)')
@@ -80,7 +80,7 @@ export class TokenApi extends ApiEndpoint {
         const request = {
             'address': address.toString()
         }
-        const [success, data] = await super.post_json('stake', request)
+        const [success, data] = await super.post_json(ENDPOINT.STAKE, request)
 
         // check for error cases
         if (!success) {
@@ -108,7 +108,7 @@ export class TokenApi extends ApiEndpoint {
         const request = {
             'address': address.toString()
         }
-        const [success, data] = await super.post_json('cooldownStake', request)
+        const [success, data] = await super.post_json(ENDPOINT.COOLDOWNSTAKE, request)
 
         // check for error cases
         if (!success) {

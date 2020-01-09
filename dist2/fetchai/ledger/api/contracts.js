@@ -329,7 +329,7 @@ var ContractTxFactory = /** @class */ (function (_super) {
                             utils_1.logger.info('Defaulting to wildcard shard mask as none supplied');
                             shard_mask = new bitvector_1.BitVector();
                         }
-                        tx = common_1.TransactionFactory.create_action_tx(fee, owner, 'create', 'fetch.contract', shard_mask);
+                        tx = common_1.TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, 'fetch.contract', shard_mask);
                         data = JSON.stringify({
                             'text': contract.encoded_source(),
                             'nonce': contract.nonce(),

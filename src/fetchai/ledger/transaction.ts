@@ -66,7 +66,7 @@ export class Transaction {
             synergetic_data_submission: false
         }
 	public _data: string = '';
-	public _signers: Map<string, SignatureData | string>;
+	public _signers: Map<string, string | SignatureData>;
 
 
     // Get and Set from_address param
@@ -164,11 +164,7 @@ export class Transaction {
     compare(other: Transaction) : boolean {
         const x = this.payload().toString('hex')
         const y = other.payload().toString('hex')
-        if (x !== y) {
-            return false
-        } else {
-            return true
-        }
+        return x === y
     }
 
     payload(): Buffer {
@@ -210,7 +206,7 @@ export class Transaction {
         this._chain_code = ''
     }
 
-    target_chain_code(chain_code_id, mask) {
+    target_chain_code(chain_code_id: string | number, mask) {
         this._contract_address = ''
         this._shard_mask = new BitVector(mask)
         this._chain_code = String(chain_code_id)
@@ -236,8 +232,8 @@ export class Transaction {
             const payload_digest = calc_digest(this.payload())
             const sign_obj = signer.sign(payload_digest)
             this._signers.set(signer.public_key_hex(), {
-                'signature': sign_obj.signature,
-                'verified': signer.verify(payload_digest, sign_obj.signature)
+                signature: sign_obj.signature,
+                verified: signer.verify(payload_digest, sign_obj.signature)
             })
         }
     }
@@ -248,7 +244,7 @@ export class Transaction {
             const signers = tx2.signers()
             // for (let key in signers) {
             signers.forEach((v, k) => {
-                if (signers.has(k) && typeof signers.get(k).signature !== 'undefined') {
+                if (signers.has(k) && typeof signers.get(k).signature3 !== 'undefined') {
                     const s = signers.get(k)
                     this._signers.set(k, s)
                 }

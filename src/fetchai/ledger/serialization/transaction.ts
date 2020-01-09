@@ -19,8 +19,6 @@ const MAGIC = 0xa1
 const RESERVED = 0x00
 const VERSION = 3
 
-type Tuple = [Address, Uint8Array];
-
 enum CONTRACT_MODE {
     NO_CONTRACT = 0,
     SMART_CONTRACT,
@@ -170,7 +168,7 @@ const encode_payload = ( payload: Transaction) : Buffer => {
     return buffer
 }
 
-const encode_multisig_transaction = (payload: Transaction, signatures: ) => {
+const encode_multisig_transaction = (payload: Transaction, signatures) : Buffer => {
     // assert isinstance(payload, bytes) or isinstance(payload, transaction.Transaction)
     //assert((payload instance bytes) or isinstance(payload, transaction.Transaction)
     // encode the contents of the transaction
@@ -188,7 +186,7 @@ const encode_multisig_transaction = (payload: Transaction, signatures: ) => {
     return buffer
 }
 
-const encode_transaction = (payload: Transaction, signers: ) : Buffer => {
+const encode_transaction = (payload: Transaction, signers ) : Buffer => {
     // encode the contents of the transaction
     let buffer = encode_payload(payload)
     // extract the payload buffer
@@ -219,8 +217,9 @@ const encode_transaction = (payload: Transaction, signers: ) : Buffer => {
     return buffer
 }
 
+type PayloadTuple = [Transaction, Buffer];
 
-const decode_payload = (buffer) => {
+const decode_payload = (buffer: Buffer) : PayloadTuple => {
     // ensure the at the magic is correctly configured
     const magic = buffer.slice(0, 1)
     buffer = buffer.slice(1)
@@ -371,7 +370,9 @@ const decode_payload = (buffer) => {
     return [tx, buffer]
 }
 
-const decode_transaction = (buffer ) => {
+type DECODE_TUPLE = [boolean, Transaction]
+
+const decode_transaction = (buffer: Buffer ) : DECODE_TUPLE => {
     const input_buffer = buffer
     let tx;
     [tx, buffer] = decode_payload(buffer)

@@ -57,8 +57,16 @@ var errors_1 = require("../errors");
 var address_1 = require("../crypto/address");
 var bn_js_1 = require("bn.js");
 var common_1 = require("./common");
-var SUCCESSFUL_TERMINAL_STATES = ['Executed', 'Submitted'];
-var NON_TERMINAL_STATES = ['Unknown', 'Pending'];
+var NON_TERMINAL_STATES;
+(function (NON_TERMINAL_STATES) {
+    NON_TERMINAL_STATES["UNKNOWN"] = "Unknown";
+    NON_TERMINAL_STATES["PENDING"] = "Pending";
+})(NON_TERMINAL_STATES || (NON_TERMINAL_STATES = {}));
+var SUCCESSFUL_TERMINAL_STATES;
+(function (SUCCESSFUL_TERMINAL_STATES) {
+    SUCCESSFUL_TERMINAL_STATES["EXECUTED"] = "Executed";
+    SUCCESSFUL_TERMINAL_STATES["SUBMITTED"] = "Submitted";
+})(SUCCESSFUL_TERMINAL_STATES || (SUCCESSFUL_TERMINAL_STATES = {}));
 /*
 takes an array and turns it into an object, setting the to field and the amount field.
 //TODO ASK ED IF THIS OK?, since we want insertion order, which plain objects don't.
@@ -86,14 +94,14 @@ var TxStatus = /** @class */ (function () {
         return this.exit_code;
     };
     TxStatus.prototype.successful = function () {
-        return SUCCESSFUL_TERMINAL_STATES.includes(this.status);
+        return Object.values(SUCCESSFUL_TERMINAL_STATES).includes(this.status);
     };
     TxStatus.prototype.failed = function () {
-        return (!NON_TERMINAL_STATES.includes(this.status) &&
-            !SUCCESSFUL_TERMINAL_STATES.includes(this.status));
+        return (!Object.values(NON_TERMINAL_STATES).includes(this.status) &&
+            !Object.values(SUCCESSFUL_TERMINAL_STATES).includes(this.status));
     };
     TxStatus.prototype.non_terminal = function () {
-        return NON_TERMINAL_STATES.includes(this.status);
+        return Object.values(NON_TERMINAL_STATES).includes(this.status);
     };
     TxStatus.prototype.get_digest_hex = function () {
         return this.digest_hex;
@@ -124,12 +132,8 @@ var TxContents = /** @class */ (function () {
      *  Returns the amount of FET transferred to an address by this transaction, if any
      */
     TxContents.prototype.transfers_to = function (address) {
-        if (address instanceof address_1.Address) {
-            address = address.toHex();
-        }
-        if (this.transfers[address])
-            return this.transfers[address];
-        return new bn_js_1.BN(0);
+        var hex = new address_1.Address(address).toHex();
+        return (this.transfers[hex]) ? this.transfers[hex] : new bn_js_1.BN(0);
     };
     /**
      *Creates a TxContents from a json string or an object

@@ -1,7 +1,7 @@
 import {Address} from '../../../fetchai/ledger/crypto/address'
 
 const BYTE_LENGTH = 32
-type Tuple = [Address, Uint8Array];
+type Tuple = [Address, Buffer];
 
 const encode_address = (buffer:  Buffer, address: Address | string) :  Buffer => {
     if (address instanceof Address) {
