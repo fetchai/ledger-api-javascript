@@ -179,11 +179,12 @@ var Bootstrap = /** @class */ (function () {
         }
         if (address.includes(':')) {
             _b = __read(address.split(':'), 2), address = _b[0], port = _b[1];
+            port = parseInt(port);
         }
         else {
             port = (protocol == 'https') ? 443 : 8000;
         }
-        return [protocol, address, parseInt(port)];
+        return [protocol, address, port];
     };
     /**
      * Queries bootstrap for the requested network and returns connection details

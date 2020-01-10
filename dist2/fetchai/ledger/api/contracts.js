@@ -82,10 +82,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var assert_1 = __importDefault(require("assert"));
 var address_1 = require("../crypto/address");
 var common_1 = require("./common");
-var bitvector_1 = require("../bitvector");
 var contract_1 = require("../contract");
 var transaction_1 = require("../serialization/transaction");
-var utils_1 = require("../utils");
 /**
  * This class for all Tokens APIs.
  *
@@ -120,8 +118,7 @@ var ContractsApi = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        fee =
-                            assert_1.default(contract instanceof contract_1.Contract);
+                        assert_1.default(contract instanceof contract_1.Contract);
                         ENDPOINT = 'create';
                         contractTxFactory = new ContractTxFactory(this.parent_api);
                         return [4 /*yield*/, contractTxFactory.create(owner, contract, fee, null, shard_mask)];
@@ -144,14 +141,13 @@ var ContractsApi = /** @class */ (function (_super) {
      */
     ContractsApi.prototype.query = function (contract_owner, query, data) {
         return __awaiter(this, void 0, void 0, function () {
-            var prefix, encoded;
+            var encoded;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         assert_1.default(this.isJSON(data));
-                        prefix = contract_owner.toString();
                         encoded = this._encode_json_payload(data);
-                        return [4 /*yield*/, this.post_json(query, encoded, prefix)];
+                        return [4 /*yield*/, this.post_json(query, encoded, contract_owner.toString())];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -297,11 +293,7 @@ var ContractTxFactory = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        // Default to wildcard shard mask if none supplied
-                        if (shard_mask === null) {
-                            shard_mask = new bitvector_1.BitVector();
-                        }
-                        tx = common_1.TransactionFactory.create_action_tx(fee, from_address, action, 'fetch.contract', shard_mask);
+                        tx = common_1.TransactionFactory.create_action_tx(fee, from_address, action, PREFIX.CONTRACT, shard_mask);
                         tx.target_contract(contract_address, shard_mask);
                         tx.data(common_1.TransactionFactory.encode_msgpack_payload(args));
                         return [4 /*yield*/, this.set_validity_period(tx)];
@@ -325,12 +317,7 @@ var ContractTxFactory = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        // Default to wildcard shard mask if none supplied
-                        if (shard_mask === null) {
-                            utils_1.logger.info('Defaulting to wildcard shard mask as none supplied');
-                            shard_mask = new bitvector_1.BitVector();
-                        }
-                        tx = common_1.TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, 'fetch.contract', shard_mask);
+                        tx = common_1.TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, PREFIX.CONTRACT, shard_mask);
                         data = JSON.stringify({
                             'text': contract.encoded_source(),
                             'nonce': contract.nonce(),

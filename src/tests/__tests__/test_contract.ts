@@ -13,13 +13,6 @@ const calc_address = (owner, nonce) => {
     return hash_func.digest()
 }
 
-const _compute_digest = (source) => {
-    const hash_func = createHash('sha256')
-    hash_func.update(source, 'ascii')
-    const d = hash_func.digest()
-    return new Address(d)
-}
-
 jest.mock('fs', () => {
     const MOCK_FILE_INFO = '{"version":1,"owner":"2mhttHhKVRdY1n9BsFNHVJgHjGPvBmnA2FXKCPkJaC6TkXmaY9","source":"CkBpbml0CmZ1bmN0aW9uIGluaXQob3duZXI6IEFkZHJlc3MpCmVuZGZ1bmN0aW9uCgpAYWN0aW9uCmZ1bmN0aW9uIGFjdGlvbjEoKQplbmRmdW5jdGlvbgoKQGFjdGlvbgpmdW5jdGlvbiBhY3Rpb24yKCkKZW5kZnVuY3Rpb24KCkBxdWVyeQpmdW5jdGlvbiBxdWVyeTEoKQplbmRmdW5jdGlvbgoKQHF1ZXJ5CmZ1bmN0aW9uIHF1ZXJ5MigpCmVuZGZ1bmN0aW9uCg==","nonce":"pEGxX+mjz1Y="}'
     const EXPECTED_FP = '/path/to/file'
@@ -94,7 +87,7 @@ describe(':Test Contract', () => {
         const orig = new Contract(SIMPLE_CONTRACT, owner, nonce)
         //check if we can get rid of this ascii bit
         const contract_string = Buffer.from(SIMPLE_CONTRACT).toString('ascii')
-        const ref_digest = _compute_digest(contract_string)
+        const ref_digest = new Address(calc_digest(contract_string))
         const ref_address = new Address(calc_address(owner, nonce))
         const ref_name = ref_digest.toBytes().toString('hex') + ref_address.toHex()
 

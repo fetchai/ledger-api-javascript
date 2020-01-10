@@ -345,11 +345,11 @@ var TransactionFactory = /** @class */ (function () {
         tx.charge_limit(new bn_js_1.BN(fee));
         return tx;
     };
-    TransactionFactory.create_action_tx = function (fee, entity, action, prefix, shard_mask) {
+    TransactionFactory.create_action_tx = function (fee, from, action, prefix, shard_mask) {
         if (shard_mask === void 0) { shard_mask = null; }
         var mask = (shard_mask === null) ? new bitvector_1.BitVector() : shard_mask;
         var tx = TransactionFactory.create_skeleton_tx(fee);
-        tx.from_address(new crypto_1.Address(entity));
+        tx.from_address(new crypto_1.Address(from));
         tx.target_chain_code(prefix, mask);
         tx.action(action);
         return tx;

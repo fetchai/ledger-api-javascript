@@ -7,7 +7,7 @@ import {createHash, randomBytes} from 'crypto'
 import {default as atob} from 'atob'
 import {default as btoa} from 'btoa'
 import {LedgerApi} from './api'
-import {logger} from './utils'
+import {calc_digest, logger} from './utils'
 import {RunTimeError, ValidationError} from './errors'
 import {Parser} from './parser/parser'
 import {ShardMask} from './serialization/shardmask'
@@ -22,14 +22,6 @@ interface ContractJSONSerialized {
 }
 
 type ContractsApiLike = ContractTxFactory | LedgerApi
-
-const compute_digest = (source: string) : Address => {
-    const hash_func = createHash('sha256')
-    hash_func.update(source)
-    const digest = hash_func.digest()
-    return new Address(digest)
-}
-
 
 const calc_address = (owner: Address, nonce: Buffer) => {
     assert(owner instanceof Address)
@@ -47,10 +39,10 @@ export class Contract {
 	public _owner: Address;
 	public _source: string;
 
-    constructor(source : string, owner: AddressLike, nonce: Buffer | null = null) {
+    constructor(source : string, owner: AddressLike, nonce?: Buffer) {
         assert(typeof source === 'string')
         this._source = source
-        this._digest = compute_digest(source)
+        this._digest = new Address(calc_digest(source))
         this._owner = new Address(owner)
         this._nonce = nonce || randomBytes(8)
         this._address = new Address(calc_address(this._owner, this._nonce))
@@ -107,7 +99,7 @@ export class Contract {
         return this._address
     }
 
-    async create(api: ContractsApiLike, owner: AddressLike, fee: AllowedInputType, signers: Array<Entity> | null = null) : Promise<string> {
+    async create(api: ContractsApiLike, owner: Entity, fee: NumericInput, signers: Array<Entity> | null = null) : Promise<string> {
         this.owner(owner)
          //todo THIS LOOKS LIKE BUG, look at later. It can never == null so unreachable at present.
         if (this._init === null) {
@@ -153,7 +145,7 @@ export class Contract {
         return response['result']
     }
 
-    async action(api: ContractsApiLike, name: string, fee: AllowedInputType, args: Array<Address | string> , signers : Array<Entity> | null = null) {
+    async action(api: ContractsApiLike, name: string, fee: NumericInput, args: Array<Address | string> , signers : Array<Entity> | null = null) {
         // verify if we are used undefined
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any actions. Did you deploy it?')

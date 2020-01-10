@@ -15,13 +15,18 @@
 
 import {Address, Identity} from "./src/fetchai/ledger/crypto";
 import {BN} from 'bn.js'
+import {BitVector} from "./src/fetchai/ledger";
 
 declare global {
 
     // types which can be accepted by Address constructor
     type AddressLike = string | Address | Identity | Buffer;
+    // valid types as per bitvector constructor
+    type BitVectorLike = BitVector | number | null;
+
+     type BinaryLike = string | Buffer;
 // allowed numeric datatypes for public API of SDK, which are then converted into BN instances for sending to ledger.
-type AllowedInputType = number | BN;
+type NumericInput = number | BN;
 
     enum PREFIX {
         CONTRACT = "fetch.contract",

@@ -138,7 +138,7 @@ export class TokenApi extends ApiEndpoint {
      * @returns The digest of the submitted transaction.
      * @throws {ApiError} ApiError on any failures.
      */
-    async transfer(entity: Entity, to: AddressLike, amount: AllowedInputType, fee: AllowedInputType, signatories: Entity[] | null = null) : Promise<any | null> {
+    async transfer(entity: Entity, to: AddressLike, amount: NumericInput, fee: NumericInput, signatories: Entity[] | null = null) : Promise<any | null> {
         amount = convert_number(amount)
         fee = convert_number(fee)
         const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
@@ -158,7 +158,7 @@ export class TokenApi extends ApiEndpoint {
      * @param amount The amount to stake
      * @param fee
      */
-    async add_stake(entity: Entity, amount: AllowedInputType, fee: AllowedInputType)  : Promise<any | null> {
+    async add_stake(entity: Entity, amount: NumericInput, fee: NumericInput)  : Promise<any | null> {
         amount = convert_number(amount)
         fee = convert_number(fee)
         const tx = await TokenTxFactory.add_stake(entity, amount, fee)
@@ -177,7 +177,7 @@ export class TokenApi extends ApiEndpoint {
      * @param fee
      * @returns {Promise<*>} The digest of the submitted transaction
      */
-    async de_stake(entity, amount:  AllowedInputType, fee: AllowedInputType) : Promise<any | null> {
+    async de_stake(entity, amount:  NumericInput, fee: NumericInput) : Promise<any | null> {
         fee = convert_number(fee)
         amount = convert_number(amount)
         const tx = TokenTxFactory.de_stake(entity, amount, fee)
@@ -195,7 +195,7 @@ export class TokenApi extends ApiEndpoint {
      * @param fee
      * @returns {Promise<*>}
      */
-    async collect_stake(entity: Entity, fee: AllowedInputType) {
+    async collect_stake(entity: Entity, fee: NumericInput) {
         fee = convert_number(fee)
         const tx = TokenTxFactory.collect_stake(entity, fee)
         await super.set_validity_period(tx)
@@ -229,7 +229,7 @@ export class TokenTxFactory extends TransactionFactory {
         return tx
     }
 
-    static transfer(entity: Entity, to: AddressLike, amount: AllowedInputType, fee: AllowedInputType, signatories: Array<Entity> | null = null) : Transaction {
+    static transfer(entity: Entity, to: AddressLike, amount: NumericInput, fee: NumericInput, signatories: Array<Entity> | null = null) : Transaction {
         fee = convert_number(fee)
         amount = convert_number(amount)
         // build up the basic transaction information

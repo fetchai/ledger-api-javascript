@@ -32,13 +32,13 @@ export const [ENTITIES, IDENTITIES, ADDRESSES] = (() => {
 
 
 //TODO remove functions names preceeding underscore.
-export function calc_digest(address_raw) {
+export function calc_digest(address_raw: BinaryLike) {
     const hash_func = createHash('sha256')
     hash_func.update(address_raw)
     return hash_func.digest()
 }
 
-export function calc_address(address_raw) {
+export function calc_address(address_raw: BinaryLike) : Array<Buffer | string> {
     const digest = calc_digest(address_raw)
     const bytes = calc_digest(digest)
     const checksum = bytes.slice(0, 4)
@@ -47,13 +47,13 @@ export function calc_address(address_raw) {
     return [digest, display]
 }
 
-export function dummy_address() {
+export function dummy_address() : Address {
     const digest = calc_digest(Buffer.from('rand'))
     // const bs58_encoded = bs58.encode(digest)
     return new Address(Buffer.from(digest))
 }
 
-export function equals(x, y) {
+export function equals(x: any, y: any): boolean {
     if (x === y) return true
     for (var p in x) {
         if (!x.hasOwnProperty(p)) continue

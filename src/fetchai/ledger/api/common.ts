@@ -78,7 +78,7 @@ export class ApiEndpoint {
      * @param  {data} data for request body.
      * @param  {prefix} prefix of the url.
      */
-    async post_json(endpoint : string, data = {}, prefix = this.prefix) : Promise<Tuple>{
+    async post_json(endpoint : string, data = {}, prefix: string = this.prefix) : Promise<Tuple>{
 
         // format and make the request
         const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
@@ -120,7 +120,7 @@ export class ApiEndpoint {
         return [false, resp.data]
     }
 
-    async create_skeleton_tx(fee: number, validity_period = null) : Promise<Transaction> {
+    async create_skeleton_tx(fee: number, validity_period: number | null = null) : Promise<Transaction> {
         if (!validity_period) {
             validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
         }
@@ -146,7 +146,7 @@ export class ApiEndpoint {
      * @param signatures    signers signatures
      * @returns {Promise<*>}    The digest of the submitted transaction
      */
-    async submit_signed_tx(tx: Transaction, signatures) {
+    async submit_signed_tx(tx: Transaction, signatures: any) {
         // Encode transaction and append signatures
         const encoded_tx = encode_multisig_transaction(tx, signatures)
         // Submit and return digest
@@ -255,16 +255,16 @@ export class TransactionFactory {
         return tx
     }
 
-    static create_action_tx(fee: BN | number, entity: Entity, action: string, prefix: string, shard_mask = null) : Transaction  {
+    static create_action_tx(fee: NumericInput, from: AddressLike, action: string, prefix: string, shard_mask: BitVectorLike = null) : Transaction  {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask
         const tx = TransactionFactory.create_skeleton_tx(fee)
-        tx.from_address(new Address(entity))
+        tx.from_address(new Address(from))
         tx.target_chain_code(prefix, mask)
         tx.action(action)
         return tx
     }
 
-    static encode_msgpack_payload(args: Array<Address | string | number>) : Uint8Array {
+    static encode_msgpack_payload(args: MessagePackable) : Uint8Array {
         assert(Array.isArray(args))
         const extensionCodec = new ExtensionCodec()
         extensionCodec.register({

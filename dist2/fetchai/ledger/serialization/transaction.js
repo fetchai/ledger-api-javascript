@@ -32,12 +32,12 @@ var integer = __importStar(require("./integer"));
 var bytearray = __importStar(require("./bytearray"));
 var identity = __importStar(require("./identity"));
 var errors_1 = require("../errors");
-var crypto_1 = require("crypto");
 var bitvector_1 = require("../bitvector");
 var identity_1 = require("../crypto/identity");
 var transaction_1 = require("../transaction");
 var bn_js_1 = require("bn.js");
 var bytearray_1 = require("./bytearray");
+var utils_1 = require("../utils");
 // *******************************
 // ********** Constants **********
 // *******************************
@@ -60,11 +60,6 @@ var log2 = function (value) {
         count += 1;
     }
     return count;
-};
-var _calc_digest_utf = function (address_raw) {
-    var hash_func = crypto_1.createHash('sha256');
-    hash_func.update(address_raw);
-    return hash_func.digest();
 };
 var map_contract_mode = function (payload) {
     if (payload.synergetic_data_submission()) {
@@ -184,7 +179,7 @@ var encode_transaction = function (payload, signers) {
     // encode the contents of the transaction
     var buffer = encode_payload(payload);
     // extract the payload buffer
-    var payload_bytes = _calc_digest_utf(buffer);
+    var payload_bytes = utils_1.calc_digest(buffer);
     // append all the signatures of the signers in order
     // for (let signer of Object.keys(payload._signers)) {
     var flag = false;
@@ -357,7 +352,7 @@ var decode_transaction = function (buffer) {
         var identity, signature;
         _a = __read(bytearray.decode_bytearray(buffer), 2), signature = _a[0], buffer = _a[1];
         identity = identity_1.Identity.from_hex(k);
-        var payload_bytes_digest = _calc_digest_utf(payload_bytes);
+        var payload_bytes_digest = utils_1.calc_digest(payload_bytes);
         verified.push(identity.verify(payload_bytes_digest, signature));
         tx._signers.set(identity.public_key_hex(), {
             'signature': signature,

@@ -39,7 +39,6 @@ var bitvector_1 = require("../../../fetchai/ledger/bitvector");
 var identity_1 = require("../../../fetchai/ledger/crypto/identity");
 var transaction_2 = require("../../../fetchai/ledger/serialization/transaction");
 var bytearray = __importStar(require("../../../fetchai/ledger/serialization/bytearray"));
-var crypto_1 = require("crypto");
 var errors_1 = require("../../../fetchai/ledger/errors");
 var bn_js_1 = require("bn.js");
 var helpers_1 = require("../../utils/helpers");
@@ -259,9 +258,7 @@ function assertIsExpectedTx(payload, transaction_bytes, expected_hex_payload) {
     var expected_payload_end = Buffer.byteLength(transaction_bytes) - signatures_serial_length;
     var payload_bytes = transaction_bytes.slice(0, expected_payload_end);
     expect(payload_bytes.toString('hex')).toBe(expected_hex_payload);
-    var payload_bytes_hash = crypto_1.createHash('sha256')
-        .update(payload_bytes, 'utf8')
-        .digest();
+    var payload_bytes_hash = helpers_1.calc_digest(payload_bytes);
     // loop through and verify all the signatures
     var buffer = transaction_bytes.slice(expected_payload_end);
     var identity;

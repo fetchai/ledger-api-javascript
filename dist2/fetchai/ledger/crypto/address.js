@@ -9,8 +9,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var bs58 = __importStar(require("bs58"));
 var errors_1 = require("../errors");
-var crypto_1 = require("crypto");
 var identity_1 = require("./identity");
+var utils_1 = require("../utils");
 var BYTE_LENGTH = 32;
 var CHECKSUM_SIZE = 4;
 var DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE;
@@ -104,17 +104,12 @@ var Address = /** @class */ (function () {
     Address.prototype.toHex = function () {
         return this._address.toString('hex');
     };
-    Address.digest = function (address_raw) {
-        var hash_func = crypto_1.createHash('sha256');
-        hash_func.update(address_raw, 'utf8');
-        return Buffer.from(hash_func.digest());
-    };
     Address.calculate_checksum = function (address_raw) {
-        var digest = Address.digest(address_raw);
+        var digest = utils_1.calc_digest(address_raw);
         return digest.slice(0, BYTE_LENGTH);
     };
     Address.prototype.calculate_display = function (address_raw) {
-        var digest = Address.digest(address_raw);
+        var digest = utils_1.calc_digest(address_raw);
         var bytes = digest.slice(0, CHECKSUM_SIZE);
         var full = Buffer.concat([address_raw, bytes]);
         return bs58.encode(full);

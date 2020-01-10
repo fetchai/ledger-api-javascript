@@ -3,10 +3,11 @@ import {IncompatibleLedgerVersionError, NetworkUnavailableError, RunTimeError} f
 import * as semver from 'semver'
 import {__version__} from '../init'
 
+//todo ask fitzgerald if patch is number. or test oneself then remove.
 interface ServerListItem {
      readonly name: string,
       readonly  versions: string,
-    readonly patch: string,
+    readonly patch: number,
     readonly build: string,
     readonly prerelease: string,
 }
@@ -99,7 +100,7 @@ export class Bootstrap {
      *Splits a url into a protocol, host name and port
      * @param address
      */
-    static split_address(address: string): Array<string> {
+    static split_address(address: string): Array<string | number> {
         let protocol, port
 
         if (address.includes('://')) {
@@ -109,11 +110,12 @@ export class Bootstrap {
         }
         if (address.includes(':')) {
             [address, port] = address.split(':')
+            port = parseInt(port)
         } else {
             port = (protocol == 'https') ? 443 : 8000
         }
 
-        return [protocol, address, parseInt(port)]
+        return [protocol, address, port]
     }
 
 

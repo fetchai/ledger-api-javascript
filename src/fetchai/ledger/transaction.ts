@@ -2,7 +2,7 @@ import {BitVector} from './bitvector'
 import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
 import {BN} from 'bn.js'
-import {logger} from './utils'
+import {calc_digest, logger} from './utils'
 import assert from 'assert'
 import {createHash} from 'crypto'
 import * as identity from './serialization/identity'
@@ -34,12 +34,6 @@ interface SignatureData {
 
 interface Metadata {
      synergetic_data_submission: boolean
-}
-
-function calc_digest(address_raw) : Buffer {
-    const hash_func = createHash('sha256')
-    hash_func.update(address_raw)
-    return hash_func.digest()
 }
 
 /**
@@ -153,7 +147,7 @@ export class Transaction {
     }
 
     // Get and Set data param. Note: data in bytes
-    data(data?) : string {
+    data(data: any = null) : string {
         if (data !== null) {
             this._data = data
         }
@@ -172,13 +166,13 @@ export class Transaction {
         return buffer
     }
 
-    static from_payload(payload) : PayloadTuple {
+    static from_payload(payload: Buffer) : PayloadTuple {
         let [tx, buffer] = decode_payload(payload)
 
         return [tx, buffer]
     }
 
-    static from_encoded(encoded_transaction) : Transaction | null {
+    static from_encoded(encoded_transaction: Buffer) : Transaction | null {
         const [success, tx] = decode_transaction(encoded_transaction)
         if (success) {
             return tx
@@ -199,13 +193,13 @@ export class Transaction {
         this._transfers.push({address: address.toHex(), amount: new BN(amount)})
     }
 
-    target_contract(address: AddressLike , mask: BitVector | number) {
+    target_contract(address: AddressLike , mask: BitVectorLike) {
         this._contract_address = new Address(address)
         this._shard_mask = new BitVector(mask)
         this._chain_code = ''
     }
 
-    target_chain_code(chain_code_id: string | number, mask) {
+    target_chain_code(chain_code_id: string | number, mask: number | BitVector) {
         this._contract_address = ''
         this._shard_mask = new BitVector(mask)
         this._chain_code = String(chain_code_id)
@@ -242,7 +236,7 @@ export class Transaction {
 
             const signers = tx2.signers()
             // for (let key in signers) {
-            signers.forEach((v, k) => {
+            signers.forEach((v: any, k: string) => {
                 if (signers.has(k) && typeof signers.get(k).signature !== 'undefined') {
                     const s = signers.get(k)
                     this._signers.set(k, s)
@@ -261,12 +255,12 @@ export class Transaction {
         let buffer = encode_payload(this)
         let num_signed = 0
 
-        this._signers.forEach((v) => {
+        this._signers.forEach((v: any) => {
             if (typeof v.signature !== 'undefined') num_signed++
         })
 
         buffer = integer.encode_integer(buffer, new BN(num_signed))
-        this._signers.forEach((v, k) => {
+        this._signers.forEach((v: any, k: string) => {
             if (typeof v.signature !== 'undefined') {
                 let buff = Buffer.from(k, 'hex')
                 let test = new Identity(buff)
@@ -277,7 +271,7 @@ export class Transaction {
         return buffer
     }
 
-    static decode_partial(buffer) : Transaction {
+    static decode_partial(buffer: Buffer) : Transaction {
         let tx;
         [tx, buffer] = decode_payload(buffer)
         let num_sigs;
@@ -298,7 +292,7 @@ export class Transaction {
             })
         }
 
-        tx.signers().forEach((v) => {
+        tx.signers().forEach((v: any) => {
             if (v.verified && !v.verified) {
                 throw new RunTimeError('Not all keys were able to sign successfully')
             }

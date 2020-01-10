@@ -2,12 +2,7 @@ import assert from 'assert'
 import {createHash} from 'crypto'
 import {BitVector} from '../bitvector'
 import {Contract} from "../contract";
-
-const _compute_digest = (source: string) : Buffer => {
-    const hash_func = createHash('sha256')
-    hash_func.update(source)
-    return hash_func.digest()
-}
+import {calc_digest} from "../utils";
 
 function powerOfTwo(x: number) : boolean {
     return Math.log2(x) % 1 === 0
@@ -31,7 +26,7 @@ export class ShardMask {
     static resource_to_shard(resource_address: string, num_lanes: number) : number {
         assert(num_lanes > 0 && powerOfTwo(num_lanes))
         //Resource ID from address.
-        const resource_id =  _compute_digest(String(resource_address))
+        const resource_id =  calc_digest(resource_address)
         // Take last 4 bytes
         const group = resource_id.readUIntLE(0,4)
         // modulo number of lanes

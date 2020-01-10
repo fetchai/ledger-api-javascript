@@ -3,6 +3,7 @@ import {ValidationError} from '../errors'
 import {createHash} from 'crypto'
 import {Identity} from './identity'
 import {StringFormatOptions} from "../../../../index";
+import {calc_digest} from "../utils";
 
 const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4
@@ -110,19 +111,13 @@ export class Address {
         return this._address.toString('hex')
     }
 
-    static digest(address_raw: any) : Buffer {
-        const hash_func = createHash('sha256')
-        hash_func.update(address_raw, 'utf8')
-        return Buffer.from(hash_func.digest())
-    }
-
-    static calculate_checksum(address_raw: any) : Uint8Array {
-        const digest = Address.digest(address_raw)
+    static calculate_checksum(address_raw: Buffer) : Buffer {
+        const digest = calc_digest(address_raw)
         return digest.slice(0, BYTE_LENGTH)
     }
 
-    calculate_display(address_raw: Uint8Array) :string {
-        const digest = Address.digest(address_raw)
+    calculate_display(address_raw: Buffer) :string {
+        const digest = calc_digest(address_raw)
         const bytes = digest.slice(0, CHECKSUM_SIZE)
         const full = Buffer.concat([address_raw, bytes])
         return bs58.encode(full)

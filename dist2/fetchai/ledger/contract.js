@@ -75,12 +75,6 @@ var utils_1 = require("./utils");
 var errors_1 = require("./errors");
 var parser_1 = require("./parser/parser");
 var shardmask_1 = require("./serialization/shardmask");
-var compute_digest = function (source) {
-    var hash_func = crypto_1.createHash('sha256');
-    hash_func.update(source);
-    var digest = hash_func.digest();
-    return new address_1.Address(digest);
-};
 var calc_address = function (owner, nonce) {
     assert_1.default(owner instanceof address_1.Address);
     var hash_func = crypto_1.createHash('sha256');
@@ -90,10 +84,9 @@ var calc_address = function (owner, nonce) {
 };
 var Contract = /** @class */ (function () {
     function Contract(source, owner, nonce) {
-        if (nonce === void 0) { nonce = null; }
         assert_1.default(typeof source === 'string');
         this._source = source;
-        this._digest = compute_digest(source);
+        this._digest = new address_1.Address(utils_1.calc_digest(source));
         this._owner = new address_1.Address(owner);
         this._nonce = nonce || crypto_1.randomBytes(8);
         this._address = new address_1.Address(calc_address(this._owner, this._nonce));
@@ -150,6 +143,7 @@ var Contract = /** @class */ (function () {
                     throw new errors_1.RunTimeError('Contract has no initialisation function');
                 }
                 try {
+                    //todo todo todo todo todo
                     //TODO modify hen added etch parser
                     // temp we put empty shard mask.
                     shard_mask = new bitvector_1.BitVector();

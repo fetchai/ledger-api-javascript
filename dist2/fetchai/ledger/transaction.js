@@ -32,18 +32,12 @@ var identity_1 = require("./crypto/identity");
 var bn_js_1 = require("bn.js");
 var utils_1 = require("./utils");
 var assert_1 = __importDefault(require("assert"));
-var crypto_1 = require("crypto");
 var identity = __importStar(require("./serialization/identity"));
 var bytearray = __importStar(require("./serialization/bytearray"));
 var serialization_1 = require("./serialization");
 var integer = __importStar(require("./serialization/integer"));
 var errors_1 = require("./errors");
-var crypto_2 = require("crypto");
-function calc_digest(address_raw) {
-    var hash_func = crypto_1.createHash('sha256');
-    hash_func.update(address_raw);
-    return hash_func.digest();
-}
+var crypto_1 = require("crypto");
 /**
  * This class for Transactions related operations
  *
@@ -60,7 +54,7 @@ var Transaction = /** @class */ (function () {
         this._charge_rate = new bn_js_1.BN(0);
         this._charge_limit = new bn_js_1.BN(0);
         this._contract_address = '';
-        this._counter = new bn_js_1.BN(crypto_2.randomBytes(8));
+        this._counter = new bn_js_1.BN(crypto_1.randomBytes(8));
         this._chain_code = '';
         this._shard_mask = new bitvector_1.BitVector();
         this._metadata = {
@@ -148,6 +142,7 @@ var Transaction = /** @class */ (function () {
     };
     // Get and Set data param. Note: data in bytes
     Transaction.prototype.data = function (data) {
+        if (data === void 0) { data = null; }
         if (data !== null) {
             this._data = data;
         }
@@ -212,7 +207,7 @@ var Transaction = /** @class */ (function () {
     };
     Transaction.prototype.sign = function (signer) {
         if (this._signers.has(signer.public_key_hex())) {
-            var payload_digest = calc_digest(this.payload());
+            var payload_digest = utils_1.calc_digest(this.payload());
             var sign_obj = signer.sign(payload_digest);
             this._signers.set(signer.public_key_hex(), {
                 signature: sign_obj.signature,
@@ -263,7 +258,7 @@ var Transaction = /** @class */ (function () {
         _a = __read(serialization_1.decode_payload(buffer), 2), tx = _a[0], buffer = _a[1];
         var num_sigs;
         _b = __read(serialization_1.decode_integer(buffer), 2), num_sigs = _b[0], buffer = _b[1];
-        var payload_digest = calc_digest(tx.payload());
+        var payload_digest = utils_1.calc_digest(tx.payload());
         for (var i = 0; i < num_sigs.toNumber(); i++) {
             var signer = void 0;
             _c = __read(identity.decode_identity(buffer), 2), signer = _c[0], buffer = _c[1];

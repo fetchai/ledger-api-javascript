@@ -11,10 +11,7 @@ var OPERATIONS;
     OPERATIONS["STAKE"] = "stake";
 })(OPERATIONS = exports.OPERATIONS || (exports.OPERATIONS = {}));
 var Deed = /** @class */ (function () {
-    function Deed(address) {
-        this.address = address;
-        this.signees = [];
-        this.thresholds = {};
+    function Deed() {
     }
     Deed.prototype.set_signee = function (signee, voting_weight) {
         this.signees.push({ signee: signee, voting_weight: voting_weight });
@@ -65,7 +62,7 @@ var Deed = /** @class */ (function () {
         }
     };
     Deed.prototype.set_amend_threshold = function (value) {
-        this.set_threshold('AMEND', value);
+        this.set_threshold(OPERATIONS.AMEND, value);
     };
     Deed.prototype.deed_creation_json = function (allow_no_amend) {
         if (allow_no_amend === void 0) { allow_no_amend = false; }
@@ -108,5 +105,4 @@ var Deed = /** @class */ (function () {
     return Deed;
 }());
 exports.Deed = Deed;
-// return to add the thresholds interface, and delete this comment when done. https://github.com/Microsoft/TypeScript/issues/7803
 //# sourceMappingURL=deed.js.map

@@ -168,7 +168,7 @@ function status_chain() {
 * Modified, to amoungst other things ignore matching very long strings, which seem to sometimes get corrupted
 * and isn't needed for this. Measures that objects are the same in terms of properties and their values.
  */
-function equals(x, y) {
+function equals(x: any, y: any ) : boolean {
     if (x === y) return true
     for (var p in x) {
         if (!x.hasOwnProperty(p)) continue

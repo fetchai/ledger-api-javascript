@@ -8,6 +8,7 @@ import {logger} from '../utils'
 import {LedgerApi} from "./init";
 import {Entity} from "../crypto/entity";
 import {BN} from 'bn.js'
+import {Transaction} from "../transaction";
 
 
 /**
@@ -35,9 +36,9 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} contract contract
      * @param {Object} [shard_mask=null] BitVector object
      */
-    async create(owner: Entity, contract: Contract, fee: AllowedInputType, signers = null, shard_mask = null) {
-        fee =
+    async create(owner: Entity, contract: Contract, fee: NumericInput, signers : Array<Entity> | null = null, shard_mask : BitVectorLike = null) :  Promise<any | null>  {
         assert(contract instanceof Contract)
+        // todo verify this at runtime is correct then remove comment. I think the bug is in python.
         const ENDPOINT = 'create'
         const contractTxFactory = new ContractTxFactory(this.parent_api)
         const tx = await contractTxFactory.create(owner, contract, fee, null, shard_mask)
@@ -53,11 +54,10 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} query query string
      * @param {JSON} data json payload
      */
-    async query(contract_owner, query, data) {
+    async query(contract_owner: Address, query: string, data:  JSONEncodable) : Promise<Array<boolean | Object>> {
         assert(this.isJSON(data))
-        const prefix = contract_owner.toString()
         const encoded = this._encode_json_payload(data)
-        return await this.post_json(query, encoded, prefix)
+        return await this.post_json(query, encoded, contract_owner.toString())
     }
 
     /**
@@ -146,7 +146,7 @@ export class ContractsApi extends ApiEndpoint {
 }
 
 export class ContractTxFactory extends TransactionFactory {
-	public api: any;
+	public api: LedgerApi;
 	public prefix: PREFIX;
 
     constructor(api: LedgerApi) {
@@ -170,18 +170,14 @@ export class ContractTxFactory extends TransactionFactory {
      * @param tx
      * @param validity_period
      */
-    async set_validity_period(tx: TransactionFactory, validity_period: number | null = null) : Promise<BN> {
+    async set_validity_period(tx: Transaction, validity_period: number | null = null) : Promise<BN> {
         await this.api.server.set_validity_period(tx, validity_period)
     }
 
     async action(contract_address: Address, action: string,
-        fee, from_address, args: MessagePackable,
+        fee: NumericInput, from_address: AddressLike, args: MessagePackable,
         signers : Array<Entity> | null = null,
-        shard_mask: BitVector | null = null) {
-        // Default to wildcard shard mask if none supplied
-        if (shard_mask === null) {
-            shard_mask = new BitVector()
-        }
+        shard_mask: BitVectorLike = null) {
 
         // build up the basic transaction information
         const tx = TransactionFactory.create_action_tx(fee, from_address, action, PREFIX.CONTRACT, shard_mask)
@@ -191,7 +187,6 @@ export class ContractTxFactory extends TransactionFactory {
 
         if (signers !== null) {
             signers.forEach((signer) => {
-
                 tx.add_signer(signer.public_key_hex())
             })
         }
@@ -200,17 +195,10 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
 
-    async create(owner: Entity, contract: Contract, fee: BN, signers = null,
-        shard_mask = null) {
-
-        // Default to wildcard shard mask if none supplied
-        if (shard_mask === null) {
-            logger.info('Defaulting to wildcard shard mask as none supplied')
-            shard_mask = new BitVector()
-        }
-
+    async create(owner: Entity, contract: Contract, fee: NumericInput, signers: Array<Entity> | null = null,
+        shard_mask: BitVectorLike = null) {
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, 'fetch.contract', shard_mask)
+        const tx = TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, PREFIX.CONTRACT , shard_mask)
         const data = JSON.stringify({
             'text': contract.encoded_source(),
             'nonce': contract.nonce(),

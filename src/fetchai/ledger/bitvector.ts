@@ -14,7 +14,7 @@ export class BitVector {
 //TODO add rest of the methods from the python
 
 
-    constructor(size : BitVector | number = null) {
+    constructor(size : BitVectorLike = null) {
         if (size instanceof BitVector) {
             this._size = size._size
             this._byte_size = size._byte_size

@@ -16,12 +16,6 @@ var calc_address = function (owner, nonce) {
     hash_func.update(nonce, 'utf8');
     return hash_func.digest();
 };
-var _compute_digest = function (source) {
-    var hash_func = crypto_2.createHash('sha256');
-    hash_func.update(source, 'ascii');
-    var d = hash_func.digest();
-    return new crypto_1.Address(d);
-};
 jest.mock('fs', function () {
     var MOCK_FILE_INFO = '{"version":1,"owner":"2mhttHhKVRdY1n9BsFNHVJgHjGPvBmnA2FXKCPkJaC6TkXmaY9","source":"CkBpbml0CmZ1bmN0aW9uIGluaXQob3duZXI6IEFkZHJlc3MpCmVuZGZ1bmN0aW9uCgpAYWN0aW9uCmZ1bmN0aW9uIGFjdGlvbjEoKQplbmRmdW5jdGlvbgoKQGFjdGlvbgpmdW5jdGlvbiBhY3Rpb24yKCkKZW5kZnVuY3Rpb24KCkBxdWVyeQpmdW5jdGlvbiBxdWVyeTEoKQplbmRmdW5jdGlvbgoKQHF1ZXJ5CmZ1bmN0aW9uIHF1ZXJ5MigpCmVuZGZ1bmN0aW9uCg==","nonce":"pEGxX+mjz1Y="}';
     var EXPECTED_FP = '/path/to/file';
@@ -86,7 +80,7 @@ describe(':Test Contract', function () {
         var orig = new contract_1.Contract(transfer_1.SIMPLE_CONTRACT, owner, nonce);
         //check if we can get rid of this ascii bit
         var contract_string = Buffer.from(transfer_1.SIMPLE_CONTRACT).toString('ascii');
-        var ref_digest = _compute_digest(contract_string);
+        var ref_digest = new crypto_1.Address(helpers_1.calc_digest(contract_string));
         var ref_address = new crypto_1.Address(calc_address(owner, nonce));
         var ref_name = ref_digest.toBytes().toString('hex') + ref_address.toHex();
         expect(orig.nonce()).toBe(btoa_1.default(nonce));

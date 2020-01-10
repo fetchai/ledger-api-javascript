@@ -1,18 +1,10 @@
 import {Entity} from '../../fetchai/ledger/crypto/entity'
 import {createHash} from 'crypto'
 import {ValidationError} from '../../fetchai/ledger/errors'
-import {PASSWORD} from '../utils/helpers'
+import {calc_digest, PASSWORD} from '../utils/helpers'
 import fs from 'fs'
 const mock = require('mock-fs')
 const sinon = require('sinon')
-
-
-function _calc_digest(address_raw) {
-    const hash_func = createHash('sha256')
-    hash_func.update(address_raw)
-    const digest = hash_func.digest()
-    return digest
-}
 
 mock({
     'path/to/some.png': '{"key_length":32,"init_vector":"LAunDQSK0yh1ixYStfBLdw==","password_salt":"jwhnMpDMp3kW/og8pZbiwA==","privateKey":"2Vdl4fr8gLlnuHEgwZrmeOsp4y6QLmHRlBeEj6qXPd0="}',
@@ -43,7 +35,7 @@ describe(':Entity', () => {
 
 
     test('test signing verifying cycle', () => {
-        const digest = _calc_digest(Buffer.from('rand'))
+        const digest = calc_digest(Buffer.from('rand'))
         const entity = new Entity()
         // sign the payload
         const sign_obj = entity.sign(digest)

@@ -40,18 +40,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var entity_1 = require("../../fetchai/ledger/crypto/entity");
-var crypto_1 = require("crypto");
 var errors_1 = require("../../fetchai/ledger/errors");
 var helpers_1 = require("../utils/helpers");
 var fs_1 = __importDefault(require("fs"));
 var mock = require('mock-fs');
 var sinon = require('sinon');
-function _calc_digest(address_raw) {
-    var hash_func = crypto_1.createHash('sha256');
-    hash_func.update(address_raw);
-    var digest = hash_func.digest();
-    return digest;
-}
 mock({
     'path/to/some.png': '{"key_length":32,"init_vector":"LAunDQSK0yh1ixYStfBLdw==","password_salt":"jwhnMpDMp3kW/og8pZbiwA==","privateKey":"2Vdl4fr8gLlnuHEgwZrmeOsp4y6QLmHRlBeEj6qXPd0="}',
 });
@@ -72,7 +65,7 @@ describe(':Entity', function () {
         expect(reference.public_key_hex()).toEqual(other.public_key_hex());
     });
     test('test signing verifying cycle', function () {
-        var digest = _calc_digest(Buffer.from('rand'));
+        var digest = helpers_1.calc_digest(Buffer.from('rand'));
         var entity = new entity_1.Entity();
         // sign the payload
         var sign_obj = entity.sign(digest);

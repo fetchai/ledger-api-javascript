@@ -6,7 +6,7 @@ import * as bytearray from '../../../fetchai/ledger/serialization/bytearray'
 import {createHash} from 'crypto'
 import {ValidationError} from '../../../fetchai/ledger/errors'
 import {BN} from 'bn.js'
-import {ENTITIES, IDENTITIES} from '../../utils/helpers'
+import {calc_digest, ENTITIES, IDENTITIES} from '../../utils/helpers'
 
 
 const _calculate_integer_stream_size = (len) => {
@@ -245,9 +245,7 @@ function assertIsExpectedTx(payload, transaction_bytes, expected_hex_payload) {
     const payload_bytes = transaction_bytes.slice(0, expected_payload_end)
     expect(payload_bytes.toString('hex')).toBe(expected_hex_payload)
 
-    const payload_bytes_hash = createHash('sha256')
-        .update(payload_bytes, 'utf8')
-        .digest()
+    const payload_bytes_hash = calc_digest(payload_bytes)
 
     // loop through and verify all the signatures
     let buffer = transaction_bytes.slice(expected_payload_end)

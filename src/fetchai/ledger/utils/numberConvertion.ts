@@ -8,7 +8,7 @@ import {BN} from 'bn.js'
  * @param num
  * @returns {BN}
  */
-const convert_number = (num: AllowedInputType) => {
+const convert_number = (num: NumericInput) => {
     // currently only support BN.js or number
     if (typeof num !== 'number' && !BN.isBN(num)) {
         throw new ValidationError(`${num} is must be instance of BN.js or an Integer`)

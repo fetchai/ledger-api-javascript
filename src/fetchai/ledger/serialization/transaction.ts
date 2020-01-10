@@ -11,6 +11,7 @@ import {Transaction} from '../transaction'
 import {BN} from 'bn.js'
 import {encode_bytearray} from './bytearray'
 import {Entity} from "../crypto/entity";
+import {calc_digest} from "../utils";
 // *******************************
 // ********** Constants **********
 // *******************************
@@ -36,12 +37,6 @@ const log2 = (value: number) : number => {
         count += 1
     }
     return count
-}
-
-const _calc_digest_utf = (address_raw: Buffer) : Buffer => {
-    const hash_func = createHash('sha256')
-    hash_func.update(address_raw)
-    return hash_func.digest()
 }
 
 const map_contract_mode = (payload: Transaction): CONTRACT_MODE => {
@@ -190,7 +185,7 @@ const encode_transaction = (payload: Transaction, signers : Array<Entity>) : Buf
     // encode the contents of the transaction
     let buffer = encode_payload(payload)
     // extract the payload buffer
-    let payload_bytes = _calc_digest_utf(buffer)
+    let payload_bytes = calc_digest(buffer)
 
     // append all the signatures of the signers in order
     // for (let signer of Object.keys(payload._signers)) {
@@ -386,7 +381,7 @@ const decode_transaction = (buffer: Buffer ) : DECODE_TUPLE => {
         let identity, signature;
         [signature, buffer] = bytearray.decode_bytearray(buffer)
         identity = Identity.from_hex(k)
-        let payload_bytes_digest = _calc_digest_utf(payload_bytes)
+        let payload_bytes_digest = calc_digest(payload_bytes)
         verified.push(identity.verify(payload_bytes_digest, signature))
         tx._signers.set(identity.public_key_hex(), {
             'signature': signature,

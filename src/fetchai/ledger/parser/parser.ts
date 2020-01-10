@@ -69,7 +69,7 @@ export class Parser {
         const regexp = RegExp(FUNC_NAME_WITH_ANNOTATION,'g')
         let array = [...source.matchAll(regexp)]
 
-        const annotations = {}
+        const annotations: any = {}
 
         for (let i = 0; i < array.length; i++) {
             let split = array[i][0].split('function')
@@ -85,7 +85,7 @@ export class Parser {
 
     static get_func_params(func_source: string) : Array<FuncInfo> {
         let func_params = BETWEEN_ROUND_BRACKETS.exec(func_source)
-        let ret = []
+        let ret: Array<any> = []
         // we start by coding only for funcs with params
         if(func_params == null) return ret
 
@@ -104,7 +104,7 @@ export class Parser {
         const regexp = RegExp(USE_STATEMENT,'g')
         let use_statements = [...source.matchAll(regexp)]
 
-        const ret = []
+        const ret: Array<any> = []
 
         if(use_statements === null) return ret
 
