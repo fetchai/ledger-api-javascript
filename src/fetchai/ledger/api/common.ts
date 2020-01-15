@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {ApiError} from '../errors'
 import {BN} from 'bn.js'
-import {logger, PREFIX} from '../utils'
+import {convert_number, logger, PREFIX} from '../utils'
 import {Transaction} from '../transaction'
 import assert from 'assert'
 import {encode, ExtensionCodec} from '@msgpack/msgpack'
@@ -259,6 +259,7 @@ export class TransactionFactory {
 
     static create_action_tx(fee: NumericInput, from: AddressLike, action: string, prefix: string, shard_mask: BitVectorLike = null) : Transaction  {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask
+        fee = convert_number(fee)
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(from))
         tx.target_chain_code(prefix, mask)

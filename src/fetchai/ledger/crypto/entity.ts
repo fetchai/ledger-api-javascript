@@ -151,7 +151,6 @@ export class Entity extends Identity {
     }
 
     async to_json_object(password: string) : Promise<SerializedPrivateKey> {
-        debugger;
         return this.encrypt(password, this.privKey)
     }
 

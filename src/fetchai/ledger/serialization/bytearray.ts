@@ -12,7 +12,7 @@ const decode_bytearray = (buffer: Buffer) : Array<Buffer> => {
     // value in bytes (ascii encoded);
     [len, buffer] = integer.decode_integer(buffer)
     const value = buffer.slice(0, len.toNumber())
-    buffer = buffer.slice(len)
+    buffer = buffer.slice(len.toNumber())
     // then return the length of bytes specified in the header
     return [value, buffer]
 }

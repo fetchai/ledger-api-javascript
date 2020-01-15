@@ -15,9 +15,6 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -25,19 +22,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var assert_1 = __importDefault(require("assert"));
 var address = __importStar(require("./address"));
-var integer = __importStar(require("./integer"));
 var bytearray = __importStar(require("./bytearray"));
-var identity = __importStar(require("./identity"));
-var errors_1 = require("../errors");
-var bitvector_1 = require("../bitvector");
-var identity_1 = require("../crypto/identity");
-var transaction_1 = require("../transaction");
-var bn_js_1 = require("bn.js");
 var bytearray_1 = require("./bytearray");
+var identity = __importStar(require("./identity"));
+var integer = __importStar(require("./integer"));
+var assert_1 = __importDefault(require("assert"));
+var bitvector_1 = require("../bitvector");
+var bn_js_1 = require("bn.js");
 var utils_1 = require("../utils");
+var identity_1 = require("../crypto/identity");
+var errors_1 = require("../errors");
+var transaction_1 = require("../transaction");
 // *******************************
 // ********** Constants **********
 // *******************************
@@ -183,9 +183,8 @@ var encode_transaction = function (payload, signers) {
     // append all the signatures of the signers in order
     // for (let signer of Object.keys(payload._signers)) {
     var flag = false;
-    payload.signers().forEach(function (v) {
+    payload.signers().forEach(function (v, k) {
         var hex_key;
-        debugger;
         for (var i = 0; i < signers.length; i++) {
             hex_key = signers[i].pubKey.toString('hex');
             // check if payload sig matches one passed in this param.
@@ -325,6 +324,7 @@ var decode_payload = function (buffer) {
     if (signature_count_minus1 == 0x3F) {
         var additional_signatures = void 0;
         _o = __read(bytearray.decode_bytearray(buffer), 2), additional_signatures = _o[0], buffer = _o[1];
+        debugger;
         num_signatures = num_signatures + additional_signatures;
     }
     var public_keys = [];

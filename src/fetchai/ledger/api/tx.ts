@@ -3,6 +3,7 @@ import {ApiError, NetworkUnavailableError} from '../errors'
 import {Address} from '../crypto/address'
 import {BN} from 'bn.js'
 import {ApiEndpoint} from './common'
+import {convert_number} from "../utils";
 
 enum NON_TERMINAL_STATES {
    UNKNOWN = 'Unknown',
@@ -18,8 +19,8 @@ enum SUCCESSFUL_TERMINAL_STATES {
 takes an array and turns it into an object, setting the to field and the amount field.
 //TODO ASK ED IF THIS OK?, since we want insertion order, which plain objects don't.
  */
-const tx_array_to_object = (array) =>
-    array.reduce((obj, item) => {
+const tx_array_to_object = (array: Array<any>) =>
+    array.reduce((obj: any, item: any) => {
         obj[item.to] = new BN(item.amount)
         return obj
     }, {})
@@ -89,7 +90,7 @@ export class TxContents {
 	public signatories: any;
 	public data: any;
 
-    constructor(digest: string,
+    constructor(digest: Buffer,
         action: string,
         chain_code: string,
         from_address: string,
@@ -98,7 +99,7 @@ export class TxContents {
         valid_until: number,
         charge: number,
         charge_limit: number,
-        transfers: string,
+        transfers: Array<string>,
         signatories: string,
         data: string ) {
 
@@ -108,10 +109,10 @@ export class TxContents {
         this.chain_code = chain_code
         this.from_address = new Address(from_address)
         this.contract_address = (contract_address) ? new Address(contract_address) : null
-        this.valid_from = valid_from
-        this.valid_until = valid_until
-        this.charge = charge
-        this.charge_limit = charge_limit
+        this.valid_from = convert_number(valid_from)
+        this.valid_until = convert_number(valid_until)
+        this.charge = convert_number(charge)
+        this.charge_limit = convert_number(charge_limit)
         this.transfers = tx_array_to_object(transfers)
         this.signatories = signatories
         this.data = data

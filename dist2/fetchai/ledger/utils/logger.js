@@ -12,8 +12,9 @@ exports.logger = logger;
 // default: silent all logging levels
 logger.transports.forEach(function (t) { return (t.silent = false); });
 // allows other application to set its logger
-var setLogger = function (_logger) {
-    exports.logger = logger = _logger;
+var setLogger = function (logger) {
+    logger = logger;
+    return;
 };
 exports.setLogger = setLogger;
 //# sourceMappingURL=logger.js.map

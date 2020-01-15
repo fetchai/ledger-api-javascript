@@ -1,20 +1,16 @@
 "use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var errors_1 = require("../errors");
-var BN = __importStar(require("bn.js"));
+var bn_js_1 = __importDefault(require("bn.js"));
 var LOGS = [];
-LOGS.push(new BN(256));
-LOGS.push(new BN(65536));
-LOGS.push(new BN(4294967296));
+LOGS.push(new bn_js_1.default(256));
+LOGS.push(new bn_js_1.default(65536));
+LOGS.push(new bn_js_1.default(4294967296));
 // over 53 bit number therefore must be passed as hex to BN
-LOGS.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')));
+LOGS.push(new bn_js_1.default(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')));
 /**
  * Determine the number of bytes required to encode the input value.
  * Artificially limited to max of 8 bytes to be compliant
@@ -46,13 +42,13 @@ var encode_integer = function (buffer, value) {
         }
         else {
             var log2_num_bytes = _calculate_log2_num_bytes(abs_value);
-            var num_bytes = new BN(1).shln(log2_num_bytes);
-            var val = (is_signed) ? new BN(0xd0) : new BN(0xc0);
-            var header = val.or(new BN(log2_num_bytes).and(new BN(0xF))).toNumber();
+            var num_bytes = new bn_js_1.default(1).shln(log2_num_bytes);
+            var val = (is_signed) ? new bn_js_1.default(0xd0) : new bn_js_1.default(0xc0);
+            var header = val.or(new bn_js_1.default(log2_num_bytes).and(new bn_js_1.default(0xF))).toNumber();
             //   encode all the parts fot the values
             var values = Array.from(Array(num_bytes.toNumber()).keys())
                 .reverse()
-                .map(function (value) { return abs_value.shrn(value * 8).and(new BN(0xFF)).toArrayLike(Buffer, 'be'); });
+                .map(function (value) { return abs_value.shrn(value * 8).and(new bn_js_1.default(0xFF)).toArrayLike(Buffer, 'be'); });
             return Buffer.concat([buffer, Buffer.concat([Buffer.from([header]), Buffer.concat(values)])]);
         }
     }
@@ -63,19 +59,19 @@ var decode_integer = function (buffer) {
     buffer = buffer.slice(1);
     var header_integer = header.readUIntBE(0, 1);
     if ((header_integer & 0x80) === 0) {
-        return [new BN(header_integer & 0x7F), buffer];
+        return [new bn_js_1.default(header_integer & 0x7F), buffer];
     }
     var type = (header_integer & 0x60) >> 5;
     if (type === 3) {
         var decoded = -(header_integer & 0x1f);
-        return [new BN(decoded), buffer];
+        return [new bn_js_1.default(decoded), buffer];
     }
     if (type === 2) {
         var signed_flag = Boolean(header_integer & 0x10);
         var log2_value_length = header_integer & 0x0F;
         var value_length = 1 << log2_value_length;
         var slice = buffer.slice(0, value_length);
-        var value = new BN(slice);
+        var value = new bn_js_1.default(slice);
         buffer = buffer.slice(value_length);
         if (signed_flag) {
             value = value.neg();

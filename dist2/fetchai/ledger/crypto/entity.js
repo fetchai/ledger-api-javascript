@@ -222,7 +222,6 @@ var Entity = /** @class */ (function (_super) {
     Entity.prototype.to_json_object = function (password) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                debugger;
                 return [2 /*return*/, this.encrypt(password, this.privKey)];
             });
         });

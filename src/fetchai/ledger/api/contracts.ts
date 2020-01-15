@@ -9,7 +9,7 @@ import {LedgerApi} from "./init";
 import {Entity} from "../crypto/entity";
 import {BN} from 'bn.js'
 import {Transaction} from "../transaction";
-type Tuple = [boolean, Object];
+type Tuple = [boolean, any];
 
 
 /**
@@ -77,8 +77,8 @@ export class ContractsApi extends ApiEndpoint {
         action: string,
         fee:  BN,
         from_address: Address,
-        signers : Array<Entity>,
         args: MessagePackable,
+        signers : Array<Entity>,
         shard_mask: BitVectorLike = null
     ) {
         const contractTxFactory = new ContractTxFactory(this.parent_api)
@@ -173,12 +173,12 @@ export class ContractTxFactory extends TransactionFactory {
      * @param validity_period
      */
     async set_validity_period(tx: Transaction, validity_period: number | null = null) : Promise<BN> {
-        await this.api.server.set_validity_period(tx, validity_period)
+        return await this.api.server.set_validity_period(tx, validity_period)
     }
 
     async action(contract_address: Address, action: string,
         fee: BN, from_address: AddressLike, args: MessagePackable,
-        signers : Array<Entity> | null = null,
+        signers: Array<Entity> | null = null,
         shard_mask: BitVectorLike = null) {
 
         // build up the basic transaction information

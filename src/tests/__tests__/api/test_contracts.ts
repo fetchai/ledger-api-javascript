@@ -55,7 +55,6 @@ describe(':ContractsApi', () => {
         const tok_transfer_amount = 200
         const fet_tx_fee = 160
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
-        debugger;
         const action = await contract.action(api, 'transfer', fet_tx_fee, [ADDRESSES[0], ADDRESSES[1], tok_transfer_amount], [ENTITIES[0]])
         expect(action).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')
     })

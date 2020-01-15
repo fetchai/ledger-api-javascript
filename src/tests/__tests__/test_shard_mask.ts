@@ -6,7 +6,6 @@ import {ShardMask} from '../../fetchai/ledger/serialization/shardmask'
 describe(':Test ShardMask', () => {
 
     test('test state to address', () => {
-        debugger;
         const nonce = calc_digest('random').slice(0, 8)
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], nonce)
         const address = ShardMask.state_to_address('xyz', contract)

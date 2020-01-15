@@ -37,7 +37,7 @@ var decode_bytearray = function (buffer) {
     // value in bytes (ascii encoded);
     _a = __read(integer.decode_integer(buffer), 2), len = _a[0], buffer = _a[1];
     var value = buffer.slice(0, len.toNumber());
-    buffer = buffer.slice(len);
+    buffer = buffer.slice(len.toNumber());
     // then return the length of bytes specified in the header
     return [value, buffer];
 };

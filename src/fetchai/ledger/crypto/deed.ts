@@ -78,15 +78,15 @@ export class Deed {
 
     deed_creation_json(allow_no_amend: boolean = false) {
 
-        const signees = {}
+        const signees: any = {}
         for (var i = 0; i < this.signees.length; i++) {
             let address = new Address(this.signees[i].signee).toString()
             signees[address] = this.signees[i].voting_weight
         }
-
+ const thresholds: any = {}
         const deed = {
             'signees': signees,
-            'thresholds': {}
+            'thresholds':  thresholds
         }
 
         if (typeof this.thresholds.AMEND !== 'undefined') {
@@ -97,7 +97,7 @@ export class Deed {
         } else if (!allow_no_amend) {
             throw new InvalidDeedError('Creating deed without amend threshold - future amendment will be impossible')        }
 
-        let lower
+        let lower: string
         // Add other thresholds
         for (let key in this.thresholds) {
             lower = key.toLowerCase()

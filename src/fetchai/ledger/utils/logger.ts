@@ -17,8 +17,9 @@ let logger = createLogger({
 logger.transports.forEach(t => (t.silent = false))
 
 // allows other application to set its logger
-const setLogger = _logger => {
-    logger = _logger
+const setLogger = (logger: any) => {
+    logger = logger
+    return
 }
 
 export {logger, setLogger}

@@ -57,6 +57,7 @@ var errors_1 = require("../errors");
 var address_1 = require("../crypto/address");
 var bn_js_1 = require("bn.js");
 var common_1 = require("./common");
+var utils_1 = require("../utils");
 var NON_TERMINAL_STATES;
 (function (NON_TERMINAL_STATES) {
     NON_TERMINAL_STATES["UNKNOWN"] = "Unknown";
@@ -120,10 +121,10 @@ var TxContents = /** @class */ (function () {
         this.chain_code = chain_code;
         this.from_address = new address_1.Address(from_address);
         this.contract_address = (contract_address) ? new address_1.Address(contract_address) : null;
-        this.valid_from = valid_from;
-        this.valid_until = valid_until;
-        this.charge = charge;
-        this.charge_limit = charge_limit;
+        this.valid_from = utils_1.convert_number(valid_from);
+        this.valid_until = utils_1.convert_number(valid_until);
+        this.charge = utils_1.convert_number(charge);
+        this.charge_limit = utils_1.convert_number(charge_limit);
         this.transfers = tx_array_to_object(transfers);
         this.signatories = signatories;
         this.data = data;

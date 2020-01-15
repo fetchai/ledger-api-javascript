@@ -165,7 +165,7 @@ var ContractsApi = /** @class */ (function (_super) {
      * @param {*} args arguments
      * @param {Object} shard_mask BitVector object
      */
-    ContractsApi.prototype.action = function (contract_address, action, fee, from_address, signers, args, shard_mask) {
+    ContractsApi.prototype.action = function (contract_address, action, fee, from_address, args, signers, shard_mask) {
         if (shard_mask === void 0) { shard_mask = null; }
         return __awaiter(this, void 0, void 0, function () {
             var contractTxFactory, tx, i, encoded_tx;
@@ -280,9 +280,7 @@ var ContractTxFactory = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.api.server.set_validity_period(tx, validity_period)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
+                    case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });

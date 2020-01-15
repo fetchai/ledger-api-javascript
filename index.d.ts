@@ -48,7 +48,6 @@ interface MessagePackable {
 }
 
 
-
 interface ContractionActionArgs {
        [index: number]: Address | string;
 }
@@ -69,6 +68,7 @@ export interface StringFormatOptions {
 
 /*~ For example, declaring a method on the module (in addition to its global side effects) */
 export function doSomething(): void;
+
 
 /*~ If your module exports nothing, you'll need this line. Otherwise, delete it */
 export { };

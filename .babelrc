@@ -1,4 +1,7 @@
 {
+ "ignore": [
+    "**/*.__test__.*"
+ ],
   "presets": [
     [
       "@babel/preset-env",

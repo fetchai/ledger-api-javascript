@@ -71,9 +71,10 @@ var Deed = /** @class */ (function () {
             var address = new address_1.Address(this.signees[i].signee).toString();
             signees[address] = this.signees[i].voting_weight;
         }
+        var thresholds = {};
         var deed = {
             'signees': signees,
-            'thresholds': {}
+            'thresholds': thresholds
         };
         if (typeof this.thresholds.AMEND !== 'undefined') {
             // Error if amend threshold un-meetable

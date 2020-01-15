@@ -16,15 +16,16 @@ describe(':TXContentsTest', () => {
         expect(json.chain_code).toBe('action.transfer')
         expect(json.from_address.toHex()).toBe(new Address('U5dUjGzmAnajivcn4i9K4HpKvoTvBrDkna1zePXcwjdwbz1yB').toHex())
         expect(json.contract_address).toBeNull()
-        expect(json.valid_from).toBe(0)
-        expect(json.valid_until).toBe(100)
-        expect(json.charge).toBe(2)
-        expect(json.charge_limit).toBe(5)
+        expect(json.valid_from.cmp(new BN(0))).toBe(0)
+        expect(json.valid_until.cmp(new BN(100))).toBe(0)
+        expect(json.charge.cmp(new BN(2))).toBe(0)
+        expect(json.charge_limit.cmp(new BN(5))).toBe(0)
         expect(json.transfers).toMatchObject({})
         expect(json.data).toBe('def')
     })
 
     test('test constructor', () => {
+        const transfers: Array<string> = []
         const data = {
             'digest': '0x123456',
             'action': 'transfer',
@@ -34,7 +35,7 @@ describe(':TXContentsTest', () => {
             'validUntil': 100,
             'charge': 2,
             'chargeLimit': 5,
-            'transfers': [],
+            'transfers': transfers,
             'signatories': ['abc'],
             'data': 'def'
         }
@@ -46,10 +47,10 @@ describe(':TXContentsTest', () => {
         expect(tx_contents.chain_code).toBe('action.transfer')
         expect(tx_contents.from_address.toHex()).toBe(new Address('U5dUjGzmAnajivcn4i9K4HpKvoTvBrDkna1zePXcwjdwbz1yB').toHex())
         expect(tx_contents.contract_address).toBeNull()
-        expect(tx_contents.valid_from).toBe(0)
-        expect(tx_contents.valid_until).toBe(100)
-        expect(tx_contents.charge).toBe(2)
-        expect(tx_contents.charge_limit).toBe(5)
+        expect(tx_contents.valid_from.cmp(new BN(0))).toBe(0)
+        expect(tx_contents.valid_until.cmp(new BN(100))).toBe(0)
+        expect(tx_contents.charge.cmp(new BN(2))).toBe(0)
+        expect(tx_contents.charge_limit.cmp(new BN(5))).toBe(0)
         expect(tx_contents.transfers).toMatchObject({})
         expect(tx_contents.data).toBe('def')
     })

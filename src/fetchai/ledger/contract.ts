@@ -57,7 +57,7 @@ export class Contract {
     }
 
     // combined getter/setter mimicking the python.
-    owner(owner = null) : Address {
+    owner(owner: AddressLike | null = null) : Address {
         if (owner !== null) this._owner = new Address(owner)
         return this._owner
     }
@@ -137,7 +137,7 @@ export class Contract {
         const [success, response] = await (Contract.api(api) as ContractsApi).query(this._address, name, data)
 
         if (!success) {
-            if (response !== null && 'msg' in response as Object) {
+            if (response !== null && 'msg' in response) {
                 throw new RunTimeError('Failed to make requested query: ' + response['msg'])
             } else {
                 throw new RunTimeError('Failed to make requested query with no error message.')
@@ -146,7 +146,7 @@ export class Contract {
         return response['result']
     }
 
-    async action(api: ContractsApiLike, name: string, fee: NumericInput, args: MessagePackable , signers : Array<Entity> | null = null) {
+    async action(api: ContractsApiLike, name: string, fee: NumericInput, args: MessagePackable, signers : Array<Entity> | null = null) {
 
         fee = convert_number(fee)
         // verify if we are used undefined
@@ -166,7 +166,7 @@ export class Contract {
         const resource_addresses = Parser.get_resource_addresses(this._source, name, args)
         const num_lanes = await (api.server as ServerApi).num_lanes()
         let shard_mask = ShardMask.resources_to_shard_mask(resource_addresses, num_lanes)
-        const from_address = (signers.length === 1)? new Address(signers[0]) : new Address(this._owner)
+       const from_address = (signers.length === 1)? new Address(signers[0]) : new Address(this._owner)
         return Contract.api(api).action(this._address, name, fee, from_address, args, signers, shard_mask)
     }
 
