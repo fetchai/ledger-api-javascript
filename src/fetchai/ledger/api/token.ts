@@ -1,5 +1,5 @@
 import {ApiError, ValidationError} from '../errors'
-import {convert_number, logger} from '../utils'
+import {convert_number, ENDPOINT, logger, PREFIX} from '../utils'
 import {ApiEndpoint, TransactionFactory} from './common'
 import {encode_transaction} from '../serialization/transaction'
 import {Address} from '../crypto/address'
@@ -8,10 +8,7 @@ import {BN} from 'bn.js'
 import assert from 'assert'
 import {Transaction} from "../transaction";
 import {Deed} from "../crypto/deed";
-
-
-
-
+import {LedgerApi} from "./init";
 
 /**
  * This class for all Tokens APIs.
@@ -26,7 +23,7 @@ export class TokenApi extends ApiEndpoint {
      * @param {String} host ledger host
      * @param {Number} port ledger port
      */
-    constructor(host, port, api?) {
+    constructor(host: string, port: number, api: LedgerApi) {
         super(host, port, api)
         this.prefix = PREFIX.TOKEN
     }
@@ -39,7 +36,7 @@ export class TokenApi extends ApiEndpoint {
      * @returns {Number} The balance value retried.
      * @throws {ApiError} ApiError on any failures.
      */
-    async balance(address: AddressLike) : BN {
+    async balance(address: AddressLike) : Promise<BN> {
         // convert the input to an address
         address = new Address(address)
         // format and make the request
@@ -60,7 +57,7 @@ export class TokenApi extends ApiEndpoint {
      * @param address
      * @returns {Promise<BN|BN.props>}
      */
-    async stake(address: AddressLike) : BN {
+    async stake(address: AddressLike) : Promise<BN> {
         // convert the input to an address
         address = new Address(address)
 
@@ -177,7 +174,7 @@ export class TokenApi extends ApiEndpoint {
      * @param fee
      * @returns {Promise<*>} The digest of the submitted transaction
      */
-    async de_stake(entity, amount:  NumericInput, fee: NumericInput) : Promise<any | null> {
+    async de_stake(entity: Entity, amount:  NumericInput, fee: NumericInput) : Promise<any | null> {
         fee = convert_number(fee)
         amount = convert_number(amount)
         const tx = TokenTxFactory.de_stake(entity, amount, fee)
@@ -195,7 +192,7 @@ export class TokenApi extends ApiEndpoint {
      * @param fee
      * @returns {Promise<*>}
      */
-    async collect_stake(entity: Entity, fee: NumericInput) {
+    async collect_stake(entity: Entity, fee: NumericInput) : Promise<any | null> {
         fee = convert_number(fee)
         const tx = TokenTxFactory.collect_stake(entity, fee)
         await super.set_validity_period(tx)

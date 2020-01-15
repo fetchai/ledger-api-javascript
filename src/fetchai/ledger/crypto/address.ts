@@ -25,6 +25,8 @@ export class Address {
      */
     constructor(identity: AddressLike) {
 
+        if(typeof identity == "undefined")debugger
+
       if (typeof identity === 'string') {
             if (!Address.is_address(identity)) {
                 throw new ValidationError('Invalid Address')
@@ -32,14 +34,12 @@ export class Address {
 
             this._address = bs58.decode(identity).slice(0, BYTE_LENGTH)
             this._display = identity
-        }
-
-       else if (identity instanceof Address) {
+        } else if (identity instanceof Address) {
             this._address = identity._address
             this._display = identity._display
         } else if (identity instanceof Identity) {
             //TODO add unit tests for this block to address
-            this._address = Address.digest(identity.public_key_bytes())
+            this._address = calc_digest(identity.public_key_bytes())
             this._display = this.calculate_display(this._address)
         } else if (identity instanceof Buffer) {
             // we don't seem to validate here for buffers ie check checksum is correct!!
@@ -50,7 +50,8 @@ export class Address {
             this._address = identity
             this._display = this.calculate_display(this._address)
         }  else {
-            throw new ValidationError('Failed to build identity from input')
+            console.log(" cannot build Address from : " + identity)
+            throw new ValidationError('Failed to build Address from input')
         }
     }
 

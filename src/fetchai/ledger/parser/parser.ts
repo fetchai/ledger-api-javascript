@@ -133,7 +133,7 @@ export class Parser {
     }
 
 
-    static get_resource_addresses(source: string, func_name: string, ordered_args: Array<any>) {
+    static get_resource_addresses(source: string, func_name: string, ordered_args: MessagePackable) {
 
         const sharded_use_names = Parser.get_sharded_use_names(source)
         // we get all functions including bodies

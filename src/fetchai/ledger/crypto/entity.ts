@@ -21,14 +21,14 @@ interface SerializedPrivateKey {
  * @class
  */
 export class Entity extends Identity {
-	public pubKey: Buffer | Uint8Array;
-	public privKey: Buffer | Uint8Array;
+	public pubKey: Buffer
+	public privKey: Buffer
 
     /**
      * @param  {Buffer} private_key_bytes construct or generate the private key if one is not specified.
      * @throws {ValidationError} ValidationError if unable to load private key from input.
      */
-    constructor(private_key_bytes?: Buffer | Uint8Array) {
+    constructor(private_key_bytes?: Buffer) {
         // construct or generate the private key if one is not specified
         if (private_key_bytes) {
             if (secp256k1.privateKeyVerify(private_key_bytes)) {
@@ -69,7 +69,7 @@ export class Entity extends Identity {
     /**
      * Get the private key.
      */
-    private_key() : Buffer | Uint8Array{
+    private_key() : Buffer {
         return this.privKey
     }
 
@@ -92,7 +92,7 @@ export class Entity extends Identity {
      * @param  {String} extMsgHash Message hash
      * @returns signature obj
      */
-    sign(extMsgHash: SignPrivateKeyInput | KeyLike) : any {
+    sign(extMsgHash: Buffer) : any {
         return secp256k1.sign(extMsgHash, this.privKey)
     }
 
@@ -100,21 +100,21 @@ export class Entity extends Identity {
      * Get the signature hex
      * @param  {Object} sigObj signature obj
      */
-    signature_hex(sigObj) : string {
+    signature_hex(sigObj: any) : string {
         return sigObj.signature.toString('hex')
     }
 
-    static from_base64(private_key_base64) : Entity {
+    static from_base64(private_key_base64: string) : Entity {
         const private_key_bytes = Buffer.from(private_key_base64, 'base64')
         return new Entity(private_key_bytes)
     }
 
-    static from_hex(private_key_hex) : Entity {
+    static from_hex(private_key_hex: string) : Entity {
         const private_key_bytes = Buffer.from(private_key_hex, 'hex')
         return new Entity(private_key_bytes)
     }
 
-    static async loads(s, password) : Promise<Entity> {
+    static async loads(s: string, password: string) : Promise<Entity> {
         let obj = JSON.parse(s)
         return await Entity.from_json_object(obj, password)
     }
@@ -130,7 +130,7 @@ export class Entity extends Identity {
         return await Entity.from_json_object(obj, password)
     }
 
-    async prompt_dump(fp: string, password: string) {
+    async prompt_dump(fp: string, password: string):  Promise<void>  {
         // let password = readline.question('Please enter password ')
         if (!Entity.strong_password(password)) {
             throw new ValidationError(
@@ -141,11 +141,11 @@ export class Entity extends Identity {
         return await this.dump(fp, password)
     }
 
-    async dumps(password) : Promise<String> {
+    async dumps(password: string) : Promise<String> {
         return JSON.stringify(this.to_json_object(password))
     }
 
-    async dump(fp, password) : Promise<void> {
+    async dump(fp: string, password: string) : Promise<void> {
         const json_object = await this.to_json_object(password)
         fs.writeFileSync(fp, JSON.stringify(json_object))
     }
@@ -202,7 +202,7 @@ export class Entity extends Identity {
             ])
             data = data.slice(16)
         }
-debugger;
+
         return {
             key_length: DIGEST_BYTE_LENGTH,
             init_vector: iv.toString('base64'),
@@ -221,7 +221,7 @@ debugger;
      * @returns decrypted data as plaintext
      * @ignore
      */
-    static async decrypt(password: string, salt: Buffer | Uint8Array, data: Buffer | Uint8Array, n: number, iv: Buffer | Uint8Array) {
+    static async decrypt(password: string, salt: Buffer, data: Buffer, n: number, iv: Buffer) : Promise<Buffer> {
         const promisified_pbkdf2 = promisify(pbkdf2)
 
         let hashed_pass
@@ -254,7 +254,7 @@ debugger;
      * @returns {Boolean} True if password is strong
      * @ignore
      */
-    static strong_password(password: string) {
+    static strong_password(password: string) : boolean {
         if (password.length < 14) {
             return false
         }

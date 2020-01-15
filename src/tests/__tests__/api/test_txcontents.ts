@@ -2,6 +2,7 @@ import {ADDRESSES, DEFAULT_PORT, ENTITIES, LOCAL_HOST} from '../../utils/helpers
 import {TransactionApi, TxContents} from '../../../fetchai/ledger/api/tx'
 import {Address} from '../../../fetchai/ledger/crypto/address'
 import {BN} from 'bn.js'
+
 import {LedgerApi, TokenApi} from '../../../fetchai/ledger/api'
 
 describe(':TXContentsTest', () => {
@@ -71,8 +72,8 @@ describe(':TXContentsTest', () => {
             ]
         }
         const tx_contents = TxContents.from_json(data)
-        expect(tx_contents.transfers_to(ADDRESSES[0].toHex()).cmp(new BN(200))).toBe(0)
-        expect(tx_contents.transfers_to(ADDRESSES[1].toHex()).cmp(new BN(300))).toBe(0)
-        expect(tx_contents.transfers_to(ADDRESSES[2].toHex()).cmp(new BN(0))).toBe(0)
+        expect(tx_contents.transfers_to(ADDRESSES[0]).cmp(new BN(200))).toBe(0)
+        expect(tx_contents.transfers_to(ADDRESSES[1]).cmp(new BN(300))).toBe(0)
+        expect(tx_contents.transfers_to(ADDRESSES[2]).cmp(new BN(0))).toBe(0)
     })
 })

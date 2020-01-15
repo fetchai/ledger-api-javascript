@@ -123,7 +123,7 @@ export class Bootstrap {
      * Queries bootstrap for the requested network and returns connection details
      * @param network
      */
-    static async server_from_name(network: string): Promise<Array<string>> {
+    static async server_from_name(network: string): Promise<Array<string | number>> {
         //Get list of active servers
         const server_list = await Bootstrap.list_servers(true)
         // Check requested network exists and supports our ledger version

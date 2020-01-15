@@ -69,7 +69,7 @@ export class Identity {
      * @param  {String} signature Signature
      * @returns signature is valid or not
      */
-    verify(message: Object | KeyLike, signature: NodeJS.ArrayBufferView): boolean {
+    verify(message: Buffer, signature:Buffer): boolean {
         return secp256k1.verify(message, signature, this.prefixed_public_key())
     }
 

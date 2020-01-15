@@ -28,24 +28,7 @@ declare global {
 // allowed numeric datatypes for public API of SDK, which are then converted into BN instances for sending to ledger.
 type NumericInput = number | BN;
 
-    enum PREFIX {
-        CONTRACT = "fetch.contract",
-        TOKEN = "fetch.token",
-    }
 
-    //Non-exhaustive list of common endpoints: additional custom endpoints may also exist
-    enum ENDPOINT {
-        NONE = "",
-        BALANCE = "balance",
-        STAKE = "stake",
-        COOLDOWNSTAKE = "cooldownStake",
-        ADDSTAKE = "addStake",
-        COLLECTSTAKE = "collectStake",
-        DESTAKE = "destake",
-        DEED = "deed",
-        CREATE = "create",
-        TRANSFER = "transfer"
-    }
 
     interface String {
         /**
@@ -58,15 +41,26 @@ type NumericInput = number | BN;
     interface JSONEncodable {
     [index: number]: Address | string | number | JSONEncodable;
 }
+
+// todo Should this accept other primitives?? ask ed.
 interface MessagePackable {
        [index: number]: Address | string | number;
 }
+
+
 
 interface ContractionActionArgs {
        [index: number]: Address | string;
 }
 
 }
+
+// // declaring module will allow typescript to import the module
+// declare module 'bn.js' {
+//   // typing module default export as `any` will allow you to access its members without compiler warning
+//   var BN: any;
+//   export default BN;
+// }
 
 /*~ If your module exports types or values, write them as usual */
 export interface StringFormatOptions {

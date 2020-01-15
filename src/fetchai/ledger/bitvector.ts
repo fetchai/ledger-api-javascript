@@ -93,13 +93,13 @@ export class BitVector {
         return this._byte_size
     }
 
-    get(bit?) : number {
+    get(bit: number) : number {
         let byte_index = Math.floor(bit / 8)
         let bit_index = bit & 0x7
         return (this._buffer[byte_index] >> bit_index) & 0x1
     }
 
-    set(bit, value) : void {
+    set(bit: number, value: number) : void {
         assert(0 <= Number(value))
         assert(Number(value) <= 1)
         let byte_index = Math.floor(bit / 8)

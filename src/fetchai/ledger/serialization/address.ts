@@ -1,5 +1,6 @@
 import {Address} from '../../../fetchai/ledger/crypto/address'
 
+
 const BYTE_LENGTH = 32
 type Tuple = [Address, Buffer];
 

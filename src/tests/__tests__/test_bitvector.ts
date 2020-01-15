@@ -4,13 +4,13 @@ describe(':BitVector', () => {
     test('Test create BitVector instance with empty size', () => {
         const bits = new BitVector()
         expect(bits.byte_length()).toBe(0)
-        expect(bits.get()).toBe(0)
+        expect(bits.get(0)).toBe(0)
     })
 
     test('Test create BitVector instance with size value', () => {
         const bits = new BitVector(8)
         expect(bits.byte_length()).toBe(1)
-        expect(bits.get()).toBe(0)
+        expect(bits.get(0)).toBe(0)
     })
 
     test('Test set', () => {

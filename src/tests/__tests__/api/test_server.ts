@@ -18,7 +18,7 @@ describe(':ServerApi', () => {
     test('test version', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const version = await api.server.version()
-        expect(axios).toHaveBeenCalledTimes(1)
+        expect(axios).toHaveBeenCalledTimes(2)
         expect(version).toBe('0.9.0')
     })
 

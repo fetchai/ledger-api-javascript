@@ -4,7 +4,6 @@ import {Identity} from './crypto/identity'
 import {BN} from 'bn.js'
 import {calc_digest, logger} from './utils'
 import assert from 'assert'
-import {createHash} from 'crypto'
 import * as identity from './serialization/identity'
 import * as bytearray from './serialization/bytearray'
 import {
@@ -54,16 +53,16 @@ export class Transaction {
 	public _counter: BN = new BN(randomBytes(8));
 	public _chain_code: string = '';
 	public _shard_mask: BitVector  = new BitVector()
-	public _action: string;
+	public _action: string = '';
 	public _metadata: any = {
             synergetic_data_submission: false
         }
 	public _data: string = '';
 	//public _signers: Map<string, string | SignatureData>;
-    public _signers: any;
+    public _signers: any = new Map;
 
     // Get and Set from_address param
-    from_address(address?: AddressLike) : Address | string {
+    from_address(address: AddressLike | null = null) : Address | string {
         if (address !== null) {
             this._from = new Address(address)
             return this._from
@@ -125,7 +124,6 @@ export class Transaction {
         if (counter === null) return this._counter
         assert(BN.isBN(counter))
         this._counter = counter
-
     }
 
     // Get chain_code param
@@ -134,7 +132,7 @@ export class Transaction {
     }
 
     // Get and Set action param
-    action(action? : string) : string {
+    action(action : string | null = null) : string {
         if (action !== null) {
             this._action = action
         }

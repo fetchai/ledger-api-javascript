@@ -7,7 +7,7 @@ import {createHash, randomBytes} from 'crypto'
 import {default as atob} from 'atob'
 import {default as btoa} from 'btoa'
 import {LedgerApi} from './api'
-import {calc_digest, logger} from './utils'
+import {calc_digest, convert_number, logger} from './utils'
 import {RunTimeError, ValidationError} from './errors'
 import {Parser} from './parser/parser'
 import {ShardMask} from './serialization/shardmask'
@@ -101,6 +101,7 @@ export class Contract {
 
     async create(api: ContractsApiLike, owner: Entity, fee: NumericInput, signers: Array<Entity> | null = null) : Promise<string> {
         this.owner(owner)
+         fee = convert_number(fee)
          //todo THIS LOOKS LIKE BUG, look at later. It can never == null so unreachable at present.
         if (this._init === null) {
             throw new RunTimeError('Contract has no initialisation function')
@@ -119,7 +120,7 @@ export class Contract {
         return Contract.api(api).create(owner, this, fee, signers, shard_mask)
     }
 
-    async query(api: ContractsApiLike, name: string, data: JSONEncodable) : Promise<any> {
+    async query(api: ContractsApiLike, name: string, data: any) : Promise<any> {
 
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any queries. Did you deploy it?')
@@ -136,7 +137,7 @@ export class Contract {
         const [success, response] = await (Contract.api(api) as ContractsApi).query(this._address, name, data)
 
         if (!success) {
-            if (response !== null && 'msg' in response) {
+            if (response !== null && 'msg' in response as Object) {
                 throw new RunTimeError('Failed to make requested query: ' + response['msg'])
             } else {
                 throw new RunTimeError('Failed to make requested query with no error message.')
@@ -145,7 +146,9 @@ export class Contract {
         return response['result']
     }
 
-    async action(api: ContractsApiLike, name: string, fee: NumericInput, args: Array<Address | string> , signers : Array<Entity> | null = null) {
+    async action(api: ContractsApiLike, name: string, fee: NumericInput, args: MessagePackable , signers : Array<Entity> | null = null) {
+
+        fee = convert_number(fee)
         // verify if we are used undefined
         if (this._owner === null) {
             throw new RunTimeError('Contract has no owner, unable to perform any actions. Did you deploy it?')

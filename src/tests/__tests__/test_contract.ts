@@ -6,10 +6,10 @@ import {default as btoa} from 'btoa'
 import {createHash} from 'crypto'
 import {MULTIPLE_INITS, SIMPLE_CONTRACT} from '../../contracts/transfer'
 
-const calc_address = (owner, nonce) => {
+const calc_address = (owner: any, nonce: Buffer) : Buffer => {
     const hash_func = createHash('sha256')
-    hash_func.update(owner.toBytes(), 'utf8')
-    hash_func.update(nonce, 'utf8')
+    hash_func.update(owner.toBytes())
+    hash_func.update(nonce)
     return hash_func.digest()
 }
 
@@ -20,7 +20,7 @@ jest.mock('fs', () => {
         readFileSync: () => {
             return MOCK_FILE_INFO
         },
-        writeFileSync: (fp, json_string) => {
+        writeFileSync: (fp: string, json_string: string) => {
             expect(fp).toBe(EXPECTED_FP)
             expect(json_string).toBe(MOCK_FILE_INFO)
         }

@@ -17,18 +17,36 @@ export const _PRIVATE_KEYS = [
     '80f0e1c69e5f1216f32647c20d744c358e0894ebc855998159017a5acda208ba',
 ]
 
-export const [ENTITIES, IDENTITIES, ADDRESSES] = (() => {
+export const ENTITIES = (() => {
     const ENTITIES : Array<Entity> = [];
-        const IDENTITIES : Array<Identity> = [];
-        const ADDRESSES: Array<Address> = [];
+    for (let i = 0; i < _PRIVATE_KEYS.length; i++) {
+        ENTITIES.push(Entity.from_hex(_PRIVATE_KEYS[i]))
+    }
+    return ENTITIES
+})()
+
+export const ADDRESSES = (() => {
+        const ENTITIES : Array<Entity> = [];
+    const ADDRESSES: Array<Address> = [];
+
+    for (let i = 0; i < _PRIVATE_KEYS.length; i++) {
+        ENTITIES.push(Entity.from_hex(_PRIVATE_KEYS[i]))
+        ADDRESSES.push(new Address(ENTITIES[i]))
+    }
+    return  ADDRESSES
+})()
+
+export const IDENTITIES = (() => {
+        const ENTITIES : Array<Entity> = [];
+    const IDENTITIES : Array<Identity> = [];
 
     for (let i = 0; i < _PRIVATE_KEYS.length; i++) {
         ENTITIES.push(Entity.from_hex(_PRIVATE_KEYS[i]))
         IDENTITIES.push(new Identity(ENTITIES[i].public_key()))
-        ADDRESSES.push(new Address(ENTITIES[i]))
     }
-    return [ENTITIES, IDENTITIES, ADDRESSES]
+    return IDENTITIES
 })()
+
 
 
 //TODO remove functions names preceeding underscore.

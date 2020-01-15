@@ -11,7 +11,7 @@ const DEFAULT_TIMEOUT = 120
 
 interface WaitingTransactionItem {
      time: number,
-      tx_status: TxStatus,
+     tx_status: TxStatus,
 }
 
 /**
@@ -31,11 +31,12 @@ export class LedgerApi {
      * @param  {Boolean} port ledger port.
      * @param  {Boolean} network server name.
      */
-    constructor(host, port) {
+    constructor(host: string, port: number) {
         this.tokens = new TokenApi(host, port, this)
         this.contracts = new ContractsApi(host, port, this)
         this.tx = new TransactionApi(host, port, this)
         this.server = new ServerApi(host, port, this)
+        //todo add server version compat test here.
     }
 
     /**

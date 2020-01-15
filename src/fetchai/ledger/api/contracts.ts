@@ -4,11 +4,12 @@ import {ApiEndpoint, TransactionFactory} from './common'
 import {BitVector} from '../bitvector'
 import {Contract} from '../contract'
 import {encode_transaction} from '../serialization/transaction'
-import {logger} from '../utils'
+import {ENDPOINT, logger, PREFIX} from '../utils'
 import {LedgerApi} from "./init";
 import {Entity} from "../crypto/entity";
 import {BN} from 'bn.js'
 import {Transaction} from "../transaction";
+type Tuple = [boolean, Object];
 
 
 /**
@@ -36,7 +37,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} contract contract
      * @param {Object} [shard_mask=null] BitVector object
      */
-    async create(owner: Entity, contract: Contract, fee: NumericInput, signers : Array<Entity> | null = null, shard_mask : BitVectorLike = null) :  Promise<any | null>  {
+    async create(owner: Entity, contract: Contract, fee: BN, signers : Array<Entity> | null = null, shard_mask : BitVectorLike = null) :  Promise<any | null>  {
         assert(contract instanceof Contract)
         // todo verify this at runtime is correct then remove comment. I think the bug is in python.
         const ENDPOINT = 'create'
@@ -54,7 +55,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} query query string
      * @param {JSON} data json payload
      */
-    async query(contract_owner: Address, query: string, data:  JSONEncodable) : Promise<Array<boolean | Object>> {
+    async query(contract_owner: Address, query: string, data:  any) : Promise<Tuple> {
         assert(this.isJSON(data))
         const encoded = this._encode_json_payload(data)
         return await this.post_json(query, encoded, contract_owner.toString())
@@ -72,13 +73,13 @@ export class ContractsApi extends ApiEndpoint {
      * @param {Object} shard_mask BitVector object
      */
     async action(
-        contract_address,
-        action,
-        fee,
-        from_address,
-        signers,
-        args,
-        shard_mask = null
+        contract_address: Address,
+        action: string,
+        fee:  BN,
+        from_address: Address,
+        signers : Array<Entity>,
+        args: MessagePackable,
+        shard_mask: BitVectorLike = null
     ) {
         const contractTxFactory = new ContractTxFactory(this.parent_api)
         let tx = await contractTxFactory.action(contract_address, action, fee, from_address, args, signers, shard_mask)
@@ -92,9 +93,9 @@ export class ContractsApi extends ApiEndpoint {
     }
 
 
-    _encode_json_payload(data: JSONEncodable) {
+    _encode_json_payload(data: any) {
         assert(typeof data === 'object' && data !== null)
-        const params = {}
+        const params : any = {}
 
         let new_key
         //generic object/array loop
@@ -119,12 +120,13 @@ export class ContractsApi extends ApiEndpoint {
         return params
     }
 
-    static _is_primitive(test: string | number) {
+    //static _is_primitive(test: string | number) {
+    static _is_primitive(test: any) {
         return test !== Object(test)
     }
 
     // taken from http://stackz.ru/en/4295386/how-can-i-check-if-a-value-is-a-json-object
-    isJSON(o) {
+    isJSON(o: any) {
         if (typeof o != 'string') {
             o = JSON.stringify(o)
         }
@@ -175,7 +177,7 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
     async action(contract_address: Address, action: string,
-        fee: NumericInput, from_address: AddressLike, args: MessagePackable,
+        fee: BN, from_address: AddressLike, args: MessagePackable,
         signers : Array<Entity> | null = null,
         shard_mask: BitVectorLike = null) {
 
@@ -195,7 +197,7 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
 
-    async create(owner: Entity, contract: Contract, fee: NumericInput, signers: Array<Entity> | null = null,
+    async create(owner: Entity, contract: Contract, fee: BN, signers: Array<Entity> | null = null,
         shard_mask: BitVectorLike = null) {
         // build up the basic transaction information
         const tx = TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, PREFIX.CONTRACT , shard_mask)

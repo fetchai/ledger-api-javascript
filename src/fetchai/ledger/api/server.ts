@@ -5,7 +5,7 @@ import {ApiError} from '../errors'
 
 export class ServerApi extends ApiEndpoint {
 
-    async status() {
+    async status() : Promise<any> {
         // Gets the status of a constellation server
         let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status`
 

@@ -89,18 +89,18 @@ export class TxContents {
 	public signatories: any;
 	public data: any;
 
-    constructor(digest,
-        action,
-        chain_code,
-        from_address,
-        contract_address,
-        valid_from,
-        valid_until,
-        charge,
-        charge_limit,
-        transfers,
-        signatories,
-        data) {
+    constructor(digest: string,
+        action: string,
+        chain_code: string,
+        from_address: string,
+        contract_address: string,
+        valid_from: number,
+        valid_until: number,
+        charge: number,
+        charge_limit: number,
+        transfers: string,
+        signatories: string,
+        data: string ) {
 
         this.digest_bytes = digest
         this.digest_hex = this.digest_bytes.toString('hex')

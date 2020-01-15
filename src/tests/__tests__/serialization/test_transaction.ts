@@ -9,7 +9,7 @@ import {BN} from 'bn.js'
 import {calc_digest, ENTITIES, IDENTITIES} from '../../utils/helpers'
 
 
-const _calculate_integer_stream_size = (len) => {
+const _calculate_integer_stream_size = (len: 64): 1 | 2 | 4 | 8 => {
     if (len < 0x80) {
         return 1
     } else if (len < 0x100) {
@@ -22,7 +22,7 @@ const _calculate_integer_stream_size = (len) => {
 }
 
 const EXPECTED_SIGNATURE_BYTE_LEN = 64
-const EXPECTED_SIGNATURE_LENGTH_FIELD_LEN = _calculate_integer_stream_size(EXPECTED_SIGNATURE_BYTE_LEN)
+const EXPECTED_SIGNATURE_LENGTH_FIELD_LEN = 1
 const EXPECTED_SERIAL_SIGNATURE_LENGTH = EXPECTED_SIGNATURE_BYTE_LEN + EXPECTED_SIGNATURE_LENGTH_FIELD_LEN
 
 describe(':Transaction', () => {
@@ -34,6 +34,7 @@ describe(':Transaction', () => {
         payload.add_transfer(IDENTITIES[1], new BN(256))
         payload.add_signer(IDENTITIES[0].public_key_hex())
         payload.counter(new BN('0102030405060708', 'hex'))
+        debugger;
         const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
         assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
         const [success, tx] = decode_transaction(transaction_bytes)
@@ -57,11 +58,11 @@ describe(':Transaction', () => {
         const [success, tx] = decode_transaction(transaction_bytes)
         expect(success).toBe(true)
         assertTxAreEqual(payload, tx)
-
     })
 })
 
 test('test synergetic_data_submission', () => {
+    debugger;
     const EXPECTED_PAYLOAD = 'a160c000532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d4c1271001c3000000e8d4a5100080e6672a9d98da667e5dc25b2bca8acf9644a7ac0797f01cb5968abf39de011df204646174610f7b2276616c7565223a20313233347d00000000000000000418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c'
     const payload = new Transaction()
     payload.from_address(IDENTITIES[0])
@@ -233,7 +234,7 @@ test('test invalid version', () => {
     }).toThrow(ValidationError)
 })
 
-function assertIsExpectedTx(payload, transaction_bytes, expected_hex_payload) {
+function assertIsExpectedTx(payload: Transaction, transaction_bytes: Buffer, expected_hex_payload: string) {
 
     const len = payload.signers().size
     // a payload needs at least one signee
@@ -261,7 +262,7 @@ function assertIsExpectedTx(payload, transaction_bytes, expected_hex_payload) {
     }
 }
 
-function assertTxAreEqual(reference, other) {
+function assertTxAreEqual(reference: Transaction, other: Transaction) {
     expect(reference).toBeInstanceOf(Transaction)
     expect(other).toBeInstanceOf(Transaction)
     expect(reference.from_address()).toMatchObject(other.from_address())

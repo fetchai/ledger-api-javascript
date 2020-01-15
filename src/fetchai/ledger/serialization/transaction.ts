@@ -172,7 +172,7 @@ const encode_multisig_transaction = (payload: Transaction, signatures: any) : Bu
 
     // append signatures in order
     //for(let key in signers){
-    signers.forEach((v, k) => {
+    signers.forEach((v: any, k: string) => {
         if (signatures.has(k) && typeof signatures.get(k).signature !== 'undefined') {
             buffer = encode_bytearray(buffer, signatures.get(k).signature)
         }
@@ -190,9 +190,9 @@ const encode_transaction = (payload: Transaction, signers : Array<Entity>) : Buf
     // append all the signatures of the signers in order
     // for (let signer of Object.keys(payload._signers)) {
     let flag = false
-    payload.signers().forEach((v, k) => {
+    payload.signers().forEach((v: string) => {
         let hex_key
-
+debugger;
         for (let i = 0; i < signers.length; i++) {
             hex_key = signers[i].pubKey.toString('hex')
             // check if payload sig matches one passed in this param.
@@ -310,10 +310,9 @@ const decode_payload = (buffer: Buffer) : PayloadTuple => {
                 }
 
                 // extract the shard mask from the header
-                const toHex = (d) => ('0' + (Number(d).toString(16))).slice(-2).toUpperCase()
+                const toHex = (value: number) => ('0' + (value.toString(16))).slice(-2).toUpperCase()
                 let decoded_bytes = Buffer.from(toHex(contract_header_int & mask), 'hex')
                 shard_mask = BitVector.from_bytes(decoded_bytes, bit_size)
-
             } else {
                 const bit_length = 1 << ((contract_header_int & 0x3F) + 3)
                 const byte_length = Math.floor(bit_length / 8)

@@ -1,15 +1,13 @@
 import * as integer from './integer'
 import {BN} from 'bn.js'
 
-type Tuple = [number, Buffer];
-
 const encode_bytearray = (buffer: Buffer, value: Buffer) : Buffer => {
     // value in bytes (ascii encoded)
     buffer = integer.encode_integer(buffer, new BN(value.length))
     return Buffer.concat([buffer, value])
 }
 
-const decode_bytearray = (buffer: Buffer) : Tuple => {
+const decode_bytearray = (buffer: Buffer) : Array<Buffer> => {
     let len;
     // value in bytes (ascii encoded);
     [len, buffer] = integer.decode_integer(buffer)

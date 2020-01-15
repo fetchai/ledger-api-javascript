@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {ApiError} from '../errors'
 import {BN} from 'bn.js'
-import {logger} from '../utils'
+import {logger, PREFIX} from '../utils'
 import {Transaction} from '../transaction'
 import assert from 'assert'
 import {encode, ExtensionCodec} from '@msgpack/msgpack'
@@ -42,6 +42,8 @@ export class ApiEndpoint {
 	public parent_api: LedgerApi;
 
     constructor(host: string, port: number, api: LedgerApi) {
+ assert(typeof port === "number")
+ assert(typeof host === "string")
 
         let protocol
         if (host.includes('://')) {
@@ -247,7 +249,7 @@ export class ApiEndpoint {
 
 export class TransactionFactory {
 
-    static create_skeleton_tx(fee :  BN | number) : Transaction {
+    static create_skeleton_tx(fee: BN) : Transaction {
         // build up the basic transaction information
         const tx = new Transaction()
         tx.charge_rate(new BN(1))

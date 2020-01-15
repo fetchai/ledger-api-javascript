@@ -1,5 +1,4 @@
 import {Entity} from '../../fetchai/ledger/crypto/entity'
-import {createHash} from 'crypto'
 import {ValidationError} from '../../fetchai/ledger/errors'
 import {calc_digest, PASSWORD} from '../utils/helpers'
 import fs from 'fs'
@@ -12,7 +11,7 @@ mock({
 
 describe(':Entity', () => {
 
-    let writeFileSync
+    let writeFileSync: any
 
     beforeEach(() => {
         writeFileSync = sinon.stub(fs, 'writeFileSync').returns({})
@@ -64,7 +63,7 @@ describe(':Entity', () => {
     })
 
     test('test signature to hex', () => {
-        const digest = _calc_digest(Buffer.from('rand'))
+        const digest = calc_digest(Buffer.from('rand'))
         const entity = new Entity()
         const sigObj = entity.sign(digest)
         const signature_hex = entity.signature_hex(sigObj)

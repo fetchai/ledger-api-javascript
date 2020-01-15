@@ -45,7 +45,7 @@ async function main() {
     await print_address_balances(api, contract, [address1, address2])
     const tok_transfer_amount = 200
     const fet_tx_fee = 160
-    const action = await contract.action(api, 'transfer', fet_tx_fee, [entity1], [address1, address2, tok_transfer_amount])
+    const action = await contract.action(api, 'transfer', fet_tx_fee, [address1, address2, tok_transfer_amount], [entity1])
 
     await api.sync([action]).catch(errors => sync_error(errors))
 

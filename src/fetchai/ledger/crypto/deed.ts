@@ -3,8 +3,6 @@ import {Address} from './address'
 import {InvalidDeedError} from '../errors/invalidDeedError'
 import {Entity} from "./entity";
 
-
-
     export enum OPERATIONS
     {
         AMEND = "amend",
@@ -33,7 +31,7 @@ export class Deed {
     }
 
     set_threshold(operation: OPERATIONS, threshold: number): void {
-        if (threshold > this.total_votes) {
+        if (threshold > this.total_votes()) {
             throw new InvalidDeedError('Attempting to set threshold higher than available votes - it will never be met')
         }
 
@@ -60,7 +58,7 @@ export class Deed {
     }
 
     total_votes() : number {
-        return this.signees.reduce((accum: number, curr: number) : number => accum + curr.voting_weight)
+        return this.signees.reduce((accum: number, curr: any) : number => accum + curr.voting_weight)
     }
 
     // lets change this to make it more uniform
@@ -78,7 +76,7 @@ export class Deed {
     }
 
 
-    deed_creation_json(allow_no_amend: boolean = false) : DeedJSON {
+    deed_creation_json(allow_no_amend: boolean = false) {
 
         const signees = {}
         for (var i = 0; i < this.signees.length; i++) {
