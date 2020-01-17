@@ -2,7 +2,7 @@ import {createLogger, format, transports} from 'winston'
 
 // creates a logger object with format:
 // <timestamp> <level>: <message>
-let logger = createLogger({
+const logger = createLogger({
     level: 'debug',
     format: format.combine(
         format.colorize(),
@@ -14,12 +14,6 @@ let logger = createLogger({
 
 
 // default: silent all logging levels
-logger.transports.forEach(t => (t.silent = false))
+logger.transports.forEach((t): false =>  (t.silent = false))
 
-// allows other application to set its logger
-const setLogger = (logger: any) => {
-    logger = logger
-    return
-}
-
-export {logger, setLogger}
+export {logger}

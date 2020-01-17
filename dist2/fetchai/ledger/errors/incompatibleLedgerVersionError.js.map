@@ -1,1 +1,0 @@
-{"version":3,"file":"incompatibleLedgerVersionError.js","sourceRoot":"","sources":["../../../../src/fetchai/ledger/errors/incompatibleLedgerVersionError.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;AAAA,+BAA2B;AAE3B;IAAoD,kDAAI;IAGpD,wCAAY,MAAc;QAA1B,YACI,kBAAM,mCAAmC,CAAC,SAE7C;QADG,KAAI,CAAC,MAAM,GAAG,MAAM,CAAA;;IACxB,CAAC;IACL,qCAAC;AAAD,CAAC,AAPD,CAAoD,WAAI,GAOvD;AAPY,wEAA8B"}

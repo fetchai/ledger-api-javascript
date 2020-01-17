@@ -5,9 +5,9 @@ import {ApiError} from '../errors'
 
 export class ServerApi extends ApiEndpoint {
 
-    async status() : Promise<any> {
+    async status(): Promise<any> {
         // Gets the status of a constellation server
-        let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status`
+        const url = `${this.protocol()}://${this.host()}:${this.port()}/api/status`
 
         let response
         try {
@@ -21,13 +21,13 @@ export class ServerApi extends ApiEndpoint {
         return response.data
     }
 
-    async num_lanes() : Promise<number> {
+    async num_lanes(): Promise<number> {
         // Queries the ledger for the number of lanes currently active
         const status = await this.status()
         return status.lanes
     }
 
-    async version() : Promise<string> {
+    async version(): Promise<string> {
         const status = await this.status()
         return status.version
     }

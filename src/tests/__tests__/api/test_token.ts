@@ -1,5 +1,5 @@
 import {DEFAULT_PORT, ENTITIES, LOCAL_HOST} from '../../utils/helpers'
-import {LedgerApi, TokenApi} from '../../../fetchai/ledger/api'
+import {LedgerApi} from '../../../fetchai/ledger/api'
 import {Deed} from '../../../fetchai/ledger/crypto/deed'
 import {BN} from 'bn.js'
 
@@ -20,7 +20,9 @@ describe(':TokenApi', () => {
 
     test('test deed', async () => {
         const deed = new Deed()
+        debugger
         deed.set_signee(ENTITIES[2], 2)
+        debugger
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const tx = await api.tokens.deed(ENTITIES[0], deed, null, true)
         expect(tx).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')

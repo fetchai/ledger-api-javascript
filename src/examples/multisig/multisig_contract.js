@@ -7,7 +7,6 @@ import {Address} from '../../fetchai/ledger/crypto'
 import {MUTLISIG_CONTRACT} from '../../contracts'
 
 
-
 async function print_address_balances(api, contract, addresses) {
     let balance, query
     for (let i = 0; i < addresses.length; i++) {
@@ -26,7 +25,7 @@ function sync_error(errors) {
 
 
 async function main() {
-    let txs, tx, nonce
+    let txs, tx
 
     // We generate an identity from a known key, which contains funds.
     const multi_sig_identity = Entity.from_hex('e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8')
@@ -83,7 +82,7 @@ async function main() {
     console.log('\nSetting up smart contract\n')
 
     // A nonce is an optional attribute for a contract.
-    nonce = Buffer.from('590953aea8a09c51', 'hex')
+    const nonce = Buffer.from('590953aea8a09c51', 'hex')
 
     const contract = new Contract(MUTLISIG_CONTRACT, multi_sig_identity, nonce)
     tx = await contract.create(contract_factory, multi_sig_identity, 4000, [board[3].member])

@@ -16,8 +16,7 @@ async function print_address_balances(api, contract, addresses) {
     for (let i = 0; i < addresses.length; i++) {
         // Querying a balance returns an instance of BigNumber (https://github.com/indutny/bn.js/)
         balance = await api.tokens.balance(addresses[i])
-        // todo confirm
-        query = await contract.query(api, 'balance', {address: addresses[i]})
+        query = await contract.query({api: api, name: 'balance', data: {address: addresses[i]}})
         console.log(`Address : ${addresses[i]}: ${balance.toString()} bFET ${query} TOK'.`)
     }
 }
@@ -33,7 +32,7 @@ async function main() {
 
     // create the smart contract
     const contract = new Contract(TRANSFER_CONTRACT, entity1)
-    const created = await contract.create(api, entity1, 4000).catch(errors => {
+    const created = await contract.create({api: api, owner: entity1, fee: 4000}).catch(errors => {
         console.log(errors)
         throw new Error()
     })
@@ -45,7 +44,7 @@ async function main() {
     await print_address_balances(api, contract, [address1, address2])
     const tok_transfer_amount = 200
     const fet_tx_fee = 160
-    const action = await contract.action(api, 'transfer', fet_tx_fee, [address1, address2, tok_transfer_amount], [entity1])
+    const action = await contract.action({api: api, name: 'transfer', fee: fet_tx_fee, args: [address1, address2, tok_transfer_amount], signers: [entity1]})
 
     await api.sync([action]).catch(errors => sync_error(errors))
 

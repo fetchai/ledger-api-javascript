@@ -2,8 +2,8 @@ import {Entity} from '../../fetchai/ledger/crypto/entity'
 import {ValidationError} from '../../fetchai/ledger/errors'
 import {calc_digest, PASSWORD} from '../utils/helpers'
 import fs from 'fs'
-const mock = require('mock-fs')
-const sinon = require('sinon')
+import mock from 'mock-fs'
+import sinon from 'sinon'
 
 mock({
     'path/to/some.png': '{"key_length":32,"init_vector":"LAunDQSK0yh1ixYStfBLdw==","password_salt":"jwhnMpDMp3kW/og8pZbiwA==","privateKey":"2Vdl4fr8gLlnuHEgwZrmeOsp4y6QLmHRlBeEj6qXPd0="}',
@@ -30,7 +30,6 @@ describe(':Entity', () => {
         expect(reference.public_key()).toEqual(other.public_key())
         expect(reference.public_key_hex()).toEqual(other.public_key_hex())
     })
-
 
 
     test('test signing verifying cycle', () => {
@@ -91,7 +90,7 @@ describe(':Entity', () => {
         await entity.prompt_dump('path/to/some.png', PASSWORD)
         expect(writeFileSync.calledOnce).toBe(true)
         expect(writeFileSync.getCall(0).args[0]).toEqual('path/to/some.png')
-        let json_obj =  JSON.parse(writeFileSync.getCall(0).args[1])
+        const json_obj = JSON.parse(writeFileSync.getCall(0).args[1])
         expect(json_obj.key_length).toEqual(32)
         expect(json_obj).toHaveProperty('init_vector')
         expect(json_obj).toHaveProperty('password_salt')
@@ -99,9 +98,9 @@ describe(':Entity', () => {
     })
 
     test('test validation of strong password', () => {
-        let valid = Entity.strong_password(PASSWORD)
+        const valid = Entity.strong_password(PASSWORD)
         expect(valid).toBe(true)
-        let invalid = Entity.strong_password('weakpassword')
+        const invalid = Entity.strong_password('weakpassword')
         expect(invalid).toBe(false)
     })
 })

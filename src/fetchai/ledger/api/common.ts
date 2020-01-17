@@ -1,17 +1,18 @@
 import axios from 'axios'
 import {ApiError} from '../errors'
 import {BN} from 'bn.js'
-import {convert_number, logger, PREFIX} from '../utils'
+import {convert_number, PREFIX} from '../utils'
 import {Transaction} from '../transaction'
 import assert from 'assert'
 import {encode, ExtensionCodec} from '@msgpack/msgpack'
-import {Address, Entity} from '../crypto'
+import {Address} from '../crypto'
 import {BitVector} from '../bitvector'
 import {encode_multisig_transaction} from '../serialization/transaction'
-import {LedgerApi} from "./init";
-type Tuple = [boolean, Object];
+import {LedgerApi} from './init'
 
-function format_contract_url(host: string, port: number, prefix: string | null = null, endpoint: string | null = null, protocol: string = 'http') : string {
+type Tuple = [boolean, Record<string, any>];
+
+function format_contract_url(host: string, port: number, prefix: string | null = null, endpoint: string | null = null, protocol = 'http'): string {
     let canonical_name, url
 
     if (endpoint === null || endpoint === '') {
@@ -34,16 +35,16 @@ function format_contract_url(host: string, port: number, prefix: string | null =
  * @class
  */
 export class ApiEndpoint {
-	public _protocol: string;
-	public prefix: PREFIX;
-	public _host: string;
-	public _port: number;
-	public readonly DEFAULT_BLOCK_VALIDITY_PERIOD = 100
-	public parent_api: LedgerApi;
+    public _protocol: string;
+    public prefix: PREFIX;
+    public _host: string;
+    public _port: number;
+    public readonly DEFAULT_BLOCK_VALIDITY_PERIOD = 100;
+    public parent_api: LedgerApi;
 
     constructor(host: string, port: number, api: LedgerApi) {
- assert(typeof port === "number")
- assert(typeof host === "string")
+        assert(typeof port === 'number')
+        assert(typeof host === 'string')
 
         let protocol
         if (host.includes('://')) {
@@ -59,11 +60,11 @@ export class ApiEndpoint {
         this.parent_api = api
     }
 
-    protocol() : string {
+    protocol(): string {
         return this._protocol
     }
 
-    host() : string {
+    host(): string {
         return this._host
     }
 
@@ -80,13 +81,13 @@ export class ApiEndpoint {
      * @param  {data} data for request body.
      * @param  {prefix} prefix of the url.
      */
-    async post_json(endpoint : string, data = {}, prefix: string = this.prefix) : Promise<Tuple>{
+    async post_json(endpoint: string, data = {}, prefix: string = this.prefix): Promise<Tuple> {
 
         // format and make the request
         const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
         // define the request headers
 
-        let request_headers = {
+        const request_headers = {
             'Content-Type': 'application/json; charset=utf-8'
         }
 
@@ -118,23 +119,25 @@ export class ApiEndpoint {
         //     pass
         //
         // return False, response
-
+        console.log('resp')
+        console.log(resp)
+        console.log('resp')
         return [false, resp.data]
     }
 
-    async create_skeleton_tx(fee: number, validity_period: number | null = null) : Promise<Transaction> {
+    async create_skeleton_tx(fee: number, validity_period: number | null = null): Promise<Transaction> {
         if (!validity_period) {
             validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
         }
 
         // query what the current block number is on the node
-        let current_block = await this.current_block_number()
+        const current_block = await this.current_block_number()
         if (current_block < 0) {
             throw new ApiError('Unable to query current block number')
         }
 
         // build up the basic transaction information
-        let tx = new Transaction()
+        const tx = new Transaction()
         tx.valid_until(new BN(current_block + validity_period))
         tx.charge_rate(new BN(1))
         tx.charge_limit(new BN(fee))
@@ -148,7 +151,7 @@ export class ApiEndpoint {
      * @param signatures    signers signatures
      * @returns {Promise<*>}    The digest of the submitted transaction
      */
-    async submit_signed_tx(tx: Transaction, signatures: any) {
+    async submit_signed_tx(tx: Transaction, signatures: any): Promise<any> {
         // Encode transaction and append signatures
         const encoded_tx = encode_multisig_transaction(tx, signatures)
         // Submit and return digest
@@ -156,7 +159,7 @@ export class ApiEndpoint {
     }
 
     // tx is transaction
-    async set_validity_period(tx: Transaction, validity_period: number | null = null) : Promise<BN> {
+    async set_validity_period(tx: Transaction, validity_period: number | null = null): Promise<BN> {
         if (!validity_period) {
             validity_period = this.DEFAULT_BLOCK_VALIDITY_PERIOD
         }
@@ -167,8 +170,8 @@ export class ApiEndpoint {
         return tx.valid_until()
     }
 
-    async current_block_number() : Promise<number> {
-        let response = await this._get_json('status/chain', {size: 1})
+    async current_block_number(): Promise<number> {
+        const response = await this._get_json('status/chain', {size: 1})
         let block_number = -1
         if (response) {
             block_number = response.data['chain'][0].blockNumber
@@ -176,11 +179,11 @@ export class ApiEndpoint {
         return block_number
     }
 
-    async _get_json(path: string, data: any) {
-        let url = `http://${this._host}:${this._port}/api/${path}`
+    async _get_json(path: string, data: any): Promise<any> {
+        const url = `http://${this._host}:${this._port}/api/${path}`
 
         // define the request headers
-        let request_headers = {
+        const request_headers = {
             'Content-Type': 'application/json; charset=utf-8'
         }
 
@@ -210,12 +213,12 @@ export class ApiEndpoint {
      * @returns {Promise<null|*>} Promise resolves to the hexadecimal digest of the submitted transaction
      */
 
-    async post_tx_json(tx_data: Buffer, endpoint: string) : Promise<any | null> {
-        let request_headers = {
+    async post_tx_json(tx_data: Buffer, endpoint: string): Promise<any | null> {
+        const request_headers = {
             'content-type': 'application/vnd+fetch.transaction+json'
         }
 
-        let tx_payload = {
+        const tx_payload = {
             ver: '1.2',
             data: tx_data.toString('base64')
         }
@@ -224,7 +227,7 @@ export class ApiEndpoint {
         // format the URL
         const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
         // make the request
-        let resp: any;
+        let resp: any
         try {
             resp = await axios({
                 method: 'post',
@@ -240,7 +243,6 @@ export class ApiEndpoint {
 
             //TODO WHY DOES ED CHECK in python that there is a hash, else there is no return.
             //TODO confirm that is as intended.
-            logger.info(`\n Transactions hash is ${resp.data.txs} \n`)
             return resp.data.txs[0]
         }
         return null
@@ -249,7 +251,7 @@ export class ApiEndpoint {
 
 export class TransactionFactory {
 
-    static create_skeleton_tx(fee: BN) : Transaction {
+    static create_skeleton_tx(fee: BN): Transaction {
         // build up the basic transaction information
         const tx = new Transaction()
         tx.charge_rate(new BN(1))
@@ -257,7 +259,7 @@ export class TransactionFactory {
         return tx
     }
 
-    static create_action_tx(fee: NumericInput, from: AddressLike, action: string, prefix: string, shard_mask: BitVectorLike = null) : Transaction  {
+    static create_action_tx(fee: NumericInput, from: AddressLike, action: string, prefix: string, shard_mask: BitVectorLike = null): Transaction {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask
         fee = convert_number(fee)
         const tx = TransactionFactory.create_skeleton_tx(fee)
@@ -267,7 +269,7 @@ export class TransactionFactory {
         return tx
     }
 
-    static encode_msgpack_payload(args: MessagePackable) : Uint8Array {
+    static encode_msgpack_payload(args: MessagePackable): Uint8Array {
         assert(Array.isArray(args))
         const extensionCodec = new ExtensionCodec()
         extensionCodec.register({
@@ -279,7 +281,8 @@ export class TransactionFactory {
                     return null
                 }
             },
-            decode: ()=>{}
+            decode: () => {
+            }
         })
         return encode(args, {extensionCodec})
     }

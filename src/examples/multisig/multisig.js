@@ -20,7 +20,7 @@ function print_signing_votes(board) {
         sum += board[i].voting_weight
     }
 
-    if(board.length > 1) {
+    if (board.length > 1) {
         str += ' = ' + sum
     }
 

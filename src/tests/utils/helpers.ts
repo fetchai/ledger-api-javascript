@@ -17,28 +17,28 @@ export const _PRIVATE_KEYS = [
     '80f0e1c69e5f1216f32647c20d744c358e0894ebc855998159017a5acda208ba',
 ]
 
-export const ENTITIES = (() => {
-    const ENTITIES : Array<Entity> = [];
+export const ENTITIES = ((): Array<Entity> => {
+    const ENTITIES: Array<Entity> = []
     for (let i = 0; i < _PRIVATE_KEYS.length; i++) {
         ENTITIES.push(Entity.from_hex(_PRIVATE_KEYS[i]))
     }
     return ENTITIES
 })()
 
-export const ADDRESSES = (() => {
-        const ENTITIES : Array<Entity> = [];
-    const ADDRESSES: Array<Address> = [];
+export const ADDRESSES = ((): Array<Address> => {
+    const ENTITIES: Array<Entity> = []
+    const ADDRESSES: Array<Address> = []
 
     for (let i = 0; i < _PRIVATE_KEYS.length; i++) {
         ENTITIES.push(Entity.from_hex(_PRIVATE_KEYS[i]))
         ADDRESSES.push(new Address(ENTITIES[i]))
     }
-    return  ADDRESSES
+    return ADDRESSES
 })()
 
-export const IDENTITIES = (() => {
-        const ENTITIES : Array<Entity> = [];
-    const IDENTITIES : Array<Identity> = [];
+export const IDENTITIES = ((): Array<Identity> => {
+    const ENTITIES: Array<Entity> = []
+    const IDENTITIES: Array<Identity> = []
 
     for (let i = 0; i < _PRIVATE_KEYS.length; i++) {
         ENTITIES.push(Entity.from_hex(_PRIVATE_KEYS[i]))
@@ -48,15 +48,14 @@ export const IDENTITIES = (() => {
 })()
 
 
-
 //TODO remove functions names preceeding underscore.
-export function calc_digest(address_raw: BinaryLike) {
+export function calc_digest(address_raw: BinaryLike): Buffer {
     const hash_func = createHash('sha256')
     hash_func.update(address_raw)
     return hash_func.digest()
 }
 
-export function calc_address(address_raw: BinaryLike) : Array<Buffer | string> {
+export function calc_address(address_raw: BinaryLike): Array<Buffer | string> {
     const digest = calc_digest(address_raw)
     const bytes = calc_digest(digest)
     const checksum = bytes.slice(0, 4)
@@ -65,7 +64,7 @@ export function calc_address(address_raw: BinaryLike) : Array<Buffer | string> {
     return [digest, display]
 }
 
-export function dummy_address() : Address {
+export function dummy_address(): Address {
     const digest = calc_digest(Buffer.from('rand'))
     // const bs58_encoded = bs58.encode(digest)
     return new Address(Buffer.from(digest))
@@ -73,7 +72,8 @@ export function dummy_address() : Address {
 
 export function equals(x: any, y: any): boolean {
     if (x === y) return true
-    for (var p in x) {
+    let p
+    for (p in x) {
         if (!x.hasOwnProperty(p)) continue
         if (!y.hasOwnProperty(p)) return false
         if (x[p] === y[p]) continue

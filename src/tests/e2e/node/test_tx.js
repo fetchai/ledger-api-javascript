@@ -2,7 +2,7 @@ import {Assert} from '../utils/assert'
 import {BN} from 'bn.js'
 import {TokenApi} from '../../../fetchai/ledger/api'
 import {TransactionApi} from '../../../fetchai/ledger/api/tx'
-import {DEFAULT_PORT, LOCAL_HOST, ENTITIES} from '../../utils/helpers'
+import {DEFAULT_PORT, ENTITIES, LOCAL_HOST} from '../../utils/helpers'
 
 
 export async function test_tx() {

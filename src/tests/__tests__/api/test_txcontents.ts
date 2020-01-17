@@ -1,9 +1,9 @@
 import {ADDRESSES, DEFAULT_PORT, ENTITIES, LOCAL_HOST} from '../../utils/helpers'
-import {TransactionApi, TxContents} from '../../../fetchai/ledger/api/tx'
+import {TxContents} from '../../../fetchai/ledger/api/tx'
 import {Address} from '../../../fetchai/ledger/crypto/address'
 import {BN} from 'bn.js'
 
-import {LedgerApi, TokenApi} from '../../../fetchai/ledger/api'
+import {LedgerApi} from '../../../fetchai/ledger/api'
 
 describe(':TXContentsTest', () => {
     test('test contents', async () => {

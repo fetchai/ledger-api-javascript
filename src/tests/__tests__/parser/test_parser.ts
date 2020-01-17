@@ -1,4 +1,4 @@
-import {TRANSFER_CONTRACT, SIMPLE_CONTRACT, NO_ANNOTATIONS, MULTIPLE_INITS} from '../../../contracts/transfer'
+import {MULTIPLE_INITS, NO_ANNOTATIONS, SIMPLE_CONTRACT, TRANSFER_CONTRACT} from '../../../contracts/transfer'
 import {Parser} from '../../../fetchai/ledger/parser'
 import {
     AUCTION_CONTRACT,

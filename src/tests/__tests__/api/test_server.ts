@@ -1,6 +1,6 @@
 import {DEFAULT_PORT, LOCAL_HOST} from '../../utils/helpers'
 import axios from 'axios'
-import {LedgerApi} from "../../../fetchai/ledger/api";
+import {LedgerApi} from '../../../fetchai/ledger/api'
 
 describe(':ServerApi', () => {
 

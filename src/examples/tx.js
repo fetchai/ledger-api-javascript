@@ -23,13 +23,13 @@ async function main() {
     const transfers = contents.transfers
 
     // iterate over the transfers in the transaction, which is singular in this instance
-// ${amount.toNumber()}
-    for (let [to_address, amount] of Object.entries(transfers)) {
+    // ${amount.toNumber()}
+    for (const [to_address, amount] of Object.entries(transfers)) {
         console.log(
             `\nThe submitted transaction: 
         from Address: ${from_address.toString()}
         to Address: ${to_address} 
-        of amount: TODO reinsert abovecomment when types sorted
+        of amount: ${amount.toNumber()}
         and is valid from (block number): ${valid_from} 
         and valid until (block number): ${valid_until}`)
     }

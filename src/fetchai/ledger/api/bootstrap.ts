@@ -5,16 +5,16 @@ import {__version__} from '../init'
 
 //todo ask fitzgerald if patch is number. or test oneself then remove.
 interface ServerListItem {
-     readonly name: string,
-      readonly  versions: string,
-    readonly patch: number,
-    readonly build: string,
-    readonly prerelease: string,
+    readonly name: string;
+    readonly  versions: string;
+    readonly patch: number;
+    readonly build: string;
+    readonly prerelease: string;
 }
 
 export class Bootstrap {
 
-    static async list_servers(active: boolean = true):  Promise<Array<ServerListItem>> {
+    static async list_servers(active = true): Promise<Array<ServerListItem>> {
         //Gets list of (active) servers from bootstrap network
         const params = (active) ? {'active': 1} : {}
 
@@ -55,7 +55,7 @@ export class Bootstrap {
         let invalid_flag = false
 
         if (server_details['versions'] !== '*') {
-            let version_constraints = server_details['versions'].split(',')
+            const version_constraints = server_details['versions'].split(',')
             //todo are these noew needed with the interface
             if (typeof server_details['prerelease'] !== 'undefined') invalid_flag = true
             if (typeof server_details['build'] !== 'undefined') invalid_flag = true
@@ -70,7 +70,7 @@ export class Bootstrap {
         return true
     }
 
-    static async get_ledger_address(network: string) : Promise<string> {
+    static async get_ledger_address(network: string): Promise<string> {
         // Request server endpoints
         const params = {'network': network}
 

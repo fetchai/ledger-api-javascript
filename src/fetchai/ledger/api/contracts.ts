@@ -1,16 +1,44 @@
 import assert from 'assert'
 import {Address} from '../crypto/address'
 import {ApiEndpoint, TransactionFactory} from './common'
-import {BitVector} from '../bitvector'
 import {Contract} from '../contract'
 import {encode_transaction} from '../serialization/transaction'
-import {ENDPOINT, logger, PREFIX} from '../utils'
-import {LedgerApi} from "./init";
-import {Entity} from "../crypto/entity";
+import {ENDPOINT, PREFIX} from '../utils'
+import {LedgerApi} from './init'
+import {Entity} from '../crypto/entity'
 import {BN} from 'bn.js'
-import {Transaction} from "../transaction";
+import {Transaction} from '../transaction'
+import {ServerApi} from './server'
+
 type Tuple = [boolean, any];
 
+interface CreateContractsOptions {
+    owner: Entity;
+    contract: Contract;
+    fee: BN;
+    signers: Array<Entity> | null;
+    shard_mask: BitVectorLike;
+}
+
+interface QueryContractsOptions {
+    contract_owner: Address;
+    query: string;
+    data: any;
+}
+
+interface ActionContractsOptions {
+     contract_address: Address;
+        action: string;
+        fee: BN;
+        from_address: Address;
+        args: MessagePackable;
+        signers: Array<Entity>;
+        shard_mask: BitVectorLike;
+}
+
+interface JsonPayload {
+[key: string]: JsonPrimitive | JsonPayload;
+}
 
 /**
  * This class for all Tokens APIs.
@@ -27,7 +55,12 @@ export class ContractsApi extends ApiEndpoint {
     constructor(host: string, port: number, api?: LedgerApi) {
         super(host, port, api)
         // tidy up before submitting
-        this.prefix =  PREFIX.CONTRACT
+        this.prefix = PREFIX.CONTRACT
+    }
+
+    //static _is_primitive(test: string | number) {
+    static _is_primitive(test: unknown): boolean {
+        return test !== Object(test)
     }
 
     /**
@@ -37,12 +70,12 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} contract contract
      * @param {Object} [shard_mask=null] BitVector object
      */
-    async create(owner: Entity, contract: Contract, fee: BN, signers : Array<Entity> | null = null, shard_mask : BitVectorLike = null) :  Promise<any | null>  {
+
+    async create({owner, contract, fee, signers = null, shard_mask = null}: CreateContractsOptions): Promise<any | null> {
         assert(contract instanceof Contract)
         // todo verify this at runtime is correct then remove comment. I think the bug is in python.
-        const ENDPOINT = 'create'
         const contractTxFactory = new ContractTxFactory(this.parent_api)
-        const tx = await contractTxFactory.create(owner, contract, fee, null, shard_mask)
+        const tx = await contractTxFactory.create({owner: owner, contract: contract, fee: fee, signers:null, shard_mask: shard_mask})
         signers = (signers !== null) ? signers : [owner]
         const encoded_tx = encode_transaction(tx, signers)
         contract.owner(owner)
@@ -55,7 +88,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} query query string
      * @param {JSON} data json payload
      */
-    async query(contract_owner: Address, query: string, data:  any) : Promise<Tuple> {
+    async query({contract_owner, query, data}: QueryContractsOptions): Promise<Tuple> {
         assert(this.isJSON(data))
         const encoded = this._encode_json_payload(data)
         return await this.post_json(query, encoded, contract_owner.toString())
@@ -73,16 +106,16 @@ export class ContractsApi extends ApiEndpoint {
      * @param {Object} shard_mask BitVector object
      */
     async action(
-        contract_address: Address,
-        action: string,
-        fee:  BN,
-        from_address: Address,
-        args: MessagePackable,
-        signers : Array<Entity>,
-        shard_mask: BitVectorLike = null
-    ) {
+        { contract_address,
+            action,
+            fee,
+            from_address,
+            args,
+            signers,
+            shard_mask = null}: ActionContractsOptions
+    ): Promise<any> {
         const contractTxFactory = new ContractTxFactory(this.parent_api)
-        let tx = await contractTxFactory.action(contract_address, action, fee, from_address, args, signers, shard_mask)
+        const tx = await contractTxFactory.action({contract_address: contract_address, action: action, fee: fee, from_address: from_address, args: args, signers: signers, shard_mask: shard_mask})
         for (let i = 0; i < signers.length; i++) {
             tx.add_signer(signers[i].public_key_hex())
         }
@@ -92,10 +125,9 @@ export class ContractsApi extends ApiEndpoint {
         return await this.post_tx_json(encoded_tx)
     }
 
-
-    _encode_json_payload(data: any) {
+    _encode_json_payload(data: any): JsonPayload {
         assert(typeof data === 'object' && data !== null)
-        const params : any = {}
+        const params: any = {}
 
         let new_key
         //generic object/array loop
@@ -120,19 +152,18 @@ export class ContractsApi extends ApiEndpoint {
         return params
     }
 
-    //static _is_primitive(test: string | number) {
-    static _is_primitive(test: any) {
-        return test !== Object(test)
-    }
-
-    // taken from http://stackz.ru/en/4295386/how-can-i-check-if-a-value-is-a-json-object
-    isJSON(o: any) {
-        if (typeof o != 'string') {
-            o = JSON.stringify(o)
+    isJSON(o: unknown): boolean {
+        if (typeof o !== 'string') {
+            try {
+                o = JSON.stringify(o)
+                return true
+            } catch(e) {
+                return false
+            }
         }
 
         try {
-            JSON.parse(o)
+            JSON.parse(o as string)
             return true
         } catch (e) {
             return false
@@ -140,7 +171,7 @@ export class ContractsApi extends ApiEndpoint {
     }
 
 
-    async post_tx_json(tx_data: Buffer) : Promise<any | null>{
+    async post_tx_json(tx_data: Buffer): Promise<any | null> {
         return super.post_tx_json(tx_data, null)
     }
 
@@ -148,8 +179,8 @@ export class ContractsApi extends ApiEndpoint {
 }
 
 export class ContractTxFactory extends TransactionFactory {
-	public api: LedgerApi;
-	public prefix: PREFIX;
+    public api: LedgerApi;
+    public prefix: PREFIX;
 
     constructor(api: LedgerApi) {
         super()
@@ -162,7 +193,7 @@ export class ContractTxFactory extends TransactionFactory {
      *
      * @returns {*}
      */
-    server() {
+    server(): ServerApi {
         return this.api.server
     }
 
@@ -172,14 +203,14 @@ export class ContractTxFactory extends TransactionFactory {
      * @param tx
      * @param validity_period
      */
-    async set_validity_period(tx: Transaction, validity_period: number | null = null) : Promise<BN> {
+    async set_validity_period(tx: Transaction, validity_period: number | null = null): Promise<BN> {
         return await this.api.server.set_validity_period(tx, validity_period)
     }
 
-    async action(contract_address: Address, action: string,
-        fee: BN, from_address: AddressLike, args: MessagePackable,
-        signers: Array<Entity> | null = null,
-        shard_mask: BitVectorLike = null) {
+    async action({contract_address, action,
+        fee, from_address, args,
+        signers= null,
+        shard_mask = null}: ActionContractsOptions): Promise<Transaction> {
 
         // build up the basic transaction information
         const tx = TransactionFactory.create_action_tx(fee, from_address, action, PREFIX.CONTRACT, shard_mask)
@@ -197,10 +228,9 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
 
-    async create(owner: Entity, contract: Contract, fee: BN, signers: Array<Entity> | null = null,
-        shard_mask: BitVectorLike = null) {
+    async create({owner, contract, fee, signers = null, shard_mask = null}: CreateContractsOptions): Promise<Transaction> {
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, PREFIX.CONTRACT , shard_mask)
+        const tx = TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, PREFIX.CONTRACT, shard_mask)
         const data = JSON.stringify({
             'text': contract.encoded_source(),
             'nonce': contract.nonce(),

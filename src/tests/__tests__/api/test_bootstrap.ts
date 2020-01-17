@@ -1,14 +1,10 @@
-import {IncompatibleLedgerVersionError, NetworkUnavailableError, ValidationError} from '../../../fetchai/ledger/errors'
-import {LedgerApi} from '../../../fetchai/ledger/api'
 import {Bootstrap} from '../../../fetchai/ledger/api/bootstrap'
-import axios from 'axios'
-import {AssertionError} from "assert";
 
 
 describe(':ContractsApi', () => {
 
     afterEach(() => {
-       // axios.mockClear()
+        // axios.mockClear()
     })
 
     test('test get ledger address', async () => {

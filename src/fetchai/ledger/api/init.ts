@@ -10,8 +10,8 @@ import {TransactionApi, TxStatus} from './tx'
 const DEFAULT_TIMEOUT = 120
 
 interface WaitingTransactionItem {
-     time: number,
-     tx_status: TxStatus,
+    time: number;
+    tx_status: TxStatus;
 }
 
 /**
@@ -21,10 +21,10 @@ interface WaitingTransactionItem {
  * @class
  */
 export class LedgerApi {
-	public tokens: TokenApi;
-	public contracts: ContractsApi;
-	public tx: TransactionApi;
-	public server: ServerApi;
+    public tokens: TokenApi;
+    public contracts: ContractsApi;
+    public tx: TransactionApi;
+    public server: ServerApi;
 
     /**
      * @param  {Boolean} host ledger host.
@@ -39,6 +39,23 @@ export class LedgerApi {
         //todo add server version compat test here.
     }
 
+    static async from_network_name(host: string, port: number): Promise<true> {
+        const api = new LedgerApi(host, port)
+        const server_version = await api.server.version()
+        if (
+            !semver.satisfies(
+                semver.coerce(server_version),
+                __compatible__.join(' ')
+            )
+        ) {
+            throw new IncompatibleLedgerVersionError(`Ledger version running on server is not compatible with this API  \n
+                                                 Server version: ${server_version} \nExpected version: ${__compatible__.join(
+    ','
+)}`)
+        }
+        return true
+    }
+
     /**
      *  Sync the ledger.
      * this does not block event loop, but waits sync for return of executed
@@ -50,24 +67,24 @@ export class LedgerApi {
      * @param  {Boolean} [timeout=false] units seconds.
      * @returns {Promise} return asyncTimerPromise.
      */
-    async sync(txs: Array<TxStatus | string> | string, timeout: number = DEFAULT_TIMEOUT, hold_state_sec: number = 0, extend_success_status: Array<string> = []) {
+    async sync(txs: Array<TxStatus | string> | string, timeout: number = DEFAULT_TIMEOUT, hold_state_sec = 0, extend_success_status: Array<string> = []): Promise<true | Array<TxStatus>> {
 
-        if (!Array.isArray(txs) && typeof txs !== "string") {
+        if (!Array.isArray(txs) && typeof txs !== 'string') {
             throw new TypeError('Unknown argument type')
         }
 
         if (!Array.isArray(txs)) {
             txs = [txs]
         }
-        let limit = timeout*1000
+        const limit = timeout * 1000
 
-        const failed : Array<TxStatus> = []
+        const failed: Array<TxStatus> = []
         // successful transactions are out in this waiting array, and then if they remain successful
         // for a time period equal to hold_state_sec they are removed and considered successful. This is
         // because certain transactions can change from successful to not, so we revert if this occurs.
-        const waiting : Array<WaitingTransactionItem> = []
+        const waiting: Array<WaitingTransactionItem> = []
 
-        const asyncTimerPromise = new Promise((resolve, reject) => {
+        const asyncTimerPromise = new Promise<true | Array<TxStatus>>((resolve, reject) => {
 
             const start = Date.now()
 
@@ -83,7 +100,7 @@ export class LedgerApi {
                 }
                 // we poll all of the digests.
 
-                    txs = await this.poll(txs as Array<TxStatus | string>)
+                txs = await this.poll(txs as Array<TxStatus | string>)
 
                 for (let i = 0; i < txs.length; i++) {
 
@@ -98,15 +115,15 @@ export class LedgerApi {
 
                     if ((txs[i] as TxStatus).non_terminal()) {
                         // if a transaction reverts its status to a non-terminal state within hold time then revert.
-                        let index = waiting.findIndex(item => (Date.now() - item.time) < hold_state_sec && item.tx_status.get_digest_hex() === (txs[i] as TxStatus).get_digest_hex())
+                        const index = waiting.findIndex(item => (Date.now() - item.time) < hold_state_sec && item.tx_status.get_digest_hex() === (txs[i] as TxStatus).get_digest_hex())
 
                         if (index !== -1) {
                             waiting.splice(index, 1)
                         }
                     }
 
-                    if ((txs[i] as TxStatus).successful() || extend_success_status.includes((txs[i]as TxStatus).get_status())) {
-                        let index = waiting.findIndex(item => {
+                    if ((txs[i] as TxStatus).successful() || extend_success_status.includes((txs[i] as TxStatus).get_status())) {
+                        const index = waiting.findIndex(item => {
                             const x = Date.now() - item.time
                             return x > hold_state_sec && item.tx_status.get_digest_hex() === (txs[i] as TxStatus).get_digest_hex()
                         })
@@ -117,7 +134,7 @@ export class LedgerApi {
                             i--
                         } else {
                             // check if it is currently waiting for hold time to elapse.
-                            let index = waiting.findIndex(item => ((txs[i] as TxStatus).get_digest_hex() === item.tx_status.get_digest_hex()))
+                            const index = waiting.findIndex(item => ((txs[i] as TxStatus).get_digest_hex() === item.tx_status.get_digest_hex()))
                             if (index === -1) waiting.push({time: Date.now(), tx_status: txs[i] as TxStatus})
 
                         }
@@ -125,7 +142,7 @@ export class LedgerApi {
 
                 }
 
-                let elapsed_time = Date.now() - start
+                const elapsed_time = Date.now() - start
 
                 if (elapsed_time >= limit) {
                     clearInterval(loop)
@@ -137,8 +154,7 @@ export class LedgerApi {
         return asyncTimerPromise
     }
 
-
-    async poll(txs: Array<string | TxStatus> ) : Promise<Array<TxStatus>> {
+    async poll(txs: Array<string | TxStatus>): Promise<Array<TxStatus>> {
         let tx_status
         const res = []
 
@@ -152,6 +168,7 @@ export class LedgerApi {
                 res.push(tx_status)
             } catch (e) {
                 if (!(e instanceof ApiError)) {
+                    //todo finish this part.
                     // if wedon't fail whole thing then we must push it into it to keep arrays same length.
                     // this needs looking at and asking eds opinion for future direction.
                     throw e
@@ -159,23 +176,5 @@ export class LedgerApi {
             }
         }
         return res
-    }
-
-
-    static async from_network_name(host: string, port: number) {
-        const api = new LedgerApi(host, port)
-        const server_version = await api.server.version()
-        if (
-            !semver.satisfies(
-                semver.coerce(server_version),
-                __compatible__.join(' ')
-            )
-        ) {
-            throw new IncompatibleLedgerVersionError(`Ledger version running on server is not compatible with this API  \n
-                                                 Server version: ${server_version} \nExpected version: ${__compatible__.join(
-    ','
-)}`)
-        }
-        return true
     }
 }

@@ -1,4 +1,4 @@
-import { Contract, TRANSFER_CONTRACT} from '../../fetchai/ledger'
+import {Contract, TRANSFER_CONTRACT} from '../../fetchai/ledger'
 import {calc_digest, ENTITIES} from '../utils/helpers'
 import {ShardMask} from '../../fetchai/ledger/serialization/shardmask'
 
@@ -22,14 +22,14 @@ describe(':Test ShardMask', () => {
         const shards = [2, 3, 1]
         //swap to https://stackoverflow.com/questions/45713938/jest-looping-through-dynamic-test-cases
 
-        for(let i = 0; i < shards.length; i++){
+        for (let i = 0; i < shards.length; i++) {
             expect(ShardMask.resource_to_shard(addresses[i], 4)).toBe(shards[i])
         }
 
-        const  addresses2 = ['abc', 'def', 'XYZ']
+        const addresses2 = ['abc', 'def', 'XYZ']
         const shards2 = [10, 11, 13]
 
-        for(let i = 0; i < shards2.length; i++) {
+        for (let i = 0; i < shards2.length; i++) {
             expect(ShardMask.resource_to_shard(addresses2[i], 16)).toBe(shards2[i])
         }
     })

@@ -16,7 +16,7 @@ LOGS.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')))
  *
  * @param  {value} calculate log2 num bytes as BN.js object
  */
-const _calculate_log2_num_bytes = (value: BN) : number =>  {
+const _calculate_log2_num_bytes = (value: BN): number => {
 
     for (let i = 0; i < LOGS.length; i++) {
         if (value.cmp(LOGS[i]) === -1) return i
@@ -32,7 +32,7 @@ const _calculate_log2_num_bytes = (value: BN) : number =>  {
  * @param  {buffer} Bytes data
  * @param  {value} The value to be encoded as a BN.js object
  */
-const encode_integer = (buffer: Buffer, value: BN) : Buffer => {
+const encode_integer = (buffer: Buffer, value: BN): Buffer => {
 
     const is_signed = value.isNeg()
     const abs_value = value.abs()
@@ -49,7 +49,7 @@ const encode_integer = (buffer: Buffer, value: BN) : Buffer => {
             const header = val.or(new BN(log2_num_bytes).and(new BN(0xF))).toNumber()
 
             //   encode all the parts fot the values
-            let values = Array.from(Array(num_bytes.toNumber()).keys())
+            const values = Array.from(Array(num_bytes.toNumber()).keys())
                 .reverse()
                 .map(value => abs_value.shrn(value * 8).and(new BN(0xFF)).toArrayLike(Buffer, 'be'))
             return Buffer.concat([buffer, Buffer.concat([Buffer.from([header]), Buffer.concat(values)])])
@@ -57,7 +57,7 @@ const encode_integer = (buffer: Buffer, value: BN) : Buffer => {
     }
 }
 
-const decode_integer = (buffer: Buffer) : Tuple =>  {
+const decode_integer = (buffer: Buffer): Tuple => {
 
     const header = buffer.slice(0, 1)
     buffer = buffer.slice(1)
@@ -77,7 +77,7 @@ const decode_integer = (buffer: Buffer) : Tuple =>  {
         const signed_flag = Boolean(header_integer & 0x10)
         const log2_value_length = header_integer & 0x0F
         const value_length = 1 << log2_value_length
-        let slice = buffer.slice(0, value_length)
+        const slice = buffer.slice(0, value_length)
         let value = new BN(slice)
         buffer = buffer.slice(value_length)
 

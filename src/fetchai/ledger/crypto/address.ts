@@ -1,9 +1,7 @@
 import * as bs58 from 'bs58'
 import {ValidationError} from '../errors'
-import {createHash} from 'crypto'
 import {Identity} from './identity'
-import {StringFormatOptions} from "../../../../index";
-import {calc_digest} from "../utils";
+import {calc_digest} from '../utils'
 
 const BYTE_LENGTH = 32
 const CHECKSUM_SIZE = 4
@@ -16,18 +14,18 @@ const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
  * @class
  */
 export class Address {
-	private _address: Buffer;
-	private _display: string;
+    private _address: Buffer;
+    private _display: string;
 
-     /**
+    /**
      * @param  {Object|Buffer|String} identity Address object or Buffer or String.
      * @throws {ValidationError} ValidationError on any failures.
      */
     constructor(identity: AddressLike) {
 
-        if(typeof identity == "undefined")debugger
+        if (typeof identity == 'undefined') debugger
 
-      if (typeof identity === 'string') {
+        if (typeof identity === 'string') {
             if (!Address.is_address(identity)) {
                 throw new ValidationError('Invalid Address')
             }
@@ -49,8 +47,8 @@ export class Address {
 
             this._address = identity
             this._display = this.calculate_display(this._address)
-        }  else {
-            console.log(" cannot build Address from : " + identity)
+        } else {
+            console.log(' cannot build Address from : ' + identity)
             throw new ValidationError('Failed to build Address from input')
         }
     }
@@ -82,6 +80,11 @@ export class Address {
         return true
     }
 
+    static calculate_checksum(address_raw: Buffer): Buffer {
+        const digest = calc_digest(address_raw)
+        return digest.slice(0, BYTE_LENGTH)
+    }
+
     /**
      * Get address in string
      */
@@ -101,23 +104,18 @@ export class Address {
      * Check equality of two address
      * @param  {bytes} other Address in bytes
      */
-    equals(other: Address) : number {
+    equals(other: Address): number {
         return Buffer.compare(this.toBytes(), other.toBytes())
     }
 
     /**
      * Get address in hex
      */
-    toHex() : string {
+    toHex(): string {
         return this._address.toString('hex')
     }
 
-    static calculate_checksum(address_raw: Buffer) : Buffer {
-        const digest = calc_digest(address_raw)
-        return digest.slice(0, BYTE_LENGTH)
-    }
-
-    calculate_display(address_raw: Buffer) :string {
+    calculate_display(address_raw: Buffer): string {
         const digest = calc_digest(address_raw)
         const bytes = digest.slice(0, CHECKSUM_SIZE)
         const full = Buffer.concat([address_raw, bytes])

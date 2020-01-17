@@ -25,7 +25,7 @@ async function main() {
 
     try {
         /**
-        * From a named server we can then determine the host and port by which it can be connected to.
+         * From a named server we can then determine the host and port by which it can be connected to.
          **/
         [host, port] = await Bootstrap.server_from_name(SERVER_NAME)
     } catch (e) {
@@ -39,7 +39,7 @@ function log_servers(server_list) {
     const available_servers = server_list
         .map(a => a.name)
         .reduce((accumulator, current, index, array) => {
-            let separator = (index === array.length - 1) ? ' and ' : ', '
+            const separator = (index === array.length - 1) ? ' and ' : ', '
             return accumulator + separator + current
         })
     console.log('The following servers are available: ' + available_servers)

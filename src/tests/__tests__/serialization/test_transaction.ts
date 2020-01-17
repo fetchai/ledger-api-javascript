@@ -3,23 +3,10 @@ import {BitVector} from '../../../fetchai/ledger/bitvector'
 import {Identity} from '../../../fetchai/ledger/crypto/identity'
 import {decode_transaction, encode_transaction} from '../../../fetchai/ledger/serialization/transaction'
 import * as bytearray from '../../../fetchai/ledger/serialization/bytearray'
-import {createHash} from 'crypto'
 import {ValidationError} from '../../../fetchai/ledger/errors'
 import {BN} from 'bn.js'
 import {calc_digest, ENTITIES, IDENTITIES} from '../../utils/helpers'
 
-
-const _calculate_integer_stream_size = (len: 64): 1 | 2 | 4 | 8 => {
-    if (len < 0x80) {
-        return 1
-    } else if (len < 0x100) {
-        return 2
-    } else if (len < 0x1000) {
-        return 4
-    } else {
-        return 8
-    }
-}
 
 const EXPECTED_SIGNATURE_BYTE_LEN = 64
 const EXPECTED_SIGNATURE_LENGTH_FIELD_LEN = 1
@@ -232,7 +219,7 @@ test('test invalid version', () => {
     }).toThrow(ValidationError)
 })
 
-function assertIsExpectedTx(payload: Transaction, transaction_bytes: Buffer, expected_hex_payload: string) {
+function assertIsExpectedTx(payload: Transaction, transaction_bytes: Buffer, expected_hex_payload: string): void {
 
     const len = payload.signers().size
     // a payload needs at least one signee
@@ -252,7 +239,7 @@ function assertIsExpectedTx(payload: Transaction, transaction_bytes: Buffer, exp
     let identity
     let signature
 
-    for (let signee of Object.keys(payload._signers)) {
+    for (const signee of Object.keys(payload._signers)) {
         [signature, buffer] = bytearray.decode_bytearray(buffer)
         // validate the signature is correct for the payload
         identity = new Identity(Buffer.from(signee, 'hex'))
@@ -260,7 +247,7 @@ function assertIsExpectedTx(payload: Transaction, transaction_bytes: Buffer, exp
     }
 }
 
-function assertTxAreEqual(reference: Transaction, other: Transaction) {
+function assertTxAreEqual(reference: Transaction, other: Transaction): void {
     expect(reference).toBeInstanceOf(Transaction)
     expect(other).toBeInstanceOf(Transaction)
     expect(reference.from_address()).toMatchObject(other.from_address())

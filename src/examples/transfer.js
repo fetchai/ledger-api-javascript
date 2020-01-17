@@ -10,6 +10,7 @@ function sync_error(errors) {
     )
     throw new Error()
 }
+
 async function main() {
     // create the APIs
     const api = new LedgerApi(HOST, PORT)

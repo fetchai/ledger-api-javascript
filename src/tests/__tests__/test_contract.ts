@@ -6,7 +6,7 @@ import {default as btoa} from 'btoa'
 import {createHash} from 'crypto'
 import {MULTIPLE_INITS, SIMPLE_CONTRACT} from '../../contracts/transfer'
 
-const calc_address = (owner: any, nonce: Buffer) : Buffer => {
+const calc_address = (owner: Address, nonce: Buffer): Buffer => {
     const hash_func = createHash('sha256')
     hash_func.update(owner.toBytes())
     hash_func.update(nonce)
@@ -17,10 +17,10 @@ jest.mock('fs', () => {
     const MOCK_FILE_INFO = '{"version":1,"owner":"2mhttHhKVRdY1n9BsFNHVJgHjGPvBmnA2FXKCPkJaC6TkXmaY9","source":"CkBpbml0CmZ1bmN0aW9uIGluaXQob3duZXI6IEFkZHJlc3MpCmVuZGZ1bmN0aW9uCgpAYWN0aW9uCmZ1bmN0aW9uIGFjdGlvbjEoKQplbmRmdW5jdGlvbgoKQGFjdGlvbgpmdW5jdGlvbiBhY3Rpb24yKCkKZW5kZnVuY3Rpb24KCkBxdWVyeQpmdW5jdGlvbiBxdWVyeTEoKQplbmRmdW5jdGlvbgoKQHF1ZXJ5CmZ1bmN0aW9uIHF1ZXJ5MigpCmVuZGZ1bmN0aW9uCg==","nonce":"pEGxX+mjz1Y="}'
     const EXPECTED_FP = '/path/to/file'
     return {
-        readFileSync: () => {
+        readFileSync: (): string => {
             return MOCK_FILE_INFO
         },
-        writeFileSync: (fp: string, json_string: string) => {
+        writeFileSync: (fp: string, json_string: string): void => {
             expect(fp).toBe(EXPECTED_FP)
             expect(json_string).toBe(MOCK_FILE_INFO)
         }
@@ -61,7 +61,7 @@ describe(':Test Contract', () => {
         const owner = new Entity(rand_bytes)
         const nonce = calc_digest('random').slice(0, 8)
         const orig = new Contract(SIMPLE_CONTRACT, owner, nonce)
-        const encoded = orig.dump(RAND_FP)
+        orig.dump(RAND_FP)
         const recreation = Contract.load(RAND_FP)
         expect(recreation).toBeInstanceOf(Contract)
         expect(orig.owner()).toMatchObject(recreation.owner())

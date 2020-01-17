@@ -1,11 +1,12 @@
 import {Identity} from '../crypto/identity'
 import {ValidationError} from '../errors'
+
 const UNCOMPRESSED_SCEP256K1_PUBLIC_KEY = 0x04
 const UNCOMPRESSED_SCEP256K1_PUBLIC_KEY_LEN = 64
 
 type Tuple = [Identity, Buffer];
 
-const encode_identity = (buffer: Buffer, value: Identity | Buffer) : Buffer => {
+const encode_identity = (buffer: Buffer, value: Identity | Buffer): Buffer => {
     if (value instanceof Identity) {
         return Buffer.concat([buffer, Buffer.from([UNCOMPRESSED_SCEP256K1_PUBLIC_KEY]), value.public_key()])
     } else {
@@ -13,7 +14,7 @@ const encode_identity = (buffer: Buffer, value: Identity | Buffer) : Buffer => {
     }
 }
 
-const decode_identity = (buffer: Buffer) : Tuple => {
+const decode_identity = (buffer: Buffer): Tuple => {
     const header = buffer.slice(0, 1)
     const hex = parseInt(header.toString('hex'))
 

@@ -1,27 +1,44 @@
 import {ValidationError} from '../errors'
 import {Address} from './address'
 import {InvalidDeedError} from '../errors/invalidDeedError'
-import {Entity} from "./entity";
+import {Entity} from './entity'
 
-    export enum OPERATIONS
-    {
-        AMEND = "amend",
-        TRANSFER = "transfer",
-        EXECUTE = "execute",
-        STAKE = "stake"
-    }
+// todo refatcor as per reverse mapping enum hack https://stackoverflow.com/questions/44883072/reverse-mapping-for-string-enums
+export enum OPERATIONS {
+    AMEND = 'amend',
+    TRANSFER = 'transfer',
+    EXECUTE = 'execute',
+    STAKE = 'stake'
+}
 
+interface Signee {
+    signee: Entity;
+    voting_weight: number;
+}
 
+ interface Thresholds {
+    [OPERATIONS: string]: number;
+}
+
+//json to be sent as data when creating deed.
+interface DeedJson {
+            readonly signees: {
+            [key: string]: number;
+            };
+           readonly thresholds: {
+            [key: string]: number;
+            };
+}
 
 export class Deed {
-	public signees: any;
-	public thresholds: any;
+    public signees: Array<Signee> = [];
+    public thresholds: Thresholds = {};
 
-    set_signee(signee: Entity, voting_weight: number) {
+    set_signee(signee: Entity, voting_weight: number): void {
         this.signees.push({signee: signee, voting_weight: voting_weight})
     }
 
-    remove_signee(signee: Entity) : void {
+    remove_signee(signee: Entity): void {
         for (let i = 0; i < this.signees.length; i++) {
             if (this.signees[i].signee.public_key_hex() === signee.public_key_hex()) {
                 this.signees.splice(i, 1)
@@ -45,24 +62,24 @@ export class Deed {
     }
 
     remove_threshold(operation: OPERATIONS): void {
-        for (var key in this.thresholds) {
+        for (const key in this.thresholds) {
             if (key === operation) {
                 delete this.thresholds.key
             }
         }
     }
 
-    return_threshold(operation: OPERATIONS) : number {
+    return_threshold(operation: OPERATIONS): number {
         if (typeof this.thresholds[operation] === 'undefined') return null
         return this.thresholds[operation]
     }
 
-    total_votes() : number {
-        return this.signees.reduce((accum: number, curr: any) : number => accum + curr.voting_weight)
+    total_votes(): any {
+        return this.signees.reduce((accum: any, curr: any): any => accum + curr.voting_weight)
     }
 
     // lets change this to make it more uniform
-    amend_threshold() : number | null {
+    amend_threshold(): number | null {
 
         if (typeof this.thresholds.AMEND !== 'undefined') {
             return this.thresholds.AMEND
@@ -71,22 +88,22 @@ export class Deed {
         }
     }
 
-    set_amend_threshold(value: number) : void {
+    set_amend_threshold(value: number): void {
         this.set_threshold(OPERATIONS.AMEND, value)
     }
 
 
-    deed_creation_json(allow_no_amend: boolean = false) {
+    deed_creation_json(allow_no_amend = false): DeedJson {
 
         const signees: any = {}
-        for (var i = 0; i < this.signees.length; i++) {
-            let address = new Address(this.signees[i].signee).toString()
+        for (let i = 0; i < this.signees.length; i++) {
+            const address = new Address(this.signees[i].signee).toString()
             signees[address] = this.signees[i].voting_weight
         }
- const thresholds: any = {}
+        const thresholds: any = {}
         const deed = {
             'signees': signees,
-            'thresholds':  thresholds
+            'thresholds': thresholds
         }
 
         if (typeof this.thresholds.AMEND !== 'undefined') {
@@ -95,21 +112,22 @@ export class Deed {
                 throw new InvalidDeedError('Amend threshold greater than total voting power - future amendment will be impossible')
             }
         } else if (!allow_no_amend) {
-            throw new InvalidDeedError('Creating deed without amend threshold - future amendment will be impossible')        }
+            throw new InvalidDeedError('Creating deed without amend threshold - future amendment will be impossible')
+        }
 
         let lower: string
         // Add other thresholds
-        for (let key in this.thresholds) {
+        for (const key in this.thresholds) {
             lower = key.toLowerCase()
             deed['thresholds'][lower] = this.thresholds[key]
         }
         return deed
     }
 
-    valid_operation(operation: OPERATIONS) : void {
+    valid_operation(operation: OPERATIONS): void {
         if (!Object.values(OPERATIONS).includes(operation)) {
             let str = ''
-            for (let op in OPERATIONS) {
+            for (const op in OPERATIONS) {
                 str += op + ', '
             }
             str.substring(0, str.length - 2)

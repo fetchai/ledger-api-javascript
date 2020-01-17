@@ -1,1 +1,0 @@
-{"version":3,"file":"networkUnavailableError.js","sourceRoot":"","sources":["../../../../src/fetchai/ledger/errors/networkUnavailableError.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;AAAA,+BAA2B;AAE3B;IAA6C,2CAAI;IAG7C,iCAAY,MAAc;QAA1B,YACI,kBAAM,2BAA2B,CAAC,SAErC;QADG,KAAI,CAAC,MAAM,GAAG,MAAM,CAAA;;IACxB,CAAC;IACL,8BAAC;AAAD,CAAC,AAPD,CAA6C,WAAI,GAOhD;AAPY,0DAAuB"}

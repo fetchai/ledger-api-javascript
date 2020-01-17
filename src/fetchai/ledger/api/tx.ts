@@ -3,38 +3,62 @@ import {ApiError, NetworkUnavailableError} from '../errors'
 import {Address} from '../crypto/address'
 import {BN} from 'bn.js'
 import {ApiEndpoint} from './common'
-import {convert_number} from "../utils";
+import {convert_number} from '../utils'
 
 enum NON_TERMINAL_STATES {
-   UNKNOWN = 'Unknown',
- PENDING = 'Pending'
+    UNKNOWN = 'Unknown',
+    PENDING = 'Pending'
 }
 
 enum SUCCESSFUL_TERMINAL_STATES {
-   EXECUTED = 'Executed',
-   SUBMITTED ='Submitted'
+    EXECUTED = 'Executed',
+    SUBMITTED = 'Submitted'
+}
+
+interface TxStatusData {
+    digest: Buffer;
+    status: string;
+    exit_code: string;
+    charge: number;
+    charge_rate: number;
+    fee: number;
+}
+
+interface TxContentsData {
+    digest: Buffer;
+        action: string;
+        chain_code: string;
+        from_address: string;
+        contract_address: string;
+        valid_from: number;
+        valid_until: number;
+        charge: number;
+        charge_limit: number;
+        transfers: Array<string>;
+        signatories: string;
+        data: string;
 }
 
 /*
 takes an array and turns it into an object, setting the to field and the amount field.
 //TODO ASK ED IF THIS OK?, since we want insertion order, which plain objects don't.
  */
-const tx_array_to_object = (array: Array<any>) =>
+const tx_array_to_object = (array: Array<any>): any =>
     array.reduce((obj: any, item: any) => {
         obj[item.to] = new BN(item.amount)
         return obj
     }, {})
 
 export class TxStatus {
-	public digest_bytes: Buffer;
-	public digest_hex: string;
-	public status: string;
-	public exit_code: string;
-	public charge: BN;
-	public charge_rate: BN;
-	public fee: BN;
+    public digest_bytes: Buffer;
+    public digest_hex: string;
+    public status: string;
+    public exit_code: string;
+    public charge: BN;
+    public charge_rate: BN;
+    public fee: BN;
 
-    constructor(digest: Buffer, status: string, exit_code: string, charge: number, charge_rate: number, fee: number) {
+    constructor({digest, status, exit_code, charge, charge_rate, fee}: TxStatusData) {
         this.digest_bytes = digest
         this.digest_hex = this.digest_bytes.toString('hex')
         this.status = status
@@ -44,64 +68,64 @@ export class TxStatus {
         this.fee = new BN(fee)
     }
 
-    get_status() : string {
+    get_status(): string {
         return this.status
     }
 
-    get_exit_code() {
+    get_exit_code(): string {
         return this.exit_code
     }
 
-    successful() : boolean {
-        return (<any>Object).values(SUCCESSFUL_TERMINAL_STATES).includes(this.status)
+    successful(): boolean {
+        return (Object as any).values(SUCCESSFUL_TERMINAL_STATES).includes(this.status)
     }
 
-    failed() : boolean {
-        return (!(<any>Object).values(NON_TERMINAL_STATES).includes(this.status) &&
-                !(<any>Object).values(SUCCESSFUL_TERMINAL_STATES).includes(this.status))
+    failed(): boolean {
+        return (!(Object as any).values(NON_TERMINAL_STATES).includes(this.status) &&
+            !(Object as any).values(SUCCESSFUL_TERMINAL_STATES).includes(this.status))
     }
 
-    non_terminal() : boolean {
-        return (<any>Object).values(NON_TERMINAL_STATES).includes(this.status)
+    non_terminal(): boolean {
+        return (Object as any).values(NON_TERMINAL_STATES).includes(this.status)
     }
 
 
-    get_digest_hex() : string {
+    get_digest_hex(): string {
         return this.digest_hex
     }
 
-    get_digest_bytes() : Buffer {
+    get_digest_bytes(): Buffer {
         return this.digest_bytes
     }
 }
 
 export class TxContents {
-	public digest_bytes: any;
-	public digest_hex: string;
-	public action: any;
-	public chain_code: any;
-	public from_address: Address;
-	public contract_address: Address | null;
-	public valid_from: BN;
-	public valid_until: BN;
-	public charge: BN;
-	public charge_limit: BN;
-	public transfers: any;
-	public signatories: any;
-	public data: any;
+    public digest_bytes: any;
+    public digest_hex: string;
+    public action: any;
+    public chain_code: any;
+    public from_address: Address;
+    public contract_address: Address | null;
+    public valid_from: BN;
+    public valid_until: BN;
+    public charge: BN;
+    public charge_limit: BN;
+    public transfers: any;
+    public signatories: any;
+    public data: any;
 
-    constructor(digest: Buffer,
-        action: string,
-        chain_code: string,
-        from_address: string,
-        contract_address: string,
-        valid_from: number,
-        valid_until: number,
-        charge: number,
-        charge_limit: number,
-        transfers: Array<string>,
-        signatories: string,
-        data: string ) {
+    constructor({digest,
+        action,
+        chain_code,
+        from_address,
+        contract_address,
+        valid_from,
+        valid_until,
+        charge,
+        charge_limit,
+        transfers,
+        signatories,
+        data }: TxContentsData ) {
 
         this.digest_bytes = digest
         this.digest_hex = this.digest_bytes.toString('hex')
@@ -119,49 +143,46 @@ export class TxContents {
     }
 
     /**
-     *  Returns the amount of FET transferred to an address by this transaction, if any
-     */
-    transfers_to(address: AddressLike) {
-        const hex = new Address(address).toHex()
-        return (this.transfers[hex]) ? this.transfers[hex] : new BN(0)
-    }
-
-    /**
      *Creates a TxContents from a json string or an object
      */
 
-    static from_json(data: any) : TxContents {
+    static from_json(data: any): TxContents {
         if (typeof data === 'string') {
             data = JSON.parse(data)
         }
         if (data.digest.toUpperCase().substring(0, 2) === '0X') data.digest = data.digest.substring(2)
 
         //  Extract contents from json, converting as necessary
-        return new TxContents(
-            Buffer.from(data.digest, 'hex'),
-            data.action,
-            data.chainCode,
-            data.from,
-            data.contractAddress,
-            data.validFrom,
-            data.validUntil,
-            data.charge,
-            data.chargeLimit,
-            data.transfers,
-            data.signatories,
-            data.data
-        )
+        return new TxContents({
+            digest: Buffer.from(data.digest, 'hex'),
+            action: data.action,
+            chain_code: data.chainCode,
+            from_address: data.from,
+            contract_address: data.contractAddress,
+            valid_from: data.validFrom,
+            valid_until: data.validUntil,
+            charge: data.charge,
+            charge_limit: data.chargeLimit,
+            transfers: data.transfers,
+            signatories: data.signatories,
+            data: data.data
+        })
+    }
+
+    /**
+     *  Returns the amount of FET transferred to an address by this transaction, if any
+     */
+    transfers_to(address: AddressLike): BN {
+        const hex = new Address(address).toHex()
+        return (this.transfers[hex]) ? this.transfers[hex] : new BN(0)
     }
 }
 
 export class TransactionApi extends ApiEndpoint {
 
-    async status(tx_digest: string) : Promise<TxStatus> {
+    async status(tx_digest: string): Promise<TxStatus> {
 
-        let url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/${tx_digest}`
-        let request_headers = {
-            'Content-Type': 'application/json; charset=utf-8'
-        }
+        const url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/${tx_digest}`
 
         let resp
         try {
@@ -176,19 +197,18 @@ export class TransactionApi extends ApiEndpoint {
         if (200 !== resp.status) {
             throw new NetworkUnavailableError('Failed to get status from txs hash')
         }
-
-        return new TxStatus(
-            Buffer.from(resp.data.tx, 'hex'),
-            resp.data.status,
-            resp.data.exit_code,
-            resp.data.charge,
-            resp.data.charge_rate,
-            resp.data.fee)
+        return new TxStatus({
+            digest: Buffer.from(resp.data.tx, 'hex'),
+            status: resp.data.status,
+            exit_code: resp.data.exit_code,
+            charge: resp.data.charge,
+            charge_rate: resp.data.charge_rate,
+            fee: resp.data.fee})
     }
 
 
-    async contents(tx_digest: string) : Promise<TxContents> {
-        let url = `${this.protocol()}://${this.host()}:${this.port()}/api/tx/${tx_digest}`
+    async contents(tx_digest: string): Promise<TxContents> {
+        const url = `${this.protocol()}://${this.host()}:${this.port()}/api/tx/${tx_digest}`
         let resp
         try {
             resp = await axios({

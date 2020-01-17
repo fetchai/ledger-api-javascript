@@ -8,25 +8,25 @@ import {TRANSFER_CONTRACT} from '../../../contracts'
 import axios from 'axios'
 
 //todo refactor this to
-const ENTITIES = (() => {
-    const ENTITIES : Entity[] = []
+const ENTITIES = ((): Array<Entity> => {
+    const ENTITIES: Entity[] = []
     ENTITIES.push(new Entity(Buffer.from('19c59b0a4890383eea59539173bfca5dc78e5e99037f4ad65c93d5b777b8720e', 'hex')))
     ENTITIES.push(new Entity(Buffer.from('e1b74f6357dbdd0e03ad26afaab04071964ef1c9a0f0abf10edb060e06c890a0', 'hex')))
     return ENTITIES
 })()
 
-const ADDRESSES = (() => {
-    const ENTITIES : Entity[] = []
+const ADDRESSES = ((): Array<Address> => {
+    const ENTITIES: Entity[] = []
     ENTITIES.push(new Entity(Buffer.from('19c59b0a4890383eea59539173bfca5dc78e5e99037f4ad65c93d5b777b8720e', 'hex')))
     ENTITIES.push(new Entity(Buffer.from('e1b74f6357dbdd0e03ad26afaab04071964ef1c9a0f0abf10edb060e06c890a0', 'hex')))
-    const ADDRESSES : Address[] = []
+    const ADDRESSES: Address[] = []
     ADDRESSES.push(new Address(ENTITIES[0]))
     ADDRESSES.push(new Address(ENTITIES[1]))
     return ADDRESSES
 })()
 
 
-const NONCE = (() => {
+const NONCE = ((): Buffer => {
     return Buffer.from('dGhpcyBpcyBhIG5vbmNl', 'base64')
 })()
 
@@ -35,7 +35,7 @@ describe(':ContractsApi', () => {
     test('test create', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
-        const created = await contract.create(api, ENTITIES[0], 4000)
+        const created = await contract.create({api: api, owner: ENTITIES[0], fee: 4000})
         expect(created).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')
         expect(axios).toHaveBeenCalledTimes(2)
         const promise_sync = await api.sync('bbc6e88d647ab41923216cdaaba8cdd01f42e953c6583e59179d9b32f52f5777')
@@ -46,7 +46,7 @@ describe(':ContractsApi', () => {
     test('test query', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
-        const query = await contract.query(api, 'balance', {address: ADDRESSES[0]})
+        const query = await contract.query({api: api, name: 'balance', data: {address: ADDRESSES[0]}})
         expect(query).toBe(1000000)
     })
 
@@ -55,7 +55,7 @@ describe(':ContractsApi', () => {
         const tok_transfer_amount = 200
         const fet_tx_fee = 160
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
-        const action = await contract.action(api, 'transfer', fet_tx_fee, [ADDRESSES[0], ADDRESSES[1], tok_transfer_amount], [ENTITIES[0]])
+        const action = await contract.action({api: api, name: 'transfer', fee: fet_tx_fee, args: [ADDRESSES[0], ADDRESSES[1], tok_transfer_amount], signers: [ENTITIES[0]]})
         expect(action).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')
     })
 

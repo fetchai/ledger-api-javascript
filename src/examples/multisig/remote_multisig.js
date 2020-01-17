@@ -76,13 +76,13 @@ async function main() {
     //for signer in board:
     for (const board_member of board) {
         // Signer builds their own transaction to compare to
-        let signer_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
+        const signer_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
         // Signer decodes payload to inspect transaction
         itx = Transaction.decode_partial(stx)
         // Some transaction details aren't expected to match/can't be predicted
         signer_tx.valid_until(itx.valid_until())
         signer_tx.counter(itx.counter())
-        console.log(signer_tx.compare(itx)? 'Transactions match' : 'Transactions do not match')
+        console.log(signer_tx.compare(itx) ? 'Transactions match' : 'Transactions do not match')
         // Signers locally decode transaction
         itx.sign(board_member.member)
         // Serialize for return to origin
@@ -91,7 +91,7 @@ async function main() {
     // Gather and encode final transaction
     console.log('\nGathering and combining signed transactions...')
 
-    let stxs = []
+    const stxs = []
 
     signed_txs.forEach((s) => {
         stxs.push(Transaction.decode_partial(s))
@@ -122,7 +122,7 @@ async function main() {
     // Have signers individually sign transaction and pass on to next signer
     board.forEach((board_member) => {
         // Signer builds their own transaction to compare to
-        let signer_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
+        const signer_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
 
         // Signer decodes payload to inspect transaction
         itx = Transaction.decode_partial(stx)
@@ -130,7 +130,7 @@ async function main() {
         // Some transaction details aren't expected to match/can't be predicted
         signer_tx.valid_until(itx.valid_until())
         signer_tx.counter(itx.counter())
-        console.log(signer_tx.compare(itx)? 'Transactions match' : 'Transactions do not match')
+        console.log(signer_tx.compare(itx) ? 'Transactions match' : 'Transactions do not match')
         // Signers locally decode transaction
         itx.sign(board_member.member)
         // Signer re-encodes transaction and forwards to the next signer

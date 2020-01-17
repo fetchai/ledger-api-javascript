@@ -1,9 +1,9 @@
 import {Base} from './base'
 
 export class ValidationError extends Base {
-	public errors: string;
+    public errors: string;
 
-    constructor(errors: string ) {
+    constructor(errors: string) {
         super('Validation Error')
         this.errors = errors
     }
