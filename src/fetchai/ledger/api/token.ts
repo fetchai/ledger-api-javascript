@@ -24,7 +24,7 @@ export class TokenApi extends ApiEndpoint {
      * @param {Number} port ledger port
      */
     constructor(host: string, port: number, api: LedgerApi) {
-        super(host, port, api)
+        super(host, port, api);
         this.prefix = PREFIX.TOKEN
     }
 
@@ -38,11 +38,11 @@ export class TokenApi extends ApiEndpoint {
      */
     async balance(address: AddressLike): Promise<BN> {
         // convert the input to an address
-        address = new Address(address)
+        address = new Address(address);
         // format and make the request
-        const request = {address: address.toString()}
+        const request = {address: address.toString()};
 
-        const [, data] = await super.post_json(ENDPOINT.BALANCE, request, this.prefix)
+        const [, data] = await super.post_json(ENDPOINT.BALANCE, request, this.prefix);
 
         if (!('balance' in data)) {
             throw new ApiError('Malformed response from server (no balance)')
@@ -59,13 +59,13 @@ export class TokenApi extends ApiEndpoint {
      */
     async stake(address: AddressLike): Promise<BN> {
         // convert the input to an address
-        address = new Address(address)
+        address = new Address(address);
 
         // format and make the request
         const request = {
             'address': address.toString()
-        }
-        const [success, data] = await super.post_json(ENDPOINT.STAKE, request)
+        };
+        const [success, data] = await super.post_json(ENDPOINT.STAKE, request);
 
         // check for error cases
         if (!success) {
@@ -88,12 +88,12 @@ export class TokenApi extends ApiEndpoint {
      */
     async stake_cooldown(address: AddressLike): Promise<any> {
         // convert the input to an address
-        address = new Address(address)
+        address = new Address(address);
 
         const request = {
             'address': address.toString()
-        }
-        const [success, data] = await super.post_json(ENDPOINT.COOLDOWNSTAKE, request)
+        };
+        const [success, data] = await super.post_json(ENDPOINT.COOLDOWNSTAKE, request);
 
         // check for error cases
         if (!success) {
@@ -117,11 +117,11 @@ export class TokenApi extends ApiEndpoint {
      */
     async deed(entity: Entity, deed: Deed, signatories: Entity[] | null = null, allow_no_amend = false): Promise<any | null> {
 
-        const tx = await TokenTxFactory.deed(entity, deed, signatories, allow_no_amend)
-        await super.set_validity_period(tx)
+        const tx = await TokenTxFactory.deed(entity, deed, signatories, allow_no_amend);
+        await super.set_validity_period(tx);
 
-        signatories = (signatories === null) ? [entity] : signatories
-        const encoded_tx = encode_transaction(tx, signatories)
+        signatories = (signatories === null) ? [entity] : signatories;
+        const encoded_tx = encode_transaction(tx, signatories);
         return await super.post_tx_json(encoded_tx, ENDPOINT.DEED)
     }
 
@@ -136,14 +136,14 @@ export class TokenApi extends ApiEndpoint {
      * @throws {ApiError} ApiError on any failures.
      */
     async transfer(entity: Entity, to: AddressLike, amount: NumericInput, fee: NumericInput, signatories: Entity[] | null = null): Promise<any | null> {
-        amount = convert_number(amount)
-        fee = convert_number(fee)
-        const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
-        await this.set_validity_period(tx)
+        amount = convert_number(amount);
+        fee = convert_number(fee);
+        const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories);
+        await this.set_validity_period(tx);
         if (signatories == null) {
             signatories = [entity]
         }
-        const encoded_tx = encode_transaction(tx, signatories)
+        const encoded_tx = encode_transaction(tx, signatories);
         //submit the transaction
         return await this.post_tx_json(encoded_tx, ENDPOINT.TRANSFER)
     }
@@ -156,12 +156,12 @@ export class TokenApi extends ApiEndpoint {
      * @param fee
      */
     async add_stake(entity: Entity, amount: NumericInput, fee: NumericInput): Promise<any | null> {
-        amount = convert_number(amount)
-        fee = convert_number(fee)
-        const tx = await TokenTxFactory.add_stake(entity, amount, fee)
-        await super.set_validity_period(tx)
+        amount = convert_number(amount);
+        fee = convert_number(fee);
+        const tx = await TokenTxFactory.add_stake(entity, amount, fee);
+        await super.set_validity_period(tx);
         // encode and sign the transaction
-        const encoded_tx = encode_transaction(tx, [entity])
+        const encoded_tx = encode_transaction(tx, [entity]);
         // submit the transaction
         return await super.post_tx_json(encoded_tx, ENDPOINT.ADDSTAKE)
     }
@@ -175,12 +175,12 @@ export class TokenApi extends ApiEndpoint {
      * @returns {Promise<*>} The digest of the submitted transaction
      */
     async de_stake(entity: Entity, amount: NumericInput, fee: NumericInput): Promise<any | null> {
-        fee = convert_number(fee)
-        amount = convert_number(amount)
-        const tx = TokenTxFactory.de_stake(entity, amount, fee)
-        await super.set_validity_period(tx)
+        fee = convert_number(fee);
+        amount = convert_number(amount);
+        const tx = TokenTxFactory.de_stake(entity, amount, fee);
+        await super.set_validity_period(tx);
         // encode and sign the transaction
-        const encoded_tx = encode_transaction(tx, [entity])
+        const encoded_tx = encode_transaction(tx, [entity]);
         // submit the transaction
         return await super.post_tx_json(encoded_tx, ENDPOINT.DESTAKE)
     }
@@ -193,11 +193,11 @@ export class TokenApi extends ApiEndpoint {
      * @returns {Promise<*>}
      */
     async collect_stake(entity: Entity, fee: NumericInput): Promise<any | null> {
-        fee = convert_number(fee)
-        const tx = TokenTxFactory.collect_stake(entity, fee)
-        await super.set_validity_period(tx)
+        fee = convert_number(fee);
+        const tx = TokenTxFactory.collect_stake(entity, fee);
+        await super.set_validity_period(tx);
         // encode and sign the transaction
-        const encoded_tx = encode_transaction(tx, [entity])
+        const encoded_tx = encode_transaction(tx, [entity]);
         // submit the transaction
         return await super.post_tx_json(encoded_tx, ENDPOINT.COLLECTSTAKE)
     }
@@ -208,12 +208,12 @@ export class TokenTxFactory extends TransactionFactory {
     public prefix: PREFIX;
 
     constructor() {
-        super()
+        super();
         this.prefix = PREFIX.TOKEN
     }
 
     static deed(entity: Entity, deed: Deed, signatories: Array<Entity> | null = null, allow_no_amend = false): Transaction {
-        const tx = TransactionFactory.create_action_tx(10000, entity, ENDPOINT.DEED, PREFIX.TOKEN)
+        const tx = TransactionFactory.create_action_tx(10000, entity, ENDPOINT.DEED, PREFIX.TOKEN);
 
         if (signatories !== null) {
 
@@ -221,18 +221,18 @@ export class TokenTxFactory extends TransactionFactory {
         } else {
             tx.add_signer(entity.public_key_hex())
         }
-        const deed_json = deed.deed_creation_json(allow_no_amend)
-        tx.data(JSON.stringify(deed_json))
+        const deed_json = deed.deed_creation_json(allow_no_amend);
+        tx.data(JSON.stringify(deed_json));
         return tx
     }
 
     static transfer(entity: Entity, to: AddressLike, amount: NumericInput, fee: NumericInput, signatories: Array<Entity> | null = null): Transaction {
-        fee = convert_number(fee)
-        amount = convert_number(amount)
+        fee = convert_number(fee);
+        amount = convert_number(amount);
         // build up the basic transaction information
-        const tx = super.create_skeleton_tx(fee)
-        tx.from_address(new Address(entity))
-        tx.add_transfer(to, amount)
+        const tx = super.create_skeleton_tx(fee);
+        tx.from_address(new Address(entity));
+        tx.add_transfer(to, amount);
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
         } else {
@@ -243,10 +243,10 @@ export class TokenTxFactory extends TransactionFactory {
 
     static add_stake(entity: Entity, amount: BN, fee: BN, signatories: Entity[] | null = null): Transaction {
         // build up the basic transaction information
-        fee = convert_number(fee)
-        amount = convert_number(amount)
+        fee = convert_number(fee);
+        amount = convert_number(amount);
 
-        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.ADDSTAKE, 'fetch.token')
+        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.ADDSTAKE, 'fetch.token');
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
@@ -257,17 +257,17 @@ export class TokenTxFactory extends TransactionFactory {
         const encoded = JSON.stringify({
             address: entity.public_key_base64(),
             amount: amount.toNumber()
-        })
+        });
 
-        tx.data(encoded)
+        tx.data(encoded);
         return tx
     }
 
     static de_stake(entity: Entity, amount: BN, fee: BN, signatories: Entity[] | null = null): Transaction {
-        assert(BN.isBN(amount))
-        assert(BN.isBN(fee))
+        assert(BN.isBN(amount));
+        assert(BN.isBN(fee));
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.DESTAKE, 'fetch.token')
+        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.DESTAKE, 'fetch.token');
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
@@ -279,15 +279,15 @@ export class TokenTxFactory extends TransactionFactory {
         tx.data(JSON.stringify({
             'address': entity.public_key_base64(),
             'amount': amount.toNumber()
-        }))
+        }));
 
         return tx
     }
 
     static collect_stake(entity: Entity, fee: BN, signatories: Entity[] | null = null): Transaction {
-        assert(BN.isBN(fee))
+        assert(BN.isBN(fee));
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.COLLECTSTAKE, 'fetch.token')
+        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.COLLECTSTAKE, 'fetch.token');
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))

@@ -17,22 +17,22 @@ export class BitVector {
 
     constructor(size: BitVectorLike = null) {
         if (size instanceof BitVector) {
-            this._size = size._size
-            this._byte_size = size._byte_size
+            this._size = size._size;
+            this._byte_size = size._byte_size;
             this._buffer = Buffer.from(size._buffer)
         } else {
-            this._size = Number(size)
-            this._byte_size = Math.floor((this._size + 7) / 8)
+            this._size = Number(size);
+            this._byte_size = Math.floor((this._size + 7) / 8);
             this._buffer = Buffer.alloc(this._byte_size)
         }
     }
 
     static from_indices(indices: Array<number>, size: number): BitVector {
-        const bits = new BitVector(size)
+        const bits = new BitVector(size);
 
         for (let i = 0; i < indices.length; i++) {
-            assert(0 <= indices[i])
-            assert(indices[i] < size)
+            assert(0 <= indices[i]);
+            assert(indices[i] < size);
             bits.set(indices[i], 1)
         }
         return bits
@@ -41,14 +41,14 @@ export class BitVector {
     static from_bytes(data: Buffer, bit_size: number): BitVector {
         // data in bytes
         // ensure the bit size matches the expectation
-        const min_size = Math.max((data.length - 1) * 8, 1)
-        const max_size = data.length * 8
-        assert(min_size <= bit_size)
-        assert(bit_size <= max_size)
+        const min_size = Math.max((data.length - 1) * 8, 1);
+        const max_size = data.length * 8;
+        assert(min_size <= bit_size);
+        assert(bit_size <= max_size);
         //todo refactor, it is dodgy
-        const bits = new BitVector()
-        bits._size = bit_size
-        bits._byte_size = Math.floor((bit_size + 7) / 8)
+        const bits = new BitVector();
+        bits._size = bit_size;
+        bits._byte_size = Math.floor((bit_size + 7) / 8);
         // TODO: Improve logic
         bits._buffer = Buffer.from(
             data
@@ -57,12 +57,12 @@ export class BitVector {
                 .reverse()
                 .join(''),
             'hex'
-        )
+        );
         return bits
     }
 
     static from_hex_string(hex_data: string): BitVector {
-        const decoded_bytes = Buffer.from(hex_data, 'hex')
+        const decoded_bytes = Buffer.from(hex_data, 'hex');
         return BitVector.from_bytes(decoded_bytes, decoded_bytes.length * 8)
     }
 
@@ -92,22 +92,22 @@ export class BitVector {
     }
 
     get(bit: number): number {
-        const byte_index = Math.floor(bit / 8)
-        const bit_index = bit & 0x7
+        const byte_index = Math.floor(bit / 8);
+        const bit_index = bit & 0x7;
         return (this._buffer[byte_index] >> bit_index) & 0x1
     }
 
     set(bit: number, value: number): void {
-        assert(0 <= Number(value))
-        assert(Number(value) <= 1)
-        const byte_index = Math.floor(bit / 8)
-        const bit_index = bit & 0x7
+        assert(0 <= Number(value));
+        assert(Number(value) <= 1);
+        const byte_index = Math.floor(bit / 8);
+        const bit_index = bit & 0x7;
         this._buffer[byte_index] |= (value & 0x1) << bit_index
     }
 
     as_binary(): string {
-        let output = ''
-        const data = this.instance_bytes()
+        let output = '';
+        const data = this.instance_bytes();
         for (const n of data) {
             // TODO: Improve logic
             output += Array.from(Array(8).keys())
@@ -119,7 +119,7 @@ export class BitVector {
     }
 
     as_hex(): string {
-        const data = this.instance_bytes()
+        const data = this.instance_bytes();
         return Buffer.from(data).toString('hex')
     }
 }

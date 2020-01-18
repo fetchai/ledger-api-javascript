@@ -1,17 +1,16 @@
 import {ValidationError} from '../errors'
 import {Address} from '../crypto/address'
 
-const FUNC = /function ([\s\S]*?)endfunction/
-const FUNC_NAME_WITH_ANNOTATION = /@[a-z0-9]+[\s]{0,}(function)+[\s]{0,}[a-z0-9]{1,}/
-const PERSISTENT_STATEMENT = /persistent([\s\S]*?);/
-const FUNC_NAME = /(?<=function)([\s\S]*?)(?=\()/
-const USE_STATEMENT = /use([\s\S]*?);/
-const USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME = /(?<=\use).+?(?=\[)/
-const BETWEEN_SQUARE_BRACKETS = /(?<=\[).+?(?=\])/
-const BETWEEN_ROUND_BRACKETS = /(?<=\().+?(?=\))/
-const SINGLE_LINE_COMMENT = /\/\/.*/
-const MULTI_LINE_COMMENT = /\/\*([\s\S]*?)\*\//
-
+const FUNC = /function ([\s\S]*?)endfunction/;
+const FUNC_NAME_WITH_ANNOTATION = /@[a-z0-9]+[\s]{0,}(function)+[\s]{0,}[a-z0-9]{1,}/;
+const PERSISTENT_STATEMENT = /persistent([\s\S]*?);/;
+const FUNC_NAME = /(?<=function)([\s\S]*?)(?=\()/;
+const USE_STATEMENT = /use([\s\S]*?);/;
+const USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME = /(?<=\use).+?(?=\[)/;
+const BETWEEN_SQUARE_BRACKETS = /(?<=\[).+?(?=\])/;
+const BETWEEN_ROUND_BRACKETS = /(?<=\().+?(?=\))/;
+const SINGLE_LINE_COMMENT = /\/\/.*/;
+const MULTI_LINE_COMMENT = /\/\*([\s\S]*?)\*\//;
 
 interface FuncInfo {
     readonly identifier: string;
@@ -29,36 +28,35 @@ interface UseStatementInfo {
 export class Parser {
 
     static remove_comments(source: string): string {
-        const regexp = RegExp(SINGLE_LINE_COMMENT, 'g')
-        const regexp2 = RegExp(MULTI_LINE_COMMENT, 'g')
-        source = source.replace(regexp, '')
+        const regexp = RegExp(SINGLE_LINE_COMMENT, 'g');
+        const regexp2 = RegExp(MULTI_LINE_COMMENT, 'g');
+        source = source.replace(regexp, '');
         return source.replace(regexp2, '')
     }
 
     static get_functions(source: string): Array<string> {
-        source = Parser.remove_comments(source)
-        const regexp = RegExp(FUNC, 'g')
-        const temp = [...source.matchAll(regexp)]
-        const temp2 = temp.map((arr) => arr[0])
+        source = Parser.remove_comments(source);
+        const regexp = RegExp(FUNC, 'g');
+        const temp = [...source.matchAll(regexp)];
+        const temp2 = temp.map((arr) => arr[0]);
         return temp2
     }
 
     static get_sharded_use_names(source: string): Array<string> {
-        const sharded_len = 'sharded'.length
-        source = Parser.remove_comments(source)
-        const regexp_func = RegExp(FUNC, 'g')
+        const sharded_len = 'sharded'.length;
+        source = Parser.remove_comments(source);
+        const regexp_func = RegExp(FUNC, 'g');
         // we don't want to look inside functions, so we remove them.
-        source = source.replace(regexp_func, '')
-        const regexp_persistent = RegExp(PERSISTENT_STATEMENT, 'g')
-        const array = [...source.matchAll(regexp_persistent)]
-        const sharded_funcs = []
+        source = source.replace(regexp_func, '');
+        const regexp_persistent = RegExp(PERSISTENT_STATEMENT, 'g');
+        const array = [...source.matchAll(regexp_persistent)];
+        const sharded_funcs = [];
 
         for (let i = 0; i < array.length; i++) {
-            // let s = array[i].slice(persistent_len).trim()
             if (array[i][1].includes('sharded')) {
-                let s = array[i][1].trim().slice(sharded_len)
-                s = s.trim()
-                const func_name = s.substr(0, s.indexOf(' '))
+                let s = array[i][1].trim().slice(sharded_len);
+                s = s.trim();
+                const func_name = s.substr(0, s.indexOf(' '));
                 sharded_funcs.push(func_name)
             }
         }
@@ -66,16 +64,16 @@ export class Parser {
     }
 
     static get_annotations(source: string): Record<string, string> {
-        source = Parser.remove_comments(source)
-        const regexp = RegExp(FUNC_NAME_WITH_ANNOTATION, 'g')
-        const array = [...source.matchAll(regexp)]
+        source = Parser.remove_comments(source);
+        const regexp = RegExp(FUNC_NAME_WITH_ANNOTATION, 'g');
+        const array = [...source.matchAll(regexp)];
 
-        const annotations: any = {}
+        const annotations: any = {};
 
         for (let i = 0; i < array.length; i++) {
-            const split = array[i][0].split('function')
-            const annotation = split[0].trim()
-            const func_name = split[1].trim()
+            const split = array[i][0].split('function');
+            const annotation = split[0].trim();
+            const func_name = split[1].trim();
             if (typeof annotations[annotation] === 'undefined') {
                 annotations[annotation] = []
             }
@@ -85,50 +83,53 @@ export class Parser {
     }
 
     static get_func_params(func_source: string): Array<FuncInfo> {
-        const func_params: RegExpExecArrayOptionalItems|null  = BETWEEN_ROUND_BRACKETS.exec(func_source)
-        const ret: Array<any> = []
+        const func_params: RegExpExecArrayOptionalItems | null = BETWEEN_ROUND_BRACKETS.exec(func_source);
+        const ret: Array<any> = [];
         // we start by coding only for funcs with params
-        if (func_params == null) return ret
+        if (func_params == null) return ret;
 
-        const func_params_arr = func_params[0].split(',')
+        const func_params_arr = func_params[0].split(',');
         // assumes that func param names must be unique, delete when verified this is true
 
         // we create an object of with function param identifiers as the keys, adn type as values
         for (let i = 0; i < func_params_arr.length; i++) {
-            const [identifier, param_type] = func_params_arr[i].split(':')
+            const [identifier, param_type] = func_params_arr[i].split(':');
             ret.push({identifier: identifier.trim(), type: param_type.trim()})
         }
         return ret
     }
 
     static parse_use_statements(source: string): Array<UseStatementInfo> {
-        const regexp = RegExp(USE_STATEMENT, 'g')
-        const use_statements  = [...source.matchAll(regexp)]
+        const regexp = RegExp(USE_STATEMENT, 'g');
+        const use_statements = [...source.matchAll(regexp)];
 
-        const ret: Array<any> = []
+        const ret: Array<any> = [];
 
-        if (use_statements === null) return ret
+        if (use_statements === null) return ret;
 
         for (let i = 0; i < use_statements.length; i++) {
             // if it has square brackets this should match, else it is a use without
             let s = use_statements;
-            let use_name = USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME.exec(s[i])
-            const obj = {} as any
+            // @ts-ignore
+            let use_name = USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME.exec(s[i]);
+            const obj = {} as any;
             // if null then use statement has no params, so we deal with it differently.
             if (use_name === null) {
-                const non_paramaterized_use_name = /(?<=use)([\s\S]*?)(?=;)/
-                const identifier : RegExpExecArrayOptionalItems|null =  non_paramaterized_use_name.exec(use_statements[i])
+                const non_paramaterized_use_name = /(?<=use)([\s\S]*?)(?=;)/;
+                // @ts-ignore
+                const identifier: RegExpExecArrayOptionalItems | null = non_paramaterized_use_name.exec(use_statements[i]);
 
-                obj.sharded = false
-                obj.identifier = identifier[0].trim()
-                ret.push(obj)
+                obj.sharded = false;
+                obj.identifier = identifier[0].trim();
+                ret.push(obj);
                 continue
             }
             // all use statements with params should be sharded.
-            obj.sharded = true
-            obj.identifier = use_name[0].trim()
-            const use_params = BETWEEN_SQUARE_BRACKETS.exec(use_statements[i])
-            obj.params = use_params[0].split(',').map(param => param.trim())
+            obj.sharded = true;
+            obj.identifier = use_name[0].trim();
+            // @ts-ignore
+            const use_params = BETWEEN_SQUARE_BRACKETS.exec(use_statements[i]);
+            obj.params = use_params[0].split(',').map(param => param.trim());
             ret.push(obj)
         }
         return ret
@@ -137,18 +138,18 @@ export class Parser {
 
     static get_resource_addresses(source: string, func_name: string, ordered_args: MessagePackable): Array<string> {
 
-        const sharded_use_names = Parser.get_sharded_use_names(source)
+        const sharded_use_names = Parser.get_sharded_use_names(source);
         // we get all functions including bodies
-        const funcs = Parser.get_functions(source)
+        const funcs = Parser.get_functions(source);
 
-        const resource_addresses = []
-        let func
+        const resource_addresses = [];
+        let func;
 
         for (let i = 0; i < funcs.length; i++) {
-            const name = FUNC_NAME.exec(funcs[i])[0].trim()
+            const name = FUNC_NAME.exec(funcs[i])[0].trim();
             // we get the whole function from the function name
             if (name == func_name) {
-                func = funcs[i]
+                func = funcs[i];
                 break
             }
         }
@@ -157,12 +158,12 @@ export class Parser {
             throw new ValidationError(`named function ${func_name} was not found in contract`)
         }
 
-        const func_params = Parser.get_func_params(func)
-        const use_statements = Parser.parse_use_statements(func)
+        const func_params = Parser.get_func_params(func);
+        const use_statements = Parser.parse_use_statements(func);
         // we only bother with first match of use statement within each func - delete this comment if this is correct usage.
         // will mod to ad to work on all use statements
 
-        const valid_perisistent_statements = use_statements.filter((obj) => (obj.sharded === true)).every((obj) => (sharded_use_names.includes(obj.identifier)))
+        const valid_perisistent_statements = use_statements.filter((obj) => (obj.sharded === true)).every((obj) => (sharded_use_names.includes(obj.identifier)));
 
         if (!valid_perisistent_statements) {
             // at least one of our parameterized use statements doesn't have an associated use statement
@@ -172,7 +173,7 @@ export class Parser {
         for (let i = 0; i < use_statements.length; i++) {
 
             if (!use_statements[i].sharded) {
-                resource_addresses.push(use_statements[i].identifier)
+                resource_addresses.push(use_statements[i].identifier);
                 continue
             }
             for (let j = 0; j < use_statements[i].params.length; j++) {

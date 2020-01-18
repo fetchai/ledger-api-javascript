@@ -20,13 +20,13 @@ async function main() {
 
     console.log(`The new private key in hexadecimal is:  ${private_key_hex}\n`)
 
-// Return the private key as a buffer (Node.js) or a Uint8Array (browser)
+// Return the private key as a Buffer (Node.js) or a Uint8Array (browser)
     const private_key_buffer = entity.private_key()
 
 // Get the public key from an Entity object
     console.log(`The associated public key in hexadecimal is:  ${entity.public_key_hex()}\n`)
 
-// Construct an Entity from a buffer or Uint8Array holding a private key
+// Construct an Entity from a Buffer (Node.js) or Uint8Array (browser) holding a private key
     const entity2 = new Entity(private_key_buffer)
 
 // Construct an entity from a private key stored as a base64 string

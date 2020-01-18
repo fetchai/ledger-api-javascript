@@ -3,9 +3,9 @@ import {ValidationError} from '../errors'
 import {Identity} from './identity'
 import {calc_digest} from '../utils'
 
-const BYTE_LENGTH = 32
-const CHECKSUM_SIZE = 4
-const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE
+const BYTE_LENGTH = 32;
+const CHECKSUM_SIZE = 4;
+const DISPLAY_BYTE_LENGTH = BYTE_LENGTH + CHECKSUM_SIZE;
 
 /**
  * Address creation from identity, bytes and string.
@@ -30,14 +30,14 @@ export class Address {
                 throw new ValidationError('Invalid Address')
             }
 
-            this._address = bs58.decode(identity).slice(0, BYTE_LENGTH)
+            this._address = bs58.decode(identity).slice(0, BYTE_LENGTH);
             this._display = identity
         } else if (identity instanceof Address) {
-            this._address = identity._address
+            this._address = identity._address;
             this._display = identity._display
         } else if (identity instanceof Identity) {
             //TODO add unit tests for this block to address
-            this._address = calc_digest(identity.public_key_bytes())
+            this._address = calc_digest(identity.public_key_bytes());
             this._display = this.calculate_display(this._address)
         } else if (identity instanceof Buffer) {
             // we don't seem to validate here for buffers ie check checksum is correct!!
@@ -45,10 +45,10 @@ export class Address {
                 throw new ValidationError('Incorrect length of binary address')
             }
 
-            this._address = identity
+            this._address = identity;
             this._display = this.calculate_display(this._address)
         } else {
-            console.log(' cannot build Address from : ' + identity)
+            console.log(' cannot build Address from : ' + identity);
             throw new ValidationError('Failed to build Address from input')
         }
     }
@@ -61,17 +61,17 @@ export class Address {
      * @returns {boolean}
      */
     static is_address(b58_address: string): boolean {
-        if (typeof b58_address !== 'string') return false
-        const bytes = bs58.decode(b58_address)
+        if (typeof b58_address !== 'string') return false;
+        const bytes = bs58.decode(b58_address);
 
         if (Buffer.byteLength(bytes) !== DISPLAY_BYTE_LENGTH) {
             return false
         }
         // split the identity into address and checksum
-        const address_raw = bytes.slice(0, BYTE_LENGTH)
-        const checksum = bytes.slice(BYTE_LENGTH)
+        const address_raw = bytes.slice(0, BYTE_LENGTH);
+        const checksum = bytes.slice(BYTE_LENGTH);
         //calculate the expected checksum
-        const expected_checksum = Address.calculate_checksum(address_raw)
+        const expected_checksum = Address.calculate_checksum(address_raw);
 
         // check the validity of the checksum.
         if (!Buffer.compare(checksum, expected_checksum)) {
@@ -81,7 +81,7 @@ export class Address {
     }
 
     static calculate_checksum(address_raw: Buffer): Buffer {
-        const digest = calc_digest(address_raw)
+        const digest = calc_digest(address_raw);
         return digest.slice(0, BYTE_LENGTH)
     }
 
@@ -116,9 +116,9 @@ export class Address {
     }
 
     calculate_display(address_raw: Buffer): string {
-        const digest = calc_digest(address_raw)
-        const bytes = digest.slice(0, CHECKSUM_SIZE)
-        const full = Buffer.concat([address_raw, bytes])
+        const digest = calc_digest(address_raw);
+        const bytes = digest.slice(0, CHECKSUM_SIZE);
+        const full = Buffer.concat([address_raw, bytes]);
         return bs58.encode(full)
     }
 }

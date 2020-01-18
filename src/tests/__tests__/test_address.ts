@@ -1,8 +1,10 @@
-import {Address} from '../../fetchai/ledger/crypto/address'
+
+
 import {Identity} from '../../fetchai/ledger/crypto/identity'
 import * as bs58 from 'bs58'
 import {ValidationError} from '../../fetchai/ledger/errors'
 import {calc_address, calc_digest} from '../utils/helpers'
+import {Address} from "../../fetchai/ledger/crypto";
 
 describe(':Address', () => {
 

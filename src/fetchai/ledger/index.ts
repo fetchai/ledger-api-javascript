@@ -1,4 +1,4 @@
-export * from './api'
+export * from './api/'
 export * from './utils'
 export * from './parser'
 export * from './errors'

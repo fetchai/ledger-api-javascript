@@ -26,17 +26,17 @@ interface TxStatusData {
 
 interface TxContentsData {
     digest: Buffer;
-        action: string;
-        chain_code: string;
-        from_address: string;
-        contract_address: string;
-        valid_from: number;
-        valid_until: number;
-        charge: number;
-        charge_limit: number;
-        transfers: Array<string>;
-        signatories: string;
-        data: string;
+    action: string;
+    chain_code: string;
+    from_address: string;
+    contract_address: string;
+    valid_from: number;
+    valid_until: number;
+    charge: number;
+    charge_limit: number;
+    transfers: Array<string>;
+    signatories: string;
+    data: string;
 }
 
 /*
@@ -45,9 +45,9 @@ takes an array and turns it into an object, setting the to field and the amount 
  */
 const tx_array_to_object = (array: Array<any>): any =>
     array.reduce((obj: any, item: any) => {
-        obj[item.to] = new BN(item.amount)
+        obj[item.to] = new BN(item.amount);
         return obj
-    }, {})
+    }, {});
 
 export class TxStatus {
     public digest_bytes: Buffer;
@@ -59,12 +59,12 @@ export class TxStatus {
     public fee: BN;
 
     constructor({digest, status, exit_code, charge, charge_rate, fee}: TxStatusData) {
-        this.digest_bytes = digest
-        this.digest_hex = this.digest_bytes.toString('hex')
-        this.status = status
-        this.exit_code = exit_code
-        this.charge = new BN(charge)
-        this.charge_rate = new BN(charge_rate)
+        this.digest_bytes = digest;
+        this.digest_hex = this.digest_bytes.toString('hex');
+        this.status = status;
+        this.exit_code = exit_code;
+        this.charge = new BN(charge);
+        this.charge_rate = new BN(charge_rate);
         this.fee = new BN(fee)
     }
 
@@ -114,31 +114,33 @@ export class TxContents {
     public signatories: any;
     public data: any;
 
-    constructor({digest,
-        action,
-        chain_code,
-        from_address,
-        contract_address,
-        valid_from,
-        valid_until,
-        charge,
-        charge_limit,
-        transfers,
-        signatories,
-        data }: TxContentsData ) {
+    constructor({
+                    digest,
+                    action,
+                    chain_code,
+                    from_address,
+                    contract_address,
+                    valid_from,
+                    valid_until,
+                    charge,
+                    charge_limit,
+                    transfers,
+                    signatories,
+                    data
+                }: TxContentsData) {
 
-        this.digest_bytes = digest
-        this.digest_hex = this.digest_bytes.toString('hex')
-        this.action = action
-        this.chain_code = chain_code
-        this.from_address = new Address(from_address)
-        this.contract_address = (contract_address) ? new Address(contract_address) : null
-        this.valid_from = convert_number(valid_from)
-        this.valid_until = convert_number(valid_until)
-        this.charge = convert_number(charge)
-        this.charge_limit = convert_number(charge_limit)
-        this.transfers = tx_array_to_object(transfers)
-        this.signatories = signatories
+        this.digest_bytes = digest;
+        this.digest_hex = this.digest_bytes.toString('hex');
+        this.action = action;
+        this.chain_code = chain_code;
+        this.from_address = new Address(from_address);
+        this.contract_address = (contract_address) ? new Address(contract_address) : null;
+        this.valid_from = convert_number(valid_from);
+        this.valid_until = convert_number(valid_until);
+        this.charge = convert_number(charge);
+        this.charge_limit = convert_number(charge_limit);
+        this.transfers = tx_array_to_object(transfers);
+        this.signatories = signatories;
         this.data = data
     }
 
@@ -150,7 +152,7 @@ export class TxContents {
         if (typeof data === 'string') {
             data = JSON.parse(data)
         }
-        if (data.digest.toUpperCase().substring(0, 2) === '0X') data.digest = data.digest.substring(2)
+        if (data.digest.toUpperCase().substring(0, 2) === '0X') data.digest = data.digest.substring(2);
 
         //  Extract contents from json, converting as necessary
         return new TxContents({
@@ -182,9 +184,9 @@ export class TransactionApi extends ApiEndpoint {
 
     async status(tx_digest: string): Promise<TxStatus> {
 
-        const url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/${tx_digest}`
+        const url = `${this.protocol()}://${this.host()}:${this.port()}/api/status/tx/${tx_digest}`;
 
-        let resp
+        let resp;
         try {
             resp = await axios({
                 method: 'get',
@@ -203,13 +205,14 @@ export class TransactionApi extends ApiEndpoint {
             exit_code: resp.data.exit_code,
             charge: resp.data.charge,
             charge_rate: resp.data.charge_rate,
-            fee: resp.data.fee})
+            fee: resp.data.fee
+        })
     }
 
 
     async contents(tx_digest: string): Promise<TxContents> {
-        const url = `${this.protocol()}://${this.host()}:${this.port()}/api/tx/${tx_digest}`
-        let resp
+        const url = `${this.protocol()}://${this.host()}:${this.port()}/api/tx/${tx_digest}`;
+        let resp;
         try {
             resp = await axios({
                 method: 'get',
