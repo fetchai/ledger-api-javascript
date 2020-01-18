@@ -10,10 +10,10 @@ const logger = createLogger({
         format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
     ),
     transports: [new transports.Console()]
-});
+})
 
 
 // default: silent all logging levels
-logger.transports.forEach((t): false => (t.silent = false));
+logger.transports.forEach((t): false => (t.silent = false))
 
 export {logger}

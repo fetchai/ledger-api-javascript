@@ -41,7 +41,7 @@ export class Deed {
     remove_signee(signee: Entity): void {
         for (let i = 0; i < this.signees.length; i++) {
             if (this.signees[i].signee.public_key_hex() === signee.public_key_hex()) {
-                this.signees.splice(i, 1);
+                this.signees.splice(i, 1)
                 break
             }
         }
@@ -52,7 +52,7 @@ export class Deed {
             throw new InvalidDeedError('Attempting to set threshold higher than available votes - it will never be met')
         }
 
-        this.valid_operation(operation);
+        this.valid_operation(operation)
         // null removes this from list of thresholds
         if (threshold === null) {
             delete this.thresholds[operation]
@@ -70,7 +70,7 @@ export class Deed {
     }
 
     return_threshold(operation: OPERATIONS): number {
-        if (typeof this.thresholds[operation] === 'undefined') return null;
+        if (typeof this.thresholds[operation] === 'undefined') return null
         return this.thresholds[operation]
     }
 
@@ -95,16 +95,16 @@ export class Deed {
 
     deed_creation_json(allow_no_amend = false): DeedJson {
 
-        const signees: any = {};
+        const signees: any = {}
         for (let i = 0; i < this.signees.length; i++) {
-            const address = new Address(this.signees[i].signee).toString();
+            const address = new Address(this.signees[i].signee).toString()
             signees[address] = this.signees[i].voting_weight
         }
-        const thresholds: any = {};
+        const thresholds: any = {}
         const deed = {
             'signees': signees,
             'thresholds': thresholds
-        };
+        }
 
         if (typeof this.thresholds.AMEND !== 'undefined') {
             // Error if amend threshold un-meetable
@@ -115,10 +115,10 @@ export class Deed {
             throw new InvalidDeedError('Creating deed without amend threshold - future amendment will be impossible')
         }
 
-        let lower: string;
+        let lower: string
         // Add other thresholds
         for (const key in this.thresholds) {
-            lower = key.toLowerCase();
+            lower = key.toLowerCase()
             deed['thresholds'][lower] = this.thresholds[key]
         }
         return deed
@@ -126,11 +126,11 @@ export class Deed {
 
     valid_operation(operation: OPERATIONS): void {
         if (!Object.values(OPERATIONS).includes(operation)) {
-            let str = '';
+            let str = ''
             for (const op in OPERATIONS) {
                 str += op + ', '
             }
-            str.substring(0, str.length - 2);
+            str.substring(0, str.length - 2)
             throw new ValidationError(` ${operation} is not valid a valid operation. Valid operations are : ${str}`)
         }
     }

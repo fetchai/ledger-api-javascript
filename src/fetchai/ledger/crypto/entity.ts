@@ -38,9 +38,9 @@ export class Entity extends Identity {
                         .toString('hex')
                         .substring(2),
                     'hex'
-                );
-                super(pubKey);
-                this.pubKey = pubKey;
+                )
+                super(pubKey)
+                this.pubKey = pubKey
                 this.privKey = private_key_bytes
             } else {
                 throw new ValidationError(
@@ -48,10 +48,10 @@ export class Entity extends Identity {
                 )
             }
         } else {
-            let privKey;
-            let pubKey;
+            let privKey
+            let pubKey
             do {
-                privKey = randomBytes(32);
+                privKey = randomBytes(32)
                 pubKey = Buffer.from(
                     secp256k1
                         .publicKeyCreate(privKey, false)
@@ -59,25 +59,25 @@ export class Entity extends Identity {
                         .substring(2),
                     'hex'
                 )
-            } while (!secp256k1.privateKeyVerify(privKey));
-            super(pubKey);
-            this.pubKey = pubKey;
+            } while (!secp256k1.privateKeyVerify(privKey))
+            super(pubKey)
+            this.pubKey = pubKey
             this.privKey = privKey
         }
     }
 
     static from_base64(private_key_base64: string): Entity {
-        const private_key_bytes = Buffer.from(private_key_base64, 'base64');
+        const private_key_bytes = Buffer.from(private_key_base64, 'base64')
         return new Entity(private_key_bytes)
     }
 
     static from_hex(private_key_hex: string): Entity {
-        const private_key_bytes = Buffer.from(private_key_hex, 'hex');
+        const private_key_bytes = Buffer.from(private_key_hex, 'hex')
         return new Entity(private_key_bytes)
     }
 
     static async loads(s: string, password: string): Promise<Entity> {
-        const obj = JSON.parse(s);
+        const obj = JSON.parse(s)
         return await Entity.from_json_object(obj, password)
     }
 
@@ -87,8 +87,8 @@ export class Entity extends Identity {
                 'Please enter strong password of 14 length which contains number(0-9), alphabetic character[(a-z), (A-Z)] and one special character.'
             )
         }
-        const x = fs.readFileSync(fp, 'utf8');
-        const obj = JSON.parse(x);
+        const x = fs.readFileSync(fp, 'utf8')
+        const obj = JSON.parse(x)
         return await Entity.from_json_object(obj, password)
     }
 
@@ -99,7 +99,7 @@ export class Entity extends Identity {
             Buffer.from(obj.privateKey, 'base64'),
             obj.key_length,
             Buffer.from(obj.init_vector, 'base64')
-        );
+        )
         return Entity.from_base64(private_key.toString('base64'))
     }
 
@@ -114,9 +114,9 @@ export class Entity extends Identity {
      * @ignore
      */
     static async decrypt(password: string, salt: Buffer, data: Buffer, n: number, iv: Buffer): Promise<Buffer> {
-        const promisified_pbkdf2 = promisify(pbkdf2);
+        const promisified_pbkdf2 = promisify(pbkdf2)
 
-        let hashed_pass;
+        let hashed_pass
         try {
             hashed_pass = await promisified_pbkdf2(password, salt, 2000000, 32, 'sha256')
         } catch (err) {
@@ -124,17 +124,17 @@ export class Entity extends Identity {
         }
 
         // Decrypt data, noting original length
-        const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv);
+        const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv)
 
-        let decrypted = Buffer.alloc(0);
+        let decrypted = Buffer.alloc(0)
         while (data.length) {
             decrypted = Buffer.concat([
                 decrypted,
                 Buffer.from(aes.decrypt(data.slice(0, 16)))
-            ]);
+            ])
             data = data.slice(16)
         }
-        const decrypted_data = decrypted.slice(0, n);
+        const decrypted_data = decrypted.slice(0, n)
 
         // Return original data
         return decrypted_data
@@ -223,7 +223,7 @@ export class Entity extends Identity {
     }
 
     async dump(fp: string, password: string): Promise<void> {
-        const json_object = await this.to_json_object(password);
+        const json_object = await this.to_json_object(password)
         fs.writeFileSync(fp, JSON.stringify(json_object))
     }
 
@@ -238,32 +238,32 @@ export class Entity extends Identity {
      * @ignore
      */
     async encrypt(password: string, data: Buffer | Uint8Array): Promise<SerializedPrivateKey> {
-        const DIGEST_BYTE_LENGTH = 32;
+        const DIGEST_BYTE_LENGTH = 32
         // Generate hash from password
-        const salt = randomBytes(16);
+        const salt = randomBytes(16)
 
-        const promisified_pbkdf2 = promisify(pbkdf2);
-        let hashed_pass;
+        const promisified_pbkdf2 = promisify(pbkdf2)
+        let hashed_pass
         try {
             hashed_pass = await promisified_pbkdf2(password, salt, 2000000, 32, 'sha256')
         } catch (err) {
             throw new RunTimeError('Encryption failed')
         }
         // Random initialization vector
-        const iv = randomBytes(16);
+        const iv = randomBytes(16)
 
         // Encrypt data using AES
         // https://www.npmjs.com/package/aes-js#cbc---cipher-block-chaining-recommended
-        const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv);
+        const aes = new aesjs.ModeOfOperation.cbc(hashed_pass, iv)
 
-        assert(data.length === DIGEST_BYTE_LENGTH);
+        assert(data.length === DIGEST_BYTE_LENGTH)
 
-        let encrypted = Buffer.alloc(0);
+        let encrypted = Buffer.alloc(0)
         while (data.length) {
             encrypted = Buffer.concat([
                 encrypted,
                 Buffer.from(aes.encrypt(data.slice(0, 16)))
-            ]);
+            ])
             data = data.slice(16)
         }
 

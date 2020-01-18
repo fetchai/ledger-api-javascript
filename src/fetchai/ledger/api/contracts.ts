@@ -53,7 +53,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} PORT Ledger port.
      */
     constructor(host: string, port: number, api?: LedgerApi) {
-        super(host, port, api);
+        super(host, port, api)
         // tidy up before submitting
         this.prefix = PREFIX.CONTRACT
     }
@@ -72,19 +72,19 @@ export class ContractsApi extends ApiEndpoint {
      */
 
     async create({owner, contract, fee, signers = null, shard_mask = null}: CreateContractsOptions): Promise<any | null> {
-        assert(contract instanceof Contract);
+        assert(contract instanceof Contract)
         // todo verify this at runtime is correct then remove comment. I think the bug is in python.
-        const contractTxFactory = new ContractTxFactory(this.parent_api);
+        const contractTxFactory = new ContractTxFactory(this.parent_api)
         const tx = await contractTxFactory.create({
             owner: owner,
             contract: contract,
             fee: fee,
             signers: null,
             shard_mask: shard_mask
-        });
-        signers = (signers !== null) ? signers : [owner];
-        const encoded_tx = encode_transaction(tx, signers);
-        contract.owner(owner);
+        })
+        signers = (signers !== null) ? signers : [owner]
+        const encoded_tx = encode_transaction(tx, signers)
+        contract.owner(owner)
         return await this.post_tx_json(encoded_tx)
     }
 
@@ -95,8 +95,8 @@ export class ContractsApi extends ApiEndpoint {
      * @param {JSON} data json payload
      */
     async query({contract_owner, query, data}: QueryContractsOptions): Promise<Tuple> {
-        assert(this.isJSON(data));
-        const encoded = this._encode_json_payload(data);
+        assert(this.isJSON(data))
+        const encoded = this._encode_json_payload(data)
         return await this.post_json(query, encoded, contract_owner.toString())
     }
 
@@ -122,7 +122,7 @@ export class ContractsApi extends ApiEndpoint {
             shard_mask = null
         }: ActionContractsOptions
     ): Promise<any> {
-        const contractTxFactory = new ContractTxFactory(this.parent_api);
+        const contractTxFactory = new ContractTxFactory(this.parent_api)
         const tx = await contractTxFactory.action({
             contract_address: contract_address,
             action: action,
@@ -131,29 +131,29 @@ export class ContractsApi extends ApiEndpoint {
             args: args,
             signers: signers,
             shard_mask: shard_mask
-        });
+        })
         for (let i = 0; i < signers.length; i++) {
             tx.add_signer(signers[i].public_key_hex())
         }
-        await this.set_validity_period(tx);
+        await this.set_validity_period(tx)
 
-        const encoded_tx = encode_transaction(tx, signers);
+        const encoded_tx = encode_transaction(tx, signers)
         return await this.post_tx_json(encoded_tx)
     }
 
     _encode_json_payload(data: any): JsonPayload {
-        assert(typeof data === 'object' && data !== null);
-        const params: any = {};
+        assert(typeof data === 'object' && data !== null)
+        const params: any = {}
 
-        let new_key;
+        let new_key
         //generic object/array loop
         for (let [key, value] of Object.entries(data)) {
-            assert(typeof key === 'string');
+            assert(typeof key === 'string')
 
             if (key.endsWith('_')) {
-                new_key = key.substring(0, key.length - 1);
+                new_key = key.substring(0, key.length - 1)
                 // mutate key name
-                delete Object.assign(data, {[new_key]: data[key]})[new_key];
+                delete Object.assign(data, {[new_key]: data[key]})[new_key]
                 key = new_key
             }
 
@@ -171,7 +171,7 @@ export class ContractsApi extends ApiEndpoint {
     isJSON(o: unknown): boolean {
         if (typeof o !== 'string') {
             try {
-                o = JSON.stringify(o);
+                o = JSON.stringify(o)
                 return true
             } catch (e) {
                 return false
@@ -179,7 +179,7 @@ export class ContractsApi extends ApiEndpoint {
         }
 
         try {
-            JSON.parse(o as string);
+            JSON.parse(o as string)
             return true
         } catch (e) {
             return false
@@ -199,8 +199,8 @@ export class ContractTxFactory extends TransactionFactory {
     public prefix: PREFIX;
 
     constructor(api: LedgerApi) {
-        super();
-        this.api = api;
+        super()
+        this.api = api
         this.prefix = PREFIX.CONTRACT
     }
 
@@ -224,17 +224,17 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
     async action({
-                     contract_address, action,
-                     fee, from_address, args,
-                     signers = null,
-                     shard_mask = null
-                 }: ActionContractsOptions): Promise<Transaction> {
+        contract_address, action,
+        fee, from_address, args,
+        signers = null,
+        shard_mask = null
+    }: ActionContractsOptions): Promise<Transaction> {
 
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, from_address, action, PREFIX.CONTRACT, shard_mask);
-        tx.target_contract(contract_address, shard_mask);
-        tx.data(TransactionFactory.encode_msgpack_payload(args));
-        await this.set_validity_period(tx);
+        const tx = TransactionFactory.create_action_tx(fee, from_address, action, PREFIX.CONTRACT, shard_mask)
+        tx.target_contract(contract_address, shard_mask)
+        tx.data(TransactionFactory.encode_msgpack_payload(args))
+        await this.set_validity_period(tx)
 
         if (signers !== null) {
             signers.forEach((signer) => {
@@ -248,15 +248,15 @@ export class ContractTxFactory extends TransactionFactory {
 
     async create({owner, contract, fee, signers = null, shard_mask = null}: CreateContractsOptions): Promise<Transaction> {
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, PREFIX.CONTRACT, shard_mask);
+        const tx = TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, PREFIX.CONTRACT, shard_mask)
         const data = JSON.stringify({
             'text': contract.encoded_source(),
             'nonce': contract.nonce(),
             'digest': contract.digest().toHex()
-        });
+        })
 
-        tx.data(data);
-        await this.set_validity_period(tx);
+        tx.data(data)
+        await this.set_validity_period(tx)
 
         if (signers !== null) {
             signers.forEach((signer) => {

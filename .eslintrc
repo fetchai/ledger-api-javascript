@@ -21,6 +21,12 @@
                 "@typescript-eslint/explicit-function-return-type" : "off"
             }
         },
+     {
+            "files": ["*parser.ts"],
+            "rules": {
+                "@typescript-eslint/ban-ts-ignore" : "off"
+            }
+        },
         {
             "files": ["*axios.ts"],
             "rules": {

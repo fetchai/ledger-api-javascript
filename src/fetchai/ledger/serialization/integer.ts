@@ -3,12 +3,12 @@ import BN from 'bn.js'
 
 type Tuple = [BN, Buffer];
 
-const LOGS: Array<BN> = [];
-LOGS.push(new BN(256));
-LOGS.push(new BN(65536));
-LOGS.push(new BN(4294967296));
+const LOGS: Array<BN> = []
+LOGS.push(new BN(256))
+LOGS.push(new BN(65536))
+LOGS.push(new BN(4294967296))
 // over 53 bit number therefore must be passed as hex to BN
-LOGS.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')));
+LOGS.push(new BN(Buffer.from('FFFFFFFFFFFF9DDB99A168BD2A000000', 'hex')))
 
 /**
  * Determine the number of bytes required to encode the input value.
@@ -24,7 +24,7 @@ const _calculate_log2_num_bytes = (value: BN): number => {
     throw new RunTimeError(
         'Unable to calculate the number of bytes required for this value'
     )
-};
+}
 
 /**
  * Encode a integer value into a bytes buffer
@@ -34,8 +34,8 @@ const _calculate_log2_num_bytes = (value: BN): number => {
  */
 const encode_integer = (buffer: Buffer, value: BN): Buffer => {
 
-    const is_signed = value.isNeg();
-    const abs_value = value.abs();
+    const is_signed = value.isNeg()
+    const abs_value = value.abs()
 
     if (!is_signed && abs_value.lten(127)) {
         return Buffer.concat([buffer, Buffer.from([abs_value.toNumber()])])
@@ -43,49 +43,49 @@ const encode_integer = (buffer: Buffer, value: BN): Buffer => {
         if (is_signed && abs_value.lten(31)) {
             return Buffer.concat([buffer, Buffer.from([0xE0 | abs_value.toNumber()])])
         } else {
-            const log2_num_bytes = _calculate_log2_num_bytes(abs_value);
-            const num_bytes = new BN(1).shln(log2_num_bytes);
-            const val = (is_signed) ? new BN(0xd0) : new BN(0xc0);
-            const header = val.or(new BN(log2_num_bytes).and(new BN(0xF))).toNumber();
+            const log2_num_bytes = _calculate_log2_num_bytes(abs_value)
+            const num_bytes = new BN(1).shln(log2_num_bytes)
+            const val = (is_signed) ? new BN(0xd0) : new BN(0xc0)
+            const header = val.or(new BN(log2_num_bytes).and(new BN(0xF))).toNumber()
 
             //   encode all the parts fot the values
             const values = Array.from(Array(num_bytes.toNumber()).keys())
                 .reverse()
-                .map(value => abs_value.shrn(value * 8).and(new BN(0xFF)).toArrayLike(Buffer, 'be'));
+                .map(value => abs_value.shrn(value * 8).and(new BN(0xFF)).toArrayLike(Buffer, 'be'))
             return Buffer.concat([buffer, Buffer.concat([Buffer.from([header]), Buffer.concat(values)])])
         }
     }
-};
+}
 
 const decode_integer = (buffer: Buffer): Tuple => {
 
-    const header = buffer.slice(0, 1);
-    buffer = buffer.slice(1);
-    const header_integer = header.readUIntBE(0, 1);
+    const header = buffer.slice(0, 1)
+    buffer = buffer.slice(1)
+    const header_integer = header.readUIntBE(0, 1)
 
     if ((header_integer & 0x80) === 0) {
         return [new BN(header_integer & 0x7F), buffer]
     }
 
-    const type = (header_integer & 0x60) >> 5;
+    const type = (header_integer & 0x60) >> 5
     if (type === 3) {
-        const decoded = -(header_integer & 0x1f);
+        const decoded = -(header_integer & 0x1f)
         return [new BN(decoded), buffer]
     }
 
     if (type === 2) {
-        const signed_flag = Boolean(header_integer & 0x10);
-        const log2_value_length = header_integer & 0x0F;
-        const value_length = 1 << log2_value_length;
-        const slice = buffer.slice(0, value_length);
-        let value = new BN(slice);
-        buffer = buffer.slice(value_length);
+        const signed_flag = Boolean(header_integer & 0x10)
+        const log2_value_length = header_integer & 0x0F
+        const value_length = 1 << log2_value_length
+        const slice = buffer.slice(0, value_length)
+        let value = new BN(slice)
+        buffer = buffer.slice(value_length)
 
         if (signed_flag) {
             value = value.neg()
         }
         return [value, buffer]
     }
-};
+}
 
 export {encode_integer, decode_integer}

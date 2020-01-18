@@ -7,7 +7,7 @@ module.exports = [
         },
         module: {
             rules: [
-                 {
+                {
                     test: /\.(ts)$/,
                     exclude: /node_modules/,
                     use: ['awesome-typescript-loader']
@@ -37,7 +37,7 @@ module.exports = [
         },
         module: {
             rules: [
-                 {
+                {
                     test: /\.(ts)$/,
                     exclude: /node_modules/,
                     use: ['awesome-typescript-loader']
@@ -66,7 +66,7 @@ module.exports = [
         },
         module: {
             rules: [
-                 {
+                {
                     test: /\.(ts)$/,
                     exclude: /node_modules/,
                     use: ['awesome-typescript-loader']

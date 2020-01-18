@@ -13,7 +13,7 @@ import {Transaction} from '../transaction'
 type Tuple = [boolean, Record<string, any>];
 
 function format_contract_url(host: string, port: number, prefix: string | null = null, endpoint: string | null = null, protocol = 'http'): string {
-    let canonical_name, url;
+    let canonical_name, url
 
     if (endpoint === null || endpoint === '') {
         url = `${protocol}://${host}:${port}/api/contract/submit`
@@ -41,10 +41,10 @@ export class ApiEndpoint {
     public parent_api: LedgerApi;
 
     constructor(host: string, port: number, api: LedgerApi) {
-        assert(typeof port === 'number');
-        assert(typeof host === 'string');
+        assert(typeof port === 'number')
+        assert(typeof host === 'string')
 
-        let protocol;
+        let protocol
         if (host.includes('://')) {
             [protocol, host] = host.split('://')
         } else {
@@ -82,15 +82,15 @@ export class ApiEndpoint {
     async post_json(endpoint: string, data = {}, prefix: string = this.prefix): Promise<Tuple> {
 
         // format and make the request
-        const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol);
+        const url = format_contract_url(this._host, this._port, prefix, endpoint, this._protocol)
         // define the request headers
 
         const request_headers = {
             'Content-Type': 'application/json; charset=utf-8'
-        };
+        }
 
         // make the request
-        let resp;
+        let resp
         try {
             resp = await axios({
                 method: 'post',
@@ -117,9 +117,9 @@ export class ApiEndpoint {
         //     pass
         //
         // return False, response
-        console.log('resp');
-        console.log(resp);
-        console.log('resp');
+        console.log('resp')
+        console.log(resp)
+        console.log('resp')
         return [false, resp.data]
     }
 
@@ -129,16 +129,16 @@ export class ApiEndpoint {
         }
 
         // query what the current block number is on the node
-        const current_block = await this.current_block_number();
+        const current_block = await this.current_block_number()
         if (current_block < 0) {
             throw new ApiError('Unable to query current block number')
         }
 
         // build up the basic transaction information
-        const tx = new Transaction();
-        tx.valid_until(new BN(current_block + validity_period));
-        tx.charge_rate(new BN(1));
-        tx.charge_limit(new BN(fee));
+        const tx = new Transaction()
+        tx.valid_until(new BN(current_block + validity_period))
+        tx.charge_rate(new BN(1))
+        tx.charge_limit(new BN(fee))
         return tx
     }
 
@@ -151,7 +151,7 @@ export class ApiEndpoint {
      */
     async submit_signed_tx(tx: Transaction, signatures: any): Promise<any> {
         // Encode transaction and append signatures
-        const encoded_tx = encode_multisig_transaction(tx, signatures);
+        const encoded_tx = encode_multisig_transaction(tx, signatures)
         // Submit and return digest
         return this.post_tx_json(encoded_tx, tx.action())
     }
@@ -163,14 +163,14 @@ export class ApiEndpoint {
         }
 
         // query what the current block number is on the node
-        const current_block = await this.current_block_number();
-        tx.valid_until(new BN(current_block + validity_period));
+        const current_block = await this.current_block_number()
+        tx.valid_until(new BN(current_block + validity_period))
         return tx.valid_until()
     }
 
     async current_block_number(): Promise<number> {
-        const response = await this._get_json('status/chain', {size: 1});
-        let block_number = -1;
+        const response = await this._get_json('status/chain', {size: 1})
+        let block_number = -1
         if (response) {
             block_number = response.data['chain'][0].blockNumber
         }
@@ -178,14 +178,14 @@ export class ApiEndpoint {
     }
 
     async _get_json(path: string, data: any): Promise<any> {
-        const url = `http://${this._host}:${this._port}/api/${path}`;
+        const url = `http://${this._host}:${this._port}/api/${path}`
 
         // define the request headers
         const request_headers = {
             'Content-Type': 'application/json; charset=utf-8'
-        };
+        }
 
-        let resp;
+        let resp
         try {
             resp = await axios({
                 method: 'get',
@@ -214,18 +214,18 @@ export class ApiEndpoint {
     async post_tx_json(tx_data: Buffer, endpoint: string): Promise<any | null> {
         const request_headers = {
             'content-type': 'application/vnd+fetch.transaction+json'
-        };
+        }
 
         const tx_payload = {
             ver: '1.2',
             data: tx_data.toString('base64')
-        };
+        }
 
 
         // format the URL
-        const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol);
+        const url = format_contract_url(this._host, this._port, this.prefix, endpoint, this._protocol)
         // make the request
-        let resp: any;
+        let resp: any
         try {
             resp = await axios({
                 method: 'post',
@@ -251,25 +251,25 @@ export class TransactionFactory {
 
     static create_skeleton_tx(fee: BN): Transaction {
         // build up the basic transaction information
-        const tx = new Transaction();
-        tx.charge_rate(new BN(1));
-        tx.charge_limit(new BN(fee));
+        const tx = new Transaction()
+        tx.charge_rate(new BN(1))
+        tx.charge_limit(new BN(fee))
         return tx
     }
 
     static create_action_tx(fee: NumericInput, from: AddressLike, action: string, prefix: string, shard_mask: BitVectorLike = null): Transaction {
-        const mask = (shard_mask === null) ? new BitVector() : shard_mask;
-        fee = convert_number(fee);
-        const tx = TransactionFactory.create_skeleton_tx(fee);
-        tx.from_address(new Address(from));
-        tx.target_chain_code(prefix, mask);
-        tx.action(action);
+        const mask = (shard_mask === null) ? new BitVector() : shard_mask
+        fee = convert_number(fee)
+        const tx = TransactionFactory.create_skeleton_tx(fee)
+        tx.from_address(new Address(from))
+        tx.target_chain_code(prefix, mask)
+        tx.action(action)
         return tx
     }
 
     static encode_msgpack_payload(args: MessagePackable): Uint8Array {
-        assert(Array.isArray(args));
-        const extensionCodec = new ExtensionCodec();
+        assert(Array.isArray(args))
+        const extensionCodec = new ExtensionCodec()
         extensionCodec.register({
             type: 77,
             encode: object => {
@@ -281,7 +281,7 @@ export class TransactionFactory {
             },
             decode: () => {
             }
-        });
+        })
         return encode(args, {extensionCodec})
     }
 }

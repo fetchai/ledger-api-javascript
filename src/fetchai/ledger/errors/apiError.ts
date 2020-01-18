@@ -4,7 +4,7 @@ export class ApiError extends Base {
     public errors: string;
 
     constructor(errors: string) {
-        super('API error');
+        super('API error')
         this.errors = errors
     }
 }

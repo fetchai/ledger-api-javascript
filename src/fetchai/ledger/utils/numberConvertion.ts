@@ -19,6 +19,6 @@ const convert_number = (num: NumericInput): BN => {
     }
 
     return new BN(num)
-};
+}
 
 export {convert_number}

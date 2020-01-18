@@ -1,6 +1,4 @@
 declare module 'bn.js';
-
-
 // various issues in @types/bn.js, so I took this and copied and pasted it and changed them here.
 
 
