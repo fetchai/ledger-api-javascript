@@ -1,0 +1,15 @@
+{
+    "name": "@types/buffer-reverse.js",
+    "version": "1.0.1",
+    "description": "TypeScript definitions for buffer-reverse",
+    "license": "MIT",
+    "contributors": [],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {},
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "typeScriptVersion": "2.8"
+}

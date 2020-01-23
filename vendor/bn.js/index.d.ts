@@ -1,6 +1,11 @@
-declare module 'bn.js';
-// various issues in @types/bn.js, so I took this and copied and pasted it and changed them here.
+// Type definitions for bn.js 4.11
+// Project: https://github.com/indutny/bn.js
+// Definitions by: Leonid Logvinov <https://github.com/LogvinovLeon>
+//                 Henry Nguyen <https://github.com/HenryNguyen5>
+//                 Gaylor Bosson <https://github.com/Gilthoniel>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
+/// <reference types="node"/>
 
 declare namespace BN {
     type Endianness = 'le' | 'be';
@@ -16,15 +21,14 @@ declare namespace BN {
     interface ReductionContext {
         m: number;
         prime: MPrime;
-
         [key: string]: any;
     }
 }
 
 declare class BN {
     constructor(
-        number: any,
-        base?: any,
+        number: number | string | number[] | Uint8Array | Buffer | BN,
+        base?: number | 'hex',
         endian?: BN.Endianness
     );
     constructor(
@@ -180,7 +184,7 @@ declare class BN {
     /**
      * @description a greater than b
      */
-    gtn(b: any): boolean;
+    gtn(b: number): boolean;
 
     /**
      * @description a greater than or equals b
@@ -447,31 +451,26 @@ declare class BN {
      * @description shift right
      */
     ushrn(b: number): BN;
-
     /**
      * @description shift right
      */
 
     iushrn(b: number): BN;
-
     /**
      * @description  test if specified bit is set
      */
 
     testn(b: number): boolean;
-
     /**
      * @description clear bits with indexes higher or equal to `b`
      */
 
     maskn(b: number): BN;
-
     /**
      * @description clear bits with indexes higher or equal to `b`
      */
 
     imaskn(b: number): BN;
-
     /**
      * @description add `1 << b` to the number
      */
@@ -583,3 +582,5 @@ declare class RedBN extends BN {
      */
     redPow(b: BN): RedBN;
 }
+
+export {BN};

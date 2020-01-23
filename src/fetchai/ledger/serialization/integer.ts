@@ -1,5 +1,5 @@
 import {RunTimeError} from '../errors'
-import BN from 'bn.js'
+import {BN} from 'bn.js'
 
 type Tuple = [BN, Buffer];
 
@@ -39,22 +39,22 @@ const encode_integer = (buffer: Buffer, value: BN): Buffer => {
 
     if (!is_signed && abs_value.lten(127)) {
         return Buffer.concat([buffer, Buffer.from([abs_value.toNumber()])])
-    } else {
-        if (is_signed && abs_value.lten(31)) {
-            return Buffer.concat([buffer, Buffer.from([0xE0 | abs_value.toNumber()])])
-        } else {
-            const log2_num_bytes = _calculate_log2_num_bytes(abs_value)
-            const num_bytes = new BN(1).shln(log2_num_bytes)
-            const val = (is_signed) ? new BN(0xd0) : new BN(0xc0)
-            const header = val.or(new BN(log2_num_bytes).and(new BN(0xF))).toNumber()
+    } 
 
-            //   encode all the parts fot the values
-            const values = Array.from(Array(num_bytes.toNumber()).keys())
-                .reverse()
-                .map(value => abs_value.shrn(value * 8).and(new BN(0xFF)).toArrayLike(Buffer, 'be'))
-            return Buffer.concat([buffer, Buffer.concat([Buffer.from([header]), Buffer.concat(values)])])
-        }
+    if (is_signed && abs_value.lten(31)) {
+        return Buffer.concat([buffer, Buffer.from([0xE0 | abs_value.toNumber()])])
     }
+    
+    const log2_num_bytes = _calculate_log2_num_bytes(abs_value)
+    const num_bytes = new BN(1).shln(log2_num_bytes)
+    const val = (is_signed) ? new BN(0xd0) : new BN(0xc0)
+    const header = val.or(new BN(log2_num_bytes).and(new BN(0xF))).toNumber()
+
+    //   encode all the parts fot the values
+    const values = Array.from(Array(num_bytes.toNumber()).keys())
+        .reverse()
+        .map(value => abs_value.shrn(value * 8).and(new BN(0xFF)).toArrayLike(Buffer, 'be'))
+    return Buffer.concat([buffer, Buffer.concat([Buffer.from([header]), Buffer.concat(values)])])
 }
 
 const decode_integer = (buffer: Buffer): Tuple => {
@@ -86,6 +86,8 @@ const decode_integer = (buffer: Buffer): Tuple => {
         }
         return [value, buffer]
     }
+
+    throw Error("could not decode integer");
 }
 
 export {encode_integer, decode_integer}

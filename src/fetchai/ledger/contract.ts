@@ -220,7 +220,7 @@ export class Contract {
         const resource_addresses = Parser.get_resource_addresses(this._source, name, args)
         const num_lanes = await (api.server as ServerApi).num_lanes()
         const shard_mask = ShardMask.resources_to_shard_mask(resource_addresses, num_lanes)
-        const from_address = (signers.length === 1) ? new Address(signers[0]) : new Address(this._owner)
+        const from_address = (signers !== null && signers.length === 1) ? new Address(signers[0]) : new Address(this._owner)
         return Contract.api(api).action({
             contract_address: this._address,
             action: name,

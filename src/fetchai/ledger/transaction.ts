@@ -168,6 +168,7 @@ export class Transaction {
         if (counter === null) return this._counter
         assert(BN.isBN(counter))
         this._counter = counter
+        return this._counter;
     }
 
     // Get chain_code param
@@ -214,7 +215,7 @@ export class Transaction {
     }
 
     add_transfer(address: AddressLike, amount: BN): void {
-        assert(amount.gtn(new BN(0)))
+        assert(amount.gtn(0))
         // if it is an identity we turn it into an address
         address = new Address(address)
         this._transfers.push({address: address.toHex(), amount: new BN(amount)})

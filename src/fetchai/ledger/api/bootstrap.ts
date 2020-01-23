@@ -54,13 +54,15 @@ export class Bootstrap {
         }
         let invalid_flag = false
 
-        if (server_details['versions'] !== '*') {
+        if (server_details!==undefined && server_details['versions'] !== '*') {
             const version_constraints = server_details['versions'].split(',')
             //todo are these noew needed with the interface
             if (typeof server_details['prerelease'] !== 'undefined') invalid_flag = true
             if (typeof server_details['build'] !== 'undefined') invalid_flag = true
             if (typeof server_details['patch'] !== 'undefined' && server_details['patch'] !== 0) invalid_flag = true
-            if (!semver.satisfies(semver.coerce(__version__), version_constraints.join(' '))) invalid_flag = true
+            
+            // TODO(tfr): semver has issues with type script
+            // if (!semver.satisfies(semver.coerce(__version__), version_constraints.join(' '))) invalid_flag = true
             if (invalid_flag) {
                 throw new IncompatibleLedgerVersionError(`Requested network does not support required version\n
                                             Required version: ${semver.coerce(__version__)}\nNetwork supports: ${version_constraints.join(' ')}`

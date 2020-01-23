@@ -32,7 +32,7 @@ interface ActionContractsOptions {
     fee: BN;
     from_address: Address;
     args: MessagePackable;
-    signers: Array<Entity>;
+    signers: Array<Entity> | null;
     shard_mask: BitVectorLike;
 }
 
@@ -52,7 +52,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {String} HOST Ledger host.
      * @param {String} PORT Ledger port.
      */
-    constructor(host: string, port: number, api?: LedgerApi) {
+    constructor(host: string, port: number, api: LedgerApi) {
         super(host, port, api)
         // tidy up before submitting
         this.prefix = PREFIX.CONTRACT
@@ -132,8 +132,11 @@ export class ContractsApi extends ApiEndpoint {
             signers: signers,
             shard_mask: shard_mask
         })
-        for (let i = 0; i < signers.length; i++) {
-            tx.add_signer(signers[i].public_key_hex())
+        if(signers)
+        {
+            for (let i = 0; i < signers.length; i++) {
+                tx.add_signer(signers[i].public_key_hex())
+            }
         }
         await this.set_validity_period(tx)
 

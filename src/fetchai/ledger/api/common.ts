@@ -211,7 +211,7 @@ export class ApiEndpoint {
      * @returns {Promise<null|*>} Promise resolves to the hexadecimal digest of the submitted transaction
      */
 
-    async post_tx_json(tx_data: Buffer, endpoint: string): Promise<any | null> {
+    async post_tx_json(tx_data: Buffer, endpoint: string | null = null): Promise<any | null> {
         const request_headers = {
             'content-type': 'application/vnd+fetch.transaction+json'
         }

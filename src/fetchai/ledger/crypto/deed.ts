@@ -69,8 +69,11 @@ export class Deed {
         }
     }
 
-    return_threshold(operation: OPERATIONS): number {
-        if (typeof this.thresholds[operation] === 'undefined') return null
+    return_threshold(operation: OPERATIONS): number | null {
+        if (typeof this.thresholds[operation] === 'undefined') 
+        {
+            return null
+        }
         return this.thresholds[operation]
     }
 

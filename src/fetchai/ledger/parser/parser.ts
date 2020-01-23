@@ -37,7 +37,7 @@ export class Parser {
     static get_functions(source: string): Array<string> {
         source = Parser.remove_comments(source)
         const regexp = RegExp(FUNC, 'g')
-        const temp = [...source.matchAll(regexp)]
+        const temp = Array.from(source.matchAll(regexp));
         const temp2 = temp.map((arr) => arr[0])
         return temp2
     }
@@ -49,7 +49,7 @@ export class Parser {
         // we don't want to look inside functions, so we remove them.
         source = source.replace(regexp_func, '')
         const regexp_persistent = RegExp(PERSISTENT_STATEMENT, 'g')
-        const array = [...source.matchAll(regexp_persistent)]
+        const array = Array.from(source.matchAll(regexp_persistent));
         const sharded_funcs = []
 
         for (let i = 0; i < array.length; i++) {
@@ -66,7 +66,7 @@ export class Parser {
     static get_annotations(source: string): Record<string, string> {
         source = Parser.remove_comments(source)
         const regexp = RegExp(FUNC_NAME_WITH_ANNOTATION, 'g')
-        const array = [...source.matchAll(regexp)]
+        const array = Array.from(source.matchAll(regexp));
 
         const annotations: any = {}
 
@@ -86,7 +86,9 @@ export class Parser {
         const func_params: RegExpExecArrayOptionalItems | null = BETWEEN_ROUND_BRACKETS.exec(func_source)
         const ret: Array<any> = []
         // we start by coding only for funcs with params
-        if (func_params == null) return ret
+        if (func_params === null) return ret
+        if (func_params.length < 1) return ret
+        if (func_params === undefined || func_params[0] === undefined) return ret
 
         const func_params_arr = func_params[0].split(',')
         // assumes that func param names must be unique, delete when verified this is true
@@ -101,7 +103,7 @@ export class Parser {
 
     static parse_use_statements(source: string): Array<UseStatementInfo> {
         const regexp = RegExp(USE_STATEMENT, 'g')
-        const use_statements = [...source.matchAll(regexp)]
+        const use_statements = Array.from(source.matchAll(regexp));
 
         const ret: Array<any> = []
 
@@ -120,15 +122,29 @@ export class Parser {
                 const identifier: RegExpExecArrayOptionalItems | null = non_paramaterized_use_name.exec(use_statements[i])
 
                 obj.sharded = false
+                if(identifier == null || identifier == undefined || identifier[0] === undefined)
+                {
+                    throw Error("Could not match identifier.");
+                }
                 obj.identifier = identifier[0].trim()
                 ret.push(obj)
                 continue
             }
             // all use statements with params should be sharded.
             obj.sharded = true
+            if(use_name[0] === undefined)
+            {
+                throw Error("Could not identify use name.");
+            }
+
             obj.identifier = use_name[0].trim()
             // @ts-ignore
             const use_params = BETWEEN_SQUARE_BRACKETS.exec(use_statements[i])
+            if(use_params === null || use_params === undefined || use_params[0] === undefined)
+            {
+                throw Error("No identifiers specified for use statement")
+            }
+
             obj.params = use_params[0].split(',').map(param => param.trim())
             ret.push(obj)
         }
@@ -146,7 +162,12 @@ export class Parser {
         let func
 
         for (let i = 0; i < funcs.length; i++) {
-            const name = FUNC_NAME.exec(funcs[i])[0].trim()
+            const list = FUNC_NAME.exec(funcs[i]);
+            if(list === null || list === undefined || list[0] === undefined)
+            {
+                throw Error("Function signature incorrect");
+            }
+            const name = list[0].trim()
             // we get the whole function from the function name
             if (name == func_name) {
                 func = funcs[i]
@@ -171,29 +192,33 @@ export class Parser {
         }
 
         for (let i = 0; i < use_statements.length; i++) {
+            const statement = use_statements[i];
 
-            if (!use_statements[i].sharded) {
+            if (!statement.sharded) {
                 resource_addresses.push(use_statements[i].identifier)
                 continue
             }
-            for (let j = 0; j < use_statements[i].params.length; j++) {
-                if (use_statements[i].params[j].startsWith('"')) {
-                    // string we just add the name
-                    resource_addresses.push(use_statements[i].identifier + '.' + use_statements[i].params[j].substring(1, use_statements[i].params[j].length - 1))
-                } else {
-                    for (let k = 0; k < func_params.length; k++) {
-                        if (use_statements[i].params[j] == func_params[k].identifier) {
-                            if (func_params[k].type !== 'Address' && func_params[k].type !== 'String') {
-                                throw new ValidationError(`named function ${func_name} params referenced by use statements must be of type Address or String: found type ${func_params[k].type}`)
-                            }
+            if(statement.params !== undefined)
+            {
+                for (let j = 0; j < statement.params.length; j++) {
+                    if (statement.params[j].startsWith('"')) {
+                        // string we just add the name
+                        resource_addresses.push(statement.identifier + '.' + statement.params[j].substring(1, statement.params[j].length - 1))
+                    } else {
+                        for (let k = 0; k < func_params.length; k++) {
+                            if (statement.params[j] == func_params[k].identifier) {
+                                if (func_params[k].type !== 'Address' && func_params[k].type !== 'String') {
+                                    throw new ValidationError(`named function ${func_name} params referenced by use statements must be of type Address or String: found type ${func_params[k].type}`)
+                                }
 
-                            // if it is an address we take the display.
-                            if (ordered_args[k] instanceof Address) {
-                                resource_addresses.push(use_statements[i].identifier + '.' + ordered_args[k].toString())
-                            } else {
-                                resource_addresses.push(use_statements[i].identifier + '.' + ordered_args[k])
-                            }
+                                // if it is an address we take the display.
+                                if (ordered_args[k] instanceof Address) {
+                                    resource_addresses.push(statement.identifier + '.' + ordered_args[k].toString())
+                                } else {
+                                    resource_addresses.push(statement.identifier + '.' + ordered_args[k])
+                                }
 
+                            }
                         }
                     }
                 }

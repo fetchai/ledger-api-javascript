@@ -42,12 +42,9 @@ export class LedgerApi {
     static async from_network_name(host: string, port: number): Promise<true> {
         const api = new LedgerApi(host, port)
         const server_version = await api.server.version()
-        if (
-            !semver.satisfies(
-                semver.coerce(server_version),
-                __compatible__.join(' ')
-            )
-        ) {
+        const x = semver.coerce(server_version);
+        if (x == null || !semver.satisfies(x,__compatible__.join(' ')))
+        {
             throw new IncompatibleLedgerVersionError(`Ledger version running on server is not compatible with this API  \n
                                                  Server version: ${server_version} \nExpected version: ${__compatible__.join(
     ','

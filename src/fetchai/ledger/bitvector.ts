@@ -47,15 +47,19 @@ export class BitVector {
         const bits = new BitVector()
         bits._size = bit_size
         bits._byte_size = Math.floor((bit_size + 7) / 8)
+
         // TODO: Improve logic
-        bits._buffer = Buffer.from(
-            data
-                .toString('hex')
-                .match(/.{2}/g)
-                .reverse()
-                .join(''),
-            'hex'
-        )
+        let encoded = data.toString('hex');
+        let match = encoded.match(/.{2}/g);
+        if(match)
+        {
+            bits._buffer = Buffer.from(
+                match.reverse()
+                     .join(''),
+                'hex'
+            )
+        }
+
         return bits
     }
 
@@ -74,15 +78,21 @@ export class BitVector {
 
     // Get bytes of this instance
     instance_bytes(): Buffer {
-        return Buffer.from(
-            this._buffer
-                .toString('hex')
-                .match(/.{2}/g)
-                .reverse()
-                .join(''),
-            'hex'
-        )
+        let encoded = this._buffer
+                .toString('hex');
+        let match = encoded.match(/.{2}/g);
+        if(match)
+        {
+            return Buffer.from(            
+                    match
+                    .reverse()
+                    .join(''),
+                'hex'
+            )
+        }
 
+
+        throw new Error("Could not match encoded string.");
     }
 
     byte_length(): number {
@@ -106,7 +116,9 @@ export class BitVector {
     as_binary(): string {
         let output = ''
         const data = this.instance_bytes()
-        for (const n of data) {
+        for (let i=0; i < data.length; ++i) {
+            const n = data[i];
+
             // TODO: Improve logic
             output += Array.from(Array(8).keys())
                 .reverse()

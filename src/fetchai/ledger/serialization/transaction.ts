@@ -180,7 +180,7 @@ const encode_multisig_transaction = (payload: Transaction, signatures: any): Buf
     return buffer
 }
 
-const encode_transaction = (payload: Transaction, signers: Array<Entity>): Buffer => {
+const encode_transaction = (payload: Transaction, signers: Array<Entity> | null): Buffer => {
     // encode the contents of the transaction
     let buffer = encode_payload(payload)
     // extract the payload buffer
@@ -191,14 +191,16 @@ const encode_transaction = (payload: Transaction, signers: Array<Entity>): Buffe
     let flag = false
     payload.signers().forEach((v: any, k: any) => {
         let hex_key
-
-        for (let i = 0; i < signers.length; i++) {
-            hex_key = signers[i].pubKey.toString('hex')
-            // check if payload sig matches one passed in this param.
-            if (k === hex_key) {
-                flag = true
-                const sign_obj = signers[i].sign(payload_bytes)
-                buffer = bytearray.encode_bytearray(buffer, sign_obj.signature)
+        if(signers)
+        {
+            for (let i = 0; i < signers.length; i++) {
+                hex_key = signers[i].pubKey.toString('hex')
+                // check if payload sig matches one passed in this param.
+                if (k === hex_key) {
+                    flag = true
+                    const sign_obj = signers[i].sign(payload_bytes)
+                    buffer = bytearray.encode_bytearray(buffer, sign_obj.signature)
+                }
             }
         }
     })
@@ -352,7 +354,8 @@ const decode_payload = (buffer: Buffer): PayloadTuple => {
         let additional_signatures;
         [additional_signatures, buffer] = bytearray.decode_bytearray(buffer)
         debugger
-        num_signatures = num_signatures + additional_signatures
+        throw Error("TODO(tfr): Previous code adding BN and buffer - it is unclear what it is supposed to do")
+        // num_signatures = num_signatures + additional_signatures
     }
     const public_keys = []
 
