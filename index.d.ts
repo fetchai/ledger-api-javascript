@@ -1,6 +1,7 @@
 import {Address, Identity} from './src/fetchai/ledger/crypto'
 import {BN} from 'bn.js'
 import {BitVector} from './src/fetchai/ledger'
+export * from './src/fetchai/ledger'
 
 declare global {
     // types which can be accepted by Address constructor
