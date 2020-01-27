@@ -6,6 +6,7 @@ import {BitVector} from '../bitvector'
 import {Contract} from '../contract'
 import {encode_transaction} from '../serialization/transaction'
 import {logger} from '../utils'
+import {ApiError} from '../errors'
 
 /**
  * This class for all Tokens APIs.
@@ -33,6 +34,8 @@ export class ContractsApi extends ApiEndpoint {
      * @param {Object} [shard_mask=null] BitVector object
      */
     async create(owner, fee, contract, shard_mask = null) {
+
+        throw new ApiError('Contract interaction currently not supported')
         assert(contract instanceof Contract)
         const ENDPOINT = 'create'
         // Default to wildcard shard mask if none supplied
@@ -58,6 +61,7 @@ export class ContractsApi extends ApiEndpoint {
         tx.add_signer(owner.public_key_hex())
         const encoded_tx = encode_transaction(tx, [owner])
         contract.owner(owner)
+
         return await this._post_tx_json(encoded_tx, ENDPOINT)
     }
 
@@ -69,6 +73,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {JSON} data json payload
      */
     async query(contract_digest, contract_owner, query, data) {
+        throw new ApiError('Contract interaction currently not supported')
         assert(this.isJSON(data))
         const prefix = `${contract_digest.toHex()}.${contract_owner.toString()}`
         const encoded = this._encode_json_payload(data)
@@ -87,6 +92,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {Object} shard_mask BitVector object
      */
     async action(
+
         contract_digest,
         contract_address,
         action,
@@ -96,6 +102,8 @@ export class ContractsApi extends ApiEndpoint {
         args,
         shard_mask = null
     ) {
+        throw new ApiError('Contract interaction currently not supported')
+
         if (shard_mask === null) {
             shard_mask = new BitVector()
         }
@@ -113,6 +121,7 @@ export class ContractsApi extends ApiEndpoint {
     }
 
     _encode_msgpack_payload(args) {
+        throw new ApiError('Contract interaction currently not supported')
         assert(Array.isArray(args))
         const extensionCodec = new ExtensionCodec()
         extensionCodec.register({
@@ -129,6 +138,7 @@ export class ContractsApi extends ApiEndpoint {
     }
 
     _encode_json_payload(data) {
+        throw new ApiError('Contract interaction currently not supported')
         assert(typeof data === 'object' && data !== null)
         const params = {}
 
@@ -156,11 +166,13 @@ export class ContractsApi extends ApiEndpoint {
     }
 
     static _is_primitive(test) {
+        throw new ApiError('Contract interaction currently not supported')
         return test !== Object(test)
     }
 
     // taken from http://stackz.ru/en/4295386/how-can-i-check-if-a-value-is-a-json-object
     isJSON(o) {
+        throw new ApiError('Contract interaction currently not supported')
         if (typeof o != 'string') {
             o = JSON.stringify(o)
         }
