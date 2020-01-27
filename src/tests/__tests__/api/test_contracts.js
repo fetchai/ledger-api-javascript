@@ -29,7 +29,7 @@ describe(':ContractsApi', () => {
         axios.mockClear()
     })
 
-    test('test create', async () => {
+    test.skip('test create', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const tx = await api.tokens.wealth(ENTITIES[0], 10000)
         await api.sync([tx])
@@ -43,14 +43,14 @@ describe(':ContractsApi', () => {
         expect(axios).toHaveBeenCalledTimes(6)
     })
 
-    test('test query', async () => {
+    test.skip('test query', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
         const query = await contract.query(api, 'balance', {address: ADDRESSES[0]})
         expect(query).toBe(1000000)
     })
 
-    test('test action', async () => {
+    test.skip('test action', async () => {
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
         const tok_transfer_amount = 200
         const fet_tx_fee = 160
@@ -59,7 +59,7 @@ describe(':ContractsApi', () => {
         expect(action).toHaveProperty('txs')
     })
 
-    test('test _encode_json_payload', () => {
+    test.skip('test _encode_json_payload', () => {
         const api = new ContractsApi(LOCAL_HOST, DEFAULT_PORT)
         const args = []
         args.push(new Address('2J8wzPaBFRc2CtdRLkhRG5488HfrpkET8a5aHArmL5dLqvm7ED'))
@@ -70,7 +70,7 @@ describe(':ContractsApi', () => {
         expect(JSON.stringify(encoded)).toBe(reference)
     })
 
-    test('test _encode_json_payload with underscore as last character of key', () => {
+    test.skip('test _encode_json_payload with underscore as last character of key', () => {
         const api = new ContractsApi(LOCAL_HOST, DEFAULT_PORT)
         const underscore_test1_ = new Address('2J8wzPaBFRc2CtdRLkhRG5488HfrpkET8a5aHArmL5dLqvm7ED')
         const underscore_test2_ = new Address('2X5fnrS8gM92BcnLp8mUTpp8LYGQx9wxyRLo6zHokBAMHMrMgL')
@@ -79,7 +79,7 @@ describe(':ContractsApi', () => {
         expect(JSON.stringify(encoded)).toBe(reference)
     })
 
-    test('test _encode_json_payload with nested object', () => {
+    test.skip('test _encode_json_payload with nested object', () => {
         const api = new ContractsApi(LOCAL_HOST, DEFAULT_PORT)
         const underScoreTest1_ = new Address('2J8wzPaBFRc2CtdRLkhRG5488HfrpkET8a5aHArmL5dLqvm7ED')
         const underScoreTest2_ = new Address('2X5fnrS8gM92BcnLp8mUTpp8LYGQx9wxyRLo6zHokBAMHMrMgL')
@@ -90,7 +90,7 @@ describe(':ContractsApi', () => {
         expect(JSON.stringify(encoded)).toBe(reference)
     })
 
-    test('test message pack encode', async () => {
+    test.skip('test message pack encode', async () => {
         const api = new ContractsApi(LOCAL_HOST, DEFAULT_PORT)
         const args = []
         args.push(new Address('2J8wzPaBFRc2CtdRLkhRG5488HfrpkET8a5aHArmL5dLqvm7ED'))
@@ -103,7 +103,7 @@ describe(':ContractsApi', () => {
         expect(actual_hex).toBe(expected.toString('hex'))
     })
 
-    test('test IsJsonObject', async () => {
+    test.skip('test IsJsonObject', async () => {
         const api = new ContractsApi(LOCAL_HOST, DEFAULT_PORT)
 
         const valid_json = '{"test": "valid json"}'
