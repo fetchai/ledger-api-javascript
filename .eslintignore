@@ -4,3 +4,4 @@ bundle.js
 src/tests/e2e/browser
 index.js
 vanilla.js
+docs/

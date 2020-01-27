@@ -38,7 +38,7 @@ jest.mock('fs', () => {
 
 describe(':Test Contract', () => {
 
-    test('test dumps and loads', () => {
+    test.skip('test dumps and loads', () => {
         const owner = new Entity()
         const nonce = calc_digest('random').slice(0, 8)
         const orig = new Contract(SIMPLE_CONTRACT, owner, nonce)
@@ -51,7 +51,7 @@ describe(':Test Contract', () => {
         expect(orig.source()).toBe(recreation.source())
     })
 
-    test('test dumps and loads without nonce', () => {
+    test.skip('test dumps and loads without nonce', () => {
         const owner = new Entity()
         const orig = new Contract(SIMPLE_CONTRACT, owner)
         const encoded = orig.dumps()
@@ -63,7 +63,7 @@ describe(':Test Contract', () => {
         expect(orig.source()).toBe(recreation.source())
     })
 
-    test('test dump and load', () => {
+    test.skip('test dump and load', () => {
         const rand_bytes = calc_digest('rand')
         const owner = new Entity(rand_bytes)
         const nonce = calc_digest('random').slice(0, 8)
@@ -75,7 +75,7 @@ describe(':Test Contract', () => {
         expect(orig.digest()).toMatchObject(recreation.digest())
     })
 
-    test('test owner getter and setter', () => {
+    test.skip('test owner getter and setter', () => {
         const rand_bytes = calc_digest('rand')
         const owner = new Entity(rand_bytes)
         const nonce = calc_digest('random').slice(0, 8)
@@ -87,7 +87,7 @@ describe(':Test Contract', () => {
         expect(actual_owner2.toBytes()).toMatchObject(new Address(owner2).toBytes())
     })
 
-    test('test getters and setters', () => {
+    test.skip('test getters and setters', () => {
         const rand_bytes = calc_digest('rand')
         const owner = new Address(new Entity(rand_bytes))
         const nonce = calc_digest('random').slice(0, 8)
