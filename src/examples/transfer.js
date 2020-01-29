@@ -25,8 +25,9 @@ async function main() {
     console.log(`Balance 2 :  ${balance2.toString()}\n`)
 
     console.log('Submitting transfer ...\n')
-    // transfers accept numbers or instances of BN
-    const tx2 = await api.tokens.transfer(identity1, identity2, 200, 20).catch((error) => {
+    // numeric inputs across this SDK may be of type number, BigInteger or instances of BN objects using the library BN.js
+    const amount = BigInt(200)
+    const tx2 = await api.tokens.transfer(identity1, identity2, amount, 20).catch((error) => {
         console.log('error occured: ' + error)
         throw new Error()
     })

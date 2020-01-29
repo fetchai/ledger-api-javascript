@@ -104,8 +104,8 @@ export class Address {
      * Check equality of two address
      * @param  {bytes} other Address in bytes
      */
-    equals(other: Address): number {
-        return Buffer.compare(this.toBytes(), other.toBytes())
+    equals(other: Address): Boolean {
+        return (Buffer.compare(this.toBytes(), other.toBytes()) === 0)
     }
 
     /**

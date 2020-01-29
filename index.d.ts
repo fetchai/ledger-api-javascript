@@ -10,11 +10,10 @@ declare global {
 
     type BinaryLike = string | Buffer;
 // allowed numeric datatypes for public API of SDK, which are then converted into BN instances for sending to ledger.
-    type NumericInput = number | BN;
+    type NumericInput = number | BN | bigint;
 
     type JsonPrimitive = string | number | boolean | null
 
-// todo Should this accept other primitives?? ask ed.
     interface MessagePackable {
         [index: number]: Address | string | number;
     }

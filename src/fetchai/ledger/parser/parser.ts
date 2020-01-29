@@ -63,7 +63,7 @@ export class Parser {
         return sharded_funcs
     }
 
-    static get_annotations(source: string): Record<string, string> {
+    static get_annotations(source: string): Record<string, Array<string>> {
         source = Parser.remove_comments(source)
         const regexp = RegExp(FUNC_NAME_WITH_ANNOTATION, 'g')
         const array = [...source.matchAll(regexp)]

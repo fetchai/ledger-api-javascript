@@ -42,7 +42,6 @@ interface Metadata {
  * @class
  */
 export class Transaction {
-    //todo
     public _from: string | Address = '';
     public _transfers: Array<TransferItem> = [];
     public _valid_from: BN = new BN(0);
@@ -58,7 +57,6 @@ export class Transaction {
         synergetic_data_submission: false
     };
     public _data = '';
-    //public _signers: Map<string, string | SignatureData>;
     public _signers: any = new Map;
 
     static from_payload(payload: Buffer): PayloadTuple {

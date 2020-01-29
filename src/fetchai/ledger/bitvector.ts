@@ -43,11 +43,9 @@ export class BitVector {
         const max_size = data.length * 8
         assert(min_size <= bit_size)
         assert(bit_size <= max_size)
-        //todo refactor, it is dodgy
         const bits = new BitVector()
         bits._size = bit_size
         bits._byte_size = Math.floor((bit_size + 7) / 8)
-        // TODO: Improve logic
         bits._buffer = Buffer.from(
             data
                 .toString('hex')

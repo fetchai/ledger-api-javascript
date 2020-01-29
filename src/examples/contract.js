@@ -32,6 +32,7 @@ async function main() {
 
     // create the smart contract
     const contract = new Contract(TRANSFER_CONTRACT, entity1)
+    // numeric inputs across this SDK may be of type number, BigInteger or instances of BN objects of the library BN.js
     const created = await contract.create({api: api, owner: entity1, fee: 4000}).catch(errors => {
         console.log(errors)
         throw new Error()
