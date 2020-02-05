@@ -1,9 +1,8 @@
 import webdriver from 'selenium-webdriver'
 import fs from 'fs'
 import path from 'path'
-import chrome from 'selenium-webdriver/chrome'
+//import chrome from 'selenium-webdriver/chrome'
 import {Assert} from '../utils/assert'
-import {logger} from '../../../fetchai/ledger/utils'
 
 const ROOT_FP = '/home/douglas/ledger-api-javascript'
 const HTML_FP = '/src/tests/e2e/index.html'
@@ -12,19 +11,29 @@ const TEST = '/src/tests/e2e/vanilla.js'
 const DEFAULT_TIMEOUT = 120000
 
 async function main() {
+    await test_password_encryption()
     await test_balance()
-    await test_wealth()
     await test_transfer()
     await test_server()
     await test_contract()
-    logger.info('Browser E2E All Succeeded')
+    console.log('Browser E2E All Succeeded')
     Assert.success()
 }
 
 main()
 
+async function test_password_encryption() {
+    const driver = get_driver_not_headless()
+    const script = get_script('password_encryption')
+    await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
+    await driver.executeScript(script)
+    const PASSWORD_ENCRYPTION = await poll(driver, 'PASSWORD_ENCRYPTION')
+    Assert.assert_equal(PASSWORD_ENCRYPTION, true)
+    console.log('test_password_encryption passed')
+}
+
 async function test_contract() {
-    const driver = get_driver()
+    const driver = get_driver_not_headless()
     const script = get_script('contract')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
     await driver.executeScript(script)
@@ -36,33 +45,33 @@ async function test_contract() {
     Assert.assert_equal(TOK0, 999800)
     const TOK1 = await poll(driver, 'TOK1')
     Assert.assert_equal(TOK1, 200)
-    logger.info('test_contract passed')
+    console.log('test_contract passed')
 }
 
 async function test_balance() {
-    const driver = get_driver()
+    const driver = get_driver_not_headless()
     const script = get_script('balance')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
     await driver.executeScript(script)
     const res = await poll(driver, 'BALANCE')
     Assert.assert_equal(res, 0)
-    logger.info('test_balance passed')
+    console.log('test_balance passed')
 
 }
 
 async function test_server() {
-    const driver = get_driver()
+    const driver = get_driver_not_headless()
     const script = get_script('server')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
     await driver.executeScript(script)
     const [uri, port] = await poll(driver, 'SERVER')
     Assert.assert(uri.includes('.fetch-ai.com') && port === 443)
-    logger.info('test_server passed')
+    console.log('test_server passed')
 
 }
 
 async function test_transfer() {
-    const driver = get_driver()
+    const driver = get_driver_not_headless()
     const script = get_script('transfer')
     await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
     await driver.executeScript(script)
@@ -70,38 +79,27 @@ async function test_transfer() {
     Assert.assert_equal(res1, 749)
     const res2 = await poll(driver, 'BALANCE2')
     Assert.assert_equal(res2, 250)
-    logger.info('test_transfer passed')
+    console.log('test_transfer passed')
 }
-
-async function test_wealth() {
-    const driver = get_driver()
-    const script = get_script('wealth')
-    await driver.get(`file://${path.join(ROOT_FP + HTML_FP)}`)
-    await driver.executeScript(script)
-    const wealth = await poll(driver, 'WEALTH')
-    Assert.assert_equal(wealth, 1000)
-    logger.info('test_wealth passed')
-}
-
 
 function get_script(name) {
-    let bundle = fs.readFileSync(path.join(ROOT_FP + '/bundle/vanilla.js'), 'utf8')
+    const bundle = fs.readFileSync(path.join(ROOT_FP + '/bundle/fetchai-ledger-api.js'), 'utf8')
     fs.writeFileSync(path.join(ROOT_FP + TEST), `${bundle}`)
-    let test_server = fs.readFileSync(path.join(ROOT_FP + `/src/tests/e2e/browser/${name}.js`), 'utf8')
+    const test_server = fs.readFileSync(path.join(ROOT_FP + `/src/tests/e2e/browser/${name}.js`), 'utf8')
     fs.appendFileSync(path.join(ROOT_FP + TEST), test_server)
     return fs.readFileSync(path.join(ROOT_FP + TEST), 'utf8')
 }
 
-function get_driver() {
-    return new webdriver.Builder().forBrowser('chrome')
-        .setChromeOptions(new chrome.Options().headless().windowSize({width: 640, height: 480}
-        )).build()
-}
-
-// // For debugging swap get_driver() for this for easier debugging
-// function get_driver_not_headless(){
-//     return new webdriver.Builder().forBrowser('chrome').build()
+// function get_driver() {
+//     return new webdriver.Builder().forBrowser('chrome')
+//         .setChromeOptions(new chrome.Options().headless().windowSize({width: 640, height: 480}
+//         )).build()
 // }
+
+// For debugging swap get_driver() for this for easier debugging
+function get_driver_not_headless() {
+    return new webdriver.Builder().forBrowser('chrome').build()
+}
 
 async function poll(driver, property, timeout = false) {
     const asyncTimerPromise = new Promise((resolve) => {
@@ -115,7 +113,7 @@ async function poll(driver, property, timeout = false) {
                 return resolve(value)
             }
 
-            let elapsed_time = Date.now() - start
+            const elapsed_time = Date.now() - start
             if (elapsed_time > limit) {
                 Assert.fail()
             }

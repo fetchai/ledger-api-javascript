@@ -1,4 +1,7 @@
 {
+ "ignore": [
+    "**/*.__test__.*"
+ ],
   "presets": [
     [
       "@babel/preset-env",
@@ -7,7 +10,8 @@
           "node": "10"
         }
       }
-    ]
+    ],
+    ["@babel/preset-typescript"]
   ],
   "plugins": [
     "@babel/plugin-transform-flow-strip-types",

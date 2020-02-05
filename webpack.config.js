@@ -1,21 +1,21 @@
 module.exports = [
     {
         mode: 'development',
-        entry: './src/fetchai/ledger/index.js',
+        entry: './src/fetchai/ledger/index.ts',
         node: {
             fs: 'empty',
         },
         module: {
             rules: [
                 {
-                    test: /\.(js)$/,
+                    test: /\.(ts)$/,
                     exclude: /node_modules/,
-                    use: ['babel-loader']
+                    use: ['awesome-typescript-loader']
                 }
             ]
         },
         resolve: {
-            extensions: ['*', '.js']
+            extensions: ['*', '.js', '.ts']
         },
         output: {
             path: __dirname,
@@ -31,21 +31,21 @@ module.exports = [
     },
     {
         mode: 'development',
-        entry: './src/fetchai/ledger/index.js',
+        entry: './src/fetchai/ledger/index.ts',
         node: {
             fs: 'empty',
         },
         module: {
             rules: [
                 {
-                    test: /\.(js)$/,
+                    test: /\.(ts)$/,
                     exclude: /node_modules/,
-                    use: ['babel-loader']
+                    use: ['awesome-typescript-loader']
                 }
             ]
         },
         resolve: {
-            extensions: ['*', '.js']
+            extensions: ['*', '.js', '.ts']
         },
         output: {
             path: __dirname + '/bundle',
@@ -60,21 +60,21 @@ module.exports = [
     },
     {
         mode: 'production',
-        entry: './src/fetchai/ledger/index.js',
+        entry: './src/fetchai/ledger/index.ts',
         node: {
             fs: 'empty',
         },
         module: {
             rules: [
                 {
-                    test: /\.(js)$/,
+                    test: /\.(ts)$/,
                     exclude: /node_modules/,
-                    use: ['babel-loader']
+                    use: ['awesome-typescript-loader']
                 }
             ]
         },
         resolve: {
-            extensions: ['*', '.js']
+            extensions: ['*', '.js', '.ts']
         },
         output: {
             path: __dirname + '/bundle',

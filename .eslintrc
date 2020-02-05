@@ -4,22 +4,63 @@
     "commonjs": true,
     "es6": true,
     "jest": true,
-    "node": true,
-    "jest/globals": true
+    "node": true
   },
   "plugins": [
-    "jest"
+    "jest",
+    "@typescript-eslint"
   ],
-  "extends": "eslint:recommended",
+   "extends": [
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+ "overrides": [
+        {
+            "files": ["*.js"],
+            "rules": {
+                "@typescript-eslint/explicit-function-return-type" : "off"
+            }
+        },
+     {
+            "files": ["*parser.ts"],
+            "rules": {
+                "@typescript-eslint/ban-ts-ignore" : "off"
+            }
+        },
+        {
+            "files": ["*axios.ts"],
+            "rules": {
+                "@typescript-eslint/no-var-requires" : "off"
+            }
+        }, {
+            "files": ["*common.ts"],
+            "rules": {
+                "@typescript-eslint/no-empty-function" : "off"
+            }
+        }, {
+            "files": ["*contracts.ts"],
+            "rules": {
+                "prefer-const" : "off"
+            }
+        }
+    ],
   "rules": {
     "indent": [
       "error",
       4
     ],
+    "require-atomic-updates": "off",
     "no-prototype-builtins": "off",
     "linebreak-style": [
       "error",
       "unix"
+    ],
+        "@typescript-eslint/camelcase": "off",
+
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/explicit-function-return-type": [
+      "error"
     ],
     "quotes": [
       "error",
@@ -45,7 +86,7 @@
       "error"
     ]
   },
-  "parser": "babel-eslint",
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "sourceType": "module",
     "allowImportExportEverywhere": true

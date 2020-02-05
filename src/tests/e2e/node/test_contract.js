@@ -17,9 +17,8 @@ async function print_address_balances(api, contract, addresses) {
 }
 
 async function get_address_balance(api, contract, address) {
-    let balance, query
-    balance = await api.tokens.balance(address)
-    query = await contract.query(api, 'balance', {address: address})
+    const balance = await api.tokens.balance(address)
+    const  query = await contract.query(api, 'balance', {address: address})
     console.log(`Address : ${address}: ${balance} bFET ${query} TOK'.`)
     return [balance, query]
 }
