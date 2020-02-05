@@ -187,7 +187,6 @@ const encode_transaction = (payload: Transaction, signers: Array<Entity>): Buffe
     const payload_bytes = calc_digest(buffer)
 
     // append all the signatures of the signers in order
-    // for (let signer of Object.keys(payload._signers)) {
     let flag = false
     payload.signers().forEach((v: any, k: any) => {
         let hex_key
@@ -207,7 +206,6 @@ const encode_transaction = (payload: Transaction, signers: Array<Entity>): Buffe
         throw new ValidationError('Missing signer signing set')
     }
 
-    // return the encoded transaction
     return buffer
 }
 
@@ -232,7 +230,6 @@ const decode_payload = (buffer: Buffer): PayloadTuple => {
     const header_second = header_second_buffer.readUIntBE(0, 1)
     const version = (header_first & 0xE0) >> 5
     // const charge_unit_flag = Boolean((header_first & 0x08) >> 3)
-    // assert(!charge_unit_flag);
     const transfer_flag = Boolean((header_first & 0x04) >> 2)
     const multiple_transfers_flag = Boolean((header_first & 0x02) >> 1)
     const valid_from_flag = Boolean((header_first & 0x01))
