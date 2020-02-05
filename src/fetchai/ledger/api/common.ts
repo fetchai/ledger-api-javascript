@@ -178,8 +178,7 @@ export class ApiEndpoint {
     }
 
     async _get_json(path: string, data: any): Promise<any> {
-        const url = `http://${this._host}:${this._port}/api/${path}`
-
+        const url = `${this._protocol}://${this._host}:${this._port}/api/${path}`
         // define the request headers
         const request_headers = {
             'Content-Type': 'application/json; charset=utf-8'
