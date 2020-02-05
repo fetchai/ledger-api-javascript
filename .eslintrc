@@ -43,9 +43,6 @@
     ],
     "jest/valid-expect": [
       "error"
-    ],
-    "no-unreachable" : [
-      "warn"
     ]
   },
   "parser": "babel-eslint",

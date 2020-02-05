@@ -17,7 +17,7 @@ import {BN} from 'bn.js'
 const MAGIC = 0xa1
 // a reserved byte.
 const RESERVED = 0x00
-const VERSION = 3
+const VERSION = 2
 const NO_CONTRACT = 0
 const SMART_CONTRACT = 1
 const CHAIN_CODE = 2

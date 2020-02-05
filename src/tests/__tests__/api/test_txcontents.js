@@ -5,7 +5,7 @@ import {BN} from 'bn.js'
 import {TokenApi} from '../../../fetchai/ledger/api'
 
 describe(':TXContentsTest', () => {
-    test.skip('test contents', async () => {
+    test('test contents', async () => {
         const api = new TokenApi(LOCAL_HOST, DEFAULT_PORT)
         const wealth = await api.wealth(ENTITIES[0], 1000)
         const TApi = new TransactionApi(LOCAL_HOST, DEFAULT_PORT)

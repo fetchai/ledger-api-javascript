@@ -137,7 +137,7 @@ export class ApiEndpoint {
     }
 
     async _get_json(path, data) {
-        let url = `${this._protocol}://${this._host}:${this._port}/api/${path}`
+        let url = `http://${this._host}:${this._port}/api/${path}`
 
         // define the request headers
         let request_headers = {
