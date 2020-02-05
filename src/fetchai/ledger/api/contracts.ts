@@ -59,7 +59,7 @@ export class ContractsApi extends ApiEndpoint {
     }
 
     //static _is_primitive(test: string | number) {
-    static _is_primitive(test: unknown): boolean {
+    static is_primitive(test: unknown): boolean {
         return test !== Object(test)
     }
 
@@ -157,7 +157,7 @@ export class ContractsApi extends ApiEndpoint {
                 key = new_key
             }
 
-            if (ContractsApi._is_primitive(value)) {
+            if (ContractsApi.is_primitive(value)) {
                 params[key] = value
             } else if (value instanceof Address) {
                 params[key] = value.toString()

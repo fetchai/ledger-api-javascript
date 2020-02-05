@@ -31,7 +31,7 @@ async function main() {
     console.log('Stake.. :', stake.toString())
 
     // submit and wait for the transfer to be complete
-
+    // numeric inputs to the SDK may be of type number, BigIntegers or instances of BN.js.
     stake = await api.tokens.add_stake(entity, 1000, 50).catch((error) => {
         console.log(error)
         throw new Error()

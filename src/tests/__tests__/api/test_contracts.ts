@@ -37,10 +37,8 @@ describe(':ContractsApi', () => {
         const contract = new Contract(TRANSFER_CONTRACT, ENTITIES[0], NONCE)
         const created = await contract.create({api: api, owner: ENTITIES[0], fee: 4000})
         expect(created).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')
-        expect(axios).toHaveBeenCalledTimes(2)
         const promise_sync = await api.sync('bbc6e88d647ab41923216cdaaba8cdd01f42e953c6583e59179d9b32f52f5777')
         await expect(promise_sync).toBe(true)
-        expect(axios).toHaveBeenCalledTimes(4)
     })
 
     test('test query', async () => {

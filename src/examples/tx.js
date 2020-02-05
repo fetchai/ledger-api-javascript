@@ -10,6 +10,7 @@ async function main() {
     const identity1 = Entity.from_hex('6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b')
     const identity2 = Entity.from_hex('e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8')
 
+    // the following transfer function is shown as an example here, but any function which returns a transaction hash may be used here.
     const tx = await api.tokens.transfer(identity1, identity2, 2500, 20)
 
     // We Verify that the transaction is the submitted transaction is the sent transaction

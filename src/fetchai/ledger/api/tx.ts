@@ -18,10 +18,11 @@ enum SUCCESSFUL_TERMINAL_STATES {
 interface TxStatusData {
     digest: Buffer;
     status: string;
-    exit_code: string;
-    charge: number;
-    charge_rate: number;
-    fee: number;
+    exit_code?: string;
+    charge?: number;
+    charge_rate?: number;
+    fee?: number;
+    error_message?: string | null;
 }
 
 interface TxContentsData {
@@ -39,10 +40,7 @@ interface TxContentsData {
     data: string;
 }
 
-/*
-takes an array and turns it into an object, setting the to field and the amount field.
-//TODO ASK ED IF THIS OK?, since we want insertion order, which plain objects don't.
- */
+
 const tx_array_to_object = (array: Array<any>): any =>
     array.reduce((obj: any, item: any) => {
         obj[item.to] = new BN(item.amount)
@@ -53,19 +51,21 @@ export class TxStatus {
     public digest_bytes: Buffer;
     public digest_hex: string;
     public status: string;
-    public exit_code: string;
-    public charge: BN;
-    public charge_rate: BN;
-    public fee: BN;
+    public exit_code: string | null;
+    public charge: BN | null;
+    public charge_rate: BN | null;
+    public fee: BN | null;
+    public error_message: string | null;
 
-    constructor({digest, status, exit_code, charge, charge_rate, fee}: TxStatusData) {
+    constructor({digest, status, exit_code = null, charge = null, charge_rate = null, fee = null, error_message = null}: TxStatusData) {
         this.digest_bytes = digest
         this.digest_hex = this.digest_bytes.toString('hex')
-        this.status = status
+        this.status = status || null
         this.exit_code = exit_code
         this.charge = new BN(charge)
         this.charge_rate = new BN(charge_rate)
         this.fee = new BN(fee)
+        this.error_message = error_message;
     }
 
     get_status(): string {

@@ -241,7 +241,7 @@ export class TokenTxFactory extends TransactionFactory {
         return tx
     }
 
-    static add_stake(entity: Entity, amount: BN, fee: BN, signatories: Entity[] | null = null): Transaction {
+    static add_stake(entity: Entity, amount: NumericInput, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
         // build up the basic transaction information
         fee = convert_number(fee)
         amount = convert_number(amount)
@@ -263,9 +263,10 @@ export class TokenTxFactory extends TransactionFactory {
         return tx
     }
 
-    static de_stake(entity: Entity, amount: BN, fee: BN, signatories: Entity[] | null = null): Transaction {
-        assert(BN.isBN(amount))
-        assert(BN.isBN(fee))
+    static de_stake(entity: Entity, amount: NumericInput, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
+
+          fee = convert_number(fee)
+        amount = convert_number(amount)
         // build up the basic transaction information
         const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.DESTAKE, 'fetch.token')
 
@@ -284,8 +285,8 @@ export class TokenTxFactory extends TransactionFactory {
         return tx
     }
 
-    static collect_stake(entity: Entity, fee: BN, signatories: Entity[] | null = null): Transaction {
-        assert(BN.isBN(fee))
+    static collect_stake(entity: Entity, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
+          fee = convert_number(fee)
         // build up the basic transaction information
         const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.COLLECTSTAKE, 'fetch.token')
 
