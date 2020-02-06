@@ -20,6 +20,7 @@ import {randomBytes} from 'crypto'
 import {Entity} from './crypto'
 
 type PayloadTuple = [Transaction, Buffer]
+type MergeTuple = [Boolean, Transaction | null]
 
 interface TransferItem {
     readonly address: string;
@@ -33,9 +34,8 @@ interface SignatureData {
 
 interface SignatureItem {
     identity: Identity;
-    signature: NodeJS.ArrayBufferView | null;
+    signature: Buffer | null;
 }
-
 
 /**
  * This class for Transactions related operations
@@ -265,7 +265,7 @@ export class Transaction {
         }
     }
 
-    add_signature(identity: Identity, signature: NodeJS.ArrayBufferView){
+    add_signature(identity: Identity, signature: Buffer){
          if(!this.hasSigner(identity){
              throw new RunTimeError('Identity is not currently part')
          }
@@ -286,8 +286,8 @@ export class Transaction {
 
 
     compare(other: Transaction): boolean {
-        const x = this.payload().toString('hex')
-        const y = other.payload().toString('hex')
+        const x = this.encode_payload().toString('hex')
+        const y = this.encode_payload().toString('hex')
         return x === y
     }
 
@@ -299,31 +299,30 @@ export class Transaction {
             return false
         }
 
-        let success_flag = false
+        let success = null
 
         let payload = this.encode_payload()
         let pending_signers = this.pending_signers();
 
+        //todo: once working detsructure el as identity and signature in params of for loop.
         tx2.signatures().forEach(el => {
-
-            if(!this.hasSigner( el.identity)) continue;
+            if(!this.hasSigner(el.identity)) continue;
             if(el.signature == null) continue;
-            if(!el.identity.verify(calc_digest(payload), el.signature)){
-                success_flag = false
+            if(!el.identity.verify(calc_digest(payload), el.signature)) {
+                success = false
                     continue
            }
-
-           this._signatures =
-
+           if(success === null) success = true;
+           this.add_signature(el.identity, el.signature)
         })
 
-        signers.forEach((v: any, k: string) => {
-                if (signers.has(k) && typeof signers.get(k).signature !== 'undefined') {
-                    const s = signers.get(k)
-                    this.signatures.set(k, s)
-                }
-            })
+         if(success === null) success = false;
 
+         return success;
+    }
+
+
+    merge(transactions: Array<Transaction>): MergeTuple {
 
     }
 

@@ -195,7 +195,7 @@ export class Entity extends Identity {
      * @param  {String} extMsgHash Message hash
      * @returns signature obj
      */
-    sign(extMsgHash: Buffer): any {
+    sign(extMsgHash: Buffer): {signature: Buffer, recovery: number} {
         return secp256k1.sign(extMsgHash, this.privKey)
     }
 
