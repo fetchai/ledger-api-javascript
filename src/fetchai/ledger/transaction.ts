@@ -236,10 +236,10 @@ export class Transaction {
     }
 
     present_signers() {
-        return this._signatures.filter((el) => el.signature !== null).map(el => el.identity)
+        return this._signatures.filter(el => el.signature !== null).map(el => el.identity)
     }
 
-        // Get signers param.
+    // Get signers param.
     signers(): Array<Identity> {
        return this._signatures.map(el => el.identity)
     }
@@ -248,8 +248,23 @@ export class Transaction {
         return this._signatures
     }
 
+    is_incomplete(): boolean {
+        return this._signatures.length > 0 && this.pending_signers() > 0
+    }
+
     hasSigner(signer: Identity): Boolean {
          return this._signatures.some(el => el.identity.public_key_hex() === signer.public_key_hex())
+    }
+
+    is_valid(){
+        const payload = this.encode_payload()
+        let valid_flag = true
+        this._signatures.forEach((identity, signature) => {
+            if(!identity.verify(calc_digest(payload), signature)){
+                valid_flag = false
+            }
+            })
+        return valid_flag
     }
 
     // left string to reduce size of refactor required
@@ -323,7 +338,16 @@ export class Transaction {
 
 
     merge(transactions: Array<Transaction>): MergeTuple {
+        if(transactions.length ===0){
+            return [false, null]
+        }
+        const tx = transactions[0]
 
+        for(let i =1; i < transactions.length; i++){
+            tx.merge_signatures(transactions[i])
+        }
+
+        return [tx.is_valid(), tx]
     }
 
     encode_partial(): Buffer {
