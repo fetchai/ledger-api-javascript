@@ -31,9 +31,11 @@ interface SignatureData {
     readonly verified: boolean;
 }
 
-interface Metadata {
-    synergetic_data_submission: boolean;
+interface SignatureItem {
+    identity: Identity;
+    signature: NodeJS.ArrayBufferView | null;
 }
+
 
 /**
  * This class for Transactions related operations
@@ -53,11 +55,8 @@ export class Transaction {
     public _chain_code = '';
     public _shard_mask: BitVector = new BitVector();
     public _action = '';
-    public _metadata: any = {
-        synergetic_data_submission: false
-    };
     public _data = '';
-    public _signers: any = new Map;
+    public _signatures: any = Array<SignatureItem>;
 
     static from_payload(payload: Buffer): PayloadTuple {
         const [tx, buffer] = decode_payload(payload)
@@ -89,7 +88,7 @@ export class Transaction {
             [signature, buffer] = bytearray.decode_bytearray(buffer)
             signature = Buffer.from(signature)
 
-            tx._signers.set(signer.public_key_hex(), {
+            tx._signatures.set(signer.public_key_hex(), {
                 'signature': signature,
                 'verified': signer.verify(payload_digest, signature)
             })
@@ -107,13 +106,12 @@ export class Transaction {
     from_address(address: AddressLike | null = null): Address | string {
         if (address !== null) {
             this._from = new Address(address)
-            return this._from
+            return
         }
-        return this._from
     }
 
-    transfers(): Array<TransferItem> {
-        return this._transfers
+    get transfers(): Array<TransferItem> {
+        return this._transfers;
     }
 
     // Get and Set valid_from param
@@ -193,23 +191,17 @@ export class Transaction {
         }
         return this._data
     }
+    // compare(other: Transaction): boolean {
+    //     const x = this.payload().toString('hex')
+    //     const y = other.payload().toString('hex')
+    //     return x === y
+    // }
 
-    compare(other: Transaction): boolean {
-        const x = this.payload().toString('hex')
-        const y = other.payload().toString('hex')
-        return x === y
+    encode_payload(): Buffer {
+        return encode_payload(this)
     }
 
-    payload(): Buffer {
-        const buffer = encode_payload(this)
-        // so to get running lets just do like hex or whatever since only used to compare but then actually get same as python and delete this comment at later stage.
-        return buffer
-    }
 
-    // Get signers param.
-    signers(): any {
-        return this._signers
-    }
 
     add_transfer(address: AddressLike, amount: BN): void {
         assert(amount.gtn(new BN(0)))
@@ -239,60 +231,103 @@ export class Transaction {
         return this._metadata['synergetic_data_submission']
     }
 
-    add_signer(signer: string): void {
-        if (!(this._signers.has(signer))) {
-            this._signers.set(signer, '') // will be replaced with a signature in the future
+    pending_signers(){
+       return this._signatures.filter((el) => el.signature == null).map(el => el.identity)
+    }
+
+    present_signers() {
+        return this._signatures.filter((el) => el.signature !== null).map(el => el.identity)
+    }
+
+        // Get signers param.
+    signers(): Array<Identity> {
+       return this._signatures.map(el => el.identity)
+    }
+
+    signatures(): Array<SignatureItem> {
+        return this._signatures
+    }
+
+    hasSigner(signer: Identity): Boolean {
+         return this._signatures.some(el => el.identity.public_key_hex() === signer.public_key_hex())
+    }
+
+    // left string to reduce size of refactor required
+    add_signer(signer: string | Identity): void {
+
+        // this is a difference with python where initally we were storing as different datastrcture
+        if(typeof signer === "string") {
+            signer = Identity.from_hex(signer)
         }
+
+        if (!this.hasSigner(signer as Identity)) {
+           this._signatures.push({identity: signer, signature: null})
+        }
+    }
+
+    add_signature(identity: Identity, signature: NodeJS.ArrayBufferView){
+         if(!this.hasSigner(identity){
+             throw new RunTimeError('Identity is not currently part')
+         }
+
+         this._signatures = this._signatures.forEach(el => {
+             if(el.identity.public_key_hex() === identity.public_key_hex()){
+                 el.signature = signature
+             }})
     }
 
     sign(signer: Entity): void {
-        if (this._signers.has(signer.public_key_hex())) {
-            const payload_digest = calc_digest(this.payload())
+        if (this.hasSigner(signer)) {
+            const payload_digest = calc_digest(this.encode_payload())
             const sign_obj = signer.sign(payload_digest)
-            this._signers.set(signer.public_key_hex(), {
-                signature: sign_obj.signature,
-                verified: signer.verify(payload_digest, sign_obj.signature)
-            })
+            this.add_signature(signer, sign_obj.signature)
         }
+    }
+
+
+    compare(other: Transaction): boolean {
+        const x = this.payload().toString('hex')
+        const y = other.payload().toString('hex')
+        return x === y
     }
 
     //todo SHOULD METHOD REALLY RETURN VOID OR NULL
-    merge_signatures(tx2: Transaction): void | null {
-        if (this.compare(tx2)) {
+    merge_signatures(tx2: Transaction): Boolean {
 
-            const signers = tx2.signers()
-            // for (let key in signers) {
-            signers.forEach((v: any, k: string) => {
+        if (this.compare(tx2)) {
+            console.log('Attempting to combine transactions with different payloads')
+            return false
+        }
+
+        let success_flag = false
+
+        let payload = this.encode_payload()
+        let pending_signers = this.pending_signers();
+
+        tx2.signatures().forEach(el => {
+
+            if(!this.hasSigner( el.identity)) continue;
+            if(el.signature == null) continue;
+            if(!el.identity.verify(calc_digest(payload), el.signature)){
+                success_flag = false
+                    continue
+           }
+
+           this._signatures =
+
+        })
+
+        signers.forEach((v: any, k: string) => {
                 if (signers.has(k) && typeof signers.get(k).signature !== 'undefined') {
                     const s = signers.get(k)
-                    this._signers.set(k, s)
+                    this.signatures.set(k, s)
                 }
             })
 
-        } else {
-            console.log('Attempting to combine transactions with different payloads')
-            return null
-        }
+
     }
 
     encode_partial(): Buffer {
-
-        let buffer = encode_payload(this)
-        let num_signed = 0
-
-        this._signers.forEach((v: any) => {
-            if (typeof v.signature !== 'undefined') num_signed++
-        })
-
-        buffer = integer.encode_integer(buffer, new BN(num_signed))
-        this._signers.forEach((v: any, k: string) => {
-            if (typeof v.signature !== 'undefined') {
-                const buff = Buffer.from(k, 'hex')
-                const test = new Identity(buff)
-                buffer = encode_identity(buffer, test)
-                buffer = encode_bytearray(buffer, v.signature)
-            }
-        })
-        return buffer
+        return encode_payload(this)
     }
 }

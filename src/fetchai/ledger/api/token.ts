@@ -5,10 +5,11 @@ import {encode_transaction} from '../serialization/transaction'
 import {Address} from '../crypto/address'
 import {Entity} from '../crypto/entity'
 import {BN} from 'bn.js'
-import assert from 'assert'
 import {Transaction} from '../transaction'
 import {Deed} from '../crypto/deed'
 import {LedgerApi} from './init'
+import {Identity} from "../crypto/identity";
+import {BitVector} from "../bitvector";
 
 /**
  * This class for all Tokens APIs.
@@ -212,16 +213,11 @@ export class TokenTxFactory extends TransactionFactory {
         this.prefix = PREFIX.TOKEN
     }
 
-    static deed(entity: Entity, deed: Deed, signatories: Array<Entity> | null = null, allow_no_amend = false): Transaction {
-        const tx = TransactionFactory.create_chain_code_action_tx(10000, entity, ENDPOINT.DEED, PREFIX.TOKEN)
+    static deed(from_address: AddressLike, fee: NumericInput, deed: Deed | null = null, signatories: Array<Entity> | null = null): Transaction {
+        const tx = TransactionFactory.create_chain_code_action_tx({fee: fee, from_address: from_address, action: ENDPOINT.DEED, prefix: PREFIX.TOKEN,
+        signatories: signatories, shard_mask: new BitVector()})
 
-        if (signatories !== null) {
-
-            signatories.forEach(sig => tx.add_signer(sig.public_key_hex()))
-        } else {
-            tx.add_signer(entity.public_key_hex())
-        }
-        const deed_json = deed.deed_creation_json(allow_no_amend)
+        const deed_json = (deed !== null) ? deed.to_json(): {}
         tx.data(JSON.stringify(deed_json))
         return tx
     }
@@ -241,21 +237,16 @@ export class TokenTxFactory extends TransactionFactory {
         return tx
     }
 
-    static add_stake(entity: Entity, amount: NumericInput, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
+    static add_stake(identity: Identity, amount: NumericInput, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
         // build up the basic transaction information
         fee = convert_number(fee)
         amount = convert_number(amount)
 
-        const tx = TransactionFactory.create_chain_code_action_tx(fee, entity, ENDPOINT.ADDSTAKE, 'fetch.token')
-
-        if (signatories !== null) {
-            signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
-        } else {
-            tx.add_signer(entity.public_key_hex())
-        }
+        const tx = TransactionFactory.create_chain_code_action_tx({fee: fee, from_address: identity, action: ENDPOINT.ADDSTAKE, prefix: PREFIX.TOKEN,
+        signatories: signatories, shard_mask: new BitVector()})
 
         const encoded = JSON.stringify({
-            address: entity.public_key_base64(),
+            address: identity.public_key_base64(),
             amount: amount.toNumber()
         })
 
@@ -263,38 +254,32 @@ export class TokenTxFactory extends TransactionFactory {
         return tx
     }
 
-    static de_stake(entity: Entity, amount: NumericInput, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
+    static de_stake(identity: Identity, amount: NumericInput, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
 
           fee = convert_number(fee)
-        amount = convert_number(amount)
+          amount = convert_number(amount)
         // build up the basic transaction information
-        const tx = TransactionFactory.create_chain_code_action_tx(fee, entity, ENDPOINT.DESTAKE, 'fetch.token')
-
-        if (signatories !== null) {
-            signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
-        } else {
-            tx.add_signer(entity.public_key_hex())
-        }
+        const tx = TransactionFactory.create_chain_code_action_tx({
+            fee: fee, from_address: identity, action: ENDPOINT.DESTAKE,
+            prefix: PREFIX.TOKEN, signatories: signatories, shard_mask: new BitVector()
+        })
 
         // format the transaction payload
         tx.data(JSON.stringify({
-            'address': entity.public_key_base64(),
+            'address': identity.public_key_base64(),
             'amount': amount.toNumber()
         }))
 
         return tx
     }
 
-    static collect_stake(entity: Entity, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
+    static collect_stake(identity: Identity, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
           fee = convert_number(fee)
         // build up the basic transaction information
-        const tx = TransactionFactory.create_chain_code_action_tx(fee, entity, ENDPOINT.COLLECTSTAKE, 'fetch.token')
+        return TransactionFactory.create_chain_code_action_tx({fee:fee, from_address: identity,
+                                                               action: ENDPOINT.COLLECTSTAKE, prefix: PREFIX.TOKEN, signatories: signatories,
+                                                              shard_mask: new BitVector()})
 
-        if (signatories !== null) {
-            signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
-        } else {
-            tx.add_signer(entity.public_key_hex())
-        }
-        return tx
     }
 }
+

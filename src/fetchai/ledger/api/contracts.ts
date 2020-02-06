@@ -8,13 +8,13 @@ import {LedgerApi} from './init'
 import {Entity} from '../crypto/entity'
 import {BN} from 'bn.js'
 import {Transaction} from '../transaction'
-import {BitVector} from "../bitvector";
-import {RunTimeError} from "../errors";
+import {BitVector} from '../bitvector'
+import {RunTimeError} from '../errors'
 
 type Tuple = [boolean, any];
 
 interface CreateContractsOptions {
-    owner: Entity;
+    owner: AddressLike;
     contract: Contract;
     fee: BN;
     signers: Array<Entity> | null;
@@ -86,7 +86,7 @@ export class ContractsApi extends ApiEndpoint {
         // todo verify this at runtime is correct then remove comment. I think the bug is in python.
         const contractTxFactory = new ContractTxFactory(this.parent_api)
         const tx = await contractTxFactory.create({
-            from_address: new Address(owner),
+            owner: new Address(owner),
             contract: contract,
             fee: fee,
             signers: null,
@@ -178,6 +178,7 @@ export class ContractsApi extends ApiEndpoint {
         return params
     }
 
+    //todo refactor out .
     isJSON(o: unknown): boolean {
         if (typeof o !== 'string') {
             try {
@@ -215,15 +216,6 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
     /**
-     * Replicate server interface for fetching number of lanes
-     *
-     * @returns {*}
-     */
-    server(): ServerApi {
-        return this.api.server
-    }
-
-    /**
      * Replicate setting of validity period using server
      *
      * @param tx
@@ -240,8 +232,8 @@ export class ContractTxFactory extends TransactionFactory {
 
         // build up the basic transaction information
         const tx = TransactionFactory.create_chain_code_action_tx({fee: fee, from_address: owner,
-                                                                 action: ENDPOINT.CREATE,  prefix: PREFIX.CONTRACT, signatories: signers,
-                                                                  shard_mask: shard_mask })
+            action: ENDPOINT.CREATE,  prefix: PREFIX.CONTRACT, signatories: signers,
+            shard_mask: shard_mask })
         const data = JSON.stringify({
             'text': contract.encoded_source(),
             'nonce': contract.nonce(),
@@ -265,20 +257,18 @@ export class ContractTxFactory extends TransactionFactory {
             if(signers.length === 1) {
                 from_address = new Address(signers[0])
             } else {
-                   throw new RunTimeError('Unable to determine from field for transaction, more than 1 signer provided')
+                throw new RunTimeError('Unable to determine from field for transaction, more than 1 signer provided')
             }
         }
 
 
         // build up the basic transaction information
         const tx = TransactionFactory.create_smart_contract_action_tx({fee: fee, from_address: from_address, contract_address: contract_address,
-                                        action: action, signatories: signers, shard_mask: shard_mask})
+            action: action, signatories: signers, shard_mask: shard_mask})
         tx.data(TransactionFactory.encode_msgpack_payload(args))
         return tx
     }
 
 
-
-    }
 }
 
