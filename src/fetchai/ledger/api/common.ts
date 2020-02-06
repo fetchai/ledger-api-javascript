@@ -1,6 +1,6 @@
 import assert from 'assert'
 import axios from 'axios'
-import {Address} from '../crypto'
+import {Address, Entity, Identity} from '../crypto'
 import {ApiError} from '../errors'
 import {BitVector} from '../bitvector'
 import {BN} from 'bn.js'
@@ -10,7 +10,26 @@ import {encode_multisig_transaction} from '../serialization/transaction'
 import {LedgerApi} from './init'
 import {Transaction} from '../transaction'
 
+
 type Tuple = [boolean, Record<string, any>];
+
+interface ContractFactoryActionOptions {
+    fee: NumericInput;
+    from_address: AddressLike;
+    action: string;
+    prefix: string;
+    shard_mask: BitVectorLike;
+    signatories: Array<Identity>;
+}
+
+interface SmartContractFactoryActionOptions {
+    fee: BN;
+    from_address: AddressLike;
+    action: string;
+    shard_mask: BitVectorLike;
+    contract_address: AddressLike;
+    signatories: Array<Identity>;
+}
 
 function format_contract_url(host: string, port: number, prefix: string | null = null, endpoint: string | null = null, protocol = 'http'): string {
     let canonical_name, url
@@ -256,15 +275,28 @@ export class TransactionFactory {
         return tx
     }
 
-    static create_action_tx(fee: NumericInput, from: AddressLike, action: string, prefix: string, shard_mask: BitVectorLike = null): Transaction {
+    static create_chain_code_action_tx({fee, from_address, action, prefix, signatories, shard_mask = null}: ContractFactoryActionOptions): Transaction {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask
         fee = convert_number(fee)
         const tx = TransactionFactory.create_skeleton_tx(fee)
-        tx.from_address(new Address(from))
+        tx.from_address(new Address(from_address))
         tx.target_chain_code(prefix, mask)
         tx.action(action)
+        signatories.forEach(signer => tx.add_signer(signer.public_key_hex()))
+
         return tx
     }
+
+
+    static create_smart_contract_action_tx({fee, from_address, contract_address, action, signatories, shard_mask = null}: SmartContractFactoryActionOptions) : Transaction {
+      const tx = TransactionFactory.create_skeleton_tx(fee)
+        tx.from_address(new Address(from_address))
+        tx.target_contract(new Address(contract_address), shard_mask)
+        tx.action(action)
+       signatories.forEach(signer => tx.add_signer(signer.public_key_hex()))
+        return tx
+    }
+
 
     static encode_msgpack_payload(args: MessagePackable): Uint8Array {
         assert(Array.isArray(args))

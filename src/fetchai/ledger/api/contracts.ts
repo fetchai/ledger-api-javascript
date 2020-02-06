@@ -8,12 +8,22 @@ import {LedgerApi} from './init'
 import {Entity} from '../crypto/entity'
 import {BN} from 'bn.js'
 import {Transaction} from '../transaction'
-import {ServerApi} from './server'
+import {BitVector} from "../bitvector";
+import {RunTimeError} from "../errors";
 
 type Tuple = [boolean, any];
 
 interface CreateContractsOptions {
     owner: Entity;
+    contract: Contract;
+    fee: BN;
+    signers: Array<Entity> | null;
+    shard_mask: BitVectorLike;
+}
+
+interface CreateFactoryContractsOptions
+{
+    from_address: AddressLike;
     contract: Contract;
     fee: BN;
     signers: Array<Entity> | null;
@@ -76,7 +86,7 @@ export class ContractsApi extends ApiEndpoint {
         // todo verify this at runtime is correct then remove comment. I think the bug is in python.
         const contractTxFactory = new ContractTxFactory(this.parent_api)
         const tx = await contractTxFactory.create({
-            owner: owner,
+            from_address: new Address(owner),
             contract: contract,
             fee: fee,
             signers: null,
@@ -223,32 +233,15 @@ export class ContractTxFactory extends TransactionFactory {
         return await this.api.server.set_validity_period(tx, validity_period)
     }
 
-    async action({
-        contract_address, action,
-        fee, from_address, args,
-        signers = null,
-        shard_mask = null
-    }: ActionContractsOptions): Promise<Transaction> {
-
-        // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, from_address, action, PREFIX.CONTRACT, shard_mask)
-        tx.target_contract(contract_address, shard_mask)
-        tx.data(TransactionFactory.encode_msgpack_payload(args))
-        await this.set_validity_period(tx)
-
-        if (signers !== null) {
-            signers.forEach((signer) => {
-                tx.add_signer(signer.public_key_hex())
-            })
-        }
-
-        return tx
-    }
-
 
     async create({owner, contract, fee, signers = null, shard_mask = null}: CreateContractsOptions): Promise<Transaction> {
+
+        shard_mask = shard_mask || new BitVector()
+
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, owner, ENDPOINT.CREATE, PREFIX.CONTRACT, shard_mask)
+        const tx = TransactionFactory.create_chain_code_action_tx({fee: fee, from_address: owner,
+                                                                 action: ENDPOINT.CREATE,  prefix: PREFIX.CONTRACT, signatories: signers,
+                                                                  shard_mask: shard_mask })
         const data = JSON.stringify({
             'text': contract.encoded_source(),
             'nonce': contract.nonce(),
@@ -256,17 +249,35 @@ export class ContractTxFactory extends TransactionFactory {
         })
 
         tx.data(data)
-        await this.set_validity_period(tx)
+        return tx
+    }
 
-        if (signers !== null) {
-            signers.forEach((signer) => {
-                tx.add_signer(signer.public_key_hex())
-            })
-        } else {
-            tx.add_signer(owner.public_key_hex())
+    async action({
+        contract_address, action,
+        fee, from_address = null, args,
+        signers = null,
+        shard_mask = null
+    }: ActionContractsOptions): Promise<Transaction> {
+
+        shard_mask = shard_mask || new BitVector()
+
+        if(from_address === null) {
+            if(signers.length === 1) {
+                from_address = new Address(signers[0])
+            } else {
+                   throw new RunTimeError('Unable to determine from field for transaction, more than 1 signer provided')
+            }
         }
 
+
+        // build up the basic transaction information
+        const tx = TransactionFactory.create_smart_contract_action_tx({fee: fee, from_address: from_address, contract_address: contract_address,
+                                        action: action, signatories: signers, shard_mask: shard_mask})
+        tx.data(TransactionFactory.encode_msgpack_payload(args))
         return tx
+    }
+
+
 
     }
 }

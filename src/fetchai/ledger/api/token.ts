@@ -213,7 +213,7 @@ export class TokenTxFactory extends TransactionFactory {
     }
 
     static deed(entity: Entity, deed: Deed, signatories: Array<Entity> | null = null, allow_no_amend = false): Transaction {
-        const tx = TransactionFactory.create_action_tx(10000, entity, ENDPOINT.DEED, PREFIX.TOKEN)
+        const tx = TransactionFactory.create_chain_code_action_tx(10000, entity, ENDPOINT.DEED, PREFIX.TOKEN)
 
         if (signatories !== null) {
 
@@ -246,7 +246,7 @@ export class TokenTxFactory extends TransactionFactory {
         fee = convert_number(fee)
         amount = convert_number(amount)
 
-        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.ADDSTAKE, 'fetch.token')
+        const tx = TransactionFactory.create_chain_code_action_tx(fee, entity, ENDPOINT.ADDSTAKE, 'fetch.token')
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
@@ -268,7 +268,7 @@ export class TokenTxFactory extends TransactionFactory {
           fee = convert_number(fee)
         amount = convert_number(amount)
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.DESTAKE, 'fetch.token')
+        const tx = TransactionFactory.create_chain_code_action_tx(fee, entity, ENDPOINT.DESTAKE, 'fetch.token')
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
@@ -288,7 +288,7 @@ export class TokenTxFactory extends TransactionFactory {
     static collect_stake(entity: Entity, fee: NumericInput, signatories: Entity[] | null = null): Transaction {
           fee = convert_number(fee)
         // build up the basic transaction information
-        const tx = TransactionFactory.create_action_tx(fee, entity, ENDPOINT.COLLECTSTAKE, 'fetch.token')
+        const tx = TransactionFactory.create_chain_code_action_tx(fee, entity, ENDPOINT.COLLECTSTAKE, 'fetch.token')
 
         if (signatories !== null) {
             signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
