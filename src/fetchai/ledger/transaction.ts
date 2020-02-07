@@ -11,6 +11,7 @@ import {
     decode_payload,
     decode_transaction,
     encode_bytearray,
+    encode_transaction,
     encode_identity,
     encode_payload
 } from './serialization'
@@ -23,8 +24,8 @@ type PayloadTuple = [Transaction, Buffer]
 type MergeTuple = [Boolean, Transaction | null]
 
 interface TransferItem {
-    readonly address: string;
-    readonly amount: BN;
+     address: string;
+     amount: BN;
 }
 
 interface SignatureData {
@@ -58,11 +59,8 @@ export class Transaction {
     public _data = '';
     public _signatures: any = Array<SignatureItem>;
 
-    static from_payload(payload: Buffer): PayloadTuple {
-        const [tx, buffer] = decode_payload(payload)
-
-        return [tx, buffer]
-    }
+    //metadata
+    public _is_synergetic: boolean = false
 
     static from_encoded(encoded_transaction: Buffer): Transaction | null {
         const [success, tx] = decode_transaction(encoded_transaction)
@@ -74,32 +72,7 @@ export class Transaction {
     }
 
     static decode_partial(buffer: Buffer): Transaction {
-        let tx;
-        [tx, buffer] = decode_payload(buffer)
-        let num_sigs;
-        [num_sigs, buffer] = decode_integer(buffer)
-        const payload_digest = calc_digest(tx.payload())
-
-        for (let i = 0; i < num_sigs.toNumber(); i++) {
-            let signer;
-            [signer, buffer] = identity.decode_identity(buffer)
-            let signature;
-
-            [signature, buffer] = bytearray.decode_bytearray(buffer)
-            signature = Buffer.from(signature)
-
-            tx._signatures.set(signer.public_key_hex(), {
-                'signature': signature,
-                'verified': signer.verify(payload_digest, signature)
-            })
-        }
-
-        tx.signers().forEach((v: any) => {
-            if (v.verified && !v.verified) {
-                throw new RunTimeError('Not all keys were able to sign successfully')
-            }
-        })
-        return tx
+        return Transaction.decode_partial(buffer)
     }
 
     // Get and Set from_address param
@@ -110,7 +83,7 @@ export class Transaction {
         }
     }
 
-    get transfers(): Array<TransferItem> {
+    transfers(): Array<TransferItem> {
         return this._transfers;
     }
 
@@ -119,7 +92,6 @@ export class Transaction {
         if (block_number) {
             assert(BN.isBN(block_number))
             this._valid_from = block_number
-            return this._valid_from
         }
         return this._valid_from
     }
@@ -129,7 +101,6 @@ export class Transaction {
         if (block_number) {
             assert(BN.isBN(block_number))
             this._valid_until = block_number
-            return this._valid_until
         }
         return this._valid_until
     }
@@ -139,7 +110,6 @@ export class Transaction {
         if (charge) {
             assert(BN.isBN(charge))
             this._charge_rate = charge
-            return this._charge_rate
         }
         return this._charge_rate
     }
@@ -149,7 +119,6 @@ export class Transaction {
         if (limit) {
             assert(BN.isBN(limit))
             this._charge_limit = limit
-            return this._charge_limit
         }
         return this._charge_limit
     }
@@ -191,15 +160,12 @@ export class Transaction {
         }
         return this._data
     }
+
     // compare(other: Transaction): boolean {
     //     const x = this.payload().toString('hex')
     //     const y = other.payload().toString('hex')
     //     return x === y
     // }
-
-    encode_payload(): Buffer {
-        return encode_payload(this)
-    }
 
 
 
@@ -214,21 +180,29 @@ export class Transaction {
         this._contract_address = new Address(address)
         this._shard_mask = new BitVector(mask)
         this._chain_code = ''
+        this._is_synergetic =false
+    }
+
+    target_synergetic_data(address: AddressLike, mask: BitVectorLike): void {
+        this._contract_address = new Address(address)
+        this._shard_mask = new BitVector(mask)
+        this._chain_code = ''
+        this._is_synergetic = false
     }
 
     target_chain_code(chain_code_id: string | number, mask: number | BitVector): void {
         this._contract_address = ''
         this._shard_mask = new BitVector(mask)
         this._chain_code = String(chain_code_id)
+        this._is_synergetic =false
     }
 
     // Get and Set synergetic_data_submission param
-    synergetic_data_submission(is_submission = false): boolean {
-        if (is_submission) {
-            this._metadata['synergetic_data_submission'] = is_submission
-            return this._metadata['synergetic_data_submission']
+    synergetic(syngergetic: boolean | null = null): boolean {
+        if (syngergetic) {
+           this._is_synergetic = syngergetic
         }
-        return this._metadata['synergetic_data_submission']
+        return this._is_synergetic;
     }
 
     pending_signers(){
@@ -260,7 +234,7 @@ export class Transaction {
         const payload = this.encode_payload()
         let valid_flag = true
         this._signatures.forEach((identity, signature) => {
-            if(!identity.verify(calc_digest(payload), signature)){
+            if(!identity.verify(payload, signature)){
                 valid_flag = false
             }
             })
@@ -293,12 +267,10 @@ export class Transaction {
 
     sign(signer: Entity): void {
         if (this.hasSigner(signer)) {
-            const payload_digest = calc_digest(this.encode_payload())
-            const sign_obj = signer.sign(payload_digest)
+            const sign_obj = signer.sign(this.encode_payload())
             this.add_signature(signer, sign_obj.signature)
         }
     }
-
 
     compare(other: Transaction): boolean {
         const x = this.encode_payload().toString('hex')
@@ -323,7 +295,7 @@ export class Transaction {
         tx2.signatures().forEach(el => {
             if(!this.hasSigner(el.identity)) continue;
             if(el.signature == null) continue;
-            if(!el.identity.verify(calc_digest(payload), el.signature)) {
+            if(!el.identity.verify(payload, el.signature)) {
                 success = false
                     continue
            }
@@ -350,7 +322,25 @@ export class Transaction {
         return [tx.is_valid(), tx]
     }
 
+       encode_payload(): Buffer {
+        return encode_payload(this)
+    }
+
     encode_partial(): Buffer {
         return encode_payload(this)
     }
+
+    encode() : Buffer | null {
+       return (this.is_incomplete()) ? null : encode_transaction(this)
+    }
+
+    static decode(encoded_transaction: Buffer) : Transaction | null {
+        const [valid, tx] = decode_transaction(encoded_transaction)
+        return valid ? tx : null
+    }
+
+    static decode_payload(payload): PayloadTuple {
+        return decode_payload(payload)
+    }
+
 }

@@ -33,16 +33,16 @@ describe(':Entity', () => {
 
 
     test('test signing verifying cycle', () => {
-        const digest = calc_digest(Buffer.from('rand'))
+        const message = Buffer.from('rand')
         const entity = new Entity()
         // sign the payload
-        const sign_obj = entity.sign(digest)
+        const sign_obj = entity.sign(message)
         // verify the payload
-        const verified = entity.verify(digest, sign_obj.signature)
+        const verified = entity.verify(message, sign_obj.signature)
         expect(verified).toBe(true)
         // create bad 64 byte sig
-        const invalid_signature = Buffer.concat([digest, digest])
-        const bad_verification = entity.verify(digest, invalid_signature)
+        const invalid_signature = Buffer.concat([message, message])
+        const bad_verification = entity.verify(message, invalid_signature)
         expect(bad_verification).toBe(false)
     })
 

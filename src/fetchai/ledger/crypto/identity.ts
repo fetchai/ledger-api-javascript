@@ -1,5 +1,6 @@
 import * as secp256k1 from 'secp256k1'
 import {ValidationError} from '../errors'
+import { calc_digest } from '../utils';
 
 /**
  * An identity is the public half of a private / public key pair.
@@ -79,6 +80,6 @@ export class Identity {
      * @returns signature is valid or not
      */
     verify(message: Buffer, signature: Buffer): boolean {
-        return secp256k1.verify(message, signature, this.prefixed_public_key())
+        return secp256k1.verify(calc_digest(message), signature, this.prefixed_public_key())
     }
 }

@@ -168,7 +168,7 @@ export class ApiEndpoint {
      * @param signatures    signers signatures
      * @returns {Promise<*>}    The digest of the submitted transaction
      */
-    async submit_signed_tx(tx: Transaction, signatures: any): Promise<any> {
+    async submit_signed_tx(tx: Transaction, signatures: Array<Identity>): Promise<any> {
         // Encode transaction and append signatures
         const encoded_tx = encode_multisig_transaction(tx, signatures)
         // Submit and return digest

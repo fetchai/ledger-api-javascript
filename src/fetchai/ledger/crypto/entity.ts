@@ -6,6 +6,7 @@ import fs from 'fs'
 import * as aesjs from 'aes-js'
 import {promisify} from 'util'
 import assert from 'assert'
+import { calc_digest } from '../utils'
 
 interface SerializedPrivateKey {
     readonly key_length: number;
@@ -196,7 +197,7 @@ export class Entity extends Identity {
      * @returns signature obj
      */
     sign(extMsgHash: Buffer): {signature: Buffer, recovery: number} {
-        return secp256k1.sign(extMsgHash, this.privKey)
+        return secp256k1.sign(calc_digest(extMsgHash), this.privKey)
     }
 
     /**

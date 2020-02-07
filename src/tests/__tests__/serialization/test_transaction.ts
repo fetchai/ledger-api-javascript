@@ -56,7 +56,7 @@ test('test synergetic_data_submission', () => {
     payload.charge_rate(new BN(1))
     payload.charge_limit(new BN(1000000000000))
     payload.action('data')
-    payload.synergetic_data_submission(true)
+    payload.synergetic(true)
     payload.data('{"value": 1234}')
     payload.add_signer(IDENTITIES[0].public_key_hex())
     payload.counter(new BN(new Buffer(8).fill(0)))
@@ -231,8 +231,6 @@ function assertIsExpectedTx(payload: Transaction, transaction_bytes: Buffer, exp
     const payload_bytes = transaction_bytes.slice(0, expected_payload_end)
     expect(payload_bytes.toString('hex')).toBe(expected_hex_payload)
 
-    const payload_bytes_hash = calc_digest(payload_bytes)
-
     // loop through and verify all the signatures
     let buffer = transaction_bytes.slice(expected_payload_end)
 
@@ -243,7 +241,7 @@ function assertIsExpectedTx(payload: Transaction, transaction_bytes: Buffer, exp
         [signature, buffer] = bytearray.decode_bytearray(buffer)
         // validate the signature is correct for the payload
         identity = new Identity(Buffer.from(signee, 'hex'))
-        expect(identity.verify(payload_bytes_hash, signature)).toBe(true)
+        expect(identity.verify(payload_bytes, signature)).toBe(true)
     }
 }
 

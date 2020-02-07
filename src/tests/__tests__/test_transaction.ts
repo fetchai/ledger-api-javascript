@@ -20,7 +20,7 @@ describe(':Test Transaction', () => {
         expect(txObj._shard_mask._size).toBe(0)
         expect(txObj._shard_mask._byte_size).toBe(0)
         expect(txObj._action).toBe('')
-        expect(txObj._metadata.synergetic_data_submission).toBe(false)
+        expect(txObj._metadata.synergetic()).toBe(false)
         expect(txObj._data).toBe('')
         expect(txObj.transfers()).toHaveLength(0)
     })
@@ -138,7 +138,7 @@ describe(':Test Transaction', () => {
 
     test('Test synergetic_data_submission', () => {
         const txObj = new Transaction()
-        expect(txObj.synergetic_data_submission(true)).toBe(true)
+        expect(txObj.synergetic(true)).toBe(true)
     })
 
     test('Test add_signer and signers', () => {
@@ -183,7 +183,7 @@ describe(':Test Transaction', () => {
 
         for (let i = 0; i < 4; i++) {
             const payload = mstx.payload()
-            const [tx,] = Transaction.from_payload(payload)
+            const [tx,] = Transaction.decode_payload(payload)
             tx.sign(multi_sig_board[i])
             txs.push(tx.encode_partial())
         }
