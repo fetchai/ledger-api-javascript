@@ -36,9 +36,9 @@ describe(':Entity', () => {
         const message = Buffer.from('rand')
         const entity = new Entity()
         // sign the payload
-        const sign_obj = entity.sign(message)
+        const signature = entity.sign(message)
         // verify the payload
-        const verified = entity.verify(message, sign_obj.signature)
+        const verified = entity.verify(message, signature)
         expect(verified).toBe(true)
         // create bad 64 byte sig
         const invalid_signature = Buffer.concat([message, message])
@@ -64,9 +64,9 @@ describe(':Entity', () => {
     test('test signature to hex', () => {
         const digest = calc_digest(Buffer.from('rand'))
         const entity = new Entity()
-        const sigObj = entity.sign(digest)
-        const signature_hex = entity.signature_hex(sigObj)
-        expect(signature_hex).toEqual(sigObj.signature.toString('hex'))
+        const signature = entity.sign(digest)
+        const signature_hex = entity.signature_hex(signature)
+        expect(signature_hex).toEqual(signature.toString('hex'))
     })
 
     test('test loads', async () => {

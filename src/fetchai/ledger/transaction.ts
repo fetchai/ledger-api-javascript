@@ -2,20 +2,8 @@ import {BitVector} from './bitvector'
 import {Address} from './crypto/address'
 import {Identity} from './crypto/identity'
 import {BN} from 'bn.js'
-import {calc_digest} from './utils'
 import assert from 'assert'
-import * as identity from './serialization/identity'
-import * as bytearray from './serialization/bytearray'
-import {
-    decode_integer,
-    decode_payload,
-    decode_transaction,
-    encode_bytearray,
-    encode_transaction,
-    encode_identity,
-    encode_payload
-} from './serialization'
-import * as integer from './serialization/integer'
+import {decode_payload, decode_transaction, encode_payload, encode_transaction} from './serialization'
 import {RunTimeError} from './errors'
 import {randomBytes} from 'crypto'
 import {Entity} from './crypto'
@@ -24,8 +12,8 @@ type PayloadTuple = [Transaction, Buffer]
 type MergeTuple = [Boolean, Transaction | null]
 
 interface TransferItem {
-     address: string;
-     amount: BN;
+    address: string;
+    amount: BN;
 }
 
 interface SignatureData {
@@ -57,13 +45,12 @@ export class Transaction {
     public _shard_mask: BitVector = new BitVector();
     public _action = '';
     public _data = '';
-    public _signatures: any = Array<SignatureItem>;
+    public _signatures: Array<SignatureItem> = [];
 
-    //metadata
-    public _is_synergetic: boolean = false
+    public _is_synergetic: boolean = false;
 
     static from_encoded(encoded_transaction: Buffer): Transaction | null {
-        const [success, tx] = decode_transaction(encoded_transaction)
+        const [success, tx] = decode_transaction(encoded_transaction);
         if (success) {
             return tx
         } else {
@@ -75,10 +62,19 @@ export class Transaction {
         return Transaction.decode_partial(buffer)
     }
 
+    static decode(encoded_transaction: Buffer): Transaction | null {
+        const [valid, tx] = decode_transaction(encoded_transaction);
+        return valid ? tx : null
+    }
+
+    static decode_payload(payload): PayloadTuple {
+        return decode_payload(payload)
+    }
+
     // Get and Set from_address param
     from_address(address: AddressLike | null = null): Address | string {
         if (address !== null) {
-            this._from = new Address(address)
+            this._from = new Address(address);
             return
         }
     }
@@ -90,7 +86,7 @@ export class Transaction {
     // Get and Set valid_from param
     valid_from(block_number: BN | null = null): BN {
         if (block_number) {
-            assert(BN.isBN(block_number))
+            assert(BN.isBN(block_number));
             this._valid_from = block_number
         }
         return this._valid_from
@@ -99,7 +95,7 @@ export class Transaction {
     // Get and Set valid_until param
     valid_until(block_number: BN | null = null): BN {
         if (block_number) {
-            assert(BN.isBN(block_number))
+            assert(BN.isBN(block_number));
             this._valid_until = block_number
         }
         return this._valid_until
@@ -108,7 +104,7 @@ export class Transaction {
     // Get and Set charge_rate param
     charge_rate(charge: BN | null = null): BN {
         if (charge) {
-            assert(BN.isBN(charge))
+            assert(BN.isBN(charge));
             this._charge_rate = charge
         }
         return this._charge_rate
@@ -117,7 +113,7 @@ export class Transaction {
     // Get and Set charge_limit param
     charge_limit(limit: BN | null = null): BN {
         if (limit) {
-            assert(BN.isBN(limit))
+            assert(BN.isBN(limit));
             this._charge_limit = limit
         }
         return this._charge_limit
@@ -130,8 +126,8 @@ export class Transaction {
 
     // getter and setter
     counter(counter: BN | null = null): BN {
-        if (counter === null) return this._counter
-        assert(BN.isBN(counter))
+        if (counter === null) return this._counter;
+        assert(BN.isBN(counter));
         this._counter = counter
     }
 
@@ -148,6 +144,12 @@ export class Transaction {
         return this._action
     }
 
+    // compare(other: Transaction): boolean {
+    //     const x = this.payload().toString('hex')
+    //     const y = other.payload().toString('hex')
+    //     return x === y
+    // }
+
     // Get shard_mask param
     shard_mask(): BitVector {
         return this._shard_mask
@@ -161,61 +163,53 @@ export class Transaction {
         return this._data
     }
 
-    // compare(other: Transaction): boolean {
-    //     const x = this.payload().toString('hex')
-    //     const y = other.payload().toString('hex')
-    //     return x === y
-    // }
-
-
-
     add_transfer(address: AddressLike, amount: BN): void {
-        assert(amount.gtn(new BN(0)))
+        assert(amount.gtn(new BN(0)));
         // if it is an identity we turn it into an address
-        address = new Address(address)
+        address = new Address(address);
         this._transfers.push({address: address.toHex(), amount: new BN(amount)})
     }
 
     target_contract(address: AddressLike, mask: BitVectorLike): void {
-        this._contract_address = new Address(address)
-        this._shard_mask = new BitVector(mask)
-        this._chain_code = ''
-        this._is_synergetic =false
+        this._contract_address = new Address(address);
+        this._shard_mask = new BitVector(mask);
+        this._chain_code = '';
+        this._is_synergetic = false
     }
 
     target_synergetic_data(address: AddressLike, mask: BitVectorLike): void {
-        this._contract_address = new Address(address)
-        this._shard_mask = new BitVector(mask)
-        this._chain_code = ''
+        this._contract_address = new Address(address);
+        this._shard_mask = new BitVector(mask);
+        this._chain_code = '';
         this._is_synergetic = false
     }
 
     target_chain_code(chain_code_id: string | number, mask: number | BitVector): void {
-        this._contract_address = ''
-        this._shard_mask = new BitVector(mask)
-        this._chain_code = String(chain_code_id)
-        this._is_synergetic =false
+        this._contract_address = '';
+        this._shard_mask = new BitVector(mask);
+        this._chain_code = String(chain_code_id);
+        this._is_synergetic = false
     }
 
     // Get and Set synergetic_data_submission param
     synergetic(syngergetic: boolean | null = null): boolean {
         if (syngergetic) {
-           this._is_synergetic = syngergetic
+            this._is_synergetic = syngergetic
         }
         return this._is_synergetic;
     }
 
-    pending_signers(){
-       return this._signatures.filter((el) => el.signature == null).map(el => el.identity)
+    pending_signers(): Array<Identity> {
+        return this._signatures.filter((el) => el.signature == null).map(el => el.identity)
     }
 
-    present_signers() {
+    present_signers(): Array<Identity> {
         return this._signatures.filter(el => el.signature !== null).map(el => el.identity)
     }
 
     // Get signers param.
     signers(): Array<Identity> {
-       return this._signatures.map(el => el.identity)
+        return this._signatures.map(el => el.identity)
     }
 
     signatures(): Array<SignatureItem> {
@@ -223,21 +217,21 @@ export class Transaction {
     }
 
     is_incomplete(): boolean {
-        return this._signatures.length > 0 && this.pending_signers() > 0
+        return this._signatures.length > 0 && this.pending_signers().length > 0
     }
 
-    hasSigner(signer: Identity): Boolean {
-         return this._signatures.some(el => el.identity.public_key_hex() === signer.public_key_hex())
+    hasSigner(signer: Identity): boolean {
+        return this._signatures.some(el => el.identity.public_key_hex() === signer.public_key_hex())
     }
 
-    is_valid(){
-        const payload = this.encode_payload()
-        let valid_flag = true
+    is_valid() {
+        const payload = this.encode_payload();
+        let valid_flag = true;
         this._signatures.forEach((identity, signature) => {
-            if(!identity.verify(payload, signature)){
+            if (!identity.verify(payload, signature)) {
                 valid_flag = false
             }
-            })
+        });
         return valid_flag
     }
 
@@ -245,36 +239,37 @@ export class Transaction {
     add_signer(signer: string | Identity): void {
 
         // this is a difference with python where initally we were storing as different datastrcture
-        if(typeof signer === "string") {
+        if (typeof signer === "string") {
             signer = Identity.from_hex(signer)
         }
 
         if (!this.hasSigner(signer as Identity)) {
-           this._signatures.push({identity: signer, signature: null})
+            this._signatures.push({identity: signer, signature: null})
         }
     }
 
-    add_signature(identity: Identity, signature: Buffer){
-         if(!this.hasSigner(identity){
-             throw new RunTimeError('Identity is not currently part')
-         }
+    add_signature(identity: Identity, signature: Buffer) {
+        if (!this.hasSigner(identity)) {
+            throw new RunTimeError('Identity is not currently part')
+        }
 
-         this._signatures = this._signatures.forEach(el => {
-             if(el.identity.public_key_hex() === identity.public_key_hex()){
-                 el.signature = signature
-             }})
+        this._signatures = this._signatures.forEach(el => {
+            if (el.identity.public_key_hex() === identity.public_key_hex()) {
+                el.signature = signature
+            }
+        })
     }
 
     sign(signer: Entity): void {
         if (this.hasSigner(signer)) {
-            const sign_obj = signer.sign(this.encode_payload())
-            this.add_signature(signer, sign_obj.signature)
+            const signature = signer.sign(this.encode_payload());
+            this.add_signature(signer, signature)
         }
     }
 
     compare(other: Transaction): boolean {
-        const x = this.encode_payload().toString('hex')
-        const y = this.encode_payload().toString('hex')
+        const x = this.encode_payload().toString('hex');
+        const y = other.encode_payload().toString('hex');
         return x === y
     }
 
@@ -282,47 +277,46 @@ export class Transaction {
     merge_signatures(tx2: Transaction): Boolean {
 
         if (this.compare(tx2)) {
-            console.log('Attempting to combine transactions with different payloads')
+            console.log('Attempting to combine transactions with different payloads');
             return false
         }
 
-        let success = null
+        let success = null;
 
-        let payload = this.encode_payload()
+        let payload = this.encode_payload();
         let pending_signers = this.pending_signers();
 
         //todo: once working detsructure el as identity and signature in params of for loop.
         tx2.signatures().forEach(el => {
-            if(!this.hasSigner(el.identity)) continue;
-            if(el.signature == null) continue;
-            if(!el.identity.verify(payload, el.signature)) {
-                success = false
-                    continue
-           }
-           if(success === null) success = true;
-           this.add_signature(el.identity, el.signature)
-        })
+            if (!this.hasSigner(el.identity)) continue;
+            if (el.signature == null) continue;
+            if (!el.identity.verify(payload, el.signature)) {
+                success = false;
+                continue
+            }
+            if (success === null) success = true;
+            this.add_signature(el.identity, el.signature)
+        });
 
-         if(success === null) success = false;
+        if (success === null) success = false;
 
-         return success;
+        return success;
     }
 
-
     merge(transactions: Array<Transaction>): MergeTuple {
-        if(transactions.length ===0){
+        if (transactions.length === 0) {
             return [false, null]
         }
-        const tx = transactions[0]
+        const tx = transactions[0];
 
-        for(let i =1; i < transactions.length; i++){
+        for (let i = 1; i < transactions.length; i++) {
             tx.merge_signatures(transactions[i])
         }
 
         return [tx.is_valid(), tx]
     }
 
-       encode_payload(): Buffer {
+    encode_payload(): Buffer {
         return encode_payload(this)
     }
 
@@ -330,17 +324,8 @@ export class Transaction {
         return encode_payload(this)
     }
 
-    encode() : Buffer | null {
-       return (this.is_incomplete()) ? null : encode_transaction(this)
-    }
-
-    static decode(encoded_transaction: Buffer) : Transaction | null {
-        const [valid, tx] = decode_transaction(encoded_transaction)
-        return valid ? tx : null
-    }
-
-    static decode_payload(payload): PayloadTuple {
-        return decode_payload(payload)
+    encode(): Buffer | null {
+        return (this.is_incomplete()) ? null : encode_transaction(this)
     }
 
 }
