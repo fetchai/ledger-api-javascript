@@ -116,13 +116,11 @@ export class TokenApi extends ApiEndpoint {
      * @param allow_no_amend if true will not be able to ammend deed
      * @returns {Promise<*>} The digest of the submitted transaction
      */
-    async deed(entity: Entity, deed: Deed, signatories: Entity[] | null = null, allow_no_amend = false): Promise<any | null> {
-
-        const tx = await TokenTxFactory.deed(entity, deed, signatories, allow_no_amend)
+    async deed(entity: Entity, deed: Deed, fee: NumericInput ): Promise<any | null> {
+        const tx = await TokenTxFactory.deed(entity, deed, fee, [entity])
         await super.set_validity_period(tx)
-
-        signatories = (signatories === null) ? [entity] : signatories
-        const encoded_tx = encode_transaction(tx, signatories)
+        tx.sign(entity)
+        const encoded_tx = encode_transaction(tx)
         return await super.post_tx_json(encoded_tx, ENDPOINT.DEED)
     }
 
@@ -136,15 +134,13 @@ export class TokenApi extends ApiEndpoint {
      * @returns The digest of the submitted transaction.
      * @throws {ApiError} ApiError on any failures.
      */
-    async transfer(entity: Entity, to: AddressLike, amount: NumericInput, fee: NumericInput, signatories: Entity[] | null = null): Promise<any | null> {
+    async transfer(entity: Entity, to: AddressLike, amount: NumericInput, fee: NumericInput): Promise<any | null> {
         amount = convert_number(amount)
         fee = convert_number(fee)
-        const tx = TokenTxFactory.transfer(entity, to, amount, fee, signatories)
+        const tx = TokenTxFactory.transfer(entity, to, amount, fee)
         await this.set_validity_period(tx)
-        if (signatories == null) {
-            signatories = [entity]
-        }
-        const encoded_tx = encode_transaction(tx, signatories)
+        tx.sign(entity)
+        const encoded_tx = encode_transaction(tx)
         //submit the transaction
         return await this.post_tx_json(encoded_tx, ENDPOINT.TRANSFER)
     }
@@ -159,10 +155,10 @@ export class TokenApi extends ApiEndpoint {
     async add_stake(entity: Entity, amount: NumericInput, fee: NumericInput): Promise<any | null> {
         amount = convert_number(amount)
         fee = convert_number(fee)
-        const tx = await TokenTxFactory.add_stake(entity, amount, fee)
+        const tx = await TokenTxFactory.add_stake(entity, amount, fee, [entity])
         await super.set_validity_period(tx)
         // encode and sign the transaction
-        const encoded_tx = encode_transaction(tx, [entity])
+        const encoded_tx = encode_transaction(tx)
         // submit the transaction
         return await super.post_tx_json(encoded_tx, ENDPOINT.ADDSTAKE)
     }
@@ -178,10 +174,11 @@ export class TokenApi extends ApiEndpoint {
     async de_stake(entity: Entity, amount: NumericInput, fee: NumericInput): Promise<any | null> {
         fee = convert_number(fee)
         amount = convert_number(amount)
-        const tx = TokenTxFactory.de_stake(entity, amount, fee)
+        const tx = TokenTxFactory.de_stake(entity, amount, fee, [entity])
         await super.set_validity_period(tx)
+        tx.sign(entity)
         // encode and sign the transaction
-        const encoded_tx = encode_transaction(tx, [entity])
+        const encoded_tx = encode_transaction(tx)
         // submit the transaction
         return await super.post_tx_json(encoded_tx, ENDPOINT.DESTAKE)
     }
@@ -213,11 +210,11 @@ export class TokenTxFactory extends TransactionFactory {
         this.prefix = PREFIX.TOKEN
     }
 
-    static deed(from_address: AddressLike, fee: NumericInput, deed: Deed | null = null, signatories: Array<Entity> | null = null): Transaction {
+    static deed(from_address: AddressLike, deed: Deed | null = null,  fee: NumericInput, signatories: Array<Entity> | null = null): Transaction {
         const tx = TransactionFactory.create_chain_code_action_tx({fee: fee, from_address: from_address, action: ENDPOINT.DEED, prefix: PREFIX.TOKEN,
         signatories: signatories, shard_mask: new BitVector()})
 
-        const deed_json = (deed !== null) ? deed.to_json(): {}
+        const deed_json = (deed !== null) ? deed.to_json_obj(): {}
         tx.data(JSON.stringify(deed_json))
         return tx
     }

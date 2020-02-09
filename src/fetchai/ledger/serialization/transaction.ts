@@ -183,9 +183,7 @@ const encode_payload = (payload: Transaction): Buffer => {
 const encode_transaction = (tx: Transaction): Buffer => {
     // encode the contents of the transaction
     let buffer = encode_payload(tx)
-
-
-
+    tx.signatures().forEach(el => buffer = encode_bytearray(buffer, el.signature))
     return buffer
 }
 

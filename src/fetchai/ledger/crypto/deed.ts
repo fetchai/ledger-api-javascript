@@ -46,7 +46,7 @@ const one_or_greater_integer = (voting_weight: number): void => {
 export class Deed {
     public signees: Array<Signee> = [];
     public thresholds: Thresholds = {};
-    public required_amend: Boolean = true;
+    public required_amend: boolean = true;
 
 
     get_signees(): Array<Address>  {
@@ -66,11 +66,11 @@ export class Deed {
         return this.signees.reduce((accum: any, curr: any): any => accum + curr.voting_weight)
     }
 
-    set require_amend(value: Boolean) {
+    set require_amend(value: boolean) {
         this.required_amend = value;
     }
 
-    get require_amend() : Boolean {
+    get require_amend() : boolean {
         return this.required_amend
     }
 
@@ -111,22 +111,22 @@ export class Deed {
         }
      }
 
-    set_threshold(operation: OPERATIONS, threshold: NumericInput): void {
-
-
-
-        if (threshold > this.total_votes()) {
-            throw new InvalidDeedError('Attempting to set threshold higher than available votes - it will never be met')
-        }
-
-        this.valid_operation(operation)
-        // null removes this from list of thresholds
-        if (threshold === null) {
-            delete this.thresholds[operation]
-        } else {
-            this.thresholds[operation] = threshold
-        }
-    }
+    // set_threshold(operation: OPERATIONS, threshold: NumericInput): void {
+    //
+    //
+    //
+    //     if (threshold > this.total_votes()) {
+    //         throw new InvalidDeedError('Attempting to set threshold higher than available votes - it will never be met')
+    //     }
+    //
+    //     this.valid_operation(operation)
+    //     // null removes this from list of thresholds
+    //     if (threshold === null) {
+    //         delete this.thresholds[operation]
+    //     } else {
+    //         this.thresholds[operation] = threshold
+    //     }
+    // }
 
     get_threshold(operation: OPERATIONS): number | null {
         if (typeof this.thresholds[operation] === 'undefined') return null
@@ -149,22 +149,22 @@ export class Deed {
         }
     }
 
-    set_amend_threshold(value: number): void {
-        this.set_threshold(OPERATIONS.AMEND, value)
-    }
+    // set_amend_threshold(value: number): void {
+    //     this.set_threshold(OPERATIONS.AMEND, value)
+    // }
 
-    validate(){
+    validate(): void {
 
         const amend_threshold = this.get_threshold(OPERATIONS.AMEND)
 
         if(!this.required_amend && amend_threshold === null){
-            throw new InvalidDeedError("The Amend operation is mandatory but it not present")
+            throw new InvalidDeedError('The Amend operation is mandatory but it not present')
         }
 
         // cache the total voting weight
         const total_voting_weight = this.total_votes()
 
-        for (let k in this.thresholds){
+        for (const k in this.thresholds){
             if(this.thresholds[k] > total_voting_weight){
                 throw new InvalidDeedError(`Threshold value ${this.thresholds[k]} for '${k}' operation is greater than total voting weight ${total_voting_weight}`)
             }

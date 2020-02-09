@@ -194,7 +194,7 @@ export class Contract {
             shard_mask = new BitVector();
         }
         return Contract.api(api).create({
-            owner: owner,
+            from_address: owner,
             contract: this,
             fee: fee,
             signers: signers,

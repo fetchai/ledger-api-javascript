@@ -14,7 +14,7 @@ import {RunTimeError} from '../errors'
 type Tuple = [boolean, any];
 
 interface CreateContractsOptions {
-    owner: AddressLike;
+    owner: Entity;
     contract: Contract;
     fee: BN;
     signers: Array<Entity> | null;
@@ -81,7 +81,7 @@ export class ContractsApi extends ApiEndpoint {
      * @param {Object} [shard_mask=null] BitVector object
      */
 
-    async create({owner, contract, fee, signers = null, shard_mask = null}: CreateContractsOptions): Promise<any | null> {
+    async create({owner, contract, fee, shard_mask = null}: CreateContractsOptions): Promise<any | null> {
         assert(contract instanceof Contract)
         // todo verify this at runtime is correct then remove comment. I think the bug is in python.
         const contractTxFactory = new ContractTxFactory(this.parent_api)
@@ -89,11 +89,10 @@ export class ContractsApi extends ApiEndpoint {
             owner: new Address(owner),
             contract: contract,
             fee: fee,
-            signers: null,
+            signers: [owner],
             shard_mask: shard_mask
         })
-        signers = (signers !== null) ? signers : [owner]
-        const encoded_tx = encode_transaction(tx, signers)
+        const encoded_tx = encode_transaction(tx)
         contract.owner(owner)
         return await this.post_tx_json(encoded_tx)
     }
@@ -147,7 +146,7 @@ export class ContractsApi extends ApiEndpoint {
         }
         await this.set_validity_period(tx)
 
-        const encoded_tx = encode_transaction(tx, signers)
+        const encoded_tx = encode_transaction(tx)
         return await this.post_tx_json(encoded_tx)
     }
 
@@ -226,12 +225,12 @@ export class ContractTxFactory extends TransactionFactory {
     }
 
 
-    async create({owner, contract, fee, signers = null, shard_mask = null}: CreateContractsOptions): Promise<Transaction> {
+    async create({from_address, contract, fee, signers = null, shard_mask = null}: CreateFactoryContractsOptions): Promise<Transaction> {
 
         shard_mask = shard_mask || new BitVector()
 
         // build up the basic transaction information
-        const tx = TransactionFactory.create_chain_code_action_tx({fee: fee, from_address: owner,
+        const tx = TransactionFactory.create_chain_code_action_tx({fee: fee, from_address: from_address,
             action: ENDPOINT.CREATE,  prefix: PREFIX.CONTRACT, signatories: signers,
             shard_mask: shard_mask })
         const data = JSON.stringify({

@@ -9,7 +9,7 @@ import {randomBytes} from 'crypto'
 import {Entity} from './crypto'
 
 type PayloadTuple = [Transaction, Buffer]
-type MergeTuple = [Boolean, Transaction | null]
+type MergeTuple = [boolean, Transaction | null]
 
 interface TransferItem {
     address: string;
@@ -224,14 +224,14 @@ export class Transaction {
         return this._signatures.some(el => el.identity.public_key_hex() === signer.public_key_hex())
     }
 
-    is_valid() {
+    is_valid(): boolean {
         const payload = this.encode_payload();
         let valid_flag = true;
-        this._signatures.forEach((identity, signature) => {
-            if (!identity.verify(payload, signature)) {
+        this._signatures.forEach(el => {
+            if (!el.identity.verify(payload, el.signature)) {
                 valid_flag = false
             }
-        });
+        })
         return valid_flag
     }
 
@@ -239,7 +239,7 @@ export class Transaction {
     add_signer(signer: string | Identity): void {
 
         // this is a difference with python where initally we were storing as different datastrcture
-        if (typeof signer === "string") {
+        if (typeof signer === 'string') {
             signer = Identity.from_hex(signer)
         }
 
@@ -248,12 +248,12 @@ export class Transaction {
         }
     }
 
-    add_signature(identity: Identity, signature: Buffer) {
+    add_signature(identity: Identity, signature: Buffer) : void {
         if (!this.hasSigner(identity)) {
             throw new RunTimeError('Identity is not currently part')
         }
 
-        this._signatures = this._signatures.forEach(el => {
+        this._signatures.forEach(el => {
             if (el.identity.public_key_hex() === identity.public_key_hex()) {
                 el.signature = signature
             }
@@ -274,7 +274,7 @@ export class Transaction {
     }
 
     //todo SHOULD METHOD REALLY RETURN VOID OR NULL
-    merge_signatures(tx2: Transaction): Boolean {
+    merge_signatures(tx2: Transaction): boolean {
 
         if (this.compare(tx2)) {
             console.log('Attempting to combine transactions with different payloads');
@@ -283,23 +283,22 @@ export class Transaction {
 
         let success = null;
 
-        let payload = this.encode_payload();
-        let pending_signers = this.pending_signers();
+        const payload = this.encode_payload();
+        const pending_signers = this.pending_signers();
 
         //todo: once working detsructure el as identity and signature in params of for loop.
         tx2.signatures().forEach(el => {
-            if (!this.hasSigner(el.identity)) continue;
-            if (el.signature == null) continue;
+            if (!this.hasSigner(el.identity)) return;
+            if (el.signature == null) return;
             if (!el.identity.verify(payload, el.signature)) {
                 success = false;
-                continue
+                return
             }
             if (success === null) success = true;
             this.add_signature(el.identity, el.signature)
         });
 
         if (success === null) success = false;
-
         return success;
     }
 
