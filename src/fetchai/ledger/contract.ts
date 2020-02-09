@@ -22,20 +22,19 @@ interface ContractJSONSerialized {
 }
 
 interface CreateContractOptions {
-    api: ContractsApiLike;
+    api: LedgerApi;
     owner: Entity;
     fee: NumericInput;
-    signers?: Array<Entity> | null;
 }
 
 interface QueryContractOptions {
-    api: ContractsApiLike;
+    api: LedgerApi;
     name: string;
     data: any;
 }
 
 interface ActionContractOptions {
-    api: ContractsApiLike;
+    api: LedgerApi;
     name: string;
     fee: NumericInput;
     args: MessagePackable;
@@ -97,25 +96,17 @@ export class Contract {
         return Contract.from_json_object(obj);
     }
 
-    static api(
-        ContractsApiLike: ContractsApiLike
-    ): ContractTxFactory | LedgerApi["contracts"] {
-        if (ContractsApiLike instanceof ContractTxFactory) {
-            return ContractsApiLike;
-        } else if (ContractsApiLike instanceof LedgerApi) {
-            return ContractsApiLike.contracts;
-        } else {
-            throw new ValidationError("");
+    build_shard_mask(num_lanes: number, name: string | null = null, ordered_args: MessagePackable): BitVector {
+        let resource_addresses;
+        try {
+            resource_addresses = Parser.get_resource_addresses(
+                this._source,
+                name,
+                ordered_args
+            );
+        } catch {
+            return new BitVector()
         }
-    }
-
-    build_shard_mask(num_lanes: number, name: string | null = null): BitVector {
-                // now lets validate the args
-        const resource_addresses = Parser.get_resource_addresses(
-            this._source,
-            name,
-            args
-        );
         return ShardMask.resources_to_shard_mask(
             resource_addresses,
             num_lanes
@@ -175,46 +166,23 @@ export class Contract {
     async create({
         api,
         owner,
-        fee,
-        signers = null
+        fee
     }: CreateContractOptions): Promise<string> {
         this.owner(owner);
         fee = convert_number(fee);
 
-        if (this._init === null) {
-            throw new RunTimeError("Contract has no initialisation function");
-        }
+        const num_lanes = await (api.server as ServerApi).num_lanes();
+        const shard_mask: BitVector = this.build_shard_mask(num_lanes, this._init, [this._owner])
 
-        let shard_mask: BitVector;
-        let num_lanes: number;
-        let resource_addresses: Array<string>;
-        try {
-            resource_addresses = [
-                `fetch.contract.state.${this.digest().toHex()}`,
-                ...Parser.get_resource_addresses(this._source, this._init, [this._owner])
-            ];
-            num_lanes = await (api.server as ServerApi).num_lanes();
-            shard_mask = ShardMask.resources_to_shard_mask(
-                resource_addresses,
-                num_lanes
-            );
-            debugger;
-        } catch (e) {
-            logger.info(
-                "WARNING: Couldn't auto-detect used shards, using wildcard shard mask"
-            );
-            shard_mask = new BitVector();
-        }
-        return Contract.api(api).create({
-            from_address: owner,
+        return api.contracts.create({
+            owner: owner,
             contract: this,
             fee: fee,
             shard_mask: shard_mask
         });
     }
 
-    //todo should this data be optional param.
-    async query({ api, name, data }: QueryContractOptions): Promise<any> {
+    async query({ api, name, data = null }: QueryContractOptions): Promise<any> {
         if (this._owner === null) {
             throw new RunTimeError(
                 "Contract has no owner, unable to perform any queries. Did you deploy it?"
@@ -231,9 +199,7 @@ export class Contract {
                 `Contract does not contain function: ${name} with annotation @query`
             );
         }
-        const [success, response] = await (Contract.api(
-            api
-        ) as ContractsApi).query({
+        const [success, response] = await api.contracts.query({
             contract_owner: this._address,
             query: name,
             data: data
@@ -268,33 +234,25 @@ export class Contract {
             );
         }
 
-        const annotations = Parser.get_annotations(this._source);
+        // TODO(WK): Reinstate without breaking contract-to-contract calls
+        // const annotations = Parser.get_annotations(this._source);
+        //
+        // if (
+        //     typeof annotations["@action"] === "undefined" ||
+        //     !annotations["@action"].includes(name)
+        // ) {
+        //     throw new ValidationError(
+        //         `Contract does not contain function: ${name} with annotation @action`
+        //     );
+        // }
 
-        if (
-            typeof annotations["@action"] === "undefined" ||
-            !annotations["@action"].includes(name)
-        ) {
-            throw new ValidationError(
-                `Contract does not contain function: ${name} with annotation @action`
-            );
-        }
-
-        // now lets validate the args
-        const resource_addresses = Parser.get_resource_addresses(
-            this._source,
-            name,
-            args
-        );
-        const num_lanes = await (api.server as ServerApi).num_lanes();
-        const shard_mask = ShardMask.resources_to_shard_mask(
-            resource_addresses,
-            num_lanes
-        );
+        const num_lanes = await api.server.num_lanes();
+        const shard_mask = this.build_shard_mask(num_lanes, name, args)
         const from_address =
             signers.length === 1
                 ? new Address(signers[0])
                 : new Address(this._owner);
-        return Contract.api(api).action({
+        return api.contracts.action({
             contract_address: this._address,
             action: name,
             fee: fee,

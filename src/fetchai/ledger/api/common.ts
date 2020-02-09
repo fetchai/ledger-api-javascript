@@ -6,7 +6,6 @@ import {BitVector} from '../bitvector'
 import {BN} from 'bn.js'
 import {convert_number, PREFIX} from '../utils'
 import {encode, ExtensionCodec} from '@msgpack/msgpack'
-import {encode_multisig_transaction} from '../serialization/transaction'
 import {LedgerApi} from './init'
 import {Transaction} from '../transaction'
 

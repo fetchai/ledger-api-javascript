@@ -17,7 +17,6 @@ interface CreateContractsOptions {
     owner: Entity;
     contract: Contract;
     fee: BN;
-    signers: Array<Entity> | null;
     shard_mask: BitVectorLike;
 }
 
@@ -86,7 +85,7 @@ export class ContractsApi extends ApiEndpoint {
         // todo verify this at runtime is correct then remove comment. I think the bug is in python.
         const contractTxFactory = new ContractTxFactory(this.parent_api)
         const tx = await contractTxFactory.create({
-            owner: new Address(owner),
+            from_address: owner,
             contract: contract,
             fee: fee,
             signers: [owner],

@@ -157,6 +157,7 @@ export class TokenApi extends ApiEndpoint {
         fee = convert_number(fee)
         const tx = await TokenTxFactory.add_stake(entity, amount, fee, [entity])
         await super.set_validity_period(tx)
+        tx.sign(entity)
         // encode and sign the transaction
         const encoded_tx = encode_transaction(tx)
         // submit the transaction
@@ -194,8 +195,9 @@ export class TokenApi extends ApiEndpoint {
         fee = convert_number(fee)
         const tx = TokenTxFactory.collect_stake(entity, fee)
         await super.set_validity_period(tx)
+        tx.sign(entity)
         // encode and sign the transaction
-        const encoded_tx = encode_transaction(tx, [entity])
+        const encoded_tx = encode_transaction(tx)
         // submit the transaction
         return await super.post_tx_json(encoded_tx, ENDPOINT.COLLECTSTAKE)
     }
