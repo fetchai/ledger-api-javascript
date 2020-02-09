@@ -7,6 +7,7 @@ import {decode_payload, decode_transaction, encode_payload, encode_transaction} 
 import {RunTimeError} from './errors'
 import {randomBytes} from 'crypto'
 import {Entity} from './crypto'
+import {convert_number} from "./utils";
 
 type PayloadTuple = [Transaction, Buffer]
 type MergeTuple = [boolean, Transaction | null]
@@ -75,8 +76,9 @@ export class Transaction {
     from_address(address: AddressLike | null = null): Address | string {
         if (address !== null) {
             this._from = new Address(address);
-            return
+
         }
+        return this._from;
     }
 
     transfers(): Array<TransferItem> {
@@ -84,36 +86,36 @@ export class Transaction {
     }
 
     // Get and Set valid_from param
-    valid_from(block_number: BN | null = null): BN {
+    valid_from(block_number: NumericInput | null = null): BN {
         if (block_number) {
-            assert(BN.isBN(block_number));
+           block_number = convert_number(block_number)
             this._valid_from = block_number
         }
         return this._valid_from
     }
 
     // Get and Set valid_until param
-    valid_until(block_number: BN | null = null): BN {
+    valid_until(block_number: NumericInput | null = null): BN {
         if (block_number) {
-            assert(BN.isBN(block_number));
+             block_number = convert_number(block_number)
             this._valid_until = block_number
         }
         return this._valid_until
     }
 
     // Get and Set charge_rate param
-    charge_rate(charge: BN | null = null): BN {
+    charge_rate(charge: NumericInput | null = null): BN {
         if (charge) {
-            assert(BN.isBN(charge));
+            charge = convert_number(charge)
             this._charge_rate = charge
         }
         return this._charge_rate
     }
 
     // Get and Set charge_limit param
-    charge_limit(limit: BN | null = null): BN {
+    charge_limit(limit: NumericInput | null = null): BN {
         if (limit) {
-            assert(BN.isBN(limit));
+            limit = convert_number(limit)
             this._charge_limit = limit
         }
         return this._charge_limit
@@ -125,9 +127,9 @@ export class Transaction {
     }
 
     // getter and setter
-    counter(counter: BN | null = null): BN {
+    counter(counter: NumericInput | null = null): BN {
         if (counter === null) return this._counter;
-        assert(BN.isBN(counter));
+        counter = convert_number(counter)
         this._counter = counter
     }
 
@@ -163,7 +165,8 @@ export class Transaction {
         return this._data
     }
 
-    add_transfer(address: AddressLike, amount: BN): void {
+    add_transfer(address: AddressLike, amount: NumericInput): void {
+        amount = convert_number(amount)
         assert(amount.gtn(new BN(0)));
         // if it is an identity we turn it into an address
         address = new Address(address);

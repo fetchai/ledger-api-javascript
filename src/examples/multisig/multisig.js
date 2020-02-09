@@ -63,7 +63,7 @@ async function main() {
 
     // Transfers can happen normally without a deed
     console.log('\nSubmitting pre-deed transfer with original signature...')
-
+  debugger;
     tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
     await api.sync([tx]).catch(errors => sync_error(errors))
 

@@ -137,8 +137,9 @@ export class TokenApi extends ApiEndpoint {
     async transfer(entity: Entity, to: AddressLike, amount: NumericInput, fee: NumericInput): Promise<any | null> {
         amount = convert_number(amount)
         fee = convert_number(fee)
-        const tx = TokenTxFactory.transfer(entity, to, amount, fee)
+        const tx = TokenTxFactory.transfer(entity, to, amount, fee, [entity])
         await this.set_validity_period(tx)
+        debugger
         tx.sign(entity)
         const encoded_tx = encode_transaction(tx)
         //submit the transaction
