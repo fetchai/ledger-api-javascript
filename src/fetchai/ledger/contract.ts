@@ -109,6 +109,19 @@ export class Contract {
         }
     }
 
+    build_shard_mask(num_lanes: number, name: string | null = null): BitVector {
+                // now lets validate the args
+        const resource_addresses = Parser.get_resource_addresses(
+            this._source,
+            name,
+            args
+        );
+        return ShardMask.resources_to_shard_mask(
+            resource_addresses,
+            num_lanes
+        );
+    }
+
     static from_json_object(obj: ContractJSONSerialized): Contract {
         assert(obj["version"] === 1);
         const source = atob(obj.source);
@@ -185,7 +198,6 @@ export class Contract {
                 resource_addresses,
                 num_lanes
             );
-            console.log("AS HEX: " + shard_mask.as_hex())
             debugger;
         } catch (e) {
             logger.info(
@@ -197,7 +209,6 @@ export class Contract {
             from_address: owner,
             contract: this,
             fee: fee,
-            signers: signers,
             shard_mask: shard_mask
         });
     }
