@@ -207,7 +207,6 @@ export class LedgerApi {
                 res.push(tx_status);
             } catch (e) {
                 //todo delete when we have this worked.
-                debugger;
                 res.push(
                     new TxStatus({
                         digest: Buffer.from(digest, "hex"),

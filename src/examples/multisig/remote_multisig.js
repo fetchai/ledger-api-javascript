@@ -49,8 +49,10 @@ async function main() {
 
     // Display balance before
     console.log('Before remote-multisig transfer \n')
-    console.log('Balance 1:', await api.tokens.balance(multi_sig_identity).toString())
-    console.log('\nBalance 2:', await api.tokens.balance(other_identity).toString())
+    let balance = await api.tokens.balance(multi_sig_identity)
+    console.log('Balance 1:', balance.toString())
+    balance =  await api.tokens.balance(other_identity)
+    console.log('\nBalance 2:', balance.toString())
     // Scatter/gather example
     console.log('\nGenerating transaction and distributing to signers...\n')
     // Add intended signers to transaction
@@ -93,8 +95,10 @@ async function main() {
     await api.sync(await api.tokens.submit_signed_tx(tx))
 
     console.log('\nAfter remote multisig-transfer')
-    console.log('\nBalance 1:', await api.tokens.balance(multi_sig_identity).toString())
-    console.log('\nBalance 2:', await api.tokens.balance(other_identity).toString())
+    balance = await api.tokens.balance(multi_sig_identity)
+    console.log('\nBalance 1:', balance.toString())
+    balance = await api.tokens.balance(other_identity)
+    console.log('\nBalance 2:', balance.toString())
 
     // Round robin example
     console.log('\nGenerating transaction and sending down the line of signers...\n')
@@ -122,8 +126,10 @@ async function main() {
 
     await api.sync(await api.tokens.submit_signed_tx(tx2)).catch(errors => sync_error(errors))
     console.log('After remote multisig-transfer \n')
-    console.log('Balance 1:', await api.tokens.balance(multi_sig_identity).toString())
-    console.log('\nBalance 2:  await api.tokens.balance(other_identity).toString() \n')
+    balance = await api.tokens.balance(multi_sig_identity)
+    console.log('Balance 1:', balance.toString())
+    balance = await api.tokens.balance(other_identity)
+    console.log('\nBalance 2: ',  balance.toString())
 }
 
 function sync_error(errors) {

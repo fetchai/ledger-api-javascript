@@ -244,7 +244,6 @@ export class Transaction {
                 valid_flag = false
             }
         })
-        debugger
         return valid_flag
     }
 
@@ -320,7 +319,6 @@ export class Transaction {
         for (let i = 1; i < transactions.length; i++) {
             tx.merge_signatures(transactions[i])
         }
-debugger
         return [tx.is_valid(), tx]
     }
 

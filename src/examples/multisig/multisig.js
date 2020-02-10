@@ -7,7 +7,6 @@ const HOST = '127.0.0.1'
 const PORT = 8000
 
 
-
 async function main() {
     // Create the APIs
     const api = new LedgerApi(HOST, PORT)
@@ -35,16 +34,18 @@ async function main() {
     // Generate another entity as a target for transfers
     const other_identity = Entity.from_hex('e833c747ee0aeae29e6823e7c825d3001638bc30ffe50363f8adf2693c3286f8')
 
-    console.log('\nOriginal balance of multi_sig_identity: ', await api.tokens.balance(multi_sig_identity).toString())
+    let balance = await api.tokens.balance(multi_sig_identity)
+    console.log('\nOriginal balance of multi_sig_identity: ', balance.toString())
 
     // Transfers can happen normally without a deed
     console.log('\nSubmitting pre-deed transfer with original signature...')
 
-    tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
+    let tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
     await api.sync(tx).catch(errors => sync_error(errors))
-
-    console.log('\nBalance 1: ', await api.tokens.balance(multi_sig_identity).toString())
-    console.log('\nBalance 2: ', await api.tokens.balance(other_identity).toString())
+    balance = await api.tokens.balance(multi_sig_identity)
+    console.log('\nBalance 1: ', balance.toString())
+    balance = await api.tokens.balance(other_identity)
+    console.log('\nBalance 2: ', balance.toString())
 
     // Submit the original deed
     console.log('\nCreating deed...')
@@ -83,8 +84,10 @@ async function main() {
     signatories.forEach(entity => tx.sign(entity))
     await api.sync(await api.submit_signed_tx(tx)).catch(errors => sync_error(errors))
 
-    console.log('\nBalance 1:', await api.tokens.balance(multi_sig_identity).toString())
-    console.log('\nBalance 2:', await api.tokens.balance(other_identity).toString())
+    balance = await api.tokens.balance(multi_sig_identity)
+    console.log('\nBalance 1:', balance.toString())
+    balance = await api.tokens.balance(other_identity)
+    console.log('\nBalance 2:', balance.toString())
 
     // Some entities may have more voting power
     console.log('\nSubmitting transfer with single signature with 2 votes...')
@@ -95,9 +98,10 @@ async function main() {
     tx.sign(board[3].member)
 
     await api.sync(await api.submit_signed_tx(tx)).catch(errors => sync_error(errors))
-
-    console.log('\nBalance 1:', await api.tokens.balance(multi_sig_identity).toString())
-    console.log('\nBalance 2:', await api.tokens.balance(other_identity).toString())
+    balance = await api.tokens.balance(multi_sig_identity)
+    console.log('\nBalance 1:', balance.toString())
+    balance = await api.tokens.balance(other_identity)
+    console.log('\nBalance 2:', balance.toString())
 
     // Amend the deed
     console.log('\nAmending deed to increase transfer threshold to 3 votes...')
@@ -131,9 +135,10 @@ async function main() {
     tx.valid_until(await api.tokens.current_block_number() + 100)
     signatories.forEach(entity => tx.sign(entity))
     await api.sync(await api.submit_signed_tx(tx)).catch(errors => sync_error(errors))
-
-    console.log('\nBalance 1:', await api.tokens.balance(multi_sig_identity).toString())
-    console.log('\nBalance 2:', await api.tokens.balance(other_identity).toString())
+    balance = await api.tokens.balance(multi_sig_identity)
+    console.log('\nBalance 1:', balance.toString())
+    balance = await api.tokens.balance(other_identity)
+    console.log('\nBalance 2:', balance.toString())
 
     // Warning: if no amend threshold is set, future amendments are impossible
     console.log('\nAmending deed to remove threshold...')

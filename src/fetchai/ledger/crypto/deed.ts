@@ -104,11 +104,9 @@ export class Deed {
     }
 
      remove_operation(operation: OPERATIONS): void {
-        debugger
          for (const key in this.thresholds) {
             if (key === operation) {
                 delete this.thresholds[key]
-                debugger;
             }
         }
      }
@@ -160,7 +158,6 @@ export class Deed {
         const amend_threshold = this.get_threshold(OPERATIONS.AMEND)
 
         if(this.required_amend && amend_threshold === null){
-            debugger;
             throw new InvalidDeedError('The Amend operation is mandatory but it not present')
         }
 
