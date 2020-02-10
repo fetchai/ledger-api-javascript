@@ -9,15 +9,7 @@ import assert from 'assert'
 const HOST = '127.0.0.1'
 const PORT = 8000
 
-function sync_error(errors) {
-    errors.forEach(tx =>
-        console.log(`\nThe following transaction: "${tx.get_digest_hex()}" did not succeed. \nIt exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
-    )
-    throw new Error()
-}
-
 async function main() {
-    let balance
     // create the APIs
     const api = new LedgerApi(HOST, PORT)
     // We generate an identity from a known key, which contains funds.
@@ -57,10 +49,8 @@ async function main() {
 
     // Display balance before
     console.log('Before remote-multisig transfer \n')
-    balance = await api.tokens.balance(multi_sig_identity)
-    console.log('Balance 1:', balance.toString())
-    balance = await api.tokens.balance(other_identity)
-    console.log('\nBalance 2:', balance.toString())
+    console.log('Balance 1:', await api.tokens.balance(multi_sig_identity).toString())
+    console.log('\nBalance 2:', await api.tokens.balance(other_identity).toString())
     // Scatter/gather example
     console.log('\nGenerating transaction and distributing to signers...\n')
     // Add intended signers to transaction
@@ -68,8 +58,6 @@ async function main() {
 
     await api.tokens.set_validity_period(ref_tx)
 
-    //make a reference payload that can be used in this script for validation
-    const reference_payload = ref_tx.encode_payload()
     // Have signers individually sign transaction
     const signed_txs = []
     //for signer in board:
@@ -99,25 +87,23 @@ async function main() {
     })
 
 
-    let [success, tx] = Transaction.merge(partial_txs)
+    const [success, tx] = Transaction.merge(partial_txs)
 
     assert(success)
     await api.sync(await api.tokens.submit_signed_tx(tx))
 
     console.log('\nAfter remote multisig-transfer')
-    balance = await api.tokens.balance(multi_sig_identity)
-    console.log('\nBalance 1:', balance.toString())
-    balance = await api.tokens.balance(other_identity)
-    console.log('\nBalance 2:', balance.toString())
+    console.log('\nBalance 1:', await api.tokens.balance(multi_sig_identity).toString())
+    console.log('\nBalance 2:', await api.tokens.balance(other_identity).toString())
 
     // Round robin example
     console.log('\nGenerating transaction and sending down the line of signers...\n')
     // Add intended signers to transaction
-    tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
-    await api.set_validity_period(tx)
+    const tx2 = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
+    await api.set_validity_period(tx2)
 
     //Serialize and send to be signed
-    const tx_payload = tx.encode_payload()
+    const tx_payload = tx2.encode_payload()
 
     // Have signers individually sign transaction and pass on to next signer
     board.forEach((board_member) => {
@@ -127,19 +113,24 @@ async function main() {
         signer_tx.sign(board_member.member)
         // ensure that when we merge the signers signature into the payload that it is correct
 
-        assert(tx.merge_signatures(signer_tx))
+        assert(tx2.merge_signatures(signer_tx))
     })
 
     // Gather and encode final transaction
     console.log('\nCollecting final signed transaction...\n')
-    assert(tx.is_valid())
+    assert(tx2.is_valid())
 
-    await api.sync(await api.tokens.submit_signed_tx(tx)).catch(errors => sync_error(errors))
+    await api.sync(await api.tokens.submit_signed_tx(tx2)).catch(errors => sync_error(errors))
     console.log('After remote multisig-transfer \n')
-    balance = await api.tokens.balance(multi_sig_identity)
-    console.log('Balance 1:', balance.toString())
-    balance = await api.tokens.balance(other_identity)
-    console.log(`\nBalance 2: ${balance.toString()} \n`)
+    console.log('Balance 1:', await api.tokens.balance(multi_sig_identity).toString())
+    console.log('\nBalance 2:  await api.tokens.balance(other_identity).toString() \n')
+}
+
+function sync_error(errors) {
+    errors.forEach(tx =>
+        console.log(`\nThe following transaction: "${tx.get_digest_hex()}" did not succeed. \nIt exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
+    )
+    throw new Error()
 }
 
 main()

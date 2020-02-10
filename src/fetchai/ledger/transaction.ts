@@ -286,7 +286,6 @@ export class Transaction {
 
     //todo SHOULD METHOD REALLY RETURN VOID OR NULL
     merge_signatures(tx2: Transaction): boolean {
-debugger;
         if (!this.compare(tx2)) {
             console.log('Attempting to combine transactions with different payloads');
             return false
