@@ -51,7 +51,7 @@ async function main() {
     console.log('Before remote-multisig transfer \n')
     let balance = await api.tokens.balance(multi_sig_identity)
     console.log('Balance 1:', balance.toString())
-    balance =  await api.tokens.balance(other_identity)
+    balance = await api.tokens.balance(other_identity)
     console.log('\nBalance 2:', balance.toString())
     // Scatter/gather example
     console.log('\nGenerating transaction and distributing to signers...\n')
@@ -129,7 +129,7 @@ async function main() {
     balance = await api.tokens.balance(multi_sig_identity)
     console.log('Balance 1:', balance.toString())
     balance = await api.tokens.balance(other_identity)
-    console.log('\nBalance 2: ',  balance.toString())
+    console.log('\nBalance 2: ', balance.toString())
 }
 
 function sync_error(errors) {

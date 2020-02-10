@@ -162,24 +162,6 @@ const encode_payload = (payload: Transaction): Buffer => {
     return buffer
 }
 
-// const encode_multisig_transaction = (payload: Transaction, signatures: Array<Identity>): Buffer => {
-//     // assert isinstance(payload, bytes) or isinstance(payload, transaction.Transaction)
-//     //assert((payload instance bytes) or isinstance(payload, transaction.Transaction)
-//     // encode the contents of the transaction
-//     let buffer = encode_payload(payload)
-//
-//     // append signatures in order
-//     payload.signers().forEach((ident: Identity) => {
-//         if (signatures.some(el => el.public_key_hex() === ident.public_key_hex()
-//                         && typeof signatures.get(k).signature !== 'undefined') {
-//             )
-//             buffer = encode_bytearray(buffer, signatures.get(k).signature)
-//         }
-//     })
-//
-//     return buffer
-// }
-
 const encode_transaction = (tx: Transaction): Buffer => {
     // encode the contents of the transaction
     let buffer = encode_payload(tx)
