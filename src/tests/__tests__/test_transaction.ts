@@ -2,7 +2,7 @@ import {Transaction} from '../../fetchai/ledger/transaction'
 import {BitVector} from '../../fetchai/ledger/bitvector'
 import {Address} from '../../fetchai/ledger/crypto/address'
 import {BN} from 'bn.js'
-import {dummy_address} from '../utils/helpers'
+import {dummy_address, ENTITIES} from '../utils/helpers'
 import {TokenTxFactory} from '../../fetchai/ledger/api/token'
 import {Entity} from '../../fetchai/ledger/crypto/entity'
 import {Identity} from '../../fetchai/ledger/crypto'
@@ -20,7 +20,7 @@ describe(':Test Transaction', () => {
         expect(txObj._shard_mask._size).toBe(0)
         expect(txObj._shard_mask._byte_size).toBe(0)
         expect(txObj._action).toBe('')
-        expect(txObj._metadata.synergetic()).toBe(false)
+        expect(txObj.synergetic()).toBe(false)
         expect(txObj._data).toBe('')
         expect(txObj.transfers()).toHaveLength(0)
     })
@@ -143,12 +143,12 @@ describe(':Test Transaction', () => {
 
     test('Test add_signer and signers', () => {
         const txObj = new Transaction()
-        txObj.add_signer('thisIsSigner')
-        expect(txObj.signers().get('thisIsSigner')).toBe('')
+        txObj.add_signer(ENTITIES[0])
+        expect(txObj.signers().some(el => el.public_key_hex() === ENTITIES[0].public_key_hex())).toBe(true)
     })
 
 
-    test('Test test partial serialize', async () => {
+    test('Test partial serialize', async () => {
         const multi_sig_identity = new Entity()
         const multi_sig_board = []
         for (let i = 0; i < 4; i++) {
@@ -169,7 +169,7 @@ describe(':Test Transaction', () => {
     })
 
 
-    test('Test test merge tx signatures', async () => {
+    test('Test merge tx signatures', async () => {
         const multi_sig_identity = new Entity()
         const multi_sig_board: Entity[] = []
         for (let i = 0; i < 4; i++) {
@@ -189,7 +189,7 @@ describe(':Test Transaction', () => {
         }
 
         for (let i = 0; i < 4; i++) {
-            mstx.merge_signatures(Transaction.decode_partial(txs[i]))
+            mstx.merge_signatures(Transaction.decode_payload(txs[i]))
         }
         const signers = mstx.signers()
         let flag = true

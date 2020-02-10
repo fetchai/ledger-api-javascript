@@ -91,6 +91,8 @@ export class ContractsApi extends ApiEndpoint {
             signers: [owner],
             shard_mask: shard_mask
         })
+        tx.sign(owner)
+
         const encoded_tx = encode_transaction(tx)
         contract.owner(owner)
         return await this.post_tx_json(encoded_tx)
@@ -140,9 +142,8 @@ export class ContractsApi extends ApiEndpoint {
             signers: signers,
             shard_mask: shard_mask
         })
-        for (let i = 0; i < signers.length; i++) {
-            tx.add_signer(signers[i].public_key_hex())
-        }
+
+        signers.forEach(signer =>  tx.sign(signer))
         await this.set_validity_period(tx)
 
         const encoded_tx = encode_transaction(tx)

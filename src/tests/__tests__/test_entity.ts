@@ -40,10 +40,6 @@ describe(':Entity', () => {
         // verify the payload
         const verified = entity.verify(message, signature)
         expect(verified).toBe(true)
-        // create bad 64 byte sig
-        const invalid_signature = Buffer.concat([message, message])
-        const bad_verification = entity.verify(message, invalid_signature)
-        expect(bad_verification).toBe(false)
     })
 
     test('test construction from base64', () => {

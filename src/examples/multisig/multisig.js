@@ -158,7 +158,7 @@ async function main() {
     signatories = board.slice(1).map(obj => obj.member)
     print_signing_votes(board.slice(1))
 
-    tx =  TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
+    tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
     current_block_number = await api.tokens.current_block_number()
     tx.valid_until(current_block_number + 100)
     signatories.forEach(entity => tx.sign(entity))
@@ -178,7 +178,7 @@ async function main() {
     signatories = board.map(obj => obj.member)
 
     tx = TokenTxFactory.deed(multi_sig_identity, deed, 400, signatories)
-    current_block_number =  await api.tokens.current_block_number() + 100;
+    current_block_number = await api.tokens.current_block_number() + 100
     tx.valid_until(current_block_number)
     signatories.forEach(entity => tx.sign(entity))
     await api.sync(await api.submit_signed_tx(tx)).catch(errors => sync_error(errors))
@@ -187,7 +187,7 @@ async function main() {
     console.log('\nExpecting further amendment to fail...')
 
     tx = await TokenTxFactory.deed(multi_sig_identity, deed, 400, signatories)
-    current_block_number =  await api.tokens.current_block_number() + 100;
+    current_block_number = await api.tokens.current_block_number() + 100
     tx.valid_until(current_block_number)
     signatories.forEach(entity => tx.sign(entity))
     await api.sync(await api.submit_signed_tx(tx)).catch(errors =>

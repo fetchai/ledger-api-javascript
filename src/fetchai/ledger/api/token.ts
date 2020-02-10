@@ -193,7 +193,7 @@ export class TokenApi extends ApiEndpoint {
      */
     async collect_stake(entity: Entity, fee: NumericInput): Promise<any | null> {
         fee = convert_number(fee)
-        const tx = TokenTxFactory.collect_stake(entity, fee)
+        const tx = TokenTxFactory.collect_stake(entity, fee, [entity])
         await super.set_validity_period(tx)
         tx.sign(entity)
         // encode and sign the transaction
@@ -217,7 +217,6 @@ export class TokenTxFactory extends TransactionFactory {
         signatories: signatories, shard_mask: new BitVector()})
 
         const deed_json = (deed !== null) ? deed.to_json_object(): {}
-        console.log("DEEDJSON: " + JSON.stringify(deed_json))
         tx.data(JSON.stringify(deed_json))
         return tx
     }

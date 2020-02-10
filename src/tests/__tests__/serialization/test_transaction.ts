@@ -6,13 +6,32 @@ import * as bytearray from '../../../fetchai/ledger/serialization/bytearray'
 import {ValidationError} from '../../../fetchai/ledger/errors'
 import {BN} from 'bn.js'
 import {calc_digest, ENTITIES, IDENTITIES} from '../../utils/helpers'
+import {TokenTxFactory} from "../../../fetchai/ledger/api";
+import {Entity} from "../../../fetchai/ledger/crypto";
 
 
 const EXPECTED_SIGNATURE_BYTE_LEN = 64
 const EXPECTED_SIGNATURE_LENGTH_FIELD_LEN = 1
 const EXPECTED_SERIAL_SIGNATURE_LENGTH = EXPECTED_SIGNATURE_BYTE_LEN + EXPECTED_SIGNATURE_LENGTH_FIELD_LEN
 
+
 describe(':Transaction', () => {
+let multi_sig_identity, source_identity, multi_sig_board, target_identity, tx, mstx;
+
+
+//  beforeAll(() => {
+//         source_identity = ENTITIES[0]
+//         multi_sig_identity = ENTITIES[1]
+//         multi_sig_board = for(let i = 0)
+//         target_identity = ENTITIES[2]
+//
+//         tx = TokenTxFactory.transfer(ENTITIES[0], Identity(self.target_identity),
+//                                           500, 500, [self.source_identity])
+//         mstx = TokenTxFactory.transfer(self.multi_sig_identity, Identity(self.target_identity),
+//                                             500, 500, self.multi_sig_board)
+//   return
+// });
+
 
     test('test simple decode transaction ', () => {
         const EXPECTED_PAYLOAD = 'a1640000532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d44235130ac5aab442e39f9aa27118956695229212dd2f1ab5b714e9f6bd581511c1010000000001020304050607080418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c'
@@ -21,7 +40,9 @@ describe(':Transaction', () => {
         payload.add_transfer(IDENTITIES[1], new BN(256))
         payload.add_signer(IDENTITIES[0].public_key_hex())
         payload.counter(new BN('0102030405060708', 'hex'))
-        const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
+       // sign the final transaction
+        payload.sign(ENTITIES[0])
+        const transaction_bytes = encode_transaction(payload)
         assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
         const [success, tx] = decode_transaction(transaction_bytes)
         expect(success).toBe(true)
@@ -38,14 +59,56 @@ describe(':Transaction', () => {
         payload.add_transfer(IDENTITIES[3], new BN(100000))
         payload.add_signer(IDENTITIES[0].public_key_hex())
         payload.counter(new BN(new Buffer(8).fill(0)))
-        const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
+        payload.sign(ENTITIES[0])
+
+        const transaction_bytes = encode_transaction(payload)
 
         assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
         const [success, tx] = decode_transaction(transaction_bytes)
         expect(success).toBe(true)
         assertTxAreEqual(payload, tx)
+
     })
 })
+
+test('test merge tx signatures', () => {
+
+    const multi_sig_board = ENTITIES.slice(0,4)
+    const multi_sig_identity = ENTITIES[4]
+    const target_identity = ENTITIES[5]
+    const mstx = TokenTxFactory.transfer(multi_sig_identity, target_identity, 500, 500, multi_sig_board)
+    const payload = mstx.encode_payload()
+    const partials = []
+    let tx;
+    multi_sig_board.forEach((signer: Entity) => {
+          [tx,] = Transaction.decode_payload(payload)
+         tx.sign(signer)
+         partials.push(tx.encode_partial())
+    })
+
+    partials.forEach((partial: Buffer) => {
+        const [,partial_tx] = Transaction.decode_partial(partial)
+        expect(mstx.merge_signatures(partial_tx)).toBe(true)
+    })
+
+    expect(mstx.is_valid()).toBe(true)
+})
+
+/*
+  def test_merge_tx_signatures(self):
+        payload = self.mstx.encode_payload()
+
+        partials = []
+        for signer in self.multi_sig_board:
+            tx = Transaction.decode_payload(payload)
+            tx.sign(signer)
+            partials.append(tx.encode_partial())
+
+        for partial in partials:
+            _, partial_tx = Transaction.decode_partial(partial)
+            self.assertTrue(self.mstx.merge_signatures(partial_tx))
+        self.assertTrue(self.mstx.is_valid())
+ */
 
 test('test synergetic_data_submission', () => {
     const EXPECTED_PAYLOAD = 'a160c000532398dd883d1990f7dad3fde6a53a53347afc2680a04748f7f15ad03cadc4d4c1271001c3000000e8d4a5100080e6672a9d98da667e5dc25b2bca8acf9644a7ac0797f01cb5968abf39de011df204646174610f7b2276616c7565223a20313233347d00000000000000000418c2a33af8bd2cba7fa714a840a308a217aa4483880b1ef14b4fdffe08ab956e3f4b921cec33be7c258cfd7025a2b9a942770e5b17758bcc4961bbdc75a0251c'
@@ -60,7 +123,9 @@ test('test synergetic_data_submission', () => {
     payload.data('{"value": 1234}')
     payload.add_signer(IDENTITIES[0].public_key_hex())
     payload.counter(new BN(new Buffer(8).fill(0)))
-    const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
+    payload.sign(ENTITIES[0])
+
+    const transaction_bytes = encode_transaction(payload)
     assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
     // attempt to decode a transaction from the generated bytes
     const [success, tx] = decode_transaction(transaction_bytes)
@@ -79,7 +144,10 @@ test('test chain code', () => {
     payload.action('launch')
     payload.data('go')
     payload.counter(new BN(new Buffer(8).fill(0)))
-    const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
+    // sign the final transaction
+    payload.sign(ENTITIES[0])
+
+    const transaction_bytes = encode_transaction(payload)
     assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
     const [success, tx] = decode_transaction(transaction_bytes)
     expect(success).toBe(true)
@@ -97,7 +165,9 @@ test('test smart contract', () => {
     payload.action('launch')
     payload.data('go')
     payload.counter(new BN(new Buffer(8).fill(0)))
-    const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
+        payload.sign(ENTITIES[0])
+
+    const transaction_bytes = encode_transaction(payload)
     assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
     const [success, tx] = decode_transaction(transaction_bytes)
     expect(success).toBe(true)
@@ -119,7 +189,9 @@ test('test validity ranges', () => {
     payload.valid_from(new BN(100))
     payload.valid_until(new BN(200))
     payload.counter(new BN(new Buffer(8).fill(0)))
-    const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
+    payload.sign(ENTITIES[0])
+
+    const transaction_bytes = encode_transaction(payload)
     assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
     const [success, tx] = decode_transaction(transaction_bytes)
     expect(success).toBe(true)
@@ -140,7 +212,9 @@ test('test contract with 2bit shard mask', () => {
     payload.target_chain_code('foo.bar.baz', mask)
     payload.action('launch')
     payload.counter(new BN(new Buffer(8).fill(0)))
-    const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
+    payload.sign(ENTITIES[0])
+
+    const transaction_bytes = encode_transaction(payload)
     assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
     const [success, tx] = decode_transaction(transaction_bytes)
     expect(success).toBe(true)
@@ -163,7 +237,9 @@ test('test contract with 4bit shard mask', () => {
     payload.target_chain_code('foo.bar.baz', mask)
     payload.action('launch')
     payload.counter(new BN(new Buffer(8).fill(0)))
-    const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
+    payload.sign(ENTITIES[0])
+
+    const transaction_bytes = encode_transaction(payload)
     assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
     const [success, tx] = decode_transaction(transaction_bytes)
     expect(success).toBe(true)
@@ -196,7 +272,9 @@ test('test contract with large shard mask', () => {
     payload.target_chain_code('foo.bar.baz', mask)
     payload.action('launch')
     payload.counter(new BN(new Buffer(8).fill(0)))
-    const transaction_bytes = encode_transaction(payload, [ENTITIES[0]])
+    payload.sign(ENTITIES[0])
+
+    const transaction_bytes = encode_transaction(payload)
     assertIsExpectedTx(payload, transaction_bytes, EXPECTED_PAYLOAD)
     // attempt to decode a transaction from the generated bytes
     const [success, tx] = decode_transaction(transaction_bytes)
@@ -221,7 +299,7 @@ test('test invalid version', () => {
 
 function assertIsExpectedTx(payload: Transaction, transaction_bytes: Buffer, expected_hex_payload: string): void {
 
-    const len = payload.signers().size
+    const len = payload.signers().length
     // a payload needs at least one signee
     expect(len).toBeGreaterThan(0)
     // calculate the serial length of the signatures (so that we can extract the payload)
@@ -234,15 +312,14 @@ function assertIsExpectedTx(payload: Transaction, transaction_bytes: Buffer, exp
     // loop through and verify all the signatures
     let buffer = transaction_bytes.slice(expected_payload_end)
 
-    let identity
     let signature
 
-    for (const signee of Object.keys(payload._signers)) {
-        [signature, buffer] = bytearray.decode_bytearray(buffer)
+    payload.signers().forEach((identity: Identity) => {
+         [signature, buffer] = bytearray.decode_bytearray(buffer)
         // validate the signature is correct for the payload
-        identity = new Identity(Buffer.from(signee, 'hex'))
         expect(identity.verify(payload_bytes, signature)).toBe(true)
-    }
+    })
+
 }
 
 function assertTxAreEqual(reference: Transaction, other: Transaction): void {

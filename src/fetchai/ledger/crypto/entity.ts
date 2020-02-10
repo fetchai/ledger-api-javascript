@@ -205,7 +205,7 @@ export class Entity extends Identity {
      * @param  {Object} sigObj signature obj
      */
     signature_hex(sigObj: any): string {
-        return sigObj.signature.toString('hex')
+        return sigObj.toString('hex')
     }
 
     async prompt_dump(fp: string, password: string): Promise<void> {

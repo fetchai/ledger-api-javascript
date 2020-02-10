@@ -25,7 +25,7 @@ interface SignatureData {
 
 interface SignatureItem {
     identity: Identity;
-    signature: Buffer | null;
+    signature: Buffer;
 }
 
 /**
@@ -60,6 +60,9 @@ export class Transaction {
         }
     }
 
+    encode_partial(): Buffer {
+        return encode_transaction(this)
+    }
 
     static decode_partial(buffer: Buffer): DECODE_TUPLE {
         return decode_transaction(buffer)
@@ -72,6 +75,10 @@ export class Transaction {
 
     static decode_payload(payload): PayloadTuple {
         return decode_payload(payload)
+    }
+
+    encode_payload(): Buffer {
+        return encode_payload(this)
     }
 
     // Get and Set from_address param
@@ -205,11 +212,11 @@ export class Transaction {
     }
 
     pending_signers(): Array<Identity> {
-        return this._signatures.filter((el) => el.signature == null).map(el => el.identity)
+        return this._signatures.filter((el) => Buffer.byteLength(el.signature) === 0).map(el => el.identity)
     }
 
     present_signers(): Array<Identity> {
-        return this._signatures.filter(el => el.signature !== null).map(el => el.identity)
+        return this._signatures.filter(el => Buffer.byteLength(el.signature) === 0).map(el => el.identity)
     }
 
     // Get signers param.
@@ -237,6 +244,7 @@ export class Transaction {
                 valid_flag = false
             }
         })
+        debugger
         return valid_flag
     }
 
@@ -249,7 +257,7 @@ export class Transaction {
         }
 
         if (!this.hasSigner(signer as Identity)) {
-            this._signatures.push({identity: signer, signature: null})
+            this._signatures.push({identity: signer, signature: Buffer.from('')})
         }
     }
 
@@ -266,10 +274,8 @@ export class Transaction {
     }
 
     sign(signer: Entity): void {
-        if (this.hasSigner(signer)) {
             const signature = signer.sign(this.encode_payload());
             this.add_signature(signer, signature)
-        }
     }
 
     compare(other: Transaction): boolean {
@@ -280,8 +286,8 @@ export class Transaction {
 
     //todo SHOULD METHOD REALLY RETURN VOID OR NULL
     merge_signatures(tx2: Transaction): boolean {
-
-        if (this.compare(tx2)) {
+debugger;
+        if (!this.compare(tx2)) {
             console.log('Attempting to combine transactions with different payloads');
             return false
         }
@@ -289,12 +295,11 @@ export class Transaction {
         let success = null;
 
         const payload = this.encode_payload();
-        const pending_signers = this.pending_signers();
 
         //todo: once working detsructure el as identity and signature in params of for loop.
         tx2.signatures().forEach(el => {
             if (!this.hasSigner(el.identity)) return;
-            if (el.signature == null) return;
+            if (Buffer.byteLength(el.signature) === 0) return;
             if (!el.identity.verify(payload, el.signature)) {
                 success = false;
                 return
@@ -307,7 +312,7 @@ export class Transaction {
         return success;
     }
 
-    merge(transactions: Array<Transaction>): MergeTuple {
+    static merge(transactions: Array<Transaction>): MergeTuple {
         if (transactions.length === 0) {
             return [false, null]
         }
@@ -316,17 +321,12 @@ export class Transaction {
         for (let i = 1; i < transactions.length; i++) {
             tx.merge_signatures(transactions[i])
         }
-
+debugger
         return [tx.is_valid(), tx]
     }
 
-    encode_payload(): Buffer {
-        return encode_payload(this)
-    }
 
-    encode_partial(): Buffer {
-        return encode_payload(this)
-    }
+
 
     encode(): Buffer | null {
         return (this.is_incomplete()) ? null : encode_transaction(this)

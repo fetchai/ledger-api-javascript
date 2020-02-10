@@ -80,6 +80,12 @@ export class Identity {
      * @returns signature is valid or not
      */
     verify(message: Buffer, signature: Buffer): boolean {
-        return secp256k1.verify(calc_digest(message), signature, this.prefixed_public_key())
+        let success
+        try {
+            success = secp256k1.verify(calc_digest(message), signature, this.prefixed_public_key())
+        } catch {
+            success = false
+        }
+        return success
     }
 }

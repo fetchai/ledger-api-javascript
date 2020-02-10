@@ -20,11 +20,10 @@ describe(':TokenApi', () => {
 
     test('test deed', async () => {
         const deed = new Deed()
-        debugger
         deed.set_signee(ENTITIES[2], 2)
-        debugger
+        deed.require_amend = false
         const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
-        const tx = await api.tokens.deed(ENTITIES[0], deed, null, true)
+        const tx = await api.tokens.deed(ENTITIES[0], deed, 5000)
         expect(tx).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')
     })
 

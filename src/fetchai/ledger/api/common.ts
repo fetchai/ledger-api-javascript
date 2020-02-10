@@ -288,14 +288,17 @@ export class TransactionFactory {
         return tx
     }
 
-    static create_chain_code_action_tx({fee, from_address, action, prefix, signatories, shard_mask = null}: ContractFactoryActionOptions): Transaction {
+    static create_chain_code_action_tx({fee, from_address, action, prefix, signatories = null, shard_mask = null}: ContractFactoryActionOptions): Transaction {
         const mask = (shard_mask === null) ? new BitVector() : shard_mask
         fee = convert_number(fee)
         const tx = TransactionFactory.create_skeleton_tx(fee)
         tx.from_address(new Address(from_address))
         tx.target_chain_code(prefix, mask)
         tx.action(action)
-        signatories.forEach(signer => tx.add_signer(signer.public_key_hex()))
+
+        if(signatories !== null) {
+            signatories.forEach(signer => tx.add_signer(signer.public_key_hex()))
+        }
 
         return tx
     }
