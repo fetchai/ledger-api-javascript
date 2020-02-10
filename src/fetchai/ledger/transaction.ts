@@ -9,6 +9,7 @@ import {randomBytes} from 'crypto'
 import {Entity} from './crypto'
 import {convert_number} from "./utils";
 
+type DECODE_TUPLE = [boolean, Transaction]
 type PayloadTuple = [Transaction, Buffer]
 type MergeTuple = [boolean, Transaction | null]
 
@@ -59,8 +60,9 @@ export class Transaction {
         }
     }
 
-    static decode_partial(buffer: Buffer): Transaction {
-        return Transaction.decode_partial(buffer)
+
+    static decode_partial(buffer: Buffer): DECODE_TUPLE {
+        return decode_transaction(buffer)
     }
 
     static decode(encoded_transaction: Buffer): Transaction | null {

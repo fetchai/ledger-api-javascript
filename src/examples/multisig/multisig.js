@@ -7,6 +7,7 @@ const HOST = '127.0.0.1'
 const PORT = 8000
 
 function sync_error(errors) {
+    debugger;
     errors.forEach(tx =>
         console.log(`\nThe following transaction: "${tx.get_digest_hex()}" did not succeed. \nIt exited with status : "${tx.get_status()}" and exit code: "${tx.get_exit_code()}"`)
     )
@@ -63,7 +64,7 @@ async function main() {
 
     // Transfers can happen normally without a deed
     console.log('\nSubmitting pre-deed transfer with original signature...')
-  debugger;
+
     tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
     await api.sync([tx]).catch(errors => sync_error(errors))
 
@@ -79,34 +80,33 @@ async function main() {
         deed.set_signee(item.member, item.voting_weight)
     })
 
-    deed.set_operation('amend', 2)
-    deed.set_operation('transfer', 4)
+    deed.set_operation('amend', 4)
+    deed.set_operation('transfer', 2)
 
     tx = await api.tokens.deed(multi_sig_identity, deed, 6000)
 
-    await api.sync([tx], 20).catch(errors => sync_error(errors))
+    await api.sync(tx, 20).catch(errors => sync_error(errors))
 
     // Original address can no longer validate transfers
     console.log('\nTransfer with original signature should fail...')
 
     tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20)
 
-    await api.sync([tx]).catch(errors => {
+    await api.sync(tx).catch(errors => {
         console.log(`\nTransaction failed as expected. \nTransaction status: ${errors[0].get_status()}`)
     })
 
     // Sufficient voting power required to sign transfers
     console.log('\nTODOSubmitting transfer with two signatures with total 2 votes...')
     print_signing_votes(board.slice(0, 2))
-     signatories = board.slice(0, 2).map(obj => obj.member)
+    signatories = board.slice(0, 2).map(obj => obj.member)
     // since we now want to create a transaction which has only been signed by a subset of the board, we must use
     // the factory interface in order to build out the transaction we are after
-    tx = await TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
+    tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
     current_block_number = await api.tokens.current_block_number()
     tx.valid_until(current_block_number + 100)
     signatories.forEach(entity => tx.sign(entity))
-
-    await api.sync([tx]).catch(errors => sync_error(errors))
+    await api.sync(await api.submit_signed_tx(tx)).catch(errors => sync_error(errors))
 
     balance1 = await api.tokens.balance(multi_sig_identity)
     console.log('\nBalance 1:', balance1.toString())
@@ -117,12 +117,11 @@ async function main() {
     console.log('\nSubmitting transfer with single signature with 2 votes...')
     print_signing_votes([board[3]])
 
-    tx = await TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, [board[3].member])
+    tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, [board[3].member])
     current_block_number = await api.tokens.current_block_number()
     tx.valid_until(current_block_number + 100)
     tx.sign(board[3].member)
-
-    await api.sync([tx]).catch(errors => sync_error(errors))
+    await api.sync(await api.submit_signed_tx(tx)).catch(errors => sync_error(errors))
 
     balance = await api.tokens.balance(multi_sig_identity)
     console.log('\nBalance 1:', balance.toString())
@@ -134,22 +133,22 @@ async function main() {
     deed.set_operation('transfer', 3)
 
     signatories = board.map(obj => obj.member)
-    tx = await TokenTxFactory.deed(multi_sig_identity, deed, 400, signatories)
+    tx = TokenTxFactory.deed(multi_sig_identity, deed, 400, signatories)
     current_block_number = await api.tokens.current_block_number()
     tx.valid_until(current_block_number + 100)
     signatories.forEach(entity => tx.sign(entity))
-    await api.sync([tx]).catch(errors => sync_error(errors))
+    await api.sync(await api.submit_signed_tx(tx)).catch(errors => sync_error(errors))
 
     // Single member no longer has enough voting power
     console.log('\nSingle member transfer with 2 votes should no longer succeed...')
     print_signing_votes([board[3]])
 
-    tx = await api.tokens.transfer(multi_sig_identity, other_identity, 250, 20, [board[3].member])
+    tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, [board[3].member])
     current_block_number = await api.tokens.current_block_number()
     tx.valid_until(current_block_number + 100)
     tx.sign(board[3].member)
 
-    await api.sync([tx]).catch(errors => {
+    await api.sync(await api.submit_signed_tx(tx)).catch(errors => {
         console.log(`\nTransaction failed as expected. \nTransaction status: ${errors[0].get_status()}`)
     })
 
@@ -159,11 +158,11 @@ async function main() {
     signatories = board.slice(1).map(obj => obj.member)
     print_signing_votes(board.slice(1))
 
-    tx = await TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
+    tx =  TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, signatories)
     current_block_number = await api.tokens.current_block_number()
     tx.valid_until(current_block_number + 100)
     signatories.forEach(entity => tx.sign(entity))
-    await api.sync([tx]).catch(errors => sync_error(errors))
+    await api.sync(await api.submit_signed_tx(tx)).catch(errors => sync_error(errors))
 
     balance1 = await api.tokens.balance(multi_sig_identity)
     console.log('\nBalance 1:', balance1.toString())
@@ -178,20 +177,20 @@ async function main() {
 
     signatories = board.map(obj => obj.member)
 
+    tx = TokenTxFactory.deed(multi_sig_identity, deed, 400, signatories)
+    current_block_number =  await api.tokens.current_block_number() + 100;
+    tx.valid_until(current_block_number)
+    signatories.forEach(entity => tx.sign(entity))
+    await api.sync(await api.submit_signed_tx(tx)).catch(errors => sync_error(errors))
+
+    deed.set_operation('amend', 1)
+    console.log('\nExpecting further amendment to fail...')
+
     tx = await TokenTxFactory.deed(multi_sig_identity, deed, 400, signatories)
     current_block_number =  await api.tokens.current_block_number() + 100;
     tx.valid_until(current_block_number)
     signatories.forEach(entity => tx.sign(entity))
-    await api.sync([tx]).catch(errors => sync_error(errors))
-
-     deed.set_operation('amend', 1)
-    console.log('\nExpecting further amendment to fail...')
-
-    tx = await TokenTxFactory.deed(multi_sig_identity, deed, signatories)
-    current_block_number =  await api.tokens.current_block_number() + 100;
-    tx.valid_until(current_block_number)
-    signatories.forEach(entity => tx.sign(entity))
-    await api.sync([tx]).catch(errors =>
+    await api.sync(await api.submit_signed_tx(tx)).catch(errors =>
         console.log(`\nFurther amendment failed as expected. \n\nTransaction status: ${errors[0].get_status()}\n`)
     )
 }

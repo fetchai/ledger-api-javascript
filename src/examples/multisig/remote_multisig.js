@@ -16,7 +16,7 @@ function sync_error(errors) {
 }
 
 async function main() {
-    let balance, txs, tx, itx
+    let balance, txs,itx
     // create the APIs
     const api = new LedgerApi(HOST, PORT)
     // We generate an identity from a known key, which contains funds.
@@ -45,16 +45,16 @@ async function main() {
 
 
     console.log('\nCreating deed...\n')
-    const deed = new Deed(multi_sig_identity)
+    const deed = new Deed()
     board.forEach(board => deed.set_signee(board.member, board.voting_weight))
-    deed.set_amend_threshold(4)
-    deed.set_threshold('TRANSFER', 3)
+     deed.set_operation('amend', 4)
+    deed.set_operation('transfer', 3)
     // Submit deed
-    txs = await api.tokens.deed(multi_sig_identity, deed).catch((error) => {
+    txs = await api.tokens.deed(multi_sig_identity, deed, 500).catch((error) => {
         console.log(error)
         throw new Error()
     })
-    await api.sync([txs]).catch(errors => sync_error(errors))
+    await api.sync(txs).catch(errors => sync_error(errors))
 
     // Display balance before
     console.log('Before remote-multisig transfer \n')
@@ -65,44 +65,44 @@ async function main() {
     // Scatter/gather example
     console.log('\nGenerating transaction and distributing to signers...\n')
     // Add intended signers to transaction
-    tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
+    const ref_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
 
-    await api.tokens.set_validity_period(tx)
-    // Serialize and send to be signed
-    let stx = tx.encode_partial()
+    await api.tokens.set_validity_period(ref_tx)
 
+    //make a reference payload that can be used in this script for validation
+    const reference_payload = ref_tx.encode_payload()
     // Have signers individually sign transaction
     const signed_txs = []
     //for signer in board:
     for (const board_member of board) {
-        // Signer builds their own transaction to compare to
-        const signer_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
-        // Signer decodes payload to inspect transaction
-        itx = Transaction.decode_partial(stx)
+        // signer builds their own transaction to compare to note that each of the signers will need to agree on all
+        // parts of the message including the validity period and the counter
+        let signer_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
         // Some transaction details aren't expected to match/can't be predicted
-        signer_tx.valid_until(itx.valid_until())
-        signer_tx.counter(itx.counter())
-        console.log(signer_tx.compare(itx) ? 'Transactions match' : 'Transactions do not match')
+        signer_tx.valid_until(ref_tx.valid_until())
+        signer_tx.valid_from(ref_tx.valid_from())
+        signer_tx.counter(ref_tx.counter())
+
+        console.log(signer_tx.compare(ref_tx) ? 'Transactions match' : 'Transactions do not match')
         // Signers locally decode transaction
-        itx.sign(board_member.member)
+        signer_tx.sign(board_member.member)
         // Serialize for return to origin
-        signed_txs.push(itx.encode_partial())
+        signed_txs.push(signer_tx.encode_partial())
     }
-    // Gather and encode final transaction
+    // gather and encode final transaction - this step in theory can be done by all the signers provided they are
+    // received all the signature shares
     console.log('\nGathering and combining signed transactions...')
 
-    const stxs = []
+    const partial_txs = []
 
     signed_txs.forEach((s) => {
-        stxs.push(Transaction.decode_partial(s))
+        partial_txs.push(Transaction.decode_partial(s))
     })
 
-    stxs.forEach((st) => {
-        tx.merge_signatures(st)
-    })
+     let [success, tx] = Transaction.merge(partial_txs)
 
-    txs = await api.tokens.submit_signed_tx(tx, tx.signers())
-    await api.sync([txs])
+    assert(success)
+    await api.sync(await api.tokens.submit_signed_tx(tx))
 
     console.log('\nAfter remote multisig-transfer')
     balance = await api.tokens.balance(multi_sig_identity)
@@ -114,34 +114,27 @@ async function main() {
     console.log('\nGenerating transaction and sending down the line of signers...\n')
     // Add intended signers to transaction
     tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
-    await api.tokens.set_validity_period(tx)
+    await api.set_validity_period(tx)
 
-    // Serialize and send to be signed
-    stx = tx.encode_partial()
+    //Serialize and send to be signed
+    let tx_payload = tx.encode_payload()
 
     // Have signers individually sign transaction and pass on to next signer
     board.forEach((board_member) => {
-        // Signer builds their own transaction to compare to
-        const signer_tx = TokenTxFactory.transfer(multi_sig_identity, other_identity, 250, 20, board.map(item => item.member))
-
+        // build the target transaction
+        signer_tx = Transaction.decode_payload(tx_payload)
         // Signer decodes payload to inspect transaction
-        itx = Transaction.decode_partial(stx)
+        signer_tx.sign(board_member.member)
+        // ensure that when we merge the signers signature into the payload that it is correct
 
-        // Some transaction details aren't expected to match/can't be predicted
-        signer_tx.valid_until(itx.valid_until())
-        signer_tx.counter(itx.counter())
-        console.log(signer_tx.compare(itx) ? 'Transactions match' : 'Transactions do not match')
-        // Signers locally decode transaction
-        itx.sign(board_member.member)
-        // Signer re-encodes transaction and forwards to the next signer
-        stx = itx.encode_partial()
+        assert(tx.merge_signatures(signer_tx))
     })
 
     // Gather and encode final transaction
     console.log('\nCollecting final signed transaction...\n')
-    itx = Transaction.decode_partial(stx)
-    txs = await api.tokens.submit_signed_tx(itx, itx.signers())
-    await api.sync([txs]).catch(errors => sync_error(errors))
+    assert(tx.is_valid())
+
+    await api.sync(await api.tokens.submit_signed_tx(tx)).catch(errors => sync_error(errors))
     console.log('After remote multisig-transfer \n')
     balance = await api.tokens.balance(multi_sig_identity)
     console.log('Balance 1:', balance.toString())

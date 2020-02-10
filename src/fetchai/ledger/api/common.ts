@@ -8,6 +8,7 @@ import {convert_number, PREFIX} from '../utils'
 import {encode, ExtensionCodec} from '@msgpack/msgpack'
 import {LedgerApi} from './init'
 import {Transaction} from '../transaction'
+import {encode_transaction} from "../serialization";
 
 
 type Tuple = [boolean, Record<string, any>];
@@ -261,6 +262,19 @@ export class ApiEndpoint {
             return resp.data.txs[0]
         }
         return null
+    }
+
+    /**
+     *Appends signatures to a transaction and submits it, returning the transaction digest
+     *
+     * @param tx A pre-assembled transaction
+     */
+
+    async submit_signed_tx( tx: Transaction): Promise<any> {
+        // Encode transaction and append signatures
+        const encoded_tx = encode_transaction(tx)
+        // Submit and return digest
+        return await this.post_tx_json(encoded_tx, null)
     }
 }
 

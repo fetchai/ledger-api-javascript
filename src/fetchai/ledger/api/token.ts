@@ -139,7 +139,6 @@ export class TokenApi extends ApiEndpoint {
         fee = convert_number(fee)
         const tx = TokenTxFactory.transfer(entity, to, amount, fee, [entity])
         await this.set_validity_period(tx)
-        debugger
         tx.sign(entity)
         const encoded_tx = encode_transaction(tx)
         //submit the transaction
@@ -217,12 +216,13 @@ export class TokenTxFactory extends TransactionFactory {
         const tx = TransactionFactory.create_chain_code_action_tx({fee: fee, from_address: from_address, action: ENDPOINT.DEED, prefix: PREFIX.TOKEN,
         signatories: signatories, shard_mask: new BitVector()})
 
-        const deed_json = (deed !== null) ? deed.to_json_obj(): {}
+        const deed_json = (deed !== null) ? deed.to_json_object(): {}
+        console.log("DEEDJSON: " + JSON.stringify(deed_json))
         tx.data(JSON.stringify(deed_json))
         return tx
     }
 
-    static transfer(entity: Entity, to: AddressLike, amount: NumericInput, fee: NumericInput, signatories: Array<Entity> | null = null): Transaction {
+    static transfer(entity: Entity, to: AddressLike, amount: NumericInput, fee: NumericInput, signatories: Array<Identity> | null = null): Transaction {
         fee = convert_number(fee)
         amount = convert_number(amount)
         // build up the basic transaction information
@@ -230,9 +230,7 @@ export class TokenTxFactory extends TransactionFactory {
         tx.from_address(new Address(entity))
         tx.add_transfer(to, amount)
         if (signatories !== null) {
-            signatories.forEach((ent) => tx.add_signer(ent.public_key_hex()))
-        } else {
-            tx.add_signer(entity.public_key_hex())
+            signatories.forEach((ident) => tx.add_signer(ident.public_key_hex()))
         }
         return tx
     }

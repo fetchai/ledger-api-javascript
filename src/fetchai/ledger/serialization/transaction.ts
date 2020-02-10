@@ -328,7 +328,6 @@ const decode_payload = (buffer: Buffer): PayloadTuple => {
     if (signature_count_minus1 == 0x3F) {
         let additional_signatures;
         [additional_signatures, buffer] = bytearray.decode_bytearray(buffer)
-        debugger
         num_signatures = num_signatures + additional_signatures
     }
     const public_keys = []

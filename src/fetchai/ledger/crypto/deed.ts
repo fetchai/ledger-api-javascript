@@ -104,9 +104,11 @@ export class Deed {
     }
 
      remove_operation(operation: OPERATIONS): void {
+        debugger
          for (const key in this.thresholds) {
             if (key === operation) {
-                delete this.thresholds.key
+                delete this.thresholds[key]
+                debugger;
             }
         }
      }
@@ -157,7 +159,8 @@ export class Deed {
 
         const amend_threshold = this.get_threshold(OPERATIONS.AMEND)
 
-        if(!this.required_amend && amend_threshold === null){
+        if(this.required_amend && amend_threshold === null){
+            debugger;
             throw new InvalidDeedError('The Amend operation is mandatory but it not present')
         }
 
@@ -172,7 +175,7 @@ export class Deed {
     }
 
 
-     to_json_obj(): DeedJson {
+     to_json_object(): DeedJson {
         this.validate()
 
         const signees: any = {}
@@ -196,7 +199,7 @@ export class Deed {
         }
     }
 
-    from_json_obj(json_deed: DeedJson, require_amend: boolean = true){
+    from_json_object(json_deed: DeedJson, require_amend: boolean = true){
         if(!validJSONObject(json_deed)){
             throw new ValidationError("invalid JSON")
         }

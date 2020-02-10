@@ -2,10 +2,11 @@ import * as semver from "semver";
 import { __compatible__ } from "../init";
 import { ApiError } from "../errors/apiError";
 import { ContractsApi } from "./contracts";
-import { IncompatibleLedgerVersionError } from "../errors";
+import {IncompatibleLedgerVersionError, RunTimeError} from "../errors";
 import { ServerApi } from "./server";
 import { TokenApi } from "./token";
 import { TransactionApi, TxStatus } from "./tx";
+import {Transaction} from "../transaction";
 
 const DEFAULT_TIMEOUT = 120;
 
@@ -103,7 +104,6 @@ export class LedgerApi {
                         }
                     }
                     // we poll all of the digests.
-
                     txs = await this.poll(txs as Array<TxStatus | string>);
 
                     for (let i = 0; i < txs.length; i++) {
@@ -179,17 +179,30 @@ export class LedgerApi {
         return asyncTimerPromise;
     }
 
+    async submit_signed_tx(tx: Transaction): Promise<any> {
+        if(!tx.is_valid())
+            throw new RunTimeError('Signed transaction failed validation checks')
+
+        return this.tokens.submit_signed_tx(tx)
+    }
+
+    async set_validity_period(tx: Transaction, period: number | null = null): Promise<void> {
+        await this.tokens.set_validity_period(tx, period)
+        return
+    }
+
+
     async poll(txs: Array<string | TxStatus>): Promise<Array<TxStatus>> {
         let tx_status;
         const res = [];
         let digest: string;
 
         for (let i = 0; i < txs.length; i++) {
-            try {
-                digest =
+            digest =
                     txs[i] instanceof TxStatus
                         ? (txs[i] as TxStatus).get_digest_hex()
                         : (txs[i] as string);
+            try {
                 tx_status = await this.tx.status(digest);
                 res.push(tx_status);
             } catch (e) {
