@@ -2,7 +2,7 @@ import * as fs from "fs";
 import assert from "assert";
 import { Address } from "./crypto/address";
 import { BitVector } from "./bitvector";
-import { ContractsApi, ContractTxFactory } from "./api/contracts";
+import { ContractTxFactory } from "./api/contracts";
 import { createHash, randomBytes } from "crypto";
 import { default as atob } from "atob";
 import { default as btoa } from "btoa";
@@ -13,6 +13,8 @@ import { Parser } from "./parser/parser";
 import { ShardMask } from "./serialization/shardmask";
 import { Entity } from "./crypto/entity";
 import { ServerApi } from "./api/server";
+import {Identity} from "./crypto";
+import {Transaction} from "./transaction";
 
 interface ContractJSONSerialized {
     readonly version: number;
@@ -40,8 +42,6 @@ interface ActionContractOptions {
     args: MessagePackable;
     signers: Array<Entity> | null;
 }
-
-type ContractsApiLike = ContractTxFactory | LedgerApi;
 
 const calc_address = (owner: Address, nonce: Buffer): Buffer => {
     assert(owner instanceof Address);
@@ -96,6 +96,8 @@ export class Contract {
         return Contract.from_json_object(obj);
     }
 
+
+
     build_shard_mask(num_lanes: number, name: string | null = null, ordered_args: MessagePackable): BitVector {
         let resource_addresses;
         try {
@@ -128,6 +130,18 @@ export class Contract {
     encoded_source(): string {
         return btoa(this._source);
     }
+
+     async create_as_tx(api: LedgerApi, from_address: AddressLike, fee: NumericInput,
+                     signers:Array<Identity>) :Promise<Transaction> {
+        fee = convert_number(fee)
+         const num_lanes = await (api.server as ServerApi).num_lanes()
+         //todo delete after checked with ed  if this is ok with [this._owner] as argument here.
+         const shard_mask = this.build_shard_mask(num_lanes, this._init, [this._owner])
+        const tx = await ContractTxFactory.create({from_address: new Address(from_address), contract: this, fee: fee, signers: signers, shard_mask: shard_mask})
+        await api.set_validity_period(tx)
+        return tx
+     }
+
 
     // combined getter/setter mimicking the python.
     owner(owner: AddressLike | null = null): Address {

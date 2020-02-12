@@ -144,7 +144,6 @@ test('test encoding of complete tx', () => {
         500, 500, [ENTITIES[0]]);
 
     tx.sign(ENTITIES[0]);
-
     expect(tx.is_incomplete()).toBe(false);
     const encoded = tx.encode();
     const recovered_tx = Transaction.decode(encoded);

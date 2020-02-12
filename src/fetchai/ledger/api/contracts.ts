@@ -10,6 +10,7 @@ import {BN} from 'bn.js'
 import {Transaction} from '../transaction'
 import {BitVector} from '../bitvector'
 import {RunTimeError} from '../errors'
+import {Identity} from "../crypto";
 
 type Tuple = [boolean, any];
 
@@ -25,7 +26,7 @@ interface CreateFactoryContractsOptions
     from_address: AddressLike;
     contract: Contract;
     fee: BN;
-    signers: Array<Entity> | null;
+    signers: Array<Identity> | null;
     shard_mask: BitVectorLike;
 }
 
@@ -83,8 +84,7 @@ export class ContractsApi extends ApiEndpoint {
     async create({owner, contract, fee, shard_mask = null}: CreateContractsOptions): Promise<any | null> {
         assert(contract instanceof Contract)
         // todo verify this at runtime is correct then remove comment. I think the bug is in python.
-        const contractTxFactory = new ContractTxFactory(this.parent_api)
-        const tx = await contractTxFactory.create({
+        const tx = await ContractTxFactory.create({
             from_address: owner,
             contract: contract,
             fee: fee,
@@ -132,8 +132,7 @@ export class ContractsApi extends ApiEndpoint {
             shard_mask = null
         }: ActionContractsOptions
     ): Promise<any> {
-        const contractTxFactory = new ContractTxFactory(this.parent_api)
-        const tx = await contractTxFactory.action({
+        const tx = await ContractTxFactory.action({
             contract_address: contract_address,
             action: action,
             fee: fee,
@@ -206,26 +205,9 @@ export class ContractsApi extends ApiEndpoint {
 
 export class ContractTxFactory extends TransactionFactory {
     public api: LedgerApi;
-    public prefix: PREFIX;
+    public prefix: PREFIX = PREFIX.CONTRACT;
 
-    constructor(api: LedgerApi) {
-        super()
-        this.api = api
-        this.prefix = PREFIX.CONTRACT
-    }
-
-    /**
-     * Replicate setting of validity period using server
-     *
-     * @param tx
-     * @param validity_period
-     */
-    async set_validity_period(tx: Transaction, validity_period: number | null = null): Promise<BN> {
-        return await this.api.server.set_validity_period(tx, validity_period)
-    }
-
-
-    async create({from_address, contract, fee, signers = null, shard_mask = null}: CreateFactoryContractsOptions): Promise<Transaction> {
+    static async create({from_address, contract, fee, signers = null, shard_mask = null}: CreateFactoryContractsOptions): Promise<Transaction> {
 
         shard_mask = shard_mask || new BitVector()
 
@@ -243,7 +225,7 @@ export class ContractTxFactory extends TransactionFactory {
         return tx
     }
 
-    async action({
+    static async action({
         contract_address, action,
         fee, from_address = null, args,
         signers = null,

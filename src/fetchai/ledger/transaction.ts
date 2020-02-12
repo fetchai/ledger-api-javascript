@@ -249,8 +249,7 @@ export class Transaction {
 
     // left string to reduce size of refactor required
     add_signer(signer: string | Identity): void {
-
-        // this is a difference with python where initally we were storing as different datastrcture
+        // this is a difference with python where initially we were storing as different datastrcture
         if (typeof signer === 'string') {
             signer = Identity.from_hex(signer)
         }
