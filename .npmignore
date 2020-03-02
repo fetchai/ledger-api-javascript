@@ -4,7 +4,6 @@
 
 # Intermediate Data
 coverage/
-dist/
 node_modules/
 bundle/
 docs/
