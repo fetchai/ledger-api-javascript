@@ -40,6 +40,15 @@ interface ActionContractsOptions {
     contract_address: Address;
     action: string;
     fee: BN;
+    args: MessagePackable;
+    signer: Entity;
+    shard_mask: BitVectorLike;
+}
+
+interface ActionFactoryContractsOptions {
+    contract_address: Address;
+    action: string;
+    fee: BN;
     from_address: Address;
     args: MessagePackable;
     signers: Array<Entity>;
@@ -126,9 +135,8 @@ export class ContractsApi extends ApiEndpoint {
             contract_address,
             action,
             fee,
-            from_address,
             args,
-            signers,
+            signer,
             shard_mask = null
         }: ActionContractsOptions
     ): Promise<any> {
@@ -136,13 +144,13 @@ export class ContractsApi extends ApiEndpoint {
             contract_address: contract_address,
             action: action,
             fee: fee,
-            from_address: from_address,
+            from_address: new Address(signer),
             args: args,
-            signers: signers,
+            signers: [signer],
             shard_mask: shard_mask
         })
 
-        signers.forEach(signer =>  tx.sign(signer))
+        tx.sign(signer)
         await this.set_validity_period(tx)
 
         const encoded_tx = encode_transaction(tx)
@@ -230,7 +238,7 @@ export class ContractTxFactory extends TransactionFactory {
         fee, from_address = null, args,
         signers = null,
         shard_mask = null
-    }: ActionContractsOptions): Promise<Transaction> {
+    }: ActionFactoryContractsOptions): Promise<Transaction> {
 
         shard_mask = shard_mask || new BitVector()
 

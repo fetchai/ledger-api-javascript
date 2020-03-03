@@ -1,6 +1,6 @@
 import {Address, Entity} from '../../fetchai/ledger/crypto'
 import {Contract} from '../../fetchai/ledger/contract'
-import {RunTimeError} from '../../fetchai/ledger/errors'
+import {RunTimeError, ValidationError} from '../../fetchai/ledger/errors'
 import {calc_digest, RAND_FP} from '../utils/helpers'
 import {default as btoa} from 'btoa'
 import {createHash} from 'crypto'
@@ -101,6 +101,18 @@ describe(':Test Contract', () => {
     })
 
 
+
+    test.skip('test action', () => {
+         // create contract
+        const owner = new Entity()
+        const contract = new Contract(SIMPLE_CONTRACT, owner)
+
+
+
+    })
+
+
+
     test.skip('test create', () => {
 
         // create contract
@@ -155,6 +167,25 @@ describe(':Test Contract', () => {
             api.create(api, owner, 100)
         }).toThrow(RunTimeError)
 
+    })
+
+    test('test single entity conversion', () => {
+        const entity = new Entity()
+        expect(entity.public_key_hex()).toBe(Contract.convert_to_single_entity(entity).public_key_hex())
+    })
+
+
+    test('test single array conversion', () => {
+        const entity = new Entity()
+        expect(entity.public_key_hex()).toBe(Contract.convert_to_single_entity([entity]).public_key_hex())
+    })
+
+
+    test('test error multiple item array conversion throws validation error', () => {
+        const entity = new Entity()
+        expect(() => {
+            Contract.convert_to_single_entity([entity, entity])
+        }).toThrow(ValidationError)
     })
 
 })
