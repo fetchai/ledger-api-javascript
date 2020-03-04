@@ -46,7 +46,7 @@ interface ActionContractOptions {
     api: LedgerApi;
     name: string;
     fee: NumericInput;
-    signer:  Entity | Array<Entity> | null;
+    signer:  Entity | Array<Entity>;
      args: MessagePackable;
 }
 

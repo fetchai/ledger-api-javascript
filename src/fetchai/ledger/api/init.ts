@@ -39,12 +39,25 @@ export class LedgerApi {
         this.server = new ServerApi(host, port, this);
     }
 
+    /**
+     * Get a Ledger API Object from network name eg 'mainnet'
+     *
+     * @throws IncompatibleLedgerVersionError if this SDK is not of a compatible version with Ledger SDK
+     * @param network
+     */
     static async from_network_name(network): Promise<LedgerApi>
     {
         const [host, port] = await Bootstrap.server_from_name(network)
+        await LedgerApi.check_version_compatibility(host, port)
         return new LedgerApi(host, port);
     }
 
+    /**
+     * Checks that the SDK is itself of a compatible version with the Ledger it is connecting to,
+     *
+     * @param host
+     * @param port
+     */
     static async check_version_compatibility(host: string, port: number): Promise<true> {
         const api = new LedgerApi(host, port);
         const server_version = await api.server.version();
