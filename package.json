@@ -1,6 +1,6 @@
 {
   "name": "fetchai-ledger-api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fetch.AI Ledger Javascript API",
   "main": "./dist/fetchai/ledger/index.js",
   "source": "src/ledger/index.js",
