@@ -5,7 +5,7 @@ type Tuple = [string, string];
 
 export default jest.fn((request) => {
 
-    const requests = [stake, create, stake_cooldown, collect_stake, deed, balance, balance_token, de_stake, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content]
+    const requests = [stake, create, stake_cooldown, collect_stake, deed, balance, balance_token, de_stake, contract_wealth, contract_status, contract_create, status_chain, status, server_status, query_contract, get_bad_ledger_address, get_bad_ledger_address_2, get_good_ledger_address, list_servers, list_servers_false, contract_action, tx_content, version]
     let req, res
     for (let i = 0; i < requests.length; i++) {
         [req, res] = requests[i].call(this)
@@ -15,7 +15,6 @@ export default jest.fn((request) => {
             return Promise.resolve(res)
         }
     }
-
 })
 
 function create(): Tuple {
@@ -122,6 +121,13 @@ function list_servers_false(): Tuple {
 
 
 function server_status(): Tuple {
+    return [
+        JSON.parse(`{"method":"get","url":"https://foo.bar:500/api/status"}`),
+        JSON.parse('{"status": 200, "data": {"lanes": 4, "version": "0.9.0"}}')
+    ]
+}
+
+function version(): Tuple {
     return [
         JSON.parse(`{"method":"get","url":"http://${LOCAL_HOST}:${DEFAULT_PORT}/api/status"}`),
         JSON.parse('{"data": {"lanes": 4, "version": "0.9.0"}}')

@@ -20,8 +20,7 @@ async function main() {
     const private_key_hex = '6e8339a0c6d51fc58b4365bf2ce18ff2698d2b8c40bb13fcef7e1ba05df18e4b'
     const entity = Entity.from_hex(private_key_hex)
     const address = new Address(entity)
-    console.log('Address:', address)
-
+    console.log('Address:', address.toString())
     // create the APIs
     const api = new LedgerApi(HOST, PORT)
 

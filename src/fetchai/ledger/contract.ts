@@ -15,6 +15,7 @@ import { Entity } from "./crypto/entity";
 import { ServerApi } from "./api/server";
 import {Identity} from "./crypto";
 import {Transaction} from "./transaction";
+import {isArray} from "util";
 
 interface ContractJSONSerialized {
     readonly version: number;
@@ -35,12 +36,18 @@ interface QueryContractOptions {
     data: any;
 }
 
+/**
+ *   Previous versions of the API provided the list of signers as an input, this was mostly done as a work
+    * around for the multi-signature support. This has been deprecated and the signer param should be an Entity
+   * but Array<Entity> is left in for compatibility
+ *
+ */
 interface ActionContractOptions {
     api: LedgerApi;
     name: string;
     fee: NumericInput;
-    args: MessagePackable;
-    signers: Array<Entity> | null;
+    signer:  Entity | Array<Entity>;
+     args: MessagePackable;
 }
 
 const calc_address = (owner: Address, nonce: Buffer): Buffer => {
@@ -237,14 +244,14 @@ export class Contract {
         api,
         name,
         fee,
-        args,
-        signers = null
+        signer = null,
+        args
     }: ActionContractOptions): Promise<any> {
         fee = convert_number(fee);
         // verify if we are used undefined
         if (this._owner === null) {
             throw new RunTimeError(
-                "Contract has no owner, unable to perform any actions. Did you deploy it?"
+                'Contract has no owner, unable to perform any actions. Did you deploy it?'
             );
         }
 
@@ -260,22 +267,31 @@ export class Contract {
         //     );
         // }
 
+        signer = Contract.convert_to_single_entity(signer)
         const num_lanes = await api.server.num_lanes();
         const shard_mask = this.build_shard_mask(num_lanes, name, args)
-        const from_address =
-            signers.length === 1
-                ? new Address(signers[0])
-                : new Address(this._owner);
+
         return api.contracts.action({
             contract_address: this._address,
             action: name,
             fee: fee,
-            from_address: from_address,
             args: args,
-            signers: signers,
+            signer: signer,
             shard_mask: shard_mask
         });
     }
+
+    static convert_to_single_entity(value: Entity | Array<Entity>): Entity
+    {
+        if(value instanceof Entity) return value;
+        if(!isArray(value)
+            || value.length > 1
+            || !(value[0] instanceof Entity))
+            throw new ValidationError('Expected Entity, or Array of Entities (legacy support)')
+        return value[0]
+    }
+
+
 
     to_json_object(): ContractJSONSerialized {
         return {

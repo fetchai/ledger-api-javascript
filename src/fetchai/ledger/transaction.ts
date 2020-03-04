@@ -155,12 +155,6 @@ export class Transaction {
         return this._action
     }
 
-    // compare(other: Transaction): boolean {
-    //     const x = this.payload().toString('hex')
-    //     const y = other.payload().toString('hex')
-    //     return x === y
-    // }
-
     // Get shard_mask param
     shard_mask(): BitVector {
         return this._shard_mask
@@ -282,7 +276,6 @@ export class Transaction {
         return x === y
     }
 
-    //todo SHOULD METHOD REALLY RETURN VOID OR NULL
     merge_signatures(tx2: Transaction): boolean {
         if (!this.compare(tx2)) {
             console.log('Attempting to combine transactions with different payloads');
@@ -293,7 +286,6 @@ export class Transaction {
 
         const payload = this.encode_payload();
 
-        //todo: once working detsructure el as identity and signature in params of for loop.
         tx2.signatures().forEach(el => {
             if (!this.hasSigner(el.identity)) return;
             if (Buffer.byteLength(el.signature) === 0) return;

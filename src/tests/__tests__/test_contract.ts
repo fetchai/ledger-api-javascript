@@ -1,10 +1,12 @@
 import {Address, Entity} from '../../fetchai/ledger/crypto'
 import {Contract} from '../../fetchai/ledger/contract'
-import {RunTimeError} from '../../fetchai/ledger/errors'
-import {calc_digest, RAND_FP} from '../utils/helpers'
+import {RunTimeError, ValidationError} from '../../fetchai/ledger/errors'
+import {calc_digest, DEFAULT_PORT, ENTITIES, LOCAL_HOST, RAND_FP} from '../utils/helpers'
 import {default as btoa} from 'btoa'
 import {createHash} from 'crypto'
 import {MULTIPLE_INITS, SIMPLE_CONTRACT} from '../../contracts/transfer'
+import {LedgerApi} from "../../fetchai/ledger/api";
+
 
 const calc_address = (owner: Address, nonce: Buffer): Buffer => {
     const hash_func = createHash('sha256')
@@ -101,60 +103,43 @@ describe(':Test Contract', () => {
     })
 
 
-    test.skip('test create', () => {
 
-        // create contract
-        // const contract = new Contract(SIMPLE_CONTRACT)
-        // const owner = new Entity()
+    test('test action', async () => {
+         // create contract
 
-        // Mock api for providing number of lanes and receiving create call
-        //              const HOST = '127.0.0.1';
-        // const PORT = 8000;
-        //         const api = new LedgerApi(HOST, PORT)
-        // lane_number = 2
-        // api.server.num_lanes.side_effect = [lane_number]
-        // Mock shard mask static method
-        // dummy_shard_mask = mock.Mock()
-        // mock_shard_mask.side_effect = [dummy_shard_mask]
-        //   contract.create(api, owner, 1000)
-        // Check shard mask gen called with contract digest address
-        //  mock_shard_mask.assert_called_once_with(
-        //    ['fetch.contract.state.{}'.format(contract.digest.to_hex())], lane_number)
-        // Check api create method called
-        //   api.contracts.create.assert_called_once_with(owner, contract, 1000, shard_mask=dummy_shard_mask)
-        // create the contract
-        // const orig = new Contract(SIMPLE_CONTRACT)
+        const owner = new Entity(Buffer.from('19c59b0a4890383eea59539173bfca5dc78e5e99037f4ad65c93d5b777b8720e', 'hex'))
 
-        // encode the contract
-        //   const encoded = orig.dumps()
-        // re-create the contract
-        //   const recreation = Contract.loads(encoded)
-        // checks
-        //  expect( recreation ).toBeInstanceOf(Contract)
-        //    expect(orig.owner()).toMatchObject(recreation.owner())
-        // expect(orig.digest()).toMatchObject(recreation.digest())
-        // expect(orig.source()).toMatchObject(recreation.source())
+        const contract = new Contract(SIMPLE_CONTRACT, owner)
+        const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
+
+        const tok_transfer_amount = 200
+        const fet_tx_fee = 160
+
+        const address1 = new Address(owner)
+        const address2 = new Address(new Entity(Buffer.from('e1b74f6357dbdd0e03ad26afaab04071964ef1c9a0f0abf10edb060e06c890a0', 'hex')))
+
+         const action = await contract.action({api: api, name: 'transfer', fee: fet_tx_fee,  signer: [owner], args: [address1, address2, tok_transfer_amount]})
+        expect(action).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')
     })
 
-    //TODO remove skip when we have etchparser support
-    test.skip('test init', () => {
-        const owner = new Entity()
+
+    test('test single entity conversion', () => {
+        const entity = new Entity()
+        expect(entity.public_key_hex()).toBe(Contract.convert_to_single_entity(entity).public_key_hex())
+    })
+
+
+    test('test single array conversion', () => {
+        const entity = new Entity()
+        expect(entity.public_key_hex()).toBe(Contract.convert_to_single_entity([entity]).public_key_hex())
+    })
+
+
+    test('test error multiple item array conversion throws validation error', () => {
+        const entity = new Entity()
         expect(() => {
-            new Contract(MULTIPLE_INITS, owner)
-        }).toThrow(RunTimeError)
-
-
-        // Test successful creation without init (to support local etch testing)
-        // expect(() => {
-        //    let contract = new Contract(MULTIPLE_INITS, owner)
-        // }).toThrow(RunTimeError)
-        // create ledgerAPI instance without calling its es6 constructor
-        const api = Object.create(Contract.prototype)
-
-        expect(() => {
-            api.create(api, owner, 100)
-        }).toThrow(RunTimeError)
-
+            Contract.convert_to_single_entity([entity, entity])
+        }).toThrow(ValidationError)
     })
 
 })
