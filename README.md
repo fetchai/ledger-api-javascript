@@ -1,5 +1,9 @@
 # Fetch.AI Ledger JavaScript API
 
+![](https://github.com/fetchai/ledger-api-javascript/workflows/CI/badge.svg?branch=master)
+![](https://img.shields.io/npm/v/fetchai-ledger-api)
+![](https://img.shields.io/github/release-date/fetchai/ledger-api-javascript)
+
 Official JavaScript client library for interacting with the Fetch.AI Ledger https://fetch.ai
 
 #### Requirements:
