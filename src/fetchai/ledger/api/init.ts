@@ -1,12 +1,12 @@
 import * as semver from "semver";
 import { __compatible__ } from "../init";
-import { ApiError } from "../errors/apiError";
 import { ContractsApi } from "./contracts";
 import {IncompatibleLedgerVersionError, RunTimeError} from "../errors";
 import { ServerApi } from "./server";
 import { TokenApi } from "./token";
 import { TransactionApi, TxStatus } from "./tx";
 import {Transaction} from "../transaction";
+import {Bootstrap} from "./bootstrap";
 
 const DEFAULT_TIMEOUT = 120;
 
@@ -37,10 +37,15 @@ export class LedgerApi {
         this.contracts = new ContractsApi(host, port, this);
         this.tx = new TransactionApi(host, port, this);
         this.server = new ServerApi(host, port, this);
-        //todo add server version compat test here.
     }
 
-    static async from_network_name(host: string, port: number): Promise<true> {
+    static async from_network_name(network): Promise<LedgerApi>
+    {
+        const [host, port] = await Bootstrap.server_from_name(network)
+        return new LedgerApi(host, port);
+    }
+
+    static async check_version_compatibility(host: string, port: number): Promise<true> {
         const api = new LedgerApi(host, port);
         const server_version = await api.server.version();
         if (
@@ -56,6 +61,8 @@ export class LedgerApi {
         }
         return true;
     }
+
+
 
     /**
      *  Sync the ledger.

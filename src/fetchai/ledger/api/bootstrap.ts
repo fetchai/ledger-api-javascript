@@ -3,6 +3,10 @@ import {IncompatibleLedgerVersionError, NetworkUnavailableError, RunTimeError} f
 import * as semver from 'semver'
 import {__version__} from '../init'
 
+type Tuple = [string, number];
+type AddressTuple = [string, string, number];
+
+
 //todo ask fitzgerald if patch is number. or test oneself then remove.
 interface ServerListItem {
     readonly name: string;
@@ -100,7 +104,7 @@ export class Bootstrap {
      *Splits a url into a protocol, host name and port
      * @param address
      */
-    static split_address(address: string): Array<string | number> {
+    static split_address(address: string): AddressTuple {
         let protocol, port
 
         if (address.includes('://')) {
@@ -123,7 +127,9 @@ export class Bootstrap {
      * Queries bootstrap for the requested network and returns connection details
      * @param network
      */
-    static async server_from_name(network: string): Promise<Array<string | number>> {
+
+
+    static async server_from_name(network: string): Promise<Tuple> {
         //Get list of active servers
         const server_list = await Bootstrap.list_servers(true)
         // Check requested network exists and supports our ledger version

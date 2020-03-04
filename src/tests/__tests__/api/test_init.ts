@@ -4,14 +4,18 @@ import {DEFAULT_PORT, LOCAL_HOST} from '../../utils/helpers'
 
 
 describe(':LedgerApi', () => {
-    afterEach(() => {
-        // axios.mockClear()
-    })
 
     test('test server version', async () => {
         expect(async () => {
-            await LedgerApi.from_network_name(LOCAL_HOST, DEFAULT_PORT)
+            await LedgerApi.check_version_compatibility(LOCAL_HOST, DEFAULT_PORT)
         }).not.toThrow(IncompatibleLedgerVersionError)
+    })
+
+    test('test ledger from network name', async () => {
+          const ledgerApi = await LedgerApi.from_network_name('alpha')
+         expect(ledgerApi).toBeInstanceOf(LedgerApi)
+         expect(ledgerApi.tokens.host()).toBe("foo.bar")
+         expect(ledgerApi.tokens.port()).toBe(500)
     })
 
     test('test balance', async () => {

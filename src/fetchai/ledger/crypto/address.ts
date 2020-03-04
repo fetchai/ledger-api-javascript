@@ -22,9 +22,6 @@ export class Address {
      * @throws {ValidationError} ValidationError on any failures.
      */
     constructor(identity: AddressLike) {
-
-        if (typeof identity == 'undefined') debugger
-
         if (typeof identity === 'string') {
             if (!Address.is_address(identity)) {
                 throw new ValidationError('Invalid Address')

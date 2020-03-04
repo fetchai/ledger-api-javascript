@@ -73,11 +73,9 @@ export class ContractsApi extends ApiEndpoint {
      */
     constructor(host: string, port: number, api?: LedgerApi) {
         super(host, port, api)
-        // tidy up before submitting
         this.prefix = PREFIX.CONTRACT
     }
 
-    //static _is_primitive(test: string | number) {
     static is_primitive(test: unknown): boolean {
         return test !== Object(test)
     }
@@ -141,17 +139,17 @@ export class ContractsApi extends ApiEndpoint {
         }: ActionContractsOptions
     ): Promise<any> {
         const tx = await ContractTxFactory.action({
+            from_address: new Address(signer),
             contract_address: contract_address,
             action: action,
             fee: fee,
-            from_address: new Address(signer),
             args: args,
             signers: [signer],
             shard_mask: shard_mask
         })
 
-        tx.sign(signer)
         await this.set_validity_period(tx)
+        tx.sign(signer)
 
         const encoded_tx = encode_transaction(tx)
         return await this.post_tx_json(encoded_tx)
@@ -184,7 +182,6 @@ export class ContractsApi extends ApiEndpoint {
         return params
     }
 
-    //todo refactor out .
     isJSON(o: unknown): boolean {
         if (typeof o !== 'string') {
             try {
