@@ -1,99 +1,37 @@
 # Fetch.AI Ledger JavaScript API
-
 ![](https://github.com/fetchai/ledger-api-javascript/workflows/CI/badge.svg?branch=master)
 ![](https://img.shields.io/npm/v/fetchai-ledger-api)
 ![](https://img.shields.io/github/release-date/fetchai/ledger-api-javascript)
 
-Official JavaScript client library for interacting with the Fetch.AI Ledger https://fetch.ai
+Node.js and Browser Capable Javascript library code for interacting with the Fetch.ai Ledger https://fetch.ai
 
-#### Requirements:
+## Installation
 
-- [Node.js](https://nodejs.org/en/)
-- [Npm](https://www.npmjs.com/get-npm)
+   $ npm i fetchai-ledger-api
 
-#### Installation
+## Examples
 
-```
-npm install
-```
+Introductory examples document basic library functionality:
 
-#### Testing:
+- [Introductory Examples](https://github.com/fetchai/ledger-api-javascript/blob/master/src/examples/introduction.js)
 
-```
-npm run test
-```
+Further examples document advanced library functionality such as the submission of transactions, deeds, contracts and submitting actions on contracts to the Fetch.ai Ledger:
 
-#### To Debug Jest Tests Graphically:
+- [Repo Examples](https://github.com/fetchai/ledger-api-javascript/blob/master/src/examples)
 
-Open In Chrome the following URL:
+The project is a component of a larger ecosystem of projects for developing on the Fetch.ai's platform. Please check out some of the links below:
 
-```
-chrome://inspect
-```
+- [Developer Portal](https://developer.fetch.ai/)
 
-Click on "Open dedicated DevTools for Node"
+## License
 
-In terminal under project directory
-```
-npm run test:debug
-```
+This application is licensed under the Apache software license (see LICENSE file). Unless required by
+applicable law or agreed to in writing, software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
-Note: optionally set breakpoint by typing "debugger;" within your code
+Fetch.AI makes no representation or guarantee that this software (including any third-party libraries)
+will perform as intended or will be free of errors, bugs or faulty code. The software may fail which
+could completely or partially limit functionality or compromise computer systems. If you use or
+implement the ledger, you do so at your own risk. In no event will Fetch.ai be liable to any party
+for any damages whatsoever, even if it had been advised of the possibility of damage.
 
-
-#### To Generate the docs:
-
-```
-npm run generate-docs
-```
-
-Note: It will create  `docs/` directory. Open `index.html` in browser to see the generated document.
-
-
-#### Test Example:
-
-- Balance:
-
-  ` make balance `
-
-- wealth:
-
-  ` make wealth `
-
-#### Directories:
-```
-- examples: Working examples of ledger javascript apis
-- fetchai: All javascript api for ledger
-- tests: Test cases
-```
-
-#### Building this library:
-
-To build this repository(dist)
-
-```
-npm run build
-```
-
-#### Linting
-
-```
-make lint
-```
-
-
-#### Check transaction status:
-
-` curl 127.0.0.1:8000/api/status/tx/<tx_hash> `
-
-##### Output:
-
-```
-{"charge_rate": 0, "charge": 0, "exit_code": 0, "fee": 0, "tx": "/X66ZMfPKuQ4HE63gQBmbfAGWxnhUoT1t3IMYYTOZJU=", "status": "Unknown"}
-```
-
-#### Install updated google chrome stable version:
-
-```
-sudo apt-get upgrade google-chrome-stable
-```

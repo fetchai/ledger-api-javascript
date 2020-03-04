@@ -1,3 +1,15 @@
+// *************************************
+// ***** Importing the library *****
+// *************************************
+
+
+/** Import from /dist/fetchai/ledger/path/to/class with Javascript
+* Import from as above or  /src/fetchai/ledger with Typescript
+* Include /index.js for vanilla page includes
+* This includes the whole library as a single object called Fetchai
+* Access classes with dot notation eg Entity as Fetchai.Entity
+* Run examples from <project root>/dist/examples/<example file name> **/
+
 import {Entity} from '../fetchai/ledger/crypto/entity'
 import {Address} from '../fetchai/ledger/crypto/address'
 import {Identity} from '../fetchai/ledger/crypto'

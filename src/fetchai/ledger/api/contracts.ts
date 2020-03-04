@@ -40,6 +40,15 @@ interface ActionContractsOptions {
     contract_address: Address;
     action: string;
     fee: BN;
+    args: MessagePackable;
+    signer: Entity;
+    shard_mask: BitVectorLike;
+}
+
+interface ActionFactoryContractsOptions {
+    contract_address: Address;
+    action: string;
+    fee: BN;
     from_address: Address;
     args: MessagePackable;
     signers: Array<Entity>;
@@ -64,11 +73,9 @@ export class ContractsApi extends ApiEndpoint {
      */
     constructor(host: string, port: number, api?: LedgerApi) {
         super(host, port, api)
-        // tidy up before submitting
         this.prefix = PREFIX.CONTRACT
     }
 
-    //static _is_primitive(test: string | number) {
     static is_primitive(test: unknown): boolean {
         return test !== Object(test)
     }
@@ -126,24 +133,23 @@ export class ContractsApi extends ApiEndpoint {
             contract_address,
             action,
             fee,
-            from_address,
             args,
-            signers,
+            signer,
             shard_mask = null
         }: ActionContractsOptions
     ): Promise<any> {
         const tx = await ContractTxFactory.action({
+            from_address: new Address(signer),
             contract_address: contract_address,
             action: action,
             fee: fee,
-            from_address: from_address,
             args: args,
-            signers: signers,
+            signers: [signer],
             shard_mask: shard_mask
         })
 
-        signers.forEach(signer =>  tx.sign(signer))
         await this.set_validity_period(tx)
+        tx.sign(signer)
 
         const encoded_tx = encode_transaction(tx)
         return await this.post_tx_json(encoded_tx)
@@ -176,7 +182,6 @@ export class ContractsApi extends ApiEndpoint {
         return params
     }
 
-    //todo refactor out .
     isJSON(o: unknown): boolean {
         if (typeof o !== 'string') {
             try {
@@ -230,7 +235,7 @@ export class ContractTxFactory extends TransactionFactory {
         fee, from_address = null, args,
         signers = null,
         shard_mask = null
-    }: ActionContractsOptions): Promise<Transaction> {
+    }: ActionFactoryContractsOptions): Promise<Transaction> {
 
         shard_mask = shard_mask || new BitVector()
 
@@ -246,6 +251,7 @@ export class ContractTxFactory extends TransactionFactory {
         // build up the basic transaction information
         const tx = TransactionFactory.create_smart_contract_action_tx({fee: fee, from_address: from_address, contract_address: contract_address,
             action: action, signatories: signers, shard_mask: shard_mask})
+
         tx.data(TransactionFactory.encode_msgpack_payload(args))
         return tx
     }
