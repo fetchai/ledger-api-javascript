@@ -123,34 +123,6 @@ describe(':Test Contract', () => {
     })
 
 
-
-    test('test create', () => {
-
-
-
-    })
-
-    //TODO remove skip when we have etchparser support
-    test.skip('test init', () => {
-        const owner = new Entity()
-        expect(() => {
-            new Contract(MULTIPLE_INITS, owner)
-        }).toThrow(RunTimeError)
-
-
-        // Test successful creation without init (to support local etch testing)
-        // expect(() => {
-        //    let contract = new Contract(MULTIPLE_INITS, owner)
-        // }).toThrow(RunTimeError)
-        // create ledgerAPI instance without calling its es6 constructor
-        const api = Object.create(Contract.prototype)
-
-        expect(() => {
-            api.create(api, owner, 100)
-        }).toThrow(RunTimeError)
-
-    })
-
     test('test single entity conversion', () => {
         const entity = new Entity()
         expect(entity.public_key_hex()).toBe(Contract.convert_to_single_entity(entity).public_key_hex())
