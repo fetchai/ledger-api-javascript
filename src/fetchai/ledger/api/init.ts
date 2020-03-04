@@ -58,7 +58,7 @@ export class LedgerApi {
      * @param host
      * @param port
      */
-    static async check_version_compatibility(host: string, port: number): Promise<true> {
+    static async check_version_compatibility(host: string, port: number): Promise<void> {
         const api = new LedgerApi(host, port);
         const server_version = await api.server.version();
         if (
@@ -68,11 +68,8 @@ export class LedgerApi {
             )
         ) {
             throw new IncompatibleLedgerVersionError(`Ledger version running on server is not compatible with this API  \n
-                                                 Server version: ${server_version} \nExpected version: ${__compatible__.join(
-                ","
-            )}`);
+                                                 Server version: ${server_version} \nExpected version: ${__compatible__.join(",")}`);
         }
-        return true;
     }
 
 
