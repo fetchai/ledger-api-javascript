@@ -5,6 +5,8 @@
 
 Node.js and Browser Capable Javascript library code for interacting with the Fetch.ai ledger platform.
 
+Official JavaScript client library for interacting with the Fetch.AI Ledger https://fetch.ai
+
 ## Installation
 
    $ npm i fetchai-ledger-api
