@@ -3,7 +3,7 @@
 ![](https://img.shields.io/npm/v/fetchai-ledger-api)
 ![](https://img.shields.io/github/release-date/fetchai/ledger-api-javascript)
 
-Node.js and Browser Capable Javascript library code for interacting with the Fetch.ai ledger platform.
+Node.js and Browser Capable Javascript library code for interacting with the Fetch.ai Ledger https://fetch.ai
 
 ## Installation
 
