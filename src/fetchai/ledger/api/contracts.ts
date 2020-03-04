@@ -254,6 +254,7 @@ export class ContractTxFactory extends TransactionFactory {
         // build up the basic transaction information
         const tx = TransactionFactory.create_smart_contract_action_tx({fee: fee, from_address: from_address, contract_address: contract_address,
             action: action, signatories: signers, shard_mask: shard_mask})
+
         tx.data(TransactionFactory.encode_msgpack_payload(args))
         return tx
     }

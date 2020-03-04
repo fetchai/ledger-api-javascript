@@ -1,10 +1,12 @@
 import {Address, Entity} from '../../fetchai/ledger/crypto'
 import {Contract} from '../../fetchai/ledger/contract'
 import {RunTimeError, ValidationError} from '../../fetchai/ledger/errors'
-import {calc_digest, RAND_FP} from '../utils/helpers'
+import {calc_digest, DEFAULT_PORT, ENTITIES, LOCAL_HOST, RAND_FP} from '../utils/helpers'
 import {default as btoa} from 'btoa'
 import {createHash} from 'crypto'
 import {MULTIPLE_INITS, SIMPLE_CONTRACT} from '../../contracts/transfer'
+import {LedgerApi} from "../../fetchai/ledger/api";
+
 
 const calc_address = (owner: Address, nonce: Buffer): Buffer => {
     const hash_func = createHash('sha256')
@@ -102,50 +104,30 @@ describe(':Test Contract', () => {
 
 
 
-    test.skip('test action', () => {
+    test('test action', async () => {
          // create contract
-        const owner = new Entity()
+
+        const owner = new Entity(Buffer.from('19c59b0a4890383eea59539173bfca5dc78e5e99037f4ad65c93d5b777b8720e', 'hex'))
+
         const contract = new Contract(SIMPLE_CONTRACT, owner)
+        const api = new LedgerApi(LOCAL_HOST, DEFAULT_PORT)
 
+        const tok_transfer_amount = 200
+        const fet_tx_fee = 160
 
+        const address1 = new Address(owner)
+        const address2 = new Address(new Entity(Buffer.from('e1b74f6357dbdd0e03ad26afaab04071964ef1c9a0f0abf10edb060e06c890a0', 'hex')))
 
+         const action = await contract.action({api: api, name: 'transfer', fee: fet_tx_fee,  signer: [owner], args: [address1, address2, tok_transfer_amount]})
+        expect(action).toBe('68fa027aea39f85b09ef92cfc1cc13ceec706c6aadc0b908b549d2e57d611516')
     })
 
 
 
-    test.skip('test create', () => {
+    test('test create', () => {
 
-        // create contract
-        // const contract = new Contract(SIMPLE_CONTRACT)
-        // const owner = new Entity()
 
-        // Mock api for providing number of lanes and receiving create call
-        //              const HOST = '127.0.0.1';
-        // const PORT = 8000;
-        //         const api = new LedgerApi(HOST, PORT)
-        // lane_number = 2
-        // api.server.num_lanes.side_effect = [lane_number]
-        // Mock shard mask static method
-        // dummy_shard_mask = mock.Mock()
-        // mock_shard_mask.side_effect = [dummy_shard_mask]
-        //   contract.create(api, owner, 1000)
-        // Check shard mask gen called with contract digest address
-        //  mock_shard_mask.assert_called_once_with(
-        //    ['fetch.contract.state.{}'.format(contract.digest.to_hex())], lane_number)
-        // Check api create method called
-        //   api.contracts.create.assert_called_once_with(owner, contract, 1000, shard_mask=dummy_shard_mask)
-        // create the contract
-        // const orig = new Contract(SIMPLE_CONTRACT)
 
-        // encode the contract
-        //   const encoded = orig.dumps()
-        // re-create the contract
-        //   const recreation = Contract.loads(encoded)
-        // checks
-        //  expect( recreation ).toBeInstanceOf(Contract)
-        //    expect(orig.owner()).toMatchObject(recreation.owner())
-        // expect(orig.digest()).toMatchObject(recreation.digest())
-        // expect(orig.source()).toMatchObject(recreation.source())
     })
 
     //TODO remove skip when we have etchparser support

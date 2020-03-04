@@ -46,8 +46,8 @@ interface ActionContractOptions {
     api: LedgerApi;
     name: string;
     fee: NumericInput;
-    args: MessagePackable;
     signer:  Entity | Array<Entity> | null;
+     args: MessagePackable;
 }
 
 const calc_address = (owner: Address, nonce: Buffer): Buffer => {
@@ -244,8 +244,8 @@ export class Contract {
         api,
         name,
         fee,
-        args,
-        signer = null
+        signer = null,
+        args
     }: ActionContractOptions): Promise<any> {
         fee = convert_number(fee);
         // verify if we are used undefined
