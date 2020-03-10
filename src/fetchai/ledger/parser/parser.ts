@@ -4,11 +4,11 @@ import {Address} from '../crypto/address'
 const FUNC = /function ([\s\S]*?)endfunction/
 const FUNC_NAME_WITH_ANNOTATION = /@[a-z0-9]+[\s]{0,}(function)+[\s]{0,}[a-z0-9]{1,}/
 const PERSISTENT_STATEMENT = /persistent([\s\S]*?);/
-const FUNC_NAME = /(?<=function)([\s\S]*?)(?=\()/
+const FUNC_NAME = /(?:function)([\s\S]*?)(?=\()/
 const USE_STATEMENT = /use([\s\S]*?);/
-const USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME = /(?<=\use).+?(?=\[)/
-const BETWEEN_SQUARE_BRACKETS = /(?<=\[).+?(?=\])/
-const BETWEEN_ROUND_BRACKETS = /(?<=\().+?(?=\))/
+const USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME = /(?:\use).+?(?=\[)/
+const BETWEEN_SQUARE_BRACKETS = /(?:\[)(.+?)(?=\])/
+const BETWEEN_ROUND_BRACKETS = /(?:\()(.+?)(?=\))/
 const SINGLE_LINE_COMMENT = /\/\/.*/
 const MULTI_LINE_COMMENT = /\/\*([\s\S]*?)\*\//
 
@@ -88,7 +88,7 @@ export class Parser {
         // we start by coding only for funcs with params
         if (func_params == null) return ret
 
-        const func_params_arr = func_params[0].split(',')
+        const func_params_arr = func_params[1].split(',')
         // assumes that func param names must be unique, delete when verified this is true
 
         // we create an object of with function param identifiers as the keys, adn type as values
@@ -115,21 +115,21 @@ export class Parser {
             const obj = {} as any
             // if null then use statement has no params, so we deal with it differently.
             if (use_name === null) {
-                const non_paramaterized_use_name = /(?<=use)([\s\S]*?)(?=;)/
+                const non_paramaterized_use_name = /(?:use)([\s\S]*?)(?=;)/
                 // @ts-ignore
                 const identifier: RegExpExecArrayOptionalItems | null = non_paramaterized_use_name.exec(use_statements[i])
 
                 obj.sharded = false
-                obj.identifier = identifier[0].trim()
+                obj.identifier = identifier[1].trim()
                 ret.push(obj)
                 continue
             }
             // all use statements with params should be sharded.
             obj.sharded = true
-            obj.identifier = use_name[0].trim()
+            obj.identifier = use_name[1].trim()
             // @ts-ignore
             const use_params = BETWEEN_SQUARE_BRACKETS.exec(use_statements[i])
-            obj.params = use_params[0].split(',').map(param => param.trim())
+            obj.params = use_params[1].split(',').map(param => param.trim())
             ret.push(obj)
         }
         return ret
@@ -146,7 +146,7 @@ export class Parser {
         let func
 
         for (let i = 0; i < funcs.length; i++) {
-            const name = FUNC_NAME.exec(funcs[i])[0].trim()
+            const name = FUNC_NAME.exec(funcs[i])[1].trim()
             // we get the whole function from the function name
             if (name == func_name) {
                 func = funcs[i]
