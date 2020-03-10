@@ -6,7 +6,7 @@ const FUNC_NAME_WITH_ANNOTATION = /@[a-z0-9]+[\s]{0,}(function)+[\s]{0,}[a-z0-9]
 const PERSISTENT_STATEMENT = /persistent([\s\S]*?);/
 const FUNC_NAME = /(?:function)([\s\S]*?)(?=\()/
 const USE_STATEMENT = /use([\s\S]*?);/
-const USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME = /(?:\use).+?(?=\[)/
+const USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME = /(?:\use)(.+?)(?=\[)/
 const BETWEEN_SQUARE_BRACKETS = /(?:\[)(.+?)(?=\])/
 const BETWEEN_ROUND_BRACKETS = /(?:\()(.+?)(?=\))/
 const SINGLE_LINE_COMMENT = /\/\/.*/
@@ -114,7 +114,7 @@ export class Parser {
             const use_name = USE_STATEMENT_WITH_SQUARE_BRACKETS_NAME.exec(s[i])
             const obj = {} as any
             // if null then use statement has no params, so we deal with it differently.
-            if (use_name === null || use_name.length < 1 || use_name[1] === null) {
+            if (use_name === null) {
                 const non_paramaterized_use_name = /(?:use)([\s\S]*?)(?=;)/
                 // @ts-ignore
                 const identifier: RegExpExecArrayOptionalItems | null = non_paramaterized_use_name.exec(use_statements[i])
